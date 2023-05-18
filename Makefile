@@ -1,12 +1,24 @@
-include ./srcs/.env
-all:
-		docker compose -f ./srcs/docker-compose.yml --env-file ./srcs/.env up --build -d
+FILE=./srcs/docker-compose.yml
+NAME=transcendence
 
+all: up
 up:
-		docker compose -f srcs/docker-compose.yml up -d
-
+	docker compose -f ${FILE} -p ${NAME} up -d
 down:
-		docker compose -f srcs/docker-compose.yml stop
+	docker compose -f ${FILE} -p ${NAME} down
+re: down up
+deep_re: clean_vol up
+config:
+	docker compose -f ${FILE} config
+clean: down
+	@-docker rm -f $$(docker ps -a -q) 2> /dev/null
+clean_vol: clean
+	-docker volume rm $$(docker volume ls -q) 2> /dev/null
+clean_img: clean
+
+fclean: clean_vol clean_img
+
+re:	down up
 
 info:
 		@docker --version

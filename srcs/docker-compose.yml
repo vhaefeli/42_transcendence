@@ -3,29 +3,39 @@ version: '3'
 services:
 
   postgres:
-    container_name: postgres
     image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: betr
+      POSTGRES_PASSWORD: passwd
     ports:
-      - 5001:5432
+      - 5432:5432
     volumes:
       - pgdata:/var/lib/postgresql/data/
+      - ${PWD}/srcs/postgres/setupdb.sh:/docker-entrypoint-initdb.d/setupdb.sh:ro
     networks:
-      - network
+      - pg-network
     env_file: .env
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@pgadmin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    volumes:
+      - ${PWD}/srcs/pgadmin/servers.json:/pgadmin4/servers.json:ro
+    ports:
+      - 80:80
+    networks:
+      - pg-network
+
 
 
 networks:
-  network:
-
-#
-# definition des volumes pour permettre une sauvegarde externe aux containers
-#
+  pg-network:
 
 volumes:
   pgdata:
-    driver: local
-    driver_opts:
-      device: '${VOLUME_DB}'
-      type: volume
-      o: bind
-      
