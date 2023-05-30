@@ -1,9 +1,6 @@
 <template>
-  <div>
-    <TransButton>pouette</TransButton>
-  </div>
+  <RouterView />
 </template>
 
 <script setup >
-  import TransButton from './components/TransButton.vue'
 </script>

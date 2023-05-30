@@ -17,6 +17,12 @@
 
 body {
     background: var(--gray);
+}
+
+#app {
+    background: var(--gray);
+    flex-direction: column;
+    row-gap: 20px;
     padding: 50px;
     display: flex;
     justify-content: center;

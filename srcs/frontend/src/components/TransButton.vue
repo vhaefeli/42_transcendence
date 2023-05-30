@@ -1,7 +1,5 @@
 <template>
-    <div class="t-button">
-        <a href="#"><span><slot>click</slot></span></a>
-    </div>
+    <a href="#"><span><slot>click</slot></span></a>
 </template>
 
 <script setup></script>
@@ -9,13 +7,14 @@
 <style>
     a { 
         text-decoration: none;
+        color: var(--purple);
         font-family: Audiowide;
         font-size: 28px;
         font-weight: 400;
         line-height: 36px;
         letter-spacing: 0em;
         text-align: center;
-        display: inline;
+        display: inline-block;
         background: var(--pink);
         padding: 10px 10px;
         border-top: solid 4px var(--light);
