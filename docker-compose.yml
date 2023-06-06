@@ -4,6 +4,7 @@ services:
   postgres:
     image: postgres
     restart: always
+    user: "${UID}:${GID}"
     volumes:
       - pgdata:/var/lib/postgresql/data/
       - ${PWD}/postgres/setupdb.sh:/docker-entrypoint-initdb.d/setupdb.sh:ro
@@ -17,19 +18,20 @@ services:
   pgadmin:
     image: dpage/pgadmin4
     restart: always
+    init: true
     volumes:
       - ${PWD}/pgadmin/servers.json:/pgadmin4/servers.json:ro
     ports:
       - 5050:80
     networks:
       - pg-network
-        #links:
-        #  - postgres
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@pgadmin.com
       PGADMIN_DEFAULT_PASSWORD: admin
       PGADMIN_CONFIG_SERVER_MODE: 'False'
       PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    depends_on:
+      - postgres
 
   backend:
     build:

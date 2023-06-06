@@ -1,6 +1,9 @@
 FILE=docker-compose.yml
 NAME=transcendence
 
+export UID := $(shell id -u)
+export GID := $(shell id -g)
+
 all: up
 up:
 	@mkdir -p postgres_data
@@ -10,8 +13,6 @@ build:
 	docker compose -f ${FILE} -p ${NAME} up -d --build
 down:
 	docker compose -f ${FILE} -p ${NAME} down
-re:
-	down up
 
 deep_re:
 	clean_vol up
