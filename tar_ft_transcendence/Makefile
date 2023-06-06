@@ -1,17 +1,19 @@
 FILE=docker-compose.yml
 NAME=transcendence
 
-all:
-	docker compose -f ${FILE} -p ${NAME} up -d
-	
+all: up
 up:
+	@mkdir -p postgres_data
 	docker compose -f ${FILE} -p ${NAME} up -d
+build:
+	@mkdir -p postgres_data
+	docker compose -f ${FILE} -p ${NAME} up -d --build
 down:
 	docker compose -f ${FILE} -p ${NAME} down
-re: 
+re:
 	down up
-	
-deep_re: 
+
+deep_re:
 	clean_vol up
 
 config:
@@ -23,7 +25,7 @@ clean: down
 
 clean_vol: clean
 	docker volume rm $$(docker volume ls -q) 2> /dev/null
-	
+
 clean_img: clean
 
 fclean: clean_vol clean_img
