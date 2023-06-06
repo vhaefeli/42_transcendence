@@ -2,8 +2,6 @@ FROM node:lts
 
 WORKDIR /app
 
-COPY . .
-
 RUN yarn global add @vue/cli
 
 EXPOSE 8080
