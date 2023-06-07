@@ -9,13 +9,19 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
+  async CreateToken(id: number, username: string) {
+    return {
+      access_token: await this.jwtService.signAsync({
+        sub: id,
+        username: username,
+      }),
+    };
+  }
+
   async SignIn(username: string, pass: string): Promise<any> {
     const user = await this.usersService.findOne(username);
     if (user?.password !== pass) throw new UnauthorizedException();
 
-    const jwtPayload = { sub: user.id, username: user.username };
-    return {
-      access_token: await this.jwtService.signAsync(jwtPayload),
-    };
+    return this.CreateToken(user.id, user.username);
   }
 }
