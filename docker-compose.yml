@@ -62,7 +62,7 @@ services:
     networks:
       - pg-network
     volumes:
-      - ${VOLUME_FRONT}:/app
+      - frontend:/app
     env_file:
       - .env
     restart: unless-stopped
@@ -88,9 +88,9 @@ volumes:
       type: volume
       o: bind
 
-  # frontend:
-  #   driver: local
-  #   driver_opts:
-  #     device: "${VOLUME_FRONT}"
-  #     type: volume
-  #     o: bind
+  frontend:
+    driver: local
+    driver_opts:
+      device: "${VOLUME_FRONT}"
+      type: volume
+      o: bind
