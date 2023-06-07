@@ -1,0 +1,96 @@
+version: "3"
+
+services:
+  postgres:
+    image: postgres
+    restart: always
+    #user: "${UID}:${GID}"
+    volumes:
+      - pgdata:/var/lib/postgresql/data/
+      - ${PWD}/postgres/setupdb.sh:/docker-entrypoint-initdb.d/setupdb.sh:ro
+    networks:
+      - pg-network
+    environment:
+      POSTGRES_DB: ${DATABASE_DB}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    init: true
+    volumes:
+      - ${PWD}/pgadmin/servers.json:/pgadmin4/servers.json:ro
+    ports:
+      - 5050:80
+    networks:
+      - pg-network
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@pgadmin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    depends_on:
+      - postgres
+
+  backend:
+    build:
+      context: ./docker
+      dockerfile: ./backend.dockerfile
+    init: true
+    ports:
+      - 3000:3000
+    networks:
+      - pg-network
+    volumes:
+      - backend:/app
+    env_file:
+      - .env
+    restart: unless-stopped
+    links:
+      - postgres
+    user: "${UID}:${GID}"
+    depends_on:
+      - postgres
+
+  frontend:
+    build:
+      context: ./docker
+      dockerfile: ./frontend.dockerfile
+    ports:
+      - 8080:8080
+    networks:
+      - pg-network
+    volumes:
+      - frontend:/app
+    env_file:
+      - .env
+    restart: unless-stopped
+    user: "${UID}:${GID}"
+    depends_on:
+      - backend
+
+networks:
+  pg-network:
+
+volumes:
+  pgdata:
+    driver: local
+    driver_opts:
+      device: "${VOLUME_DB}"
+      type: volume
+      o: bind
+
+  backend:
+    driver: local
+    driver_opts:
+      device: "${VOLUME_BACK}"
+      type: volume
+      o: bind
+
+  frontend:
+    driver: local
+    driver_opts:
+      device: "${VOLUME_FRONT}"
+      type: volume
+      o: bind
