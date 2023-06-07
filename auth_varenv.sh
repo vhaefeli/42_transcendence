@@ -9,6 +9,10 @@ else
 		-H 'Content-Type: application/json' \
 		-d '{"username": '\"$username\"', "password": "passwd"}')
 	token=$(echo $data | cut -d"\"" -f4)
-	export JWT_TOKEN=$token
-	echo "saved JWT TOKEN $token"
+	if [ $(echo $data | grep "Unauthorized" | wc -l) -gt 0 ]; then
+		echo "Server returned: 401 Unauthorized"
+	else
+		export JWT_TOKEN=$token
+		echo "saved JWT TOKEN $token"
+	fi
 fi
