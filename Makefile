@@ -3,6 +3,7 @@ NAME=transcendence
 
 export UID := $(shell id -u)
 export GID := $(shell id -g)
+$(shell chmod +x backend/build_dotenv.sh)
 
 all: up
 up:
