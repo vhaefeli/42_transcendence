@@ -24,7 +24,7 @@ import { JwtConfigService } from './jwt.service';
   imports: [
     AuthModule,
     PrismaModule,
-    JwtModule.registerAsync({ useClass: JwtConfigService }),
+    JwtModule.registerAsync({ useClass: JwtConfigService, global: true }),
   ],
   exports: [AuthGuard],
 })
