@@ -5,8 +5,10 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
+import { IS_PUBLIC_KEY } from './auth.service';
 
 //TODO: test authguard in controllers outside of AuthModule
 
@@ -17,11 +19,20 @@ export class AuthGuard implements CanActivate {
   constructor(
     private jwtService: JwtService,
     private configService: ConfigService,
+    private reflector: Reflector,
   ) {
     this.secret = this.configService.get<string>('JWT_SECRET_KEY');
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    if (
+      this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+        context.getHandler(),
+        context.getClass(),
+      ])
+    )
+      return true;
+
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     if (!token) throw new UnauthorizedException();
