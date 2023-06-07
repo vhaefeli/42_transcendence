@@ -1,0 +1,40 @@
+@import "./assets/stylesheets/button.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --light: #ffffff;
+    --dark: #000000;
+    --gray: #B7B7B7;
+
+    --pink: #ED9CDB;
+    --purple: #5C14D0;
+    --orange: #EA7F35;
+
+    --green: #00FFA3;
+    --red: #EA4B35;
+}
+
+body {
+    background: var(--gray);
+}
+
+h1 {
+    font-size: 52px;
+}
+
+h2 {
+    font-size: 22px;
+}
+
+#app {
+    background: var(--gray);
+    flex-direction: column;
+    row-gap: 20px;
+    padding: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+}

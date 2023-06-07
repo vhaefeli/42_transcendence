@@ -55,18 +55,18 @@ services:
 
   frontend:
     build:
-      context: ./docker
+      context: ./frontend
       dockerfile: ./frontend.dockerfile
     ports:
-      - 8080:8080
+      - 5173:5173
     networks:
       - pg-network
     volumes:
-      - frontend:/app
+      - ${VOLUME_FRONT}:/app
     env_file:
       - .env
     restart: unless-stopped
-    user: "${UID}:${GID}"
+    # user: "${UID}:${GID}"
     depends_on:
       - backend
 
@@ -88,9 +88,9 @@ volumes:
       type: volume
       o: bind
 
-  frontend:
-    driver: local
-    driver_opts:
-      device: "${VOLUME_FRONT}"
-      type: volume
-      o: bind
+  # frontend:
+  #   driver: local
+  #   driver_opts:
+  #     device: "${VOLUME_FRONT}"
+  #     type: volume
+  #     o: bind
