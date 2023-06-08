@@ -11,7 +11,7 @@ export class UserController {
   constructor(private userService: UsersService) {}
 
   @Public()
-  @Get()
+  @Get('/all')
   async getUsers() {
     return await this.userService.findAll();
   }
