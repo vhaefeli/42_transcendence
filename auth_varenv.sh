@@ -7,7 +7,7 @@ else
 	password=$2
 	data=$(curl -s -X POST localhost:3000/auth/login \
 		-H 'Content-Type: application/json' \
-		-d '{"username": '\"$username\"', "password": "passwd"}')
+		-d '{"username": '\"$username\"', "password": '\"$password\"'}')
 	token=$(echo $data | cut -d"\"" -f4)
 	if [ $(echo $data | grep "Unauthorized" | wc -l) -gt 0 ]; then
 		echo "Server returned: 401 Unauthorized"
