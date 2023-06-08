@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, Logger } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import { CreateUserDto } from 'src/user/create-user.dto';
@@ -33,7 +33,7 @@ export class UsersService {
     });
   }
 
-  async new(usr: CreateUserDto): Promise<any> {
+  async new(usr: CreateUserDto): Promise<{ id: number; username: string }> {
     if (await this.isUsernameInUse(usr.username)) throw new ConflictException();
 
     return await this.prisma.user.create({
@@ -49,17 +49,25 @@ export class UsersService {
   }
 
   async updateUsername(
-    oldUsername: string,
-    newUsername: string,
-  ): Promise<boolean> {
-    if (await this.isUsernameInUse(newUsername)) return false;
-    await this.prisma.user.update({
-      where: { username: oldUsername },
-      data: {
-        username: newUsername,
-      },
-    });
-    return true;
+    id: number,
+    new_username: string,
+  ): Promise<{ id: number; username: string }> {
+    try {
+      const updated = await this.prisma.user.update({
+        where: { id: id },
+        data: {
+          username: new_username,
+        },
+        select: {
+          id: true,
+          username: true,
+        },
+      });
+      return updated;
+    } catch (e) {
+      if ((e.code = 'P2002')) throw new ConflictException();
+      Logger.error(e.code + ' ' + e.message);
+    }
   }
 
   async deleteUser(userName: string) {

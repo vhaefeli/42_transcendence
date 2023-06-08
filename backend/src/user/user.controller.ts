@@ -1,4 +1,12 @@
-import { Post, Get, Body, Controller, Delete, Param } from '@nestjs/common';
+import {
+  Post,
+  Get,
+  Body,
+  Controller,
+  Delete,
+  Param,
+  Request,
+} from '@nestjs/common';
 import { CreateUserDto } from './create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { UpdateUsernameDto } from './update-username.dto';
@@ -23,15 +31,14 @@ export class UserController {
   }
 
   @Post('update-username')
-  async updateUsername(@Body() updateUsernameDto: UpdateUsernameDto) {
-    if (
-      await this.userService.updateUsername(
-        updateUsernameDto.oldUsername,
-        updateUsernameDto.newUsername,
-      )
-    )
-      return `Username changed succesfully`;
-    else return `Username ${updateUsernameDto.newUsername} is already in use`;
+  async updateUsername(
+    @Body() updateUsernameDto: UpdateUsernameDto,
+    @Request() req: any,
+  ) {
+    return await this.userService.updateUsername(
+      req.user.sub,
+      updateUsernameDto.new_username,
+    );
   }
 
   @Delete('delete')

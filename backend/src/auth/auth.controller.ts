@@ -14,7 +14,7 @@ export class AuthController {
   }
 
   @Get('info')
-  testAuth(@Request() req) {
+  testAuth(@Request() req: any) {
     return req.user;
   }
 }
