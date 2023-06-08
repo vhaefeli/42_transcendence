@@ -6,8 +6,9 @@ services:
     restart: always
     #user: "${UID}:${GID}"
     volumes:
-      - pgdata:/var/lib/postgresql/data/
-      - ${PWD}/postgres/setupdb.sh:/docker-entrypoint-initdb.d/setupdb.sh:ro
+      
+      - ./postgres_data:/var/lib/postgresql/data/
+      - ./postgres/setupdb.sh:/docker-entrypoint-initdb.d/setupdb.sh:ro
     networks:
       - pg-network
     environment:
@@ -43,7 +44,7 @@ services:
     networks:
       - pg-network
     volumes:
-      - backend:/app
+      - ./backend:/app
     env_file:
       - .env
     restart: unless-stopped
@@ -58,15 +59,15 @@ services:
       context: ./docker
       dockerfile: ./frontend.dockerfile
     ports:
-      - 5173:5173
+      - 8080:8080
     networks:
       - pg-network
     volumes:
-      - frontend:/app
+      - ./frontend:/app
     env_file:
       - .env
     restart: unless-stopped
-    # user: "${UID}:${GID}"
+    #user: "${UID}:${GID}"
     depends_on:
       - backend
 
@@ -81,16 +82,16 @@ volumes:
       type: volume
       o: bind
 
-  backend:
-    driver: local
-    driver_opts:
-      device: "${VOLUME_BACK}"
-      type: volume
-      o: bind
+#  backend:
+  #   driver: local
+  #   driver_opts:
+  #     device: ${PWD}/backend
+  #     type: volume
+  #     o: bind
 
-  frontend:
-    driver: local
-    driver_opts:
-      device: "${VOLUME_FRONT}"
-      type: volume
-      o: bind
+  # frontend:
+  #   driver: local
+  #   driver_opts:
+  #     device: "${VOLUME_FRONT}"
+  #     type: volume
+  #     o: bind
