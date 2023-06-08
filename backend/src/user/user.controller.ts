@@ -10,7 +10,6 @@ import {
 import { CreateUserDto } from './create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { UpdateUsernameDto } from './update-username.dto';
-import { DeleteUserDto } from './delete-user.dto';
 import { FriendInfoDto } from './friend-info.dto';
 import { Public } from 'src/auth/auth.guard';
 
@@ -42,9 +41,9 @@ export class UserController {
   }
 
   @Delete('delete')
-  async deleteUser(@Body() deleteUserDto: DeleteUserDto) {
-    await this.userService.deleteUser(deleteUserDto.userName);
-    return `User ${deleteUserDto.userName} was deleted`;
+  async deleteUser(@Request() req: any) {
+    await this.userService.deleteUser(req.user.sub);
+    return;
   }
 
   @Get(':user/friends/')

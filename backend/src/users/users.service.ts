@@ -70,10 +70,15 @@ export class UsersService {
     }
   }
 
-  async deleteUser(userName: string) {
-    await this.prisma.user.delete({
-      where: { username: userName },
-    });
+  async deleteUser(id: number) {
+    try {
+      await this.prisma.user.delete({
+        where: { id: id },
+      });
+    } catch (e) {
+      if ((e.code = 'P2002')) throw new ConflictException();
+      Logger.error(e.code + ' ' + e.message);
+    }
   }
 
   async getFriends(username: string) {
