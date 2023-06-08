@@ -13,18 +13,13 @@ export class UserController {
   @Public()
   @Get()
   async getUsers() {
-    return `List of users:\n${JSON.stringify(
-      await this.userService.findAll(),
-      null,
-      4,
-    )}`;
+    return await this.userService.findAll();
   }
 
+  @Public()
   @Post('new')
   async create(@Body() createUserDto: CreateUserDto) {
-    if (await this.userService.new(createUserDto))
-      return `User ${createUserDto.username} was created`;
-    else return `User ${createUserDto.username} already exists`;
+    return await this.userService.new(createUserDto);
   }
 
   @Post('update-username')

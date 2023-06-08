@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import { CreateUserDto } from 'src/user/create-user.dto';
@@ -33,16 +33,19 @@ export class UsersService {
     });
   }
 
-  async new(usr: CreateUserDto): Promise<boolean> {
-    if (await this.isUsernameInUse(usr.username)) return false;
+  async new(usr: CreateUserDto): Promise<any> {
+    if (await this.isUsernameInUse(usr.username)) throw new ConflictException();
 
-    await this.prisma.user.create({
+    return await this.prisma.user.create({
       data: {
         username: usr.username,
         password: usr.password,
       },
+      select: {
+        id: true,
+        username: true,
+      },
     });
-    return true;
   }
 
   async updateUsername(
