@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserController } from './user/user.controller';
@@ -18,7 +18,7 @@ import { AuthGuard } from './auth/auth.guard';
       isGlobal: true,
     }),
     PrismaModule,
-    AuthModule,
+    forwardRef(() => AuthModule),
   ],
   controllers: [AppController, UserController, InviteController],
   providers: [
@@ -30,5 +30,6 @@ import { AuthGuard } from './auth/auth.guard';
       useClass: AuthGuard,
     },
   ],
+  exports: [UsersService],
 })
 export class AppModule {}

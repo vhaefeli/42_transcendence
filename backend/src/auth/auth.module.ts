@@ -1,8 +1,8 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
+import { AppModule } from 'src/app.module';
 import { PrismaModule } from 'src/prisma/prisma.module';
-import { UsersService } from 'src/users/users.service';
 import { AuthController } from './auth.controller';
 import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
@@ -12,9 +12,7 @@ import { JwtConfigService } from './jwt.service';
   controllers: [AuthController],
   providers: [
     AuthService,
-    UsersService,
     JwtConfigService,
-    AuthService,
     AuthGuard,
     {
       provide: APP_GUARD,
@@ -22,10 +20,10 @@ import { JwtConfigService } from './jwt.service';
     },
   ],
   imports: [
-    AuthModule,
     PrismaModule,
+    forwardRef(() => AppModule),
     JwtModule.registerAsync({ useClass: JwtConfigService, global: true }),
   ],
-  exports: [AuthGuard],
+  exports: [AuthGuard, AuthService],
 })
 export class AuthModule {}

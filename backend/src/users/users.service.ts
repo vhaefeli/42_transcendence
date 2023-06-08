@@ -1,11 +1,23 @@
-import { ConflictException, Injectable, Logger } from '@nestjs/common';
+import {
+  ConflictException,
+  forwardRef,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { User } from '@prisma/client';
+import { AuthService } from 'src/auth/auth.service';
 import { PrismaService } from 'src/prisma.service';
 import { CreateUserDto } from 'src/user/create-user.dto';
+import { UpdateUsernameReturnDto } from 'src/user/update-username-return.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => AuthService))
+    private authService: AuthService,
+  ) {}
 
   async findOne(username: string): Promise<User> {
     return await this.prisma.user.findUnique({
@@ -51,9 +63,9 @@ export class UsersService {
   async updateUsername(
     id: number,
     new_username: string,
-  ): Promise<{ id: number; username: string }> {
+  ): Promise<UpdateUsernameReturnDto> {
     try {
-      const updated = await this.prisma.user.update({
+      const updated: UpdateUsernameReturnDto = await this.prisma.user.update({
         where: { id: id },
         data: {
           username: new_username,
@@ -63,6 +75,9 @@ export class UsersService {
           username: true,
         },
       });
+      updated.access_token = (
+        await this.authService.CreateToken(updated.id, updated.username)
+      ).access_token;
       return updated;
     } catch (e) {
       if ((e.code = 'P2002')) throw new ConflictException();
