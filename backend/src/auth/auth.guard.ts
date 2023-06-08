@@ -9,6 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
+import { PrismaService } from 'src/prisma.service';
 
 export const IS_PUBLIC_KEY = 'isPublic';
 export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
@@ -21,6 +22,7 @@ export class AuthGuard implements CanActivate {
     private jwtService: JwtService,
     private configService: ConfigService,
     private reflector: Reflector,
+    private prisma: PrismaService,
   ) {
     this.secret = this.configService.get<string>('JWT_SECRET_KEY');
   }
@@ -42,6 +44,12 @@ export class AuthGuard implements CanActivate {
         secret: this.secret,
       });
       request['user'] = payload;
+      await this.prisma.user.findFirstOrThrow({
+        where: {
+          id: payload.sub,
+          username: payload.username,
+        },
+      });
     } catch {
       throw new UnauthorizedException();
     }
