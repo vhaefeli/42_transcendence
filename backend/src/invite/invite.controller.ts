@@ -1,20 +1,14 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { FriendshipInvitationDto } from './friendship-invitation.dto';
+import { Controller, Get, Param, Post, Request } from '@nestjs/common';
 import { InviteService } from './invite.service';
 
 @Controller('invite')
 export class InviteController {
   constructor(private inviteService: InviteService) {}
 
-  @Post()
-  async friendshipInvitation(
-    @Body() friendshipInvitationDto: FriendshipInvitationDto,
-  ) {
-    this.inviteService.createInvitation(
-      friendshipInvitationDto.from_username,
-      friendshipInvitationDto.to_username,
-    );
-    return `Friendship invitation sent to ${friendshipInvitationDto.to_username}`;
+  @Post(':username')
+  async friendshipInvitation(@Param() params: any, @Request() req: any) {
+    await this.inviteService.createInvitation(req.user.sub, params.username);
+    return;
   }
 
   @Get(':user')

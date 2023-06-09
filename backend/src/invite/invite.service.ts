@@ -1,4 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { PrismaService } from 'src/prisma.service';
 import { UsersService } from 'src/users/users.service';
 
@@ -7,20 +13,32 @@ export class InviteService {
   constructor(
     private prisma: PrismaService,
     private usersService: UsersService,
-  ) {}
+  ) {
+    prisma.$use(async (params, next) => {
+      if (
+        params.model == 'FriendshipInvitation' &&
+        params.action == 'create' &&
+        (await prisma.friendshipInvitation.findFirst({
+          where: {
+            from: { username: params.args['data']?.to.connect.username },
+            toId: params.args['data']?.from.connect.id,
+          },
+        }))
+      ) {
+        throw new ConflictException();
+      }
+      return next(params);
+    });
+  }
 
-  async createInvitation(from_user: string, to_user: string) {
+  async createInvitation(from_id: number, to_user: string) {
     const from = await this.prisma.user.findUnique({
-      where: { username: from_user },
+      where: { id: from_id },
     });
     const to = await this.prisma.user.findUnique({
       where: { username: to_user },
     });
 
-    if (from == null || to == null || from.id == to.id) {
-      Logger.error(`user ${from} or ${to} does not exist`);
-      return;
-    }
     try {
       await this.prisma.friendshipInvitation.create({
         data: {
@@ -28,16 +46,16 @@ export class InviteService {
             connect: { username: to_user },
           },
           from: {
-            connect: { username: from_user },
+            connect: { id: from_id },
           },
         },
       });
     } catch (e) {
-      if (e.code == 'P2002') Logger.log('FriendshipInvitation already exists');
-      else {
-        Logger.error(e.code);
-        Logger.error(e.message);
-      }
+      if (e.code == 'P2002') throw new ConflictException();
+      if (e.code == 'P2025') throw new NotFoundException();
+      if (e instanceof ConflictException) throw new ConflictException();
+      Logger.error(e.code);
+      Logger.error(e.message);
     }
   }
 
