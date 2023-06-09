@@ -26,5 +26,4 @@ model FriendshipInvitation {
   to		User	@relation(name: "to_user", fields: [toId], references: [id])
   toId		Int
   @@id([fromId, toId])
-  @@unique([toId, fromId])
 }
