@@ -1,4 +1,11 @@
-import { Controller, Get, Param, Post, Request } from '@nestjs/common';
+import {
+  ConflictException,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Request,
+} from '@nestjs/common';
 import { InviteService } from './invite.service';
 
 @Controller('invite')
@@ -11,6 +18,7 @@ export class InviteController {
 
   @Post(':username')
   async sendFriendshipInvitation(@Param() params: any, @Request() req: any) {
+    if (req.user.username == params.username) throw new ConflictException();
     await this.inviteService.createInvitation(req.user.sub, params.username);
     return;
   }
@@ -20,13 +28,12 @@ export class InviteController {
     return await this.inviteService.findInvitationsReceived(req.user.sub);
   }
 
-  @Post('accept/:to_user/:from_user')
-  async acceptInvitation(@Param() params: any) {
-    const from_user = await this.inviteService.acceptInvitation(
-      params.from_user,
-      params.to_user,
+  @Post('accept/:from_username')
+  async acceptInvitation(@Param() params: any, @Request() req: any) {
+    await this.inviteService.acceptInvitation(
+      params.from_username,
+      req.user.sub,
     );
-    if (from_user == null) return `No invitation with id ${params.id}`;
-    return `Accepted invitation from ${from_user}`;
+    return;
   }
 }

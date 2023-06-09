@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
@@ -31,6 +32,9 @@ export class InviteService {
   }
 
   async createInvitation(from_id: number, to_user: string) {
+    (await this.usersService.getFriends(from_id)).forEach((element) => {
+      if (element.username == to_user) throw new ConflictException();
+    });
     try {
       await this.prisma.friendshipInvitation.create({
         data: {
@@ -70,19 +74,17 @@ export class InviteService {
     return usr;
   }
 
-  async acceptInvitation(from_user: string, to_user: string): Promise<string> {
+  async acceptInvitation(from_username: string, id: number) {
     try {
-      const from = await this.prisma.user.findUnique({
-        where: { username: from_user },
-      });
-      const to = await this.prisma.user.findUnique({
-        where: { username: to_user },
-      });
       const invitation = await this.prisma.friendshipInvitation.delete({
         where: {
           fromId_toId: {
-            fromId: from.id,
-            toId: to.id,
+            fromId: (
+              await this.prisma.user.findUnique({
+                where: { username: from_username },
+              })
+            ).id,
+            toId: id,
           },
         },
         select: {
@@ -93,31 +95,23 @@ export class InviteService {
           },
         },
       });
-      if (!(await this.createFriendship(invitation.fromId, invitation.toId)))
-        Logger.error('Invalid user ids');
-      return invitation.from.username;
+      await this.createFriendship(invitation.fromId, invitation.toId);
     } catch (e) {
-      if (e.code == 'P2025')
-        Logger.log(
-          `InviteService::acceptInvitation: invitation does not exist`,
-        );
-      else Logger.error(e);
-      return null;
+      if (e.code == 'P2025') throw new NotFoundException();
+      if (e instanceof InternalServerErrorException) throw e;
+      Logger.error(e.code + ' ' + e.msg);
     }
   }
 
-  async createFriendship(id1: number, id2: number): Promise<boolean> {
-    const from = await this.prisma.user.findUnique({ where: { id: id1 } });
-    const to = await this.prisma.user.findUnique({ where: { id: id2 } });
-    if (id1 == id2 || from == null || to == null) return false;
+  async createFriendship(id1: number, id2: number) {
+    if (id1 == id2) throw new InternalServerErrorException();
     await this.prisma.user.update({
-      where: { id: from.id },
+      where: { id: id1 },
       data: {
         friends_added: {
-          connect: { id: to.id },
+          connect: { id: id2 },
         },
       },
     });
-    return true;
   }
 }
