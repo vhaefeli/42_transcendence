@@ -4,7 +4,6 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { PrismaService } from 'src/prisma.service';
 import { UsersService } from 'src/users/users.service';
 
@@ -32,13 +31,6 @@ export class InviteService {
   }
 
   async createInvitation(from_id: number, to_user: string) {
-    const from = await this.prisma.user.findUnique({
-      where: { id: from_id },
-    });
-    const to = await this.prisma.user.findUnique({
-      where: { username: to_user },
-    });
-
     try {
       await this.prisma.friendshipInvitation.create({
         data: {
