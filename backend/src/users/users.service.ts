@@ -4,12 +4,14 @@ import {
   Inject,
   Injectable,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { AuthService } from 'src/auth/auth.service';
 import { PrismaService } from 'src/prisma.service';
 import { CreateUserDto } from 'src/user/create-user.dto';
 import { UpdateUsernameReturnDto } from 'src/user/update-username-return.dto';
+import { UserProfileDto } from 'src/user/user-profile.dto';
 
 @Injectable()
 export class UsersService {
@@ -124,60 +126,77 @@ export class UsersService {
     return res;
   }
 
-  async getFriend(user: string, friend: string) {
-    const friendFound = await this.prisma.user.findFirst({
-      where: {
-        AND: [
-          {
-            username: user,
-          },
-          {
-            OR: [
-              {
-                friends: {
-                  some: {
-                    username: friend,
+  async areFriends(id1: number, id2: number): Promise<boolean> {
+    return (
+      (await this.prisma.user.findFirst({
+        where: {
+          AND: [
+            {
+              id: id1,
+            },
+            {
+              OR: [
+                {
+                  friends: {
+                    some: {
+                      id: id2,
+                    },
                   },
                 },
-              },
-              {
-                friends_added: {
-                  some: {
-                    username: friend,
+                {
+                  friends_added: {
+                    some: {
+                      id: id2,
+                    },
                   },
                 },
-              },
-            ],
-          },
-        ],
-      },
-      select: {
-        friends: { select: { username: true } },
-        friends_added: { select: { username: true } },
-      },
-    });
-    const otherFriendFound = await this.prisma.user.findFirst({
-      where: { username: user },
-      select: {
-        friends: {
-          where: { username: friend },
-          select: {
-            id: true,
-            username: true,
-          },
+              ],
+            },
+          ],
         },
-        friends_added: {
-          where: { username: friend },
-          select: {
-            id: true,
-            username: true,
-          },
+      })) == null
+    );
+    //const otherFriendFound = await this.prisma.user.findFirst({
+    //  where: { username: user },
+    //  select: {
+    //    friends: {
+    //      where: { username: friend },
+    //      select: {
+    //        id: true,
+    //        username: true,
+    //      },
+    //    },
+    //    friends_added: {
+    //      where: { username: friend },
+    //      select: {
+    //        id: true,
+    //        username: true,
+    //      },
+    //    },
+    //  },
+    //});
+  }
+
+  async getProfile(
+    username: string,
+    my_id: number = null,
+  ): Promise<UserProfileDto> {
+    try {
+      const user = await this.prisma.user.findUniqueOrThrow({
+        where: { username: username },
+        select: {
+          id: true,
+          username: true,
         },
-      },
-    });
-    void friendFound;
-    if (otherFriendFound.friends_added.length)
-      return otherFriendFound.friends_added.at(0);
-    return otherFriendFound.friends_added.at(0);
+      });
+      return {
+        ...user,
+        is_friend:
+          my_id == null ? false : await this.areFriends(my_id, user.id),
+      };
+    } catch (e) {
+      if (e.code == 'P2025') throw new NotFoundException();
+      Logger.error(e.code + ' ' + e.msg);
+    }
   }
 }
