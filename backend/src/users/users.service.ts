@@ -96,9 +96,9 @@ export class UsersService {
     }
   }
 
-  async getFriends(username: string) {
+  async getFriends(id: number) {
     const friends = await this.prisma.user.findUnique({
-      where: { username: username },
+      where: { id: id },
       select: {
         friends_added: {
           select: {

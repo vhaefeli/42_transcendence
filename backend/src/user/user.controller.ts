@@ -46,10 +46,9 @@ export class UserController {
     return;
   }
 
-  @Get(':user/friends/')
-  async findAll(@Param() params: any) {
-    const friends = await this.userService.getFriends(params.user);
-    if (friends == null) return `No such user ${params.user}`;
+  @Get('friends')
+  async findFriends(@Request() req: any) {
+    const friends = await this.userService.getFriends(req.user.sub);
     return JSON.stringify(friends, null, 4);
   }
 
