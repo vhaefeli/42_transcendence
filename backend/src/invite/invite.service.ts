@@ -51,16 +51,15 @@ export class InviteService {
     }
   }
 
-  async findInvitationsReceived(user: string) {
+  async findInvitationsReceived(id: number) {
     const usr = await this.prisma.user.findUnique({
-      where: { username: user },
+      where: { id: id },
       select: {
         id: true,
         invitations_received: {
           select: {
-            fromId: true,
             from: {
-              select: { username: true },
+              select: { id: true, username: true },
             },
           },
         },

@@ -5,21 +5,19 @@ import { InviteService } from './invite.service';
 export class InviteController {
   constructor(private inviteService: InviteService) {}
 
+  pretty_json(res: any) {
+    return JSON.stringify(res, null, 2);
+  }
+
   @Post(':username')
-  async friendshipInvitation(@Param() params: any, @Request() req: any) {
+  async sendFriendshipInvitation(@Param() params: any, @Request() req: any) {
     await this.inviteService.createInvitation(req.user.sub, params.username);
     return;
   }
 
-  @Get(':user')
-  async getInvitation(@Param() params: any) {
-    const res = await this.inviteService.findInvitationsReceived(params.user);
-
-    if (res == null) return `User ${params.user} does not exist`;
-    return (
-      `Pending invitations for user ${params.user}:\n` +
-      JSON.stringify(res, null, 4)
-    );
+  @Get('view')
+  async getInvitations(@Request() req: any) {
+    return await this.inviteService.findInvitationsReceived(req.user.sub);
   }
 
   @Post('accept/:to_user/:from_user')
