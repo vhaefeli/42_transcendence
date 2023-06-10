@@ -1,15 +1,13 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UserController } from './user/user.controller';
-import { UsersService } from './user/users.service';
 import { ConfigModule } from '@nestjs/config';
 import { InviteService } from './invite/invite.service';
 import { InviteController } from './invite/invite.controller';
-import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -18,18 +16,17 @@ import { AuthGuard } from './auth/auth.guard';
       isGlobal: true,
     }),
     PrismaModule,
-    forwardRef(() => AuthModule),
+    UserModule,
   ],
-  controllers: [AppController, UserController, InviteController],
+  controllers: [AppController, InviteController],
   providers: [
     AppService,
-    UsersService,
     InviteService,
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
   ],
-  exports: [UsersService],
+  exports: [],
 })
 export class AppModule {}
