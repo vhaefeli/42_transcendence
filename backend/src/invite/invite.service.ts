@@ -6,7 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from 'src/user/users.service';
 
 @Injectable()
 export class InviteService {

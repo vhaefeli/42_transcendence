@@ -2,7 +2,7 @@ import { forwardRef, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserController } from './user/user.controller';
-import { UsersService } from './users/users.service';
+import { UsersService } from './user/users.service';
 import { ConfigModule } from '@nestjs/config';
 import { InviteService } from './invite/invite.service';
 import { InviteController } from './invite/invite.controller';
