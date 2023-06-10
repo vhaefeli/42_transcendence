@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { InviteService } from './invite/invite.service';
 import { InviteController } from './invite/invite.controller';
@@ -20,7 +19,6 @@ import { UserModule } from './user/user.module';
   ],
   controllers: [AppController, InviteController],
   providers: [
-    AppService,
     InviteService,
     {
       provide: APP_GUARD,
