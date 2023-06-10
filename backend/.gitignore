@@ -37,7 +37,8 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 # user avatars
-/uploads
+uploads/*
+!/uploads/default.jpg
 test.jpg
 
 .env

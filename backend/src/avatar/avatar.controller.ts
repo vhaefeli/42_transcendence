@@ -38,12 +38,18 @@ export class AvatarController {
     @UploadedFile() file: Express.Multer.File,
     @Request() req: any,
   ) {
-    return this.avatarService.uploadAvatar(req.user.sub, file);
+    return this.avatarService.uploadAvatar(req.user.sub, file.filename);
   }
 
   @Public()
   @Get('info')
   async avatarRequirements() {
     return this.avatarValidator.get_requirements();
+  }
+
+  @Public()
+  @Get('gen')
+  async generateAvatar() {
+    return this.avatarService.generateAvatar();
   }
 }
