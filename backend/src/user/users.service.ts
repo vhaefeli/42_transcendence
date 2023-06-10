@@ -189,6 +189,7 @@ export class UsersService {
         select: {
           id: true,
           username: true,
+          avatar_url: true,
         },
       });
       return {
