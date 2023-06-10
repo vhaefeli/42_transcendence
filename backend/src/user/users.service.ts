@@ -6,8 +6,8 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { User } from '@prisma/client';
 import { AuthService } from 'src/auth/auth.service';
+import { AvatarService } from 'src/avatar/avatar.service';
 import { PrismaService } from 'src/prisma.service';
 import { CreateUserDto } from 'src/user/create-user.dto';
 import { UpdateUsernameReturnDto } from 'src/user/update-username-return.dto';
@@ -19,6 +19,7 @@ export class UsersService {
     private prisma: PrismaService,
     @Inject(forwardRef(() => AuthService))
     private authService: AuthService,
+    private avatarService: AvatarService,
   ) {}
 
   async findOne(username: string): Promise<any> {
@@ -54,6 +55,7 @@ export class UsersService {
       data: {
         username: usr.username,
         password: usr.password,
+        avatar_url: await this.avatarService.generateAvatar(),
       },
       select: {
         id: true,

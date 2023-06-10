@@ -9,5 +9,6 @@ import { HttpModule } from '@nestjs/axios';
   providers: [AvatarService, AvatarValidator],
   controllers: [AvatarController],
   imports: [AuthModule, HttpModule],
+  exports: [AvatarService],
 })
 export class AvatarModule {}
