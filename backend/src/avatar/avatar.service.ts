@@ -22,6 +22,7 @@ export class AvatarService {
     );
   }
 
+  //TODO delete previous avatar (if not default.jpg)
   async uploadAvatar(user_id: number, filename: string) {
     const avatar_url = await this.prisma.user.update({
       where: { id: user_id },

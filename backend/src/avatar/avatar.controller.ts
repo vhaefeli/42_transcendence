@@ -46,10 +46,4 @@ export class AvatarController {
   async avatarRequirements() {
     return this.avatarValidator.get_requirements();
   }
-
-  @Public()
-  @Get('gen')
-  async generateAvatar() {
-    return this.avatarService.generateAvatar();
-  }
 }
