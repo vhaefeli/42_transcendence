@@ -6,6 +6,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
 import { InviteModule } from './invite/invite.module';
 import { UserModule } from './user/user.module';
+import { AvatarModule } from './avatar/avatar.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { UserModule } from './user/user.module';
     PrismaModule,
     UserModule,
     InviteModule,
+    AvatarModule,
   ],
   controllers: [AppController],
   providers: [
