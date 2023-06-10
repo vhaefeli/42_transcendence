@@ -1,11 +1,10 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { ConfigModule } from '@nestjs/config';
-import { InviteService } from './invite/invite.service';
-import { InviteController } from './invite/invite.controller';
 import { PrismaModule } from './prisma/prisma.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
+import { InviteModule } from './invite/invite.module';
 import { UserModule } from './user/user.module';
 
 @Module({
@@ -16,10 +15,10 @@ import { UserModule } from './user/user.module';
     }),
     PrismaModule,
     UserModule,
+    InviteModule,
   ],
-  controllers: [AppController, InviteController],
+  controllers: [AppController],
   providers: [
-    InviteService,
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
