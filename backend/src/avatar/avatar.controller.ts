@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Request,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -24,7 +25,7 @@ export class AvatarController {
   @UseInterceptors(
     FileInterceptor('avatar', {
       storage: diskStorage({
-        destination: './avatars',
+        destination: './uploads',
         filename: (_req, file, callback) => {
           const filename = v4().toString() + extname(file.originalname);
           const avatarValidator = new AvatarValidator();
@@ -33,8 +34,11 @@ export class AvatarController {
       }),
     }),
   )
-  async uploadAvatar(@UploadedFile() file: Express.Multer.File) {
-    return this.avatarService.uploadAvatar(file);
+  async uploadAvatar(
+    @UploadedFile() file: Express.Multer.File,
+    @Request() req: any,
+  ) {
+    return this.avatarService.uploadAvatar(req.user.sub, file);
   }
 
   @Public()
