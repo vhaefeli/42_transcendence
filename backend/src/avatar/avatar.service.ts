@@ -35,7 +35,7 @@ export class AvatarService {
 
   async generateAvatar() {
     try {
-      const filename = v4().toString() + '.jpg';
+      const filename = 'dicebear-' + v4().toString() + '.jpg';
       const res = await this.http.axiosRef({
         url: 'https://api.dicebear.com/6.x/thumbs/jpg?seed=' + filename,
         method: 'GET',
