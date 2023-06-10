@@ -21,7 +21,7 @@ export class UsersService {
     private authService: AuthService,
   ) {}
 
-  async findOne(username: string): Promise<User> {
+  async findOne(username: string): Promise<any> {
     return await this.prisma.user.findUnique({
       where: { username: username },
       select: { id: true, username: true, password: true },
