@@ -195,7 +195,9 @@ export class UsersService {
       return {
         ...user,
         is_friend:
-          my_id == null ? false : await this.areFriends(my_id, user.id),
+          my_id === user.id || my_id == null
+            ? false
+            : await this.areFriends(my_id, user.id),
       };
     } catch (e) {
       if (e.code == 'P2025') throw new NotFoundException();
