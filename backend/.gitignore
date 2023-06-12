@@ -36,4 +36,8 @@ lerna-debug.log*
 !.vscode/launch.json
 !.vscode/extensions.json
 
+# user avatars
+uploads/*
+!/uploads/default.jpg
+test.jpg
 .env

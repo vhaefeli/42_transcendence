@@ -1,4 +1,3 @@
 export class UpdateUsernameDto {
-  oldUsername: string;
-  newUsername: string;
+  new_username: string;
 }
