@@ -1,10 +1,11 @@
+import axios from 'axios'
 import { defineStore } from 'pinia'
 
 type Player = {
-    userName: string
+    username: string
     friends: object
   }
-  
+
 type State = {
     player: Player[]
     isRequestLoading: boolean
@@ -16,28 +17,30 @@ export const usePlayerStore = defineStore('playerStore', {
         isRequestLoading: false,
       }),
      actions: {
+        async getUsers(): Promise<void> {
+          let info = null
+          try {
+            const res = await axios.get('http://localhost:3000/user/all').then((response) => (info = response))
+            const status = res.status
+            console.log('req status: ' + status)
+            this.player[0].friends = res.data
+          } catch (e) {
+            console.log(e)
+          }
+        },
         async getUserName(): Promise<void> {
             const promise: Promise<Player[]> = new Promise((resolve) => {
                 resolve([
                     {
-                        userName: 'pouette',
+                        username: 'pouette',
                         friends: [
-                            {id: 1, userName: "kevin"},
-                            {id: 2, userName: "Sabine"}
+                            {id: 1, username: "kevin"},
+                            {id: 2, username: "Sabine"}
                         ],
                     },
                 ])
             })
-        
             this.player = await promise
-        //   this.isRequestLoading = true
-    
-        //   const res = await fetch('http://localhost:3000/user/')
-        //   const data = await res.json()
-
-        //  this.player = data
-        //  this.player[0].userName = 'Pouette'
-        //  this.isRequestLoading = false
-        }
+        },
     }
 })

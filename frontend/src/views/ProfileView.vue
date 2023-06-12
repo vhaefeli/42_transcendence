@@ -1,10 +1,10 @@
 <template>
     <h1>Profile page</h1>
-    <p>Name of user is {{ player[0].userName }}</p>
+    <p>Name of user is {{ player[0].username }}</p>
     <h2>My friends</h2>
 
     <ul v-for="friend in player[0].friends" key="userData.id">
-        <li>{{ friend.userName }}</li>
+        <li>{{ friend.username }}</li>
     </ul>
 
 </template>
@@ -18,4 +18,5 @@
     const { player } = storeToRefs(playerStore)
 
     playerStore.getUserName()
+	playerStore.getUsers();
 </script>
