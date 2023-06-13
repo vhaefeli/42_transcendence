@@ -6,6 +6,7 @@
       <router-link class="t-btn-pink" to="/game"><span>game</span></router-link>
       <router-link class="t-btn-pink" to="/chat"><span>chat</span></router-link>
       <router-link class="t-btn-pink" to="/about"><span>about</span></router-link>
+      <router-link class="t-btn-pink" to="/login"><span>login</span></router-link>
 </template>
 
 <script setup>

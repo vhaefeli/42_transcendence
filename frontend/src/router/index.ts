@@ -6,6 +6,7 @@ import AboutView from '../views/AboutView.vue'
 import GameSettingsView from '../views/GameSettingsView.vue'
 import GameView from '../views/GameView.vue'
 import ChatView from '../views/ChatView.vue'
+import LoginView from '../views/LoginView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -44,6 +45,11 @@ const router = createRouter({
       path: '/chat',
       name: 'chat',
       component: ChatView
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: LoginView,
     }
   ]
 })
