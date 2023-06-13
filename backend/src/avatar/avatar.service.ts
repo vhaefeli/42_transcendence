@@ -15,10 +15,10 @@ export class AvatarService {
   ) {}
 
   avatarUrl(filename: string) {
-    return join(
-      this.configService.get<string>('BACKEND_SERVER_URL'),
-      'avatar',
-      filename,
+    return (
+      this.configService.get<string>('BACKEND_SERVER_URL') +
+      '/avatar/' +
+      filename
     );
   }
 
