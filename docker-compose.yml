@@ -6,7 +6,6 @@ services:
     restart: always
     #user: "${UID}:${GID}"
     volumes:
-      
       - ./postgres_data:/var/lib/postgresql/data/
       - ./postgres/setupdb.sh:/docker-entrypoint-initdb.d/setupdb.sh:ro
     networks:
@@ -67,8 +66,11 @@ services:
       - pg-network
     volumes:
       - ./frontend:/app
-    env_file:
-      - .env
+    environment:
+      #WARNING: VARIABLES IN THE .ENV FILE CAN BE ACCESSED BY THE CLIENT
+      #DO NOT put sensitive information (such as api keys or secrets) on the frontend container
+      VITE_BACKEND_URL: ${BACKEND_SERVER_URL}
+      VITE_PORT: ${FRONT_PORT}
     restart: unless-stopped
     #user: "${UID}:${GID}"
     depends_on:
