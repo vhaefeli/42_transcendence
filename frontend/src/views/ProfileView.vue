@@ -18,5 +18,4 @@
     const { player } = storeToRefs(playerStore)
 
     playerStore.getUserName()
-	playerStore.getUsers();
 </script>
