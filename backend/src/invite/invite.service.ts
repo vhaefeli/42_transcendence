@@ -80,7 +80,7 @@ export class InviteService {
         where: {
           fromId_toId: {
             fromId: (
-              await this.prisma.user.findUnique({
+              await this.prisma.user.findUniqueOrThrow({
                 where: { username: from_username },
               })
             ).id,
@@ -99,7 +99,8 @@ export class InviteService {
     } catch (e) {
       if (e.code == 'P2025') throw new NotFoundException();
       if (e instanceof InternalServerErrorException) throw e;
-      Logger.error(e.code + ' ' + e.msg);
+      if (e?.code) Logger.error(e.code + ' ' + e.msg);
+      else Logger.error(e);
     }
   }
 
