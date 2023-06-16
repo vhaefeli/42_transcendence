@@ -1,42 +1,29 @@
 <template>
-    <!-- <div id="mainPage"> -->
     <main>
         <div class="container">
-            <div id="tabFolder"></div>
-            <div id="tabFolder"></div>
-            <div id="tabFolder"></div>
-            <div class="folder">check your profile</div>
-            <div class="folder">play a game</div>
-            <div class="folder">chat with friends</div>
-            <div id="titleFolder">
-                profile
+            <div class="folderContainer">
+                <div class="tabFolder"></div>
+                <div class="folder">check your profile</div>
+                <div class="titleFolder">profile</div>
+                <!-- <router-link class="titleFolder" to="/profile">profile</router-link> -->
             </div>
-            <div id="titleFolder">
-                game
+            
+            <div class="folderContainer">
+                <div class="tabFolder"></div>
+                <div class="folder">play a game</div>
+                <div class="titleFolder">game</div>
             </div>
-            <div id="titleFolder">
-                chat
+            
+            <div class="folderContainer">
+                <div class="tabFolder"></div>
+                <div class="folder">chat with friends</div>
+                <div class="titleFolder">chat</div>
             </div>
-
-
         </div>
     </main>
 
-
-    <!-- </div> -->
 <!-- MODIFIER CI/DESSOUS CORRECTEMENT
 
-
-        <div id="tabFolder"></div>
-
-        <div id="cornerTabFolder"></div>
-        <div id="folder"></div>
-        <div id="textFolder">
-            check your profile
-        </div>
-        <div id="titleFolder">
-            profile
-        </div>
         <div id="textFolder">GAMMMMES
             <div v-for="folder in folders" :key="folder.name">
                 HELLO
@@ -46,29 +33,6 @@
         <div id="titleFolder">
              {{ folder.name }}
         </div>
-
-
-        <div id="tabFolder"></div>
-        <div id="cornerTabFolder"></div>
-        <div id="folder"></div>
-        <div id="textFolder">
-            play a game
-        </div>
-        <div id="titleFolder">
-            game
-        </div>
-
-        <div id="tabFolder"></div>
-        <div id="cornerTabFolder"></div>
-        <div id="folder"></div>
-        <div id="textFolder">
-            chat with friends
-        </div>
-        <div id="titleFolder">
-            chat
-        </div>
-    </div>
-
 -->
 </template>
   
@@ -94,12 +58,12 @@ let folders = ref([
     --white: #FFFFFF;
 }
 
-body{
+body {
     min-height: 100vh;
     min-width: 100vw;
 }
 
-main{
+main {
     height: 100vh;
     width: 100vw;
     left: 0px;
@@ -110,19 +74,19 @@ main{
 
 }
 
-.container{
+.container {
     /* margin: 0 auto; */
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: 1fr 1fr 100%;
+    /* display: grid; */
+    /* grid-template-columns: 1fr 1fr 1fr; */
+    /* grid-template-rows: 1fr 1fr 100%; */
 
-    /* display: flex; */
-    /* flex-wrap: wrap;
-    flex-direction: row; */
-    /* flex-flow: wrap row; combo flex-wrap et -direction* /
+    display: flex;
+    /* flex-wrap: wrap; */
+    /* flex-direction: row; */
+    flex-flow: wrap row; /*combo flex-wrap et -direction* /
      /* justify content: space-evenly, space-around et d'autres options sympas */
-    /* justify-content: space-evenly; */
-    /* align-items: center; */
+    justify-content: space-evenly;
+    align-items: center;
 
     /* width: 100vw;
     height: 100vh;
@@ -132,8 +96,14 @@ main{
     border: 4px solid var(--orange); */
 }
 
+.folderContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
 /* Style pris de Figma (rectangle7) */
-#tabFolder{
+.tabFolder {
     /* position:absolute; */
     /* width: 206.27px; */
     width: 12vw;
@@ -146,9 +116,10 @@ main{
     border-right: 4vw solid var(--grey);
     border-bottom: 5vh solid var(--purple);
     background: var(--purple);
+    /* resize: none;/ */
 }
 /* pour l-instant, juste pour l-idee */
-.folder{
+.folder {
     /* box-sizing: border-box; */
     width: 20vw;
     height: 15vh;
@@ -156,7 +127,7 @@ main{
     top: 432.48px; */
     background: var(--pink);
     border: 4px solid var(--purple);
-
+    
     font-family: 'Open Sans';
     font-style: normal;
     font-weight: 400;
@@ -167,6 +138,25 @@ main{
     display: flex;
     align-items: flex-end;
     color: var(--purple);
+}
+
+/* Style pris de Figma */
+.titleFolder {
+    /* position: absolute; */
+    /* width: 162.16px; */
+    /* height: 34.85px;s */
+    /* left: 237.56px;
+    top: 664px; */
+
+    /* font-family: 'Audiowide'; */ /* Font prise de Figma */
+    font-family:monospace; /* changer */
+    font-style:normal;
+    font-weight:bold;
+    font-size: 2.3rem; /* 42px moins */
+    line-height: 54px;
+    padding-left: 1rem; /* a voir si mieux sans */
+
+    color: var(--white);
 }
 
 /* Style pris de Figma (rectangle2) */
@@ -181,12 +171,8 @@ main{
 }
 */
 
-
-#cornerTabFolder{
-    background-color: var(--orange);
-}
 /* Style pris de Figma (rectangle4) */
-#folder{
+/* #folder{
     box-sizing: border-box;
     position: absolute;
     width: 305.45px;
@@ -195,11 +181,11 @@ main{
     top: 432.48px;
     background: var(--pink);
     border: 4px solid var(--purple);
-}
+} */
 /* Style pris de Figma */
-#textFolder{
+/* .textFolder{ */
 /* check your profile */
-    position: absolute;
+    /* position: absolute;
     width: 277px;
     height: 52px;
     left: 249px;
@@ -213,24 +199,7 @@ main{
     display: flex;
     align-items: flex-end;
     color: var(--purple);
-}
-/* Style pris de Figma */
-#titleFolder{
-    position: absolute;
-    width: 162.16px;
-    height: 34.85px;
-    left: 237.56px;
-    top: 664px;
-
-    /* font-family: 'Audiowide'; */ /* Font prise de Figma */
-    font-family:monospace; /* changer */
-    font-style:normal;
-    font-weight:bold;
-    font-size: 2.6rem; /* 42px */
-    line-height: 54px;
-
-    color: var(--white);
-}
+} */
 
 
 /* ul{
