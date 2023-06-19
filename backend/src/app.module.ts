@@ -1,13 +1,14 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { UserController } from './user/user.controller';
-import { UsersService } from './users/users.service';
 import { ConfigModule } from '@nestjs/config';
-import { InviteService } from './invite/invite.service';
-import { InviteController } from './invite/invite.controller';
-import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './auth/auth.guard';
+import { InviteModule } from './invite/invite.module';
+import { UserModule } from './user/user.module';
+import { AvatarModule } from './avatar/avatar.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -15,10 +16,22 @@ import { PrismaModule } from './prisma/prisma.module';
       envFilePath: '.env',
       isGlobal: true,
     }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveRoot: '/avatar',
+    }),
     PrismaModule,
-    AuthModule,
+    UserModule,
+    InviteModule,
+    AvatarModule,
   ],
-  controllers: [AppController, UserController, InviteController],
-  providers: [AppService, UsersService, InviteService],
+  controllers: [AppController],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+  ],
+  exports: [],
 })
 export class AppModule {}
