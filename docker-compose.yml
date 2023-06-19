@@ -11,6 +11,8 @@ services:
       - ./postgres/setupdb.sh:/docker-entrypoint-initdb.d/setupdb.sh:ro
     networks:
       - pg-network
+    ports:
+      - 5432:5432 # database port
     environment:
       POSTGRES_DB: ${DATABASE_DB}
       POSTGRES_USER: ${DATABASE_USER}
@@ -41,6 +43,7 @@ services:
     init: true
     ports:
       - 3000:3000
+      - 5555:5555 # prisma studio port
     networks:
       - pg-network
     volumes:
