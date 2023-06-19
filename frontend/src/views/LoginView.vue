@@ -26,6 +26,7 @@
 <script setup>
 import { ref } from "vue";
 import axios from "axios";
+import { useLoginStore } from "@/stores/LoginStore";
 
 const isLogged = ref(false);
 const username = ref("");
@@ -34,6 +35,9 @@ const new_user = ref(false);
 const avatar_url = ref("");
 const logged_id = ref(0);
 const logged_username = ref("");
+
+let login = useLoginStore();
+login.CreateUser({username: "text", password: "text"});
 
 let access_token;
 let user_profile = {
