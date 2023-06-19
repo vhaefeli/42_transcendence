@@ -23,7 +23,7 @@ config:
 
 clean: down
 		@chmod 744 ./clean.sh
-		@sudo ./clean.sh
+		@./clean.sh
 
 clean_vol: clean
 	docker volume rm $$(docker volume ls -q) 2> /dev/null

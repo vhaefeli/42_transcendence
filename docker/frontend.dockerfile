@@ -2,8 +2,11 @@ FROM node:lts
 
 WORKDIR /app
 
-RUN yarn global add @vue/cli
+# RUN npm install
+RUN npm install @vue/cli
 
-EXPOSE 8080
+# Expose the port the application will be running on
+EXPOSE 5173
 
-ENTRYPOINT ["/bin/sh", "-c", "yarn install --non-interactive && exec yarn serve"]
+# Start the application
+ENTRYPOINT ["/bin/sh", "-c", "npm install && exec npm run dev -- --host=0.0.0.0"]
