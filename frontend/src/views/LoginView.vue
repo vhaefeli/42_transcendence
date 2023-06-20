@@ -4,12 +4,12 @@
     <input v-model="username" placeholder="username" /><br />
     <input v-model="password" placeholder="password" /><br />
     <p>Create new user?</p>
-    <input type="checkbox" id="checkbox" v-model="new_user" /><br />
-    <button class="t-btn-pink" @click="loginUser">create/login</button>
+    <input type="checkbox" id="checkbox" v-model="createUser" /><br />
+    <button class="t-btn-pink" @click="LogIn">create/login</button>
   </div>
-  <button v-if="isLoggedIn" @click="loginStore.LogOut">Logout</button>
+  <button v-if="isLoggedIn" @click="LogOut">Logout</button>
   <div v-if="isLoggedIn">
-    <button @click="loginStore.LoadProfile">reload</button>
+    <button @click="LoadProfile">reload</button>
     <br />
     <p>Your Profile:</p>
     <br />
@@ -18,23 +18,127 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
-import { useLoginStore } from "@/stores/LoginStore";
-import { storeToRefs } from "pinia";
+import axios from "axios";
+
+const isLoggedIn = ref(false);
 
 const username = ref("");
 const password = ref("");
-const new_user = ref(false);
+const createUser = ref(false);
 
-const loginStore = useLoginStore();
-const { isLoggedIn, user } = storeToRefs(loginStore);
+const user = ref({
+  id: 0,
+  username: "",
+  access_token: "",
+  avatar_url: "",
+});
 
-async function loginUser() {
-  await loginStore.LogIn(
-    { username: username.value, password: password.value },
-    new_user.value
-  );
-  return;
+type Payload = {
+  username: string;
+  password: string;
+};
+
+async function CreateUser(payload: Payload): Promise<boolean> {
+  if (!payload.username.length || !payload.username.length) {
+    console.log("Credentials are missing");
+    return false;
+  }
+
+  await axios({
+    url: "/api/user/new",
+    method: "post",
+    headers: { "Content-Type": "application/json" },
+    data: payload,
+  })
+    .then((response) => {
+      // To execute when the request is successful
+      console.log(`${response.status} + ${response.statusText}`);
+      return true;
+    })
+    .catch((error) => {
+      // To execute when the request fails
+      if (error.response.status == 409)
+        console.log(
+          `user already exists: ${error.response.status} ${error.response.statusText}`
+        );
+      else
+        console.error(
+          `unexpected error: ${error.response.status} ${error.response.statusText}`
+        );
+      return false;
+    });
+
+  //To execute whether the request succeeds or fails
+  return true;
+}
+
+async function LogIn(): Promise<boolean> {
+  const payload = { username: username.value, password: password.value };
+  if (createUser.value) await CreateUser(payload);
+  await axios({
+    url: "/api/auth/login",
+    method: "post",
+    headers: { "Content-Type": "application/json" },
+    data: payload,
+  })
+    .then((response) => {
+      user.value.username = payload.username;
+      user.value.access_token = response.data.access_token;
+      isLoggedIn.value = true;
+      console.log("successfully logged in");
+      LoadProfile();
+      return true;
+    })
+    .catch((error) => {
+      isLoggedIn.value = false;
+      if (error.response.status == 401)
+        console.log(
+          `invalid credentials: ${error.response.status} ${error.response.statusText}`
+        );
+      else
+        console.error(
+          `unexpected error: ${error.response.status} ${error.response.statusText}`
+        );
+      return false;
+    });
+  return true;
+}
+
+async function LoadProfile() {
+  if (!isLoggedIn.value) {
+    console.log("user is not logged in");
+    return;
+  }
+
+  await axios({
+    url: `/api/user/profile/${user.value.username}`,
+    method: "get",
+    headers: { Authorization: `Bearer ${user.value.access_token}` },
+  })
+    .then((response) => {
+      user.value.id = response.data.id;
+      user.value.username = response.data.username;
+      user.value.avatar_url = response.data.avatar_url;
+      console.log("loaded profile");
+      console.log(user.value);
+    })
+    .catch((error) => {
+      if (error.response.status == 401) {
+        console.log(
+          `invalid access token: ${error.response.status} ${error.response.statusText}`
+        );
+        LogOut();
+      } else
+        console.error(
+          `unexpected error: ${error.response.status} ${error.response.statusText}`
+        );
+    });
+}
+
+function LogOut() {
+  user.value = { id: 0, username: "", access_token: "", avatar_url: "" };
+  isLoggedIn.value = false;
 }
 </script>
