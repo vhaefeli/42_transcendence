@@ -36,8 +36,7 @@ const avatar_url = ref("");
 const logged_id = ref(0);
 const logged_username = ref("");
 
-let login = useLoginStore();
-login.CreateUser({username: "text", password: "text"});
+let loginStore = useLoginStore();
 
 let access_token;
 let user_profile = {
@@ -48,6 +47,14 @@ let user_profile = {
 };
 
 async function loginUser() {
+  isLogged.value = await loginStore.LogIn(
+    { username: username.value, password: password.value },
+    new_user.value
+  );
+  await loginStore.LoadProfile();
+  return;
+
+  /*
   if (!username.value.length || !password.value.length) {
     console.log("error, one of the required credentials is empty");
     return 1;
@@ -88,6 +95,7 @@ async function loginUser() {
     else console.log("other error " + e.response.status + " " + e.code);
     return 0;
   }
+  */
 }
 
 async function loadMyProfile() {
