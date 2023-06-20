@@ -68,10 +68,12 @@ export const useLoginStore = defineStore("LoginStore", {
         .then((response) => {
           this.user.username = payload.username;
           this.user.access_token = response.data.access_token;
+          this.isLoggedIn = true;
           console.log("successfully logged in");
           return true;
         })
         .catch((error) => {
+          this.isLoggedIn = false;
           if (error.response.status == 401)
             console.log(
               `invalid credentials: ${error.response.status} ${error.response.statusText}`
@@ -107,6 +109,11 @@ export const useLoginStore = defineStore("LoginStore", {
               `unexpected error: ${error.response.status} ${error.response.statusText}`
             );
         });
+    },
+
+    LogOut() {
+      this.user = { username: "", access_token: "", avatar_url: "" };
+      this.isLoggedIn = false;
     },
   },
 });
