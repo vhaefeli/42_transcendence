@@ -21,20 +21,22 @@
                 <router-link class="ft-titleFolder" to="/chat">chat</router-link>
             </div>
         </div>
-    </main>
 
-<!-- MODIFIER CI/DESSOUS CORRECTEMENT
+        <!-- MODIFIER CI/DESSOUS CORRECTEMENT -->
 
-        <div id="textFolder">GAMMMMES
+        <!-- <div id="textFolder">
             <div v-for="folder in folders" :key="folder.name">
                 HELLO
                 {{ folder.description }}
                 {{ folder.name }}
             </div>
-        <div id="titleFolder">
-             {{ folder.name }}
-        </div>
--->
+            <div id="titleFolder">
+                {{ folder.name }}
+            </div>
+        </div> -->
+
+    </main>
+ 
 </template>
   
 <script setup>
@@ -65,7 +67,6 @@ main {
     box-sizing: border-box;
     background: var(--gray);
     border: 4px solid var(--orange);
-
 }
 
 .ft-container {
@@ -74,25 +75,23 @@ main {
     /* grid-template-columns: 1fr 1fr 1fr; */
     /* grid-template-rows: 1fr 1fr 100%; */
     display: flex;
-    /* flex-wrap: wrap; */
-    /* flex-direction: row; */
-    flex-flow: wrap row; /*combo flex-wrap et -direction* /
-     /* justify content: space-evenly, space-around et d'autres options sympas */
+    /* combo flex-wrap et -direction */
+    flex-flow: wrap row;
+    /* justify content: space-evenly, space-around et d'autres options sympas */
     justify-content: space-evenly;
     align-items: center;
-
-    /* width: 100vw;
-    height: 100vh;
-    left: 0px;
-    top: 0px;
-    background: var(--gray);
-    border: 4px solid var(--orange); */
+    
+    /* devrait s'adapter a SON conteneur/parent normalement */
+    width: 100vw;
+    height: 100vh; /* devrait s'adapter a SON conteneur/parent normalement */
 }
 
 .ft-folderContainer {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    width: max-content;
+    aspect-ratio: 2/1;
 }
 
 /* Style pris de Figma (rectangle7) */
@@ -124,16 +123,14 @@ main {
     font-family: 'Open Sans';
     font-style: normal;
     font-weight: 400;
-    font-size: 1rem; /* 1rem = 16px */
+    font-size: 1rem;
     padding: 1rem;
-    /* font-size: 16px; */
     line-height: 22px;
     display: flex;
     align-items: flex-end;
     color: var(--purple);
 }
 
-/* Style pris de Figma */
 .ft-titleFolder {
     /* position: absolute; */
     /* width: 162.16px; */
@@ -141,72 +138,14 @@ main {
     /* left: 237.56px;
     top: 664px; */
 
-    /* font-family: 'Audiowide'; */ /* Font prise de Figma */
-    font-family:monospace; /* changer */
+    font-family: 'Audiowide'; /* Font prise de Figma */
+    /* font-family:monospace; */
     font-style:normal;
     font-weight:bold;
-    font-size: 2.3rem; /* 42px moins */
+    font-size: 2rem;
     line-height: 54px;
     padding-left: 1rem; /* a voir si mieux sans */
-
-    color: var(--white);
+    color: var(--light);
 }
 
-/* Style pris de Figma (rectangle2) */
-/* #mainPage{
-    box-sizing: border-box;
-    width: 100vw;
-    height: 100vh;
-    left: 0px;
-    top: 0px;
-    background: var(--gray);
-    border: 4px solid var(--orange);
-}
-*/
-
-/* Style pris de Figma (rectangle4) */
-/* #folder{
-    box-sizing: border-box;
-    position: absolute;
-    width: 305.45px;
-    height: 208.52px;
-    left: 221px;
-    top: 432.48px;
-    background: var(--pink);
-    border: 4px solid var(--purple);
-} */
-/* Style pris de Figma */
-/* .textFolder{ */
-/* check your profile */
-    /* position: absolute;
-    width: 277px;
-    height: 52px;
-    left: 249px;
-    top: 567px;
-
-    font-family: 'Open Sans';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 1rem;
-    line-height: 22px;
-    display: flex;
-    align-items: flex-end;
-    color: var(--purple);
-} */
-
-
-/* ul{
-    display: flex;
-    flex-wrap: wrap;
-    list-style-type: none;
-    padding: 0;
-}
-li{
-    flex-grow: 1;
-    flex-basis: 300px;
-    text-align: center;
-    padding: 30px;
-    border: 1px solid #222;
-    margin: 10px;
-} */
 </style>
