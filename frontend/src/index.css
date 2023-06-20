@@ -17,7 +17,8 @@
 }
 
 body {
-    background: var(--gray);
+    /* background: var(--gray); */
+    background: var(--white);
 }
 
 h1 {
@@ -29,12 +30,12 @@ h2 {
 }
 
 #app {
-    background: var(--gray);
+    /* background: var(--gray);
     flex-direction: column;
     row-gap: 20px;
     padding: 50px;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 80vh;
+    height: 80vh; */
 }
