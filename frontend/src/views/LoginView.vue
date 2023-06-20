@@ -5,7 +5,12 @@
     <input v-model="password" placeholder="password" /><br />
     <p>Create new user?</p>
     <input type="checkbox" id="checkbox" v-model="createUser" /><br />
-    <button class="t-btn-pink" @click="LogIn">create/login</button>
+    <button
+      class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+      @click="LogIn"
+    >
+      create/login
+    </button>
   </div>
   <button v-if="isLoggedIn" @click="LogOut">Logout</button>
   <div v-if="isLoggedIn">
@@ -16,11 +21,22 @@
     <p>username {{ user.username }}<br />id {{ user.id }}</p>
     <img :src="user.avatar_url" alt="avatar img" />
   </div>
+  <div v-if="true">
+    <button
+      @click="Test42Api"
+      class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+    >
+      Test 42 API
+    </button>
+    <p>{{ code42API }}</p>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
 import axios from "axios";
+import { useRoute } from "vue-router";
+import process from "process";
 
 const isLoggedIn = ref(false);
 
@@ -140,5 +156,23 @@ async function LoadProfile() {
 function LogOut() {
   user.value = { id: 0, username: "", access_token: "", avatar_url: "" };
   isLoggedIn.value = false;
+}
+
+let code42API = "";
+
+function Test42Api() {
+  const client_id = import.meta.env.VITE_API42_CLIENT_ID;
+  const redirect_uri = import.meta.env.VITE_API42_REDIRECT_URI;
+  console.log(`${client_id} ${redirect_uri}`);
+  window.location.href = `https://api.intra.42.fr/oauth/authorize?client_id=${encodeURIComponent(
+    client_id
+  )}&redirect_uri=${encodeURIComponent(redirect_uri)}&response_type=code`;
+}
+
+getURLCode();
+
+function getURLCode() {
+  const code = useRoute().query.code;
+  if (code) code42API = `API code: ${code}`;
 }
 </script>
