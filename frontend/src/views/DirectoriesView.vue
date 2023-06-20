@@ -5,20 +5,20 @@
             <div class="ft-folderContainer">
                 <div class="ft-tabFolder"></div>
                 <div class="ft-folder">check your profile</div>
-                <div class="ft-titleFolder">profile</div>
-                <!-- <router-link class="ft-titleFolder" to="/profile">profile</router-link> -->
+                <router-link class="ft-titleFolder" to="/profile">profile</router-link>
             </div>
             
             <div class="ft-folderContainer">
                 <div class="ft-tabFolder"></div>
                 <div class="ft-folder">play a game</div>
-                <div class="ft-titleFolder">game</div>
+                <router-link class="ft-titleFolder" to="/game">game</router-link>
+
             </div>
             
             <div class="ft-folderContainer">
                 <div class="ft-tabFolder"></div>
                 <div class="ft-folder">chat with friends</div>
-                <div class="ft-titleFolder">chat</div>
+                <router-link class="ft-titleFolder" to="/chat">chat</router-link>
             </div>
         </div>
     </main>
@@ -52,6 +52,7 @@ let folders = ref([
 
 <style scoped>
 body {
+    margin: 1px;
     min-height: 100vh;
     min-width: 100vw;
 }
@@ -72,7 +73,6 @@ main {
     /* display: grid; */
     /* grid-template-columns: 1fr 1fr 1fr; */
     /* grid-template-rows: 1fr 1fr 100%; */
-
     display: flex;
     /* flex-wrap: wrap; */
     /* flex-direction: row; */
