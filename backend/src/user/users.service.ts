@@ -12,6 +12,7 @@ import { PrismaService } from 'src/prisma.service';
 import { CreateUserDto } from 'src/user/create-user.dto';
 import { UpdateUsernameReturnDto } from 'src/user/update-username-return.dto';
 import { UserProfileDto } from 'src/user/user-profile.dto';
+import { MyProfileDto } from './my-profile.dto';
 
 @Injectable()
 export class UsersService {
@@ -202,6 +203,27 @@ export class UsersService {
     } catch (e) {
       if (e.code == 'P2025') throw new NotFoundException();
       Logger.error(e.code + ' ' + e.msg);
+    }
+  }
+
+  async getMe(my_id: number): Promise<MyProfileDto> {
+    try {
+      const user = await this.prisma.user.findUniqueOrThrow({
+        where: { id: my_id },
+        select: {
+          id: true,
+          username: true,
+          avatar_url: true,
+          twoFA_enabled: true,
+          status: true,
+        },
+      });
+      return {
+        ...user,
+      };
+    } catch (e) {
+      Logger.error(e.code + ' ' + e.msg);
+      throw new NotFoundException();
     }
   }
 }

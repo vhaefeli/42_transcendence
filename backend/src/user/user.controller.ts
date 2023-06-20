@@ -70,4 +70,9 @@ export class UserController {
     return JSON.stringify(friendDto, null, 4);
     */
   }
+
+  @Get('me')
+  async getMyProfile(@Request() req: any) {
+    return await this.userService.getMe(req.user.sub);
+  }
 }
