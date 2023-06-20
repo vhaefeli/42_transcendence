@@ -71,6 +71,7 @@ export const useLoginStore = defineStore("LoginStore", {
           this.user.access_token = response.data.access_token;
           this.isLoggedIn = true;
           console.log("successfully logged in");
+          this.LoadProfile();
           return true;
         })
         .catch((error) => {
