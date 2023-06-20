@@ -50,13 +50,13 @@ let folders = ref([
 </script>
 
 <style scoped>
-:root {
+/* :root {
     --purple: #5C14D0;
     --pink: #ED9CDB;
     --orange: #EA7F35;
     --grey: #B7B7B7;
     --white: #FFFFFF;
-}
+} */
 /* reprendre de index.css */
 
 body {
@@ -70,7 +70,7 @@ main {
     left: 0px;
     top: 0px;
     box-sizing: border-box;
-    background: var(--grey);
+    background: var(--gray);
     border: 4px solid var(--orange);
 
 }
@@ -93,7 +93,7 @@ main {
     height: 100vh;
     left: 0px;
     top: 0px;
-    background: var(--grey);
+    background: var(--gray);
     border: 4px solid var(--orange); */
 }
 
@@ -114,7 +114,7 @@ main {
     top: 382px; */
     /* left: 50vw;
     top: 50vh; */
-    border-right: 4vw solid var(--grey);
+    border-right: 4vw solid var(--gray);
     border-bottom: 5vh solid var(--purple);
     background: var(--purple);
     /* resize: none;/ */
@@ -167,7 +167,7 @@ main {
     height: 100vh;
     left: 0px;
     top: 0px;
-    background: var(--grey);
+    background: var(--gray);
     border: 4px solid var(--orange);
 }
 */
