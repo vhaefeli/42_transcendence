@@ -1,5 +1,5 @@
 <template>
-    <main>
+    <main class="flex">
         <div class="container">
             <div class="folderContainer">
                 <div class="tabFolder"></div>
@@ -57,6 +57,7 @@ let folders = ref([
     --grey: #B7B7B7;
     --white: #FFFFFF;
 }
+/* reprendre de index.css */
 
 body {
     min-height: 100vh;
@@ -64,8 +65,8 @@ body {
 }
 
 main {
-    height: 100vh;
-    width: 100vw;
+    height: 100%;
+    width: 100%;
     left: 0px;
     top: 0px;
     box-sizing: border-box;
