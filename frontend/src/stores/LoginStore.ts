@@ -2,6 +2,7 @@ import axios from "axios";
 import { defineStore } from "pinia";
 
 type Me = {
+  id: number;
   username: string;
   access_token: string;
   avatar_url: string;
@@ -20,7 +21,7 @@ type Payload = {
 export const useLoginStore = defineStore("LoginStore", {
   state: (): State => ({
     isLoggedIn: false,
-    user: { username: "", access_token: "", avatar_url: "" },
+    user: { id: 0, username: "", access_token: "", avatar_url: "" },
   }),
   actions: {
     async CreateUser(payload: Payload): Promise<boolean> {
@@ -88,12 +89,18 @@ export const useLoginStore = defineStore("LoginStore", {
     },
 
     async LoadProfile() {
+      if (!this.isLoggedIn) {
+        console.log("user is not logged in");
+        return;
+      }
+
       await axios({
         url: `/api/user/profile/${this.user.username}`,
         method: "get",
         headers: { Authorization: `Bearer ${this.user.access_token}` },
       })
         .then((response) => {
+          this.user.id = response.data.id;
           this.user.username = response.data.username;
           this.user.avatar_url = response.data.avatar_url;
           console.log("loaded profile");
@@ -104,6 +111,7 @@ export const useLoginStore = defineStore("LoginStore", {
             console.log(
               `invalid access token: ${error.response.status} ${error.response.statusText}`
             );
+            this.LogOut();
           } else
             console.error(
               `unexpected error: ${error.response.status} ${error.response.statusText}`
@@ -112,7 +120,7 @@ export const useLoginStore = defineStore("LoginStore", {
     },
 
     LogOut() {
-      this.user = { username: "", access_token: "", avatar_url: "" };
+      this.user = { id: 0, username: "", access_token: "", avatar_url: "" };
       this.isLoggedIn = false;
     },
   },
