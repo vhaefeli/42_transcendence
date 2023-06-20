@@ -71,6 +71,8 @@ services:
       #DO NOT put sensitive information (such as api keys or secrets) on the frontend container
       VITE_BACKEND_URL: ${VITE_BACKEND_URL}
       VITE_PORT: ${FRONT_PORT}
+      VITE_API42_REDIRECT_URI: ${API42_REDIRECT_URI}
+      VITE_API42_CLIENT_ID: ${API42_CLIENT_ID}
     restart: unless-stopped
     #user: "${UID}:${GID}"
     depends_on:
