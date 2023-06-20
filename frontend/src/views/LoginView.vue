@@ -19,6 +19,9 @@
     <p>Your Profile:</p>
     <br />
     <p>username {{ user.username }}<br />id {{ user.id }}</p>
+    <p v-if="user.twoFA_enabled">2FA is enabled</p>
+    <p v-if="!user.twoFA_enabled">2FA is disabled</p>
+    <p>Status: {{ user.status }}</p>
     <img :src="user.avatar_url" alt="avatar img" />
   </div>
   <div v-if="true">
@@ -45,10 +48,12 @@ const createUser = ref(false);
 
 const sessionStore = useSessionStore();
 
-const user = ref({
+let user = ref({
   id: 0,
   username: "",
   avatar_url: "",
+  twoFA_enabled: false,
+  status: "OFFLINE",
 });
 
 type Payload = {
@@ -108,7 +113,6 @@ async function LogIn(): Promise<boolean> {
     data: payload,
   })
     .then((response) => {
-      sessionStore.username = payload.username;
       sessionStore.access_token = response.data.access_token;
       sessionStore.isLoggedIn = true;
       isLoggedIn.value = true;
@@ -139,14 +143,12 @@ async function LoadProfile() {
   }
 
   await axios({
-    url: `/api/user/profile/${sessionStore.username}`,
+    url: "/api/user/me",
     method: "get",
     headers: { Authorization: `Bearer ${sessionStore.access_token}` },
   })
     .then((response) => {
-      user.value.id = response.data.id;
-      user.value.username = response.data.username;
-      user.value.avatar_url = response.data.avatar_url;
+      user.value = response.data;
       console.log("loaded profile");
       console.log(user.value);
     })
@@ -164,7 +166,6 @@ async function LoadProfile() {
 }
 
 function LogOut() {
-  user.value = { id: 0, username: "", avatar_url: "" };
   isLoggedIn.value = false;
   sessionStore.isLoggedIn = false;
 }
