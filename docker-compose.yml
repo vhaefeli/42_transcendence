@@ -50,8 +50,6 @@ services:
     env_file:
       - .env
     restart: unless-stopped
-    links:
-      - postgres
     user: "${UID}:${GID}"
     depends_on:
       - postgres
