@@ -168,6 +168,7 @@ async function LoadProfile() {
 function LogOut() {
   isLoggedIn.value = false;
   sessionStore.isLoggedIn = false;
+  sessionStore.access_token = "";
 }
 
 let code42API = "";
