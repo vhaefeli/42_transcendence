@@ -1,23 +1,24 @@
 <template>
-    <main class="flex">
-        <div class="container">
-            <div class="folderContainer">
-                <div class="tabFolder"></div>
-                <div class="folder">check your profile</div>
-                <div class="titleFolder">profile</div>
-                <!-- <router-link class="titleFolder" to="/profile">profile</router-link> -->
+    <!-- <main class="flex"> -->
+    <main>
+        <div class="ft-container">
+            <div class="ft-folderContainer">
+                <div class="ft-tabFolder"></div>
+                <div class="ft-folder">check your profile</div>
+                <div class="ft-titleFolder">profile</div>
+                <!-- <router-link class="ft-titleFolder" to="/profile">profile</router-link> -->
             </div>
             
-            <div class="folderContainer">
-                <div class="tabFolder"></div>
-                <div class="folder">play a game</div>
-                <div class="titleFolder">game</div>
+            <div class="ft-folderContainer">
+                <div class="ft-tabFolder"></div>
+                <div class="ft-folder">play a game</div>
+                <div class="ft-titleFolder">game</div>
             </div>
             
-            <div class="folderContainer">
-                <div class="tabFolder"></div>
-                <div class="folder">chat with friends</div>
-                <div class="titleFolder">chat</div>
+            <div class="ft-folderContainer">
+                <div class="ft-tabFolder"></div>
+                <div class="ft-folder">chat with friends</div>
+                <div class="ft-titleFolder">chat</div>
             </div>
         </div>
     </main>
@@ -50,15 +51,6 @@ let folders = ref([
 </script>
 
 <style scoped>
-/* :root {
-    --purple: #5C14D0;
-    --pink: #ED9CDB;
-    --orange: #EA7F35;
-    --grey: #B7B7B7;
-    --white: #FFFFFF;
-} */
-/* reprendre de index.css */
-
 body {
     min-height: 100vh;
     min-width: 100vw;
@@ -75,7 +67,7 @@ main {
 
 }
 
-.container {
+.ft-container {
     /* margin: 0 auto; */
     /* display: grid; */
     /* grid-template-columns: 1fr 1fr 1fr; */
@@ -97,14 +89,14 @@ main {
     border: 4px solid var(--orange); */
 }
 
-.folderContainer {
+.ft-folderContainer {
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
 
 /* Style pris de Figma (rectangle7) */
-.tabFolder {
+.ft-tabFolder {
     /* position:absolute; */
     /* width: 206.27px; */
     width: 12vw;
@@ -120,7 +112,7 @@ main {
     /* resize: none;/ */
 }
 /* pour l-instant, juste pour l-idee */
-.folder {
+.ft-folder {
     /* box-sizing: border-box; */
     width: 20vw;
     height: 15vh;
@@ -142,7 +134,7 @@ main {
 }
 
 /* Style pris de Figma */
-.titleFolder {
+.ft-titleFolder {
     /* position: absolute; */
     /* width: 162.16px; */
     /* height: 34.85px;s */
