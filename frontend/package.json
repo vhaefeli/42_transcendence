@@ -15,6 +15,7 @@
     "@vue/cli": "^5.0.8",
     "axios": "^1.4.0",
     "pinia": "^2.0.36",
+    "pinia-plugin-persistedstate": "^3.1.0",
     "vue": "^3.3.2",
     "vue-router": "^4.2.0"
   },

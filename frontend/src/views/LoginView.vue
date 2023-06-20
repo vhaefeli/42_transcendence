@@ -1,8 +1,8 @@
 <template>
   <h1>Login page</h1>
   <div id="login-form" v-if="!isLoggedIn">
-    <input v-model="username" placeholder="username" /><br />
-    <input v-model="password" placeholder="password" /><br />
+    <input v-model="login_username" placeholder="username" /><br />
+    <input v-model="login_password" placeholder="password" /><br />
     <p>Create new user?</p>
     <input type="checkbox" id="checkbox" v-model="createUser" /><br />
     <button
@@ -36,18 +36,18 @@
 import { ref } from "vue";
 import axios from "axios";
 import { useRoute } from "vue-router";
-import process from "process";
+import { useSessionStore } from "@/stores/SessionStore";
 
 const isLoggedIn = ref(false);
-
-const username = ref("");
-const password = ref("");
+const login_username = ref("");
+const login_password = ref("");
 const createUser = ref(false);
+
+const sessionStore = useSessionStore();
 
 const user = ref({
   id: 0,
   username: "",
-  access_token: "",
   avatar_url: "",
 });
 
@@ -55,6 +55,11 @@ type Payload = {
   username: string;
   password: string;
 };
+
+if (sessionStore.isLoggedIn) {
+  isLoggedIn.value = true;
+  LoadProfile();
+}
 
 async function CreateUser(payload: Payload): Promise<boolean> {
   if (!payload.username.length || !payload.username.length) {
@@ -91,7 +96,10 @@ async function CreateUser(payload: Payload): Promise<boolean> {
 }
 
 async function LogIn(): Promise<boolean> {
-  const payload = { username: username.value, password: password.value };
+  const payload = {
+    username: login_username.value,
+    password: login_password.value,
+  };
   if (createUser.value) await CreateUser(payload);
   await axios({
     url: "/api/auth/login",
@@ -100,8 +108,9 @@ async function LogIn(): Promise<boolean> {
     data: payload,
   })
     .then((response) => {
-      user.value.username = payload.username;
-      user.value.access_token = response.data.access_token;
+      sessionStore.username = payload.username;
+      sessionStore.access_token = response.data.access_token;
+      sessionStore.isLoggedIn = true;
       isLoggedIn.value = true;
       console.log("successfully logged in");
       LoadProfile();
@@ -109,6 +118,7 @@ async function LogIn(): Promise<boolean> {
     })
     .catch((error) => {
       isLoggedIn.value = false;
+      sessionStore.isLoggedIn = false;
       if (error.response.status == 401)
         console.log(
           `invalid credentials: ${error.response.status} ${error.response.statusText}`
@@ -129,9 +139,9 @@ async function LoadProfile() {
   }
 
   await axios({
-    url: `/api/user/profile/${user.value.username}`,
+    url: `/api/user/profile/${sessionStore.username}`,
     method: "get",
-    headers: { Authorization: `Bearer ${user.value.access_token}` },
+    headers: { Authorization: `Bearer ${sessionStore.access_token}` },
   })
     .then((response) => {
       user.value.id = response.data.id;
@@ -154,8 +164,9 @@ async function LoadProfile() {
 }
 
 function LogOut() {
-  user.value = { id: 0, username: "", access_token: "", avatar_url: "" };
+  user.value = { id: 0, username: "", avatar_url: "" };
   isLoggedIn.value = false;
+  sessionStore.isLoggedIn = false;
 }
 
 let code42API = "";
