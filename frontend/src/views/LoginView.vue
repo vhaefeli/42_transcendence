@@ -26,19 +26,17 @@
   </div>
   <div v-if="true">
     <button
-      @click="Test42Api"
+      @click="Login42Api"
       class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
     >
-      Test 42 API
+      42 API Login/Registration
     </button>
-    <p>{{ code42API }}</p>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
 import axios from "axios";
-import { useRoute } from "vue-router";
 import { useSessionStore } from "@/stores/SessionStore";
 
 const isLoggedIn = ref(false);
@@ -171,9 +169,7 @@ function LogOut() {
   sessionStore.access_token = "";
 }
 
-let code42API = "";
-
-function Test42Api() {
+function Login42Api() {
   const client_id = import.meta.env.VITE_API42_CLIENT_ID;
   const redirect_uri = import.meta.env.VITE_API42_REDIRECT_URI;
   console.log(`${client_id} ${redirect_uri}`);
@@ -182,20 +178,5 @@ function Test42Api() {
   )}&redirect_uri=${encodeURIComponent(
     redirect_uri
   )}&response_type=code&state=${sessionStore.getUUID()}`;
-}
-
-getURLCode();
-
-function getURLCode() {
-  const code = useRoute().query.code;
-  const state = useRoute().query.state;
-  if (code) {
-      console.log(`state: ${state}\nuuid: ${sessionStore.getUUID()}`);
-    if (state != sessionStore.getUUID()) {
-      console.error("State in query does not match stored uuid");
-      return;
-    }
-    code42API = `API code: ${code}`;
-  }
 }
 </script>
