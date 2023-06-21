@@ -115,7 +115,8 @@ async function LogIn(): Promise<boolean> {
       sessionStore.isLoggedIn = true;
       isLoggedIn.value = true;
       console.log("successfully logged in");
-      // TODO redirectionner vers profile
+      
+      router.push({ name: 'profile', params: { username: username.value } })
       LoadProfile();
       return true;
     })
