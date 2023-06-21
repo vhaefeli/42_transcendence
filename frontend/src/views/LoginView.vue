@@ -179,13 +179,23 @@ function Test42Api() {
   console.log(`${client_id} ${redirect_uri}`);
   window.location.href = `https://api.intra.42.fr/oauth/authorize?client_id=${encodeURIComponent(
     client_id
-  )}&redirect_uri=${encodeURIComponent(redirect_uri)}&response_type=code`;
+  )}&redirect_uri=${encodeURIComponent(
+    redirect_uri
+  )}&response_type=code&state=${sessionStore.getUUID()}`;
 }
 
 getURLCode();
 
 function getURLCode() {
   const code = useRoute().query.code;
-  if (code) code42API = `API code: ${code}`;
+  const state = useRoute().query.state;
+  if (code) {
+      console.log(`state: ${state}\nuuid: ${sessionStore.getUUID()}`);
+    if (state != sessionStore.getUUID()) {
+      console.error("State in query does not match stored uuid");
+      return;
+    }
+    code42API = `API code: ${code}`;
+  }
 }
 </script>
