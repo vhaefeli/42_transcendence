@@ -20,6 +20,8 @@ model User {
   id              Int @id @default(autoincrement())
   username        String @unique
   password        String?
+  id42            Int? @unique
+  access_token42  String? @unique
   avatar_url      String
   status          status_type @default(OFFLINE)
   twoFA_enabled   Boolean @default(false)
