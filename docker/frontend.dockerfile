@@ -3,7 +3,7 @@ FROM node:lts
 WORKDIR /app
 
 # RUN npm install
-RUN npm install @vue/cli
+# RUN npm install @vue/cli
 
 # Expose the port the application will be running on
 EXPOSE 5173
