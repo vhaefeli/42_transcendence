@@ -12,6 +12,7 @@ import { PrismaService } from 'src/prisma.service';
 import { CreateUserDto } from 'src/user/create-user.dto';
 import { UpdateUsernameReturnDto } from 'src/user/update-username-return.dto';
 import { UserProfileDto } from 'src/user/user-profile.dto';
+import { MyProfileDto } from './my-profile.dto';
 
 @Injectable()
 export class UsersService {
@@ -156,7 +157,7 @@ export class UsersService {
             },
           ],
         },
-      })) == null
+      })) != null
     );
     //const otherFriendFound = await this.prisma.user.findFirst({
     //  where: { username: user },
@@ -202,6 +203,53 @@ export class UsersService {
     } catch (e) {
       if (e.code == 'P2025') throw new NotFoundException();
       Logger.error(e.code + ' ' + e.msg);
+    }
+  }
+
+  async getMe(my_id: number): Promise<MyProfileDto> {
+    try {
+      const user = await this.prisma.user.findUniqueOrThrow({
+        where: { id: my_id },
+        select: {
+          id: true,
+          username: true,
+          avatar_url: true,
+          twoFA_enabled: true,
+          status: true,
+        },
+      });
+      return {
+        ...user,
+      };
+    } catch (e) {
+      Logger.error(e.code + ' ' + e.msg);
+      throw new NotFoundException();
+    }
+  }
+
+  async getId(username: string) {
+    return (
+      await this.prisma.user.findUnique({
+        where: { username: username },
+        select: { id: true },
+      })
+    ).id;
+  }
+
+  async removeFriendship(my_id: number, friend_username: string) {
+    try {
+      if (!(await this.areFriends(my_id, await this.getId(friend_username)))) {
+        throw new Error();
+      }
+      await this.prisma.user.update({
+        where: { id: my_id },
+        data: {
+          friends: { disconnect: { username: friend_username } },
+          friends_added: { disconnect: { username: friend_username } },
+        },
+      });
+    } catch (e) {
+      throw new NotFoundException();
     }
   }
 }
