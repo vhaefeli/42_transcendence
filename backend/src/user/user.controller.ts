@@ -75,4 +75,9 @@ export class UserController {
   async getMyProfile(@Request() req: any) {
     return await this.userService.getMe(req.user.sub);
   }
+
+  @Delete('friend/:username')
+  async removeFriendship(@Param() params: any, @Request() req: any) {
+    await this.userService.removeFriendship(req.user.sub, params.username);
+  }
 }
