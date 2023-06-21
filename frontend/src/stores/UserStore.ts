@@ -1,30 +1,41 @@
 import { defineStore } from "pinia";
 import axios from "axios";
 
+type State = {
+  user: User;
+  isRequestLoading: boolean;
+};
+
 export const useUserStore = defineStore("userStore", {
-  state: () => {
-    return {
-      user: {} as User,
-      isRequestLoading: false as boolean,
-    }
+  state: (): State => {
+      user: {}
+      isRequestLoading: false
   },
   actions: {
-    // https://pinia.vuejs.org/core-concepts/actions.html
-    async registerUser(login, access_token) {
-     this.isRequestLoading = true
-      try {
-        this.user = await axios.get(`api/user/profile/${login}`, {
-          headers: {
-            Authorization: "Bearer " + access_token,
-          },
+    // get request with acess token to backend to stock user infos in the Store
+    async getUserInfosFromBack(access_token) {
+        await axios({
+          url: "/api/user/me",
+          method: "get",
+          headers: { Authorization: `Bearer ${access_token}` },
         })
-      } catch (e) {
-        console.log(e.response.status + " " + e.code);
+          .then((response) => {
+            this.user = response.data;
+            console.log("loaded profile");
+          })
+          .catch((error) => {
+            if (error.response.status == 401) {
+              console.log(
+                `invalid access token: ${error.response.status} ${error.response.statusText}`
+              );
+              // LogOut(); TO DO
+            } else
+              console.error(
+                `unexpected error: ${error.response.status} ${error.response.statusText}`
+              );
+          });
       }
-      this.isRequestLoading = false 
     }
-  },
-  persist: true
 })
 
 interface User {
@@ -33,5 +44,6 @@ interface User {
   username: string
   avatar_url: string
   friends: object
-  is_friend: boolean
+  twoFA_enabled: false
+  status: "OFFLINE"
 }

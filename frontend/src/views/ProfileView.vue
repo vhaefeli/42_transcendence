@@ -10,12 +10,17 @@
 </template>
   
 <script setup>
-    // import { usePlayerStore } from '../stores/PlayerStore'
-    // import { storeToRefs } from 'pinia'
+    import { useUserStore } from '../stores/UserStore'
+    import { useSessionStore } from "@/stores/SessionStore";
+    import { storeToRefs } from 'pinia'
 
-    // const playerStore = usePlayerStore()
+    const sessionStore = useSessionStore();
+    const userStore = useUserStore()
 
-    // const { player } = storeToRefs(playerStore)
+    userStore.getUserInfosFromBack(sessionStore.access_token);
 
-    // playerStore.getUserName()
+    // console.log("user: ", userStore.user)
+    // console.log("user id: ", userStore.user.id)
+    
+    // const { user } = storeToRefs(userStore)
 </script>

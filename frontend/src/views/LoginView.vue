@@ -14,7 +14,7 @@
   </div>
   <button v-if="isLoggedIn" @click="LogOut">Logout</button>
   <div v-if="isLoggedIn">
-    <!-- <button @click="LoadProfile">reload</button>
+    <button @click="LoadProfile">reload</button>
     <br />
     <p>Your Profile:</p>
     <br />
@@ -22,7 +22,7 @@
     <p v-if="user.twoFA_enabled">2FA is enabled</p>
     <p v-if="!user.twoFA_enabled">2FA is disabled</p>
     <p>Status: {{ user.status }}</p>
-    <img :src="user.avatar_url" alt="avatar img" /> -->
+    <img :src="user.avatar_url" alt="avatar img" />
   </div>
   <div v-if="true">
     <button
@@ -37,12 +37,15 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import axios from "axios";
+import { useRouter } from 'vue-router';
 import { useSessionStore } from "@/stores/SessionStore";
 
 const isLoggedIn = ref(false);
 const login_username = ref("");
 const login_password = ref("");
 const createUser = ref(false);
+
+const router = useRouter()
 
 const sessionStore = useSessionStore();
 
@@ -116,8 +119,7 @@ async function LogIn(): Promise<boolean> {
       isLoggedIn.value = true;
       console.log("successfully logged in");
       
-      router.push({ name: 'profile', params: { username: username.value } })
-      LoadProfile();
+      router.push({ name: 'profile', params: { username: login_username.value } })
       return true;
     })
     .catch((error) => {
