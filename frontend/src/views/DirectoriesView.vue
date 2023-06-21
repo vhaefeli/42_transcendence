@@ -1,5 +1,4 @@
 <template>
-    <!-- <main class="flex"> -->
     <main class="ft-directoriesMain">
         <div class="ft-container">
             <div class="ft-folderContainer">
@@ -63,20 +62,13 @@ let folders = ref([
 }
 
 .ft-container {
-    /* margin: 0 auto; */
-    /* display: grid; */
-    /* grid-template-columns: 1fr 1fr 1fr; */
-    /* grid-template-rows: 1fr 1fr 100%; */
     display: flex;
-    /* combo flex-wrap et -direction */
     flex-flow: wrap row;
-    /* justify content: space-evenly, space-around et d'autres options sympas */
     justify-content: space-evenly;
     align-items: center;
     
-    /* devrait s'adapter a SON conteneur/parent normalement */
     width: 100%;
-    height: 100%; /* devrait s'adapter a SON conteneur/parent normalement */
+    height: 100%;
 }
 
 .ft-folderContainer {
@@ -87,29 +79,15 @@ let folders = ref([
     aspect-ratio: 2/1;
 }
 
-/* Style pris de Figma (rectangle7) */
 .ft-tabFolder {
-    /* position:absolute; */
-    /* width: 206.27px; */
     width: 12vw;
-    /* height: 0px; */
-    /* height: 50.48px; */
-    /* left: 221px;
-    top: 382px; */
-    /* left: 50vw;
-    top: 50vh; */
     border-right: 4vw solid var(--gray);
     border-bottom: 5vh solid var(--purple);
     background: var(--purple);
-    /* resize: none;/ */
 }
-/* pour l-instant, juste pour l-idee */
 .ft-folder {
-    /* box-sizing: border-box; */
     width: 20vw;
     height: 15vh;
-    /* left: 221px;
-    top: 432.48px; */
     background: var(--pink);
     border: 4px solid var(--purple);
     
@@ -125,19 +103,12 @@ let folders = ref([
 }
 
 .ft-titleFolder {
-    /* position: absolute; */
-    /* width: 162.16px; */
-    /* height: 34.85px;s */
-    /* left: 237.56px;
-    top: 664px; */
-
-    font-family: 'Audiowide'; /* Font prise de Figma */
-    /* font-family:monospace; */
+    font-family: 'Audiowide';
     font-style:normal;
     font-weight:bold;
     font-size: 2rem;
     line-height: 54px;
-    padding-left: 1rem; /* a voir si mieux sans */
+    padding-left: 1rem;
     color: var(--light);
 }
 
