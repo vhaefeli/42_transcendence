@@ -14,7 +14,7 @@
   </div>
   <button v-if="isLoggedIn" @click="LogOut">Logout</button>
   <div v-if="isLoggedIn">
-    <button @click="LoadProfile">reload</button>
+    <!-- <button @click="LoadProfile">reload</button>
     <br />
     <p>Your Profile:</p>
     <br />
@@ -22,7 +22,7 @@
     <p v-if="user.twoFA_enabled">2FA is enabled</p>
     <p v-if="!user.twoFA_enabled">2FA is disabled</p>
     <p>Status: {{ user.status }}</p>
-    <img :src="user.avatar_url" alt="avatar img" />
+    <img :src="user.avatar_url" alt="avatar img" /> -->
   </div>
   <div v-if="true">
     <button
