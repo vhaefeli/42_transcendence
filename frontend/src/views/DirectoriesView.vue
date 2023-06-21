@@ -1,6 +1,6 @@
 <template>
     <!-- <main class="flex"> -->
-    <main>
+    <main class="ft-directoriesMain">
         <div class="ft-container">
             <div class="ft-folderContainer">
                 <div class="ft-tabFolder"></div>
@@ -53,17 +53,10 @@ let folders = ref([
 </script>
 
 <style scoped>
-body {
-    margin: 1px;
-    min-height: 100vh;
-    min-width: 100vw;
-}
 
-main {
-    height: 100%;
-    width: 100%;
-    left: 0px;
-    top: 0px;
+.ft-directoriesMain {
+    height: 100vh;
+    width: 100vw;
     box-sizing: border-box;
     background: var(--gray);
     border: 4px solid var(--orange);
@@ -82,8 +75,8 @@ main {
     align-items: center;
     
     /* devrait s'adapter a SON conteneur/parent normalement */
-    width: 100vw;
-    height: 100vh; /* devrait s'adapter a SON conteneur/parent normalement */
+    width: 100%;
+    height: 100%; /* devrait s'adapter a SON conteneur/parent normalement */
 }
 
 .ft-folderContainer {
