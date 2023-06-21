@@ -13,6 +13,7 @@ import { CreateUserDto } from 'src/user/create-user.dto';
 import { UpdateUsernameReturnDto } from 'src/user/update-username-return.dto';
 import { UserProfileDto } from 'src/user/user-profile.dto';
 import { MyProfileDto } from './my-profile.dto';
+import { Profile42Api } from './profile-42api.dto';
 
 @Injectable()
 export class UsersService {
@@ -251,5 +252,15 @@ export class UsersService {
     } catch (e) {
       throw new NotFoundException();
     }
+  }
+
+  async registerLogin42API(
+    access_token: string,
+    user: Profile42Api,
+  ): Promise<string> {
+    Logger.log(user);
+    // TODO register 42user
+    // verify that username is not taken
+    return '';
   }
 }
