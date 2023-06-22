@@ -14,7 +14,8 @@
   </div>
   <button v-if="isLoggedIn" @click="LogOut">Logout</button>
   <div v-if="isLoggedIn">
-    <button @click="LoadProfile">reload</button>
+    <button @click="LoadProfile">reload</button><br>
+    <router-link :to="'/user/' + user.username">see my profile</router-link>
     <br />
     <p>Your Profile:</p>
     <br />
