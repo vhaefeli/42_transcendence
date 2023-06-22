@@ -1,6 +1,7 @@
 <template>
     <h1 class="mt-9">Profile page</h1>
 
+    <!-- Nadia: tu pourra tout remove et afficher correctement. Toutes les classes sont du Tailwind. -->
     <div v-if="user.id">
         <div class="flex mb-9">
             <img :src="user.avatar_url" alt="avatar img" class="mr-9"/>
