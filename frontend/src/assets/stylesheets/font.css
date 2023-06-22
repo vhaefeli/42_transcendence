@@ -1,6 +1,23 @@
 /*
     Ce fichier regroupes tous les styles liés aux textes et aux polices.
 */
+@import url(./../fonts/array/css/array.css);
+@font-face {
+    font-family: "Array";
+    src: url(./../fonts/array/fonts/Array-Regular.ttf);
+}
+
+/* @import url(./../fonts/JetBrains_Mono/static/); */
+@font-face {
+    font-family: "JetBrains";
+    src: url(./../fonts/JetBrains_Mono/JetBrainsMono-VariableFont_wght.ttf);
+}
+
+/* @import url(./../fonts/array/css/array.css); */
+@font-face {
+    font-family: "Orbitron";
+    src: url(./../fonts/Orbitron/Orbitron-VariableFont_wght.ttf);
+}
 
 h1 {
     font-size: 52px;
