@@ -84,7 +84,7 @@ let folders = ref([
     border-bottom: 2.5em solid var(--purple);
 }
 .ft-folder {
-    width: 20em;
+    width: 18em;
     height: 10em;
     background: var(--pink);
     border: 4px solid var(--purple);
@@ -101,13 +101,9 @@ let folders = ref([
 }
 
 .ft-titleFolder {
-    font-family: 'Audiowide';
-    font-style:normal;
-    font-weight:bold;
-    font-size: 2rem;
+    font-size: 2.5rem;
     line-height: 54px;
     padding-left: 1rem;
-    color: var(--light);
 }
 
 </style>
