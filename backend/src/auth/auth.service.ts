@@ -79,6 +79,7 @@ export class AuthService {
           id: response.data.id,
           login: response.data.login,
           image_url: response.data.image.link,
+          access_token: access_token42,
         };
       })
       .catch((error) => {
@@ -86,11 +87,11 @@ export class AuthService {
         Logger.error(error);
         throw new InternalServerErrorException();
       });
-    const access_token = await this.usersService.registerLogin42API(
-      access_token42,
-      profile42,
-    );
-    Logger.log(access_token);
-    return { access_token: `${access_token}` };
+    return {
+      access_token: await this.usersService.login42API(
+        access_token42,
+        profile42,
+      ),
+    };
   }
 }
