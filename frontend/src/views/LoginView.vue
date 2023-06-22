@@ -22,7 +22,7 @@
     <p v-if="user.twoFA_enabled">2FA is enabled</p>
     <p v-if="!user.twoFA_enabled">2FA is disabled</p>
     <p>Status: {{ user.status }}</p>
-    <img :src="user.avatar_url" alt="avatar img" />
+    <img :src="user.avatar_url" alt="avatar img" width="200" height="200"/>
   </div>
   <div v-if="true">
     <button
