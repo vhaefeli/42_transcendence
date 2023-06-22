@@ -80,14 +80,12 @@ let folders = ref([
 }
 
 .ft-tabFolder {
-    width: 12vw;
-    border-right: 4vw solid var(--gray);
-    border-bottom: 5vh solid var(--purple);
-    background: var(--purple);
+    width: 10em;
+    border-bottom: 2.5em solid var(--purple);
 }
 .ft-folder {
-    width: 20vw;
-    height: 15vh;
+    width: 20em;
+    height: 10em;
     background: var(--pink);
     border: 4px solid var(--purple);
     
