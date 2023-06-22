@@ -1,0 +1,36 @@
+/*
+    Cette page regroupe tout ce qui concerne les onglets qui sont utilsés et partagés entre les pages.
+*/
+
+.ft-cover {
+    min-height: 25vh;
+}
+
+.ft-container {
+    height: 100vh;
+    width: 100vw;
+    box-sizing: border-box;
+    background: var(--gray);
+    /* border: 4px solid var(--orange); */
+}
+
+.ft-tabContent, .ft-tabFolder {
+    position: relative;
+    left: 1em;
+
+    height: 1em;
+    border-right: 2em solid var(--invisible);
+    border-left: 2em solid var(--invisible);
+    position: relative;
+}
+
+.ft-tabContent {
+    border-bottom: 2.5em solid var(--mint);
+    /* left: 200px;
+    top: 100px; */
+}
+
+/* .ft-tabContent #titleCard {
+    background: var(--mint);
+    border-bottom: 5vh solid var(--mint);
+} */

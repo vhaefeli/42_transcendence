@@ -5,6 +5,7 @@
 @import "./assets/stylesheets/style.css";
 @import "./assets/stylesheets/button.css";
 @import "./assets/stylesheets/font.css";
+@import "./assets/stylesheets/tabContent.css";
 
 @tailwind base;
 @tailwind components;
@@ -23,4 +24,5 @@
     --green: #00FFA3;
     --mint: #72C7B9;
     --red: #EA4B35;
+    --invisible: #B7B7B700;
 }
