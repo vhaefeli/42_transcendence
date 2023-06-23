@@ -12,7 +12,7 @@
             </div>
         </div>
 
-        <div class="ft-flexContainer">
+        <div class="ft-flexContainer" id="centralTab">
             <div>
                 <img id="profilePic" src="./../assets/img/chat.png" alt="Profile image of (username)"/>
             </div>
@@ -23,7 +23,7 @@
 
             </div> -->
             <div class="ft-bodyContent">
-                Pouette (body)
+                Pouette
             </div>
         </div>
 
@@ -40,10 +40,12 @@
             <ul v-for="friend in player[0].friends" key="userData.id">
                 <li>{{ friend.username }}</li>
             </ul> -->
+            <div class="ft-flexContainer" id="stats">
 
-            <div class="ft-tabContent ft-stats">
-                <!-- Ci-dessous le titre de l'onglet -->
-                Stats
+                <div class="ft-tabContent ft-stats">
+                    <!-- Ci-dessous le titre de l'onglet -->
+                    Stats
+                </div>
             </div>
         
         </div>
@@ -103,12 +105,22 @@ button#game {
 
 .ft-flexContainer {
     width: max-content;
+}
+
+.ft-flexContainer#centralTab {
     position: absolute;
     top: 100px;
     left: 50vw;
     transform: translateX(-50%);
     /* align-content: center; */
+}
 
+.ft-flexContainer#stats {
+    position: relative;
+    top:1em;
+    left: 5em;
+    transform: translateX(-50%);
+    /* align-content: center; */
 }
 
 .ft-connectedCircle {

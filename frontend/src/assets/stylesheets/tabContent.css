@@ -10,6 +10,12 @@
     display: flex;
     flex-direction: column;
     text-align: center;
+    /*
+        avec le align-items center, les images se centrent MAIS le body de pouette
+        retrecit pour s'adapter uniquement a la taille du texte et plus le width
+        du precedent    
+    */
+    align-items: center;
 
 }
 
@@ -30,11 +36,9 @@
     /* border: 4px solid var(--purple); */
 }
 
-.ft-tabContent {
-    border-bottom: 1.5em solid var(--mint);
-}
 
-.ft-tabContent, .ft-titleFolder {
+
+.ft-tabContent, .ft-titleFolder, .ft-bodyContent {
     font-family: 'Array', 'Audiowide', monospace;
     /* font-family: 'JetBrains'; */
     /* font-family: 'Orbitron'; */
