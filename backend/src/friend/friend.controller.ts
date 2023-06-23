@@ -25,13 +25,25 @@ export class FriendController {
     return await this.friendService.findInvitationsReceived(req.user.sub);
   }
 
+  @Get('invite/sent')
+  async getInvitationSent(@Request() req: any) {
+    return await this.friendService.findInvitationsSent(req.user.sub);
+  }
+
   @Post('invite/accept/:from_username')
   async acceptInvitation(@Param() params: any, @Request() req: any) {
     await this.friendService.acceptInvitation(
       params.from_username,
       req.user.sub,
     );
-    return;
+  }
+
+  @Delete('invite/:from_username')
+  async refuseInvitation(@Param() params: any, @Request() req: any) {
+    await this.friendService.refuseInvitation(
+      params.from_username,
+      req.user.sub,
+    );
   }
 
   @Get('all')

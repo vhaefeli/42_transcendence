@@ -59,6 +59,28 @@ export class FriendService {
     }
   }
 
+  async findInvitationsSent(id: number) {
+    const invitations = new Array<TokenInfoDto>();
+    (
+      await this.prisma.user.findUnique({
+        where: { id: id },
+        select: {
+          invitations_sent: {
+            select: {
+              to: {
+                select: { id: true, username: true },
+              },
+            },
+          },
+        },
+      })
+    ).invitations_sent.forEach((element) => {
+      invitations.push({ ...element.to });
+    });
+
+    return invitations;
+  }
+
   async findInvitationsReceived(id: number) {
     const invitations = new Array<TokenInfoDto>();
     (
@@ -106,6 +128,27 @@ export class FriendService {
     } catch (e) {
       if (e.code == 'P2025') throw new NotFoundException();
       if (e instanceof InternalServerErrorException) throw e;
+      if (e?.code) Logger.error(e.code + ' ' + e.msg);
+      else Logger.error(e);
+    }
+  }
+
+  async refuseInvitation(from_username: string, id: number) {
+    try {
+      await this.prisma.friendshipInvitation.delete({
+        where: {
+          fromId_toId: {
+            fromId: (
+              await this.prisma.user.findUniqueOrThrow({
+                where: { username: from_username },
+              })
+            ).id,
+            toId: id,
+          },
+        },
+      });
+    } catch (e) {
+      if (e.code == 'P2025') throw new NotFoundException();
       if (e?.code) Logger.error(e.code + ' ' + e.msg);
       else Logger.error(e);
     }
