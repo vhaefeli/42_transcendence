@@ -1,20 +1,23 @@
 <template>
     <main class="ft-directoriesMain">
         <div class="ft-container">
-            <div class="ft-folderContainer">
+            <!-- purple -->
+            <div class="ft-folderContainer" id="profile">
                 <div class="ft-tabFolder"></div>
                 <div class="ft-folder">check your profile</div>
                 <router-link class="ft-titleFolder" to="/profile">profile</router-link>
             </div>
             
-            <div class="ft-folderContainer">
+            <!-- menthe -->
+            <div class="ft-folderContainer" id="game">
                 <div class="ft-tabFolder"></div>
                 <div class="ft-folder">play a game</div>
                 <router-link class="ft-titleFolder" to="/game">game</router-link>
 
             </div>
             
-            <div class="ft-folderContainer">
+            <!-- rose -->
+            <div class="ft-folderContainer" id="chat">
                 <div class="ft-tabFolder"></div>
                 <div class="ft-folder">chat with friends</div>
                 <router-link class="ft-titleFolder" to="/chat">chat</router-link>
