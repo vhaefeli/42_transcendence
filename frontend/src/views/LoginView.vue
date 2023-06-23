@@ -14,7 +14,8 @@
   </div>
   <button v-if="isLoggedIn" @click="LogOut">Logout</button>
   <div v-if="isLoggedIn">
-    <button @click="LoadProfile">reload</button>
+    <button @click="LoadProfile">reload</button><br>
+    <router-link :to="'/user/' + user.username">see my profile</router-link>
     <br />
     <p>Your Profile:</p>
     <br />
@@ -37,12 +38,14 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import axios from "axios";
+import { useRouter } from 'vue-router'
 import { useSessionStore } from "@/stores/SessionStore";
 
 const isLoggedIn = ref(false);
 const login_username = ref("");
 const login_password = ref("");
 const createUser = ref(false);
+const router = useRouter()
 
 const sessionStore = useSessionStore();
 
@@ -115,7 +118,7 @@ async function LogIn(): Promise<boolean> {
       sessionStore.isLoggedIn = true;
       isLoggedIn.value = true;
       console.log("successfully logged in");
-      // TODO redirectionner vers profile
+      // router.push({ name: 'profile', params: { username: login_username.value } })
       LoadProfile();
       return true;
     })

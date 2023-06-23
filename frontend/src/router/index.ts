@@ -23,7 +23,7 @@ const router = createRouter({
       component: DirectoriesView
     },
     {
-      path: '/profile',
+      path: '/user/:username',
       name: 'profile',
       component: ProfileView
     },
