@@ -9,40 +9,36 @@
     </div>
   </section>
 
-  <section class="ft-content">
+  <section class="ft-content ft-container">
     <div class="ft-flexContainer" id="centralTab">
       <div class="ft-profilePic"></div>
       <div class="ft-connectedCircle"></div>
       <div class="ft-tabContent ft-titleProfile"></div>
-      <div class="ft-bodyContent">
-          Pouette est son nom
+      <div id="onlineStatus">Online</div>
+      <div class="ft-bodyContent ft-title">
+          Pouetteuuh
       </div>
     </div>
-    
-    <div class="ft-container">
+                    
+    <!-- CODE DE MICHELE -->
+    <!-- <h1>Profile page</h1>
+        <p>Name of user is {{ player[0].username }}</p>
+        <h2>My friends</h2>
         
-        
-        
-        <!-- CODE DE MICHELE -->
-        <!-- <h1>Profile page</h1>
-            <p>Name of user is {{ player[0].username }}</p>
-            <h2>My friends</h2>
-            
-            <ul v-for="friend in player[0].friends" key="userData.id">
-                <li>{{ friend.username }}</li>
-            </ul> -->
-        <!-- /CODE DE MICHELE -->
+        <ul v-for="friend in player[0].friends" key="userData.id">
+            <li>{{ friend.username }}</li>
+        </ul> -->
+    <!-- /CODE DE MICHELE -->
 
-            <div class="ft-flexContainer" id="stats">
-                
-                <div class="ft-tabContent ft-stats">
-                    <!-- Ci-dessous le titre de l'onglet -->
-                    Stats
-                </div>
-            </div>
-    
+    <div class="ft-flexContainer" id="stats">
+      <div class="ft-tabFolder"></div>
+        
+        <div class="ft-tabContent ft-title">
+            <!-- Ci-dessous le titre de l'onglet -->
+            Stats
+        </div>
     </div>
-  <!-- </div> -->
+    
   </section>
 </template>
   
@@ -90,7 +86,7 @@ button#game {
 
 .ft-profilePic {
     position: relative;
-    top: 5em;
+    top: 3em;
     width: 6em;
     height: 6em;
     border-radius: 20%;
@@ -104,11 +100,15 @@ button#game {
 }
 
 .ft-flexContainer#centralTab {
-    position: absolute;
-    top: 100px;
+    position: relative;
+    top: -12em;
     left: 50vw;
     transform: translateX(-50%);
     /* align-content: center; */
+}
+
+#onlineStatus {
+  width: 100%;
 }
 
 .ft-flexContainer#stats {
@@ -120,10 +120,9 @@ button#game {
 }
 
 .ft-connectedCircle {
-    position:relative;
-    top: 4.3em;
-    z-index:2;
-
+  position:relative;
+  top: 2.5em;
+  z-index:2;
 }
 
 .ft-tabContent {
@@ -151,24 +150,21 @@ button#game {
     /* display: flex;
     flex-direction: column; */
     /* font-weight: 400; */
-    font-size: 3rem;
+    font-size: 2rem;
     /* text-align: center; */
     /* min-width:fit-content; */
-    width: 40vw;
+    width: 10em;
     border-bottom: 1.5em solid var(--light-purple);
 }
 
-.ft-bodyContent {
-    width:100%;
-    /* height: 300px; */
-    height: 15em;
-    background: var(--light-purple);
-    font-size: 3rem;
+.ft-bodyContent, #onlineStatus {
+  width:100%;
+  background: var(--light-purple);
 }
 
-/* .ft-connectedCircle {
-    left: 50vw;
-    transform: translateX(-50%);
-} */
+.ft-bodyContent {
+  height: 10em;
+  font-size: 2rem;
+}
 
 </style>
