@@ -6,31 +6,27 @@ import {
   Post,
   Request,
 } from '@nestjs/common';
-import { InviteService } from './invite.service';
+import { FriendService } from './friend.service';
 
-@Controller('invite')
-export class InviteController {
-  constructor(private inviteService: InviteService) {}
-
-  pretty_json(res: any) {
-    return JSON.stringify(res, null, 2);
-  }
+@Controller('user/friend')
+export class FriendController {
+  constructor(private friendService: FriendService) {}
 
   @Post(':username')
   async sendFriendshipInvitation(@Param() params: any, @Request() req: any) {
     if (req.user.username == params.username) throw new ConflictException();
-    await this.inviteService.createInvitation(req.user.sub, params.username);
+    await this.friendService.createInvitation(req.user.sub, params.username);
     return;
   }
 
   @Get('view')
   async getInvitations(@Request() req: any) {
-    return await this.inviteService.findInvitationsReceived(req.user.sub);
+    return await this.friendService.findInvitationsReceived(req.user.sub);
   }
 
   @Post('accept/:from_username')
   async acceptInvitation(@Param() params: any, @Request() req: any) {
-    await this.inviteService.acceptInvitation(
+    await this.friendService.acceptInvitation(
       params.from_username,
       req.user.sub,
     );

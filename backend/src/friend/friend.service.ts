@@ -9,7 +9,7 @@ import { PrismaService } from 'src/prisma.service';
 import { UsersService } from 'src/user/users.service';
 
 @Injectable()
-export class InviteService {
+export class FriendService {
   constructor(
     private prisma: PrismaService,
     private usersService: UsersService,
