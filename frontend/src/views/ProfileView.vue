@@ -98,6 +98,8 @@ button#game {
 }
 
 #profilePic {
+    position: relative;
+    top: 5em;
     width: 6em;
     height: 6em;
     border-radius: 20%;
@@ -151,7 +153,7 @@ button#game {
     /* font-weight: 400; */
     font-size: 3rem;
     /* text-align: center; */
-    min-width:fit-content;
+    /* min-width:fit-content; */
     width: 40vw;
     border-bottom: 1.5em solid var(--light-purple);
 }
