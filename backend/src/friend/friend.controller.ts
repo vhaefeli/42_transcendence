@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -31,5 +32,15 @@ export class FriendController {
       req.user.sub,
     );
     return;
+  }
+
+  @Get('all')
+  async findFriends(@Request() req: any) {
+    return await this.friendService.getFriends(req.user.sub);
+  }
+
+  @Delete(':username')
+  async removeFriendship(@Param() params: any, @Request() req: any) {
+    await this.friendService.removeFriendship(req.user.sub, params.username);
   }
 }

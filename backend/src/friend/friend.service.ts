@@ -1,5 +1,7 @@
 import {
   ConflictException,
+  forwardRef,
+  Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -12,6 +14,7 @@ import { UsersService } from 'src/user/users.service';
 export class FriendService {
   constructor(
     private prisma: PrismaService,
+    @Inject(forwardRef(() => UsersService))
     private usersService: UsersService,
   ) {
     prisma.$use(async (params, next) => {
@@ -32,7 +35,7 @@ export class FriendService {
   }
 
   async createInvitation(from_id: number, to_user: string) {
-    (await this.usersService.getFriends(from_id)).forEach((element) => {
+    (await this.getFriends(from_id)).forEach((element) => {
       if (element.username == to_user) throw new ConflictException();
     });
     try {
@@ -114,5 +117,106 @@ export class FriendService {
         },
       },
     });
+  }
+
+  async getFriends(id: number) {
+    const friends = await this.prisma.user.findUnique({
+      where: { id: id },
+      select: {
+        friends_added: {
+          select: {
+            id: true,
+            username: true,
+          },
+        },
+        friends: {
+          select: {
+            id: true,
+            username: true,
+          },
+        },
+      },
+    });
+    const res = new Array<{ id: number; username: string }>();
+    friends.friends.forEach((element) => {
+      res.push({ id: element.id, username: element.username });
+    });
+    friends.friends_added.forEach((element) => {
+      res.push({ id: element.id, username: element.username });
+    });
+    return res;
+  }
+
+  async removeFriendship(my_id: number, friend_username: string) {
+    try {
+      if (
+        !(await this.areFriends(
+          my_id,
+          await this.usersService.getId(friend_username),
+        ))
+      ) {
+        throw new Error();
+      }
+      await this.prisma.user.update({
+        where: { id: my_id },
+        data: {
+          friends: { disconnect: { username: friend_username } },
+          friends_added: { disconnect: { username: friend_username } },
+        },
+      });
+    } catch (e) {
+      throw new NotFoundException();
+    }
+  }
+
+  async areFriends(id1: number, id2: number): Promise<boolean> {
+    return (
+      (await this.prisma.user.findFirst({
+        where: {
+          AND: [
+            {
+              id: id1,
+            },
+            {
+              OR: [
+                {
+                  friends: {
+                    some: {
+                      id: id2,
+                    },
+                  },
+                },
+                {
+                  friends_added: {
+                    some: {
+                      id: id2,
+                    },
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      })) != null
+    );
+    //const otherFriendFound = await this.prisma.user.findFirst({
+    //  where: { username: user },
+    //  select: {
+    //    friends: {
+    //      where: { username: friend },
+    //      select: {
+    //        id: true,
+    //        username: true,
+    //      },
+    //    },
+    //    friends_added: {
+    //      where: { username: friend },
+    //      select: {
+    //        id: true,
+    //        username: true,
+    //      },
+    //    },
+    //  },
+    //});
   }
 }
