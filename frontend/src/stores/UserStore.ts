@@ -8,6 +8,7 @@ type State = {
 type Friends = {
   id: number
   username: string
+  is_blocked: boolean
 };
 
 type From = {
@@ -18,7 +19,6 @@ type Invites = {
   id: number
   invitations_received: From
 };
-
 
 interface User {
   id: number
@@ -48,14 +48,8 @@ export const useUserStore = defineStore("userStore", {
             console.log("loaded profile");
           })
           .catch((error) => {
-            if (error.response.status == 401) {
-              console.log(
-                `invalid access token: ${error.response.status} ${error.response.statusText}`
-              );
-            } else
-              console.error(
-                `unexpected error: ${error.response.status} ${error.response.statusText}`
-              );
+              console.error(`unexpected error: ${error.response.status} ${error.response.statusText}`);
+              alert('Rows found!');
           });
       },
       // get list of friends
@@ -66,18 +60,11 @@ export const useUserStore = defineStore("userStore", {
           headers: { Authorization: `Bearer ${access_token}` },
         })
           .then((response) => {
-            this.user.firends = response.data;
+            this.user.friends = response.data;
             console.log("loaded friends");
           })
           .catch((error) => {
-            if (error.response.status == 401) {
-              console.log(
-                `invalid access token: ${error.response.status} ${error.response.statusText}`
-              );
-            } else
-              console.error(
-                `unexpected error: ${error.response.status} ${error.response.statusText}`
-              );
+              console.error(`unexpected error: ${error.response.status} ${error.response.statusText}`)
           });
       },
       // get list of friends
@@ -153,8 +140,110 @@ export const useUserStore = defineStore("userStore", {
              );
            return false;
          });
-   },
+      },
+      // delete a friend
+      async delFriend(friendname, access_token) {
+       await axios({
+         url: `/api/user/friend/${friendname}`,
+         method: "delete",
+         headers: { Authorization: `Bearer ${access_token}` },
+       })
+         .then((response) => {
+           // To execute when the request is successful
+           console.log(`friend ${friendname} deleted`)
+           return true;
+         })
+         .catch((error) => {
+           // To execute when the request fails
+           if (error.response.status == 409)
+             console.log(
+               `user already exists: ${error.response.status} ${error.response.statusText}`
+             );
+           else
+             console.error(
+               `unexpected error: ${error.response.status} ${error.response.statusText}`
+             );
+           return false;
+         });
+      },
+        // list all blocked users
+        async listBlockedUsers(access_token) {
+          await axios({
+            url: `/api/user/block`,
+            method: "get",
+            headers: { Authorization: `Bearer ${access_token}` },
+          })
+            .then((response) => {
+              // To execute when the request is successful
+              console.log('blocked users loaded')
+              return true;
+            })
+            .catch((error) => {
+              // To execute when the request fails
+              if (error.response.status == 409)
+                console.log(
+                  `user already exists: ${error.response.status} ${error.response.statusText}`
+                );
+              else
+                console.error(
+                  `unexpected error: ${error.response.status} ${error.response.statusText}`
+                );
+              return false;
+            });
+        },
+        // block a user
+        async blockUser(username, access_token) {
+          await axios({
+            url: `/api/user/block/${username}`,
+            method: "post",
+            headers: { Authorization: `Bearer ${access_token}` },
+          })
+            .then((response) => {
+              // To execute when the request is successful
+              console.log('${username} is blocked')
+              return true;
+            })
+            .catch((error) => {
+              // To execute when the request fails
+              if (error.response.status == 409)
+                console.log(
+                  `user already exists: ${error.response.status} ${error.response.statusText}`
+                );
+              else
+                console.error(
+                  `unexpected error: ${error.response.status} ${error.response.statusText}`
+                );
+              return false;
+            });
+        },
+        // unblock a user
+        async unblockUser(username, access_token) {
+          await axios({
+            url: `/api/user/block/${username}`,
+            method: "delete",
+            headers: { Authorization: `Bearer ${access_token}` },
+          })
+            .then((response) => {
+              // To execute when the request is successful
+              console.log('${username} is unblocked')
+              return true;
+            })
+            .catch((error) => {
+              // To execute when the request fails
+              if (error.response.status == 409)
+                console.log(
+                  `user already exists: ${error.response.status} ${error.response.statusText}`
+                );
+              else
+                console.error(
+                  `unexpected error: ${error.response.status} ${error.response.statusText}`
+                );
+              return false;
+            });
+        },
       
     }
 })
 
+// 401 > se délogger et rediriger vers le login
+// gérer les erreurs

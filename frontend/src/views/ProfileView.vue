@@ -4,7 +4,7 @@
     <!-- Nadia: tu pourra tout remove et afficher correctement. Toutes les classes sont du Tailwind. -->
 
     <!-- check si on est sur son propre profile -->
-    <div v-if="user && user.username && user.username == route.params.username">
+    <div v-if="user && user.username && user.username == route.params.username" class="w-60%">
         <div class="flex mb-9">
             <img :src="user.avatar_url" alt="avatar img" class="mr-9"/>
             <div class="mr-9">
@@ -37,11 +37,17 @@
     <div class="mb-9">
         <!-- list of friends -->
         <h2>My friends</h2>
-        <div v-for="friend in user.firends" :key="friend.id" class="flex border-4 border-sky-500 p-3 mb-1">
+        <div v-for="friend in user.friends" :key="friend.id" class="flex justify-between border-4 border-sky-500 p-3 mb-1">
             <div>
                 <p>id: {{ friend.id }}</p>
                 <p>name: {{ friend.username }}</p>
             </div>
+            <button
+                class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+                @click="delFriend(friend.username)"
+                >
+                    remove friendship
+                </button>
         </div>
     </div>
     <div class="">
@@ -105,6 +111,10 @@
 
     function acceptFriend(friendname) {
         userStore.acceptFriend(friendname, sessionStore.access_token);
+    }
+
+    function delFriend(friendname) {
+        userStore.delFriend(friendname, sessionStore.access_token);
     }
 
     // list all users
