@@ -67,6 +67,8 @@
         <p>something went wrong</p>
     </div>
 
+    <router-link to="/search-users">Search for users</router-link>
+
 </template>
   
 <script setup>
