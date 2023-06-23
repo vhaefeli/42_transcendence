@@ -8,6 +8,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
+import { TokenInfoDto } from 'src/user/token-info.dto';
 import { UsersService } from 'src/user/users.service';
 
 @Injectable()
@@ -59,22 +60,25 @@ export class FriendService {
   }
 
   async findInvitationsReceived(id: number) {
-    const usr = await this.prisma.user.findUnique({
-      where: { id: id },
-      select: {
-        id: true,
-        invitations_received: {
-          select: {
-            from: {
-              select: { id: true, username: true },
+    const invitations = new Array<TokenInfoDto>();
+    (
+      await this.prisma.user.findUnique({
+        where: { id: id },
+        select: {
+          invitations_received: {
+            select: {
+              from: {
+                select: { id: true, username: true },
+              },
             },
           },
         },
-      },
+      })
+    ).invitations_received.forEach((element) => {
+      invitations.push({ ...element.from });
     });
-    if (usr === null) return null;
 
-    return usr;
+    return invitations;
   }
 
   async acceptInvitation(from_username: string, id: number) {
