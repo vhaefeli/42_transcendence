@@ -1,6 +1,5 @@
 <template>
   <h1>Logging in with your 42 account</h1>
-  <p>{{ code42 }}</p>
   <p v-if="state_fail">State does not match</p>
   <router-link class="t-btn-pink" to="/login"
     >Return to login/profile page</router-link
@@ -16,8 +15,6 @@ import { ref } from "vue";
 const state_fail = ref(false);
 
 const sessionStore = useSessionStore();
-
-let code42: string;
 
 getURLCode();
 
@@ -37,7 +34,6 @@ function getURLCode() {
       state_fail.value = true;
       return;
     }
-    code42 = `API code: ${code}`;
   }
 
   backendRegistration(code, state);
