@@ -49,7 +49,7 @@ export const useUserStore = defineStore("userStore", {
           })
           .catch((error) => {
               console.error(`unexpected error: ${error.response.status} ${error.response.statusText}`);
-              alert('Rows found!');
+              alert('unexpected error with token!');
           });
       },
       // get list of friends
