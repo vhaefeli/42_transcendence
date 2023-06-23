@@ -21,24 +21,24 @@
     /* border: 4px solid var(--orange); */
 }
 
-.ft-tabContent, .ft-tabFolder {
+.ft-tabFolder {
     position: relative;
-    /* left: 1em; */
     height: 1em;
     border-right: 2em solid var(--invisible);
     border-left: 2em solid var(--invisible);
-    /* border: 4px solid var(--purple); */
 }
-
-/* .ft-tabContent, .ft-titleFolder, .ft-bodyContent {
-    font-family: 'Array', 'Audiowide', monospace;
-    font-style: normal;
-    color: var(--light);
-} */
 
 .ft-connectedCircle {
     width: 1em;
     height: 1em;
     border-radius: 50%;
     background: var(--green);
+}
+
+.ft-leftTab {
+    align-items: flex-start;
+}
+
+.ft-rightTab {
+    align-items: flex-end;
 }

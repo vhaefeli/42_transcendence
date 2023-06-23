@@ -10,13 +10,24 @@
   </section>
 
   <section class="ft-content ft-container">
-    <div class="ft-flexContainer" id="centralTab">
+    <div class="ft-flexContainer ft-centralTab">
       <div class="ft-profilePic"></div>
       <div class="ft-connectedCircle"></div>
-      <div class="ft-tabContent ft-titleProfile"></div>
+      <div class="ft-tabFolder" id="titleProfile"></div>
       <div id="onlineStatus">Online</div>
-      <div class="ft-bodyContent ft-title">
+      <div class="ft-tabContent ft-title ft-centralTab">
           Pouetteuuh
+      </div>
+      <div class="ft-tabContent ft-centralTab" id="buttonsContainer">
+        <!-- Bouton pour ajouter la personne en ami (profil d'un tiers) -->
+        <button class="otherProfile" id="add">[+]</button>
+        <!-- Bouton pour bloquer la personne (profil d'un tiers) -->
+        <button class="otherProfile" id="block">[blk]</button>
+
+        <!-- Bouton pour editer son profil (SON profil uniquement) -->
+        <button class="myProfile" id="edit">[ed.]</button>
+      </div>
+      <div class="ft-tabContent ft-centralTab">
       </div>
     </div>
                     
@@ -30,13 +41,14 @@
         </ul> -->
     <!-- /CODE DE MICHELE -->
 
-    <div class="ft-flexContainer" id="stats">
-      <div class="ft-tabFolder"></div>
-        
-        <div class="ft-tabContent ft-title">
+    <div class="ft-flexContainer ft-leftTab" id="stats">
+      <div class="ft-tabFolder ft-title">
+        Stats
+      </div>
+      <div class="ft-tabContent">
+        tabContent de stats
             <!-- Ci-dessous le titre de l'onglet -->
-            Stats
-        </div>
+      </div>
     </div>
     
   </section>
@@ -78,6 +90,18 @@ button#game {
   background: var(--pink);
 }
 
+button#add {
+  background: var(--mint);
+}
+
+button#block {
+  background: var(--red);
+}
+
+button#edit {
+  background: var(--gray);
+}
+
 /* /JUSTE POUR REPERER FACILEMENT */
 
 .ft-cover {
@@ -99,12 +123,14 @@ button#game {
     width: max-content;
 }
 
-.ft-flexContainer#centralTab {
+.ft-flexContainer.ft-centralTab {
     position: relative;
-    top: -12em;
+    top: -16em;
     left: 50vw;
     transform: translateX(-50%);
-    /* align-content: center; */
+}
+.ft-tabContent.ft-centralTab {
+  background: var(--light-purple);
 }
 
 #onlineStatus {
@@ -113,9 +139,9 @@ button#game {
 
 .ft-flexContainer#stats {
     position: relative;
-    top:1em;
-    left: 5em;
-    transform: translateX(-50%);
+    top:-23em;
+    left: 8em;
+    width: 30em;
     /* align-content: center; */
 }
 
@@ -125,46 +151,34 @@ button#game {
   z-index:2;
 }
 
-.ft-tabContent {
+.ft-tabFolder {
     width: fit-content;
     border-bottom: 1.5em solid var(--mint);
-
-    /* left: 200px;
-    top: 100px; */
-
 }
 
-.ft-tabContent.ft-titleProfile {
+.ft-tabContent#titleProfile {
   text-overflow: ellipsis;
 }
 
-.ft-titleProfile {
-    /* color: var(--light); */
-
-    /* position: relative;
-    left: 50vw;
-    transform: translateX(-50%);
-    top:15vh; */
-
-
-    /* display: flex;
-    flex-direction: column; */
-    /* font-weight: 400; */
+#titleProfile {
     font-size: 2rem;
-    /* text-align: center; */
-    /* min-width:fit-content; */
     width: 10em;
     border-bottom: 1.5em solid var(--light-purple);
 }
 
-.ft-bodyContent, #onlineStatus {
+.ft-tabContent.ft-centralTab, #onlineStatus {
   width:100%;
   background: var(--light-purple);
 }
 
-.ft-bodyContent {
-  height: 10em;
+.ft-tabContent {
+  /* height: 10em; */
   font-size: 2rem;
+}
+
+.ft-tabContent#buttonsContainer {
+  /* padding-top: 3em; */
+  padding: 2em 0 5em 0;
 }
 
 </style>
