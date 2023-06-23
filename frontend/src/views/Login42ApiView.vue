@@ -24,6 +24,12 @@ getURLCode();
 function getURLCode() {
   const code = useRoute().query.code?.toString();
   const state = useRoute().query.state?.toString();
+  if (useRoute().query.error?.toString() === "access_denied") {
+    console.log(
+      `42Api access denied: ${useRoute().query.error_description?.toString()}`
+    );
+    return;
+  }
   if (code && state) {
     if (state != sessionStore.getUUID()) {
       console.log(`state: ${state}\nuuid: ${sessionStore.getUUID()}`);
