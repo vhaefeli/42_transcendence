@@ -3,20 +3,14 @@
 */
 
 .ft-cover {
-    min-height: 35vh;
+    min-height: 15em;
 }
 
 .ft-flexContainer {
     display: flex;
     flex-direction: column;
     text-align: center;
-    /*
-        avec le align-items center, les images se centrent MAIS le body de pouette
-        retrecit pour s'adapter uniquement a la taille du texte et plus le width
-        du precedent    
-    */
     align-items: center;
-
 }
 
 .ft-container {
@@ -36,19 +30,15 @@
     /* border: 4px solid var(--purple); */
 }
 
-
-
-.ft-tabContent, .ft-titleFolder, .ft-bodyContent {
+/* .ft-tabContent, .ft-titleFolder, .ft-bodyContent {
     font-family: 'Array', 'Audiowide', monospace;
-    /* font-family: 'JetBrains'; */
-    /* font-family: 'Orbitron'; */
     font-style: normal;
     color: var(--light);
-}
+} */
 
 .ft-connectedCircle {
-    width: 20px;
-    height: 20px;
+    width: 1em;
+    height: 1em;
     border-radius: 50%;
     background: var(--green);
 }
