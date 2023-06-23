@@ -1,61 +1,55 @@
 <template>
+  <section class="ft-cover">
     <div>
-        <!-- Conteneur de la page entiere -->
-        <div class="ft-cover">
-            <!-- Conteneur du cover -->
-            <div>
-                <!-- Conteneur des boutons dans cover -->
-                <div>
-                    <p><button id="chat">Bouton "Send msg"</button></p>
-                    <p><button id="game">Bouton Invite to play</button></p>
-                </div>
-            </div>
+        <!-- Conteneur des boutons dans cover -->
+        <div>
+            <p><button id="chat">Bouton "Send msg"</button></p>
+            <p><button id="game">Bouton Invite to play</button></p>
         </div>
+    </div>
+  </section>
 
-        <div class="ft-flexContainer" id="centralTab">
-            <div>
-                <img id="profilePic" src="./../assets/img/chat.png" alt="Profile image of (username)"/>
-            </div>
-            <div class="ft-connectedCircle"></div>
-            <div class="ft-tabContent ft-titleProfile">
-            </div>
-            <!-- <div>
-
-            </div> -->
-            <div class="ft-bodyContent">
-                Pouette
-            </div>
-        </div>
-
-
-        <div class="ft-container">
-
-
+  <section class="ft-content">
+    <div class="ft-flexContainer" id="centralTab">
+      <div class="ft-profilePic"></div>
+      <div class="ft-connectedCircle"></div>
+      <div class="ft-tabContent ft-titleProfile"></div>
+      <div class="ft-bodyContent">
+          Pouette est son nom
+      </div>
+    </div>
+    
+    <div class="ft-container">
         
-
-            <!-- <h1>Profile page</h1>
+        
+        
+        <!-- CODE DE MICHELE -->
+        <!-- <h1>Profile page</h1>
             <p>Name of user is {{ player[0].username }}</p>
             <h2>My friends</h2>
-
+            
             <ul v-for="friend in player[0].friends" key="userData.id">
                 <li>{{ friend.username }}</li>
             </ul> -->
-            <div class="ft-flexContainer" id="stats">
+        <!-- /CODE DE MICHELE -->
 
+            <div class="ft-flexContainer" id="stats">
+                
                 <div class="ft-tabContent ft-stats">
                     <!-- Ci-dessous le titre de l'onglet -->
                     Stats
                 </div>
             </div>
-        
-        </div>
+    
     </div>
+  <!-- </div> -->
+  </section>
 </template>
   
 <script setup>
     import { usePlayerStore } from '../stores/PlayerStore'
     import { storeToRefs } from 'pinia'
-
+    
     const playerStore = usePlayerStore()
 
     const { player } = storeToRefs(playerStore)
@@ -66,9 +60,6 @@
 <style scoped>
 
 /* JUSTE POUR REPERER FACILEMENT */
-/* div {
-    background-color: var(--red);
-} */
 
 button {
   border: none;
@@ -91,18 +82,21 @@ button#game {
   background: var(--pink);
 }
 
-/* JUSTE POUR REPERER FACILEMENT */
+/* /JUSTE POUR REPERER FACILEMENT */
 
 .ft-cover {
     background: url(./../assets/img/jr-korpa-9XngoIpxcEo-unsplash.jpg);
 }
 
-#profilePic {
+.ft-profilePic {
     position: relative;
     top: 5em;
     width: 6em;
     height: 6em;
     border-radius: 20%;
+    z-index:1;
+    background: url(./../assets/img/chat.png);
+    background-size: cover;
 }
 
 .ft-flexContainer {
@@ -126,8 +120,10 @@ button#game {
 }
 
 .ft-connectedCircle {
-    position: relative;
-    top: -0.7em;
+    position:relative;
+    top: 4.3em;
+    z-index:2;
+
 }
 
 .ft-tabContent {
@@ -137,6 +133,10 @@ button#game {
     /* left: 200px;
     top: 100px; */
 
+}
+
+.ft-tabContent.ft-titleProfile {
+  text-overflow: ellipsis;
 }
 
 .ft-titleProfile {
@@ -163,7 +163,7 @@ button#game {
     /* height: 300px; */
     height: 15em;
     background: var(--light-purple);
-    font-size: 1.5rem;
+    font-size: 3rem;
 }
 
 /* .ft-connectedCircle {
