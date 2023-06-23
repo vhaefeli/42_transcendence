@@ -7,6 +7,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { AuthService } from 'src/auth/auth.service';
 import { AvatarService } from 'src/avatar/avatar.service';
 import { PrismaService } from 'src/prisma.service';
@@ -24,7 +25,11 @@ export class UsersService {
     @Inject(forwardRef(() => AuthService))
     private authService: AuthService,
     private avatarService: AvatarService,
-  ) {}
+    private configService: ConfigService,
+  ) {
+    if (configService.get<string>('BACKEND_AUTOPOPULATE_DB') === 'true')
+      prisma.autoPopulateDB();
+  }
 
   async findOne(username: string): Promise<any> {
     return await this.prisma.user.findUnique({
