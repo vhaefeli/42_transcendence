@@ -19,10 +19,23 @@
     src: url(./../fonts/Orbitron/Orbitron-VariableFont_wght.ttf);
 }
 
+p, a, .ft-text {
+    font-family: 'JetBrains';
+}
+
+h1, h2, h3, h4, h5, h6, .ft-title {
+    font-family: 'Array', 'Audiowide', monospace;
+    font-style: normal;
+}
+
 h1 {
-    font-size: 52px;
+    font-size: 3rem;
 }
 
 h2 {
-    font-size: 22px;
+    font-size: 2rem;
+}
+
+.ft-title {
+    color: var(--light);
 }
