@@ -1,3 +1,4 @@
+import { HttpModule } from '@nestjs/axios';
 import { forwardRef, Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { UserModule } from 'src/user/user.module';
@@ -11,6 +12,7 @@ import { JwtConfigService } from './jwt.service';
   providers: [AuthService, JwtConfigService, AuthGuard],
   imports: [
     forwardRef(() => UserModule),
+    HttpModule,
     JwtModule.registerAsync({ useClass: JwtConfigService, global: true }),
   ],
   exports: [AuthGuard, AuthService],
