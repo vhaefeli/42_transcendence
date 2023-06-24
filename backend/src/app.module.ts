@@ -9,6 +9,7 @@ import { UserModule } from './user/user.module';
 import { AvatarModule } from './avatar/avatar.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { BlockModule } from './block/block.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { join } from 'path';
     UserModule,
     FriendModule,
     AvatarModule,
+    BlockModule,
   ],
   controllers: [AppController],
   providers: [
