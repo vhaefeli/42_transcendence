@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
+import { TokenInfoDto } from 'src/user/token-info.dto';
 
 @Injectable()
 export class BlockService {
@@ -23,18 +24,17 @@ export class BlockService {
     );
   }
 
-  async findBlocked(my_id: number) {
-    return await this.prisma.user
-      .findUniqueOrThrow({
-        where: { id: my_id },
-        select: { blocked_users: { select: { id: true, username: true } } },
-      })
-      .then((response) => {
-        return response.blocked_users;
-      })
-      .catch((error) => {
-        Logger.error(error.code);
-      });
+  async findBlocked(my_id: number): Promise<Array<TokenInfoDto>> {
+    try {
+      return (
+        await this.prisma.user.findUniqueOrThrow({
+          where: { id: my_id },
+          select: { blocked_users: { select: { id: true, username: true } } },
+        })
+      ).blocked_users;
+    } catch (error) {
+      Logger.error(error.code);
+    }
   }
 
   async blockUser(my_id: number, username: string) {
