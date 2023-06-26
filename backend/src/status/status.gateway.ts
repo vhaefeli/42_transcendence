@@ -28,6 +28,11 @@ export class StatusGateway
     return 'Hello world!';
   }
 
+  @SubscribeMessage('forceDisconnect')
+  disconnectMe(client: any, payload: any) {
+    client.disconnect(true);
+  }
+
   afterInit() {
     //Logger.log('Gateway initiated');
     return;
@@ -35,7 +40,7 @@ export class StatusGateway
 
   handleConnection(client: any, ...args: any[]) {
     Logger.log(`Client connected`);
-    Logger.log(client.conn);
+    Logger.log(client.handshake.auth);
   }
 
   handleDisconnect(client: any) {

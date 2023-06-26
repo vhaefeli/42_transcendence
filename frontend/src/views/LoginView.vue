@@ -32,7 +32,12 @@
     >
       42 API Login/Registration
     </button>
-    <button @click="statusService.ping()">ping socket</button>
+    <button
+      class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+      @click="statusService.ping()"
+    >
+      ping socket
+    </button>
   </div>
 </template>
 
@@ -172,8 +177,7 @@ async function LoadProfile() {
 
 function LogOut() {
   isLoggedIn.value = false;
-  sessionStore.isLoggedIn = false;
-  sessionStore.access_token = "";
+  sessionStore.logout();
 }
 
 function Login42Api() {

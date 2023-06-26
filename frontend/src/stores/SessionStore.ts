@@ -19,9 +19,10 @@ export const useSessionStore = defineStore("sessionStore", {
       if (!this.uuid.length) this.uuid = uuid.v4();
       return this.uuid;
     },
-    async socket_connect() {
-      statusService.ping();
-    },
+    logout() {
+      this.access_token = "";
+      this.isLoggedIn = false;
+    }
   },
   persist: {
     afterRestore(context) {
