@@ -1,12 +1,9 @@
 <template>
-  <section class="ft-cover">
-    <div>
+  <section class="ft-cover flex flex-col items-end justify-end">
         <!-- Conteneur des boutons dans cover -->
-        <div>
-            <p><button id="chat">Bouton "Send msg"</button></p>
-            <p><button id="game">Bouton Invite to play</button></p>
-        </div>
-    </div>
+          <!-- ajouter classes pour les couleurs par activite -->
+            <a><button class="ft-color-chat">Send msg</button></a>
+            <a><button class="ft-color-game">Invite to play</button></a>
   </section>
 
   <section class="ft-content ft-container">
@@ -82,12 +79,14 @@ button {
   /* Aligner les boutons a droite de la cover */
 }
 
-button#chat {
-  background: var(--mint);
+.ft-color-chat {
+  background: var(--pink);
+  color: var(--black);
 }
 
-button#game {
-  background: var(--pink);
+.ft-color-game {
+  background: var(--mint);
+  color: var(--black);
 }
 
 button#add {
