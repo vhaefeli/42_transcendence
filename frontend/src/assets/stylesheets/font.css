@@ -39,3 +39,7 @@ h2 {
 .ft-title {
     color: var(--light);
 }
+
+.ft-color-game, .ft-color-profile, .ft-color-chat {
+    color: var(--dark);
+}
