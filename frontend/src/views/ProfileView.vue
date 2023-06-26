@@ -7,7 +7,7 @@
   </section>
 
   <section class="ft-content ft-container">
-    <div class="ft-flexContainer ft-centralTab">
+    <div class="flex flex-col items-center text-center max-w-max ft-central-tab-container ft-centralTab">
       <div class="ft-profilePic"></div>
       <div class="ft-connectedCircle"></div>
       <div class="ft-tabFolder" id="titleProfile"></div>
@@ -24,7 +24,7 @@
         <!-- Bouton pour editer son profil (SON profil uniquement) -->
         <button class="myProfile" id="edit">[ed.]</button>
       </div>
-      <div class="ft-tabContent ft-centralTab">
+      <div class="ft-color-profile ft-tabContent ft-centralTab">
       </div>
     </div>
                     
@@ -38,7 +38,7 @@
         </ul> -->
     <!-- /CODE DE MICHELE -->
 
-    <div class="ft-flexContainer ft-leftTab" id="stats">
+    <div class="flex flex-col items-center text-center max-w-max ft-leftTab" id="stats">
       <div class="ft-tabFolder ft-title">
         Stats
       </div>
@@ -68,26 +68,16 @@
 
 button {
   border: none;
-  color: white;
   padding: 15px 32px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
-  font-size: 16px;
+  font-size: 1em;
   margin: 0.5em;
-  text-align: right;
-  /* Aligner les boutons a droite de la cover */
 }
+/* /JUSTE POUR REPERER FACILEMENT */
 
-.ft-color-chat {
-  background: var(--pink);
-  color: var(--black);
-}
 
-.ft-color-game {
-  background: var(--mint);
-  color: var(--black);
-}
 
 button#add {
   background: var(--mint);
@@ -101,7 +91,6 @@ button#edit {
   background: var(--gray);
 }
 
-/* /JUSTE POUR REPERER FACILEMENT */
 
 .ft-cover {
     background: url(./../assets/img/jr-korpa-9XngoIpxcEo-unsplash.jpg);
@@ -118,19 +107,23 @@ button#edit {
     background-size: cover;
 }
 
-.ft-flexContainer {
-    width: max-content;
+.ft-central-tab-container {
+  position: relative;
+  top: -16em;
+  left: 50vw;
+  transform: translateX(-50%);
 }
 
-.ft-flexContainer.ft-centralTab {
+/* .ft-centralTab {
     position: relative;
     top: -16em;
     left: 50vw;
     transform: translateX(-50%);
-}
-.ft-tabContent.ft-centralTab {
+} */
+
+/* .ft-tabContent.ft-centralTab {
   background: var(--light-purple);
-}
+} */
 
 #onlineStatus {
   width: 100%;
