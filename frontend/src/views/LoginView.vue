@@ -14,7 +14,7 @@
   </div>
   <button v-if="isLoggedIn" @click="LogOut">Logout</button>
   <div v-if="isLoggedIn">
-    <button @click="LoadProfile">reload</button><br>
+    <button @click="LoadProfile">reload</button><br />
     <router-link :to="'/user/' + user.username">see my profile</router-link>
     <br />
     <p>Your Profile:</p>
@@ -23,7 +23,7 @@
     <p v-if="user.twoFA_enabled">2FA is enabled</p>
     <p v-if="!user.twoFA_enabled">2FA is disabled</p>
     <p>Status: {{ user.status }}</p>
-    <img :src="user.avatar_url" alt="avatar img" width="200" height="200"/>
+    <img :src="user.avatar_url" alt="avatar img" width="200" height="200" />
   </div>
   <div v-if="true">
     <button
@@ -32,22 +32,25 @@
     >
       42 API Login/Registration
     </button>
+    <button @click="statusService.ping()">ping socket</button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
 import axios from "axios";
-import { useRouter } from 'vue-router'
+import { useRouter } from "vue-router";
 import { useSessionStore } from "@/stores/SessionStore";
+import { statusService } from "@/services/status-socket.service";
 
 const isLoggedIn = ref(false);
 const login_username = ref("");
 const login_password = ref("");
 const createUser = ref(false);
-const router = useRouter()
+const router = useRouter();
 
 const sessionStore = useSessionStore();
+statusService;
 
 let user = ref({
   id: 0,

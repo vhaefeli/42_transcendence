@@ -1,3 +1,4 @@
+import { statusService } from "@/services/status-socket.service";
 import { defineStore } from "pinia";
 import { uuid } from "vue-uuid";
 
@@ -18,6 +19,13 @@ export const useSessionStore = defineStore("sessionStore", {
       if (!this.uuid.length) this.uuid = uuid.v4();
       return this.uuid;
     },
+    async socket_connect() {
+      statusService.ping();
+    },
   },
-  persist: true,
+  persist: {
+    afterRestore(context) {
+      statusService;
+    },
+  },
 });
