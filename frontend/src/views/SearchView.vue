@@ -52,13 +52,11 @@ async function loadUserList() {
     });
 
   await axios({
-    url: "/api/user/friends",
+    url: "/api/user/friend/all",
     method: "get",
     headers: { Authorization: `Bearer ${sessionStore.access_token}` },
   })
     .then((response) => {
-      console.log(response.data);
-      console.log(users);
       users = users.filter(
         (user) => !response.data?.find((friend) => friend.id === user.id)
       );
@@ -70,7 +68,6 @@ async function loadUserList() {
       return;
     });
   userList.value = users.filter((user) => user.id != userStore.user.id);
-  console.log(users);
 }
 
 async function validateSelection() {
