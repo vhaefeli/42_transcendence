@@ -43,7 +43,7 @@
                 </div>
                 <button
                     class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-                    @click="delFriend(friend.username)"
+                    @click="userStore.delFriend(friend.username, sessionStore.access_token)"
                     >
                         remove friendship
                     </button>
@@ -77,23 +77,24 @@
 </template>
   
 <script setup lang="ts">
-    import { ref } from "vue";
+    import { ref, onBeforeMount } from "vue";
+    import { storeToRefs } from 'pinia'
+    import { useRoute, useRouter } from 'vue-router'
+    import axios from "axios";
     import { useUserStore } from '../stores/UserStore'
     import { useSessionStore } from "@/stores/SessionStore";
-    import { storeToRefs } from 'pinia'
-    import { useRoute } from 'vue-router'
-    import axios from "axios";
-    import { useRouter } from 'vue-router'
 
-    const router = useRouter()
-
-    // to have the token
+    
+    // to have the token we need sessionStore
     const sessionStore = useSessionStore()
-    const isLoggedIn = ref(false);
-
+    
     // routes
-    const userStore = useUserStore()
     const route = useRoute()
+    const router = useRouter()
+    
+    // we need userStore and a variable to check if logged in
+    const userStore = useUserStore()
+    const isLoggedIn = ref(false);
 
     // other variables
     let newFriend = ref('')
@@ -101,42 +102,25 @@
 
     const { user, loading } = storeToRefs(userStore)
 
-    // check if user is logged in
-    if (sessionStore.isLoggedIn) {
-        isLoggedIn.value = true
+    // onBeforeMount is executed before the component is mounted
+    // way of using await because we can't do it in setup
+    onBeforeMount(async () => {
+        if (sessionStore.isLoggedIn) {
+            isLoggedIn.value = true;
 
-        // get user infos, friends and invitations
-        userStore.getMe(sessionStore);
-        // console.log(loading.value)
-        // if (loading.value == false) {
-        //     if (user.value.isLogged) {
-        //         console.log("la")
-        //         userStore.getFriends(sessionStore.access_token);
-        //         userStore.getInvites(sessionStore.access_token);
-        //     } else {
-        //         console.log("ici")
-        //         isLoggedIn.value = false;
-        //         sessionStore.isLoggedIn = false;
-        //         sessionStore.access_token = "";
-        //         router.push({ name: 'login' })
-        //     }
-        // }
-    }
-    
-    // functions related to friends
-    function addFriend() {
-        if (newFriend.value) {
-            userStore.addFriend(newFriend.value, sessionStore.access_token);
+            // get user infos, friends, and invitations
+            await userStore.getMe(sessionStore);
+            if (user.value.isLogged) {
+                await userStore.getFriends(sessionStore.access_token);
+                await userStore.getInvites(sessionStore.access_token);
+            } else {
+                isLoggedIn.value = false;
+                sessionStore.isLoggedIn = false;
+                sessionStore.access_token = "";
+                router.push({ name: 'login' })
+            }
         }
-    }
-
-    function acceptFriend(friendname) {
-        userStore.acceptFriend(friendname, sessionStore.access_token);
-    }
-
-    function delFriend(friendname) {
-        userStore.delFriend(friendname, sessionStore.access_token);
-    }
+    });
 
     // list all users
     axios({
@@ -151,4 +135,16 @@
         .catch((error) => {
             console.error(`unexpected error: ${error.response.status} ${error.response.statusText}`);
     });
+
+    // functions to delete because useless
+    function addFriend() {
+        if (newFriend.value) {
+            userStore.addFriend(newFriend.value, sessionStore.access_token);
+        }
+    }
+
+    function acceptFriend(friendname) {
+        userStore.acceptFriend(friendname, sessionStore.access_token);
+    }
+
 </script>

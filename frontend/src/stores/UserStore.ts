@@ -49,6 +49,7 @@ export const useUserStore = defineStore("userStore", {
             this.user = response.data
             this.user.isLogged = true
             this.loading = false
+            console.log("me loaded")
           })
           .catch((error) => {
             if (error.response.status == 401) {
