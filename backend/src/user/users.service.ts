@@ -27,10 +27,10 @@ export class UsersService {
     @Inject(forwardRef(() => AuthService))
     private authService: AuthService,
     private avatarService: AvatarService,
-    private configService: ConfigService,
     @Inject(forwardRef(() => FriendService))
     private friendService: FriendService,
     private statusService: StatusService,
+    configService: ConfigService,
   ) {
     if (configService.get<string>('BACKEND_AUTOPOPULATE_DB') === 'true')
       prisma.autoPopulateDB();

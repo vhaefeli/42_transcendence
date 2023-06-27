@@ -24,7 +24,7 @@ export class StatusGateway
   secret: string;
   constructor(
     private jwtService: JwtService,
-    private readonly configService: ConfigService,
+    configService: ConfigService,
     private readonly prisma: PrismaService,
   ) {
     this.secret = configService.get<string>('JWT_SECRET_KEY');

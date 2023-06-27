@@ -20,11 +20,11 @@ export class AuthGuard implements CanActivate {
 
   constructor(
     private jwtService: JwtService,
-    private configService: ConfigService,
     private reflector: Reflector,
     private prisma: PrismaService,
+    configService: ConfigService,
   ) {
-    this.secret = this.configService.get<string>('JWT_SECRET_KEY');
+    this.secret = configService.get<string>('JWT_SECRET_KEY');
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
