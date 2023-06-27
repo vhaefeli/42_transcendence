@@ -3,14 +3,14 @@
         <div class="ft-container">
             <!-- purple -->
             <div class="ft-folderContainer" id="profile">
-                <div class="ft-tabFolder"></div>
+                <div class="ft-tab-folder"></div>
                 <div class="ft-folder">check your profile</div>
                 <router-link class="ft-titleFolder ft-title" to="/profile">profile</router-link>
             </div>
             
             <!-- menthe -->
             <div class="ft-folderContainer" id="game">
-                <div class="ft-tabFolder"></div>
+                <div class="ft-tab-folder"></div>
                 <div class="ft-folder">play a game</div>
                 <router-link class="ft-titleFolder ft-title" to="/game">game</router-link>
 
@@ -18,7 +18,7 @@
             
             <!-- rose -->
             <div class="ft-folderContainer" id="chat">
-                <div class="ft-tabFolder"></div>
+                <div class="ft-tab-folder"></div>
                 <div class="ft-folder">chat with friends</div>
                 <router-link class="ft-titleFolder ft-title" to="/chat">chat</router-link>
             </div>
@@ -82,7 +82,7 @@ let folders = ref([
     aspect-ratio: 2/1;
 }
 
-.ft-tabFolder {
+.ft-tab-folder {
     width: 10em;
     border-bottom: 2.5em solid var(--purple);
 }

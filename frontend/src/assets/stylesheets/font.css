@@ -23,7 +23,7 @@ p, a, .ft-text {
     font-family: 'JetBrains';
 }
 
-h1, h2, h3, h4, h5, h6, .ft-title {
+h1, h2, h3, h4, h5, h6, .ft-title, .ft-tab-title {
     font-family: 'Array', 'Audiowide', monospace;
     font-style: normal;
 }
@@ -36,11 +36,11 @@ h2, .ft-title {
     font-size: 2rem;
 }
 
-.ft-title {
+.ft-title, .ft-tab-title {
     color: var(--light);
 }
 
-.ft-color-game, .ft-color-profile, .ft-color-chat, .ft-color-add, .ft-color-remove, .ft-color-block, .ft-color-edit {
+a.ft-color-game, a.ft-color-profile, a.ft-color-chat, a.ft-color-add, a.ft-color-remove, a.ft-color-block, a.ft-color-edit {
     color: var(--dark);
     font-size: 1rem;
 }
