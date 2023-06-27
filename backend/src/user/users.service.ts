@@ -18,6 +18,7 @@ import { UserProfileDto } from 'src/user/user-profile.dto';
 import { MyProfileDto } from './my-profile.dto';
 import { Profile42Api } from './profile-42api.dto';
 import { TokenInfoDto } from './token-info.dto';
+import { StatusService } from 'src/status/status.service';
 
 @Injectable()
 export class UsersService {
@@ -29,6 +30,7 @@ export class UsersService {
     private configService: ConfigService,
     @Inject(forwardRef(() => FriendService))
     private friendService: FriendService,
+    private statusService: StatusService,
   ) {
     if (configService.get<string>('BACKEND_AUTOPOPULATE_DB') === 'true')
       prisma.autoPopulateDB();
@@ -147,11 +149,12 @@ export class UsersService {
           username: true,
           avatar_url: true,
           twoFA_enabled: true,
-          status: true,
+          last_online: true,
         },
       });
       return {
         ...user,
+        status: this.statusService.getStatusByTime(user.last_online),
       };
     } catch (e) {
       Logger.error(e.code + ' ' + e.msg);

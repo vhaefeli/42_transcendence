@@ -33,23 +33,17 @@ export class StatusGateway
   @WebSocketServer() server: Server;
 
   @SubscribeMessage('message')
-  handleMessage(client: any, payload: any): string {
-    Logger.log(
-      `{${client.request.user.sub}, ${client.request.user.username}} MESSAGE: ${payload}`,
-    );
+  handleMessage(_client: any, payload: any): string {
     if (payload === 'PING') return 'PONG';
-    Logger.log(payload);
     return 'Hello world!';
   }
 
   @SubscribeMessage('i-am-alive')
-  clientIsOnline(client: any) {
-    const time = new Date();
-    Logger.log(
-      `{${client.request.user.sub}, ${
-        client.request.user.username
-      }} IS ALIVE: ${time.toLocaleTimeString()}`,
-    );
+  async clientIsOnline(client: any) {
+    await this.prisma.user.update({
+      where: { id: client.request.user.sub },
+      data: { last_online: new Date() },
+    });
   }
 
   @SubscribeMessage('forceDisconnect')
