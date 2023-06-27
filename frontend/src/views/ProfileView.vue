@@ -1,21 +1,22 @@
 <template>
   <section class="ft-cover flex flex-col items-end justify-end">
-        <!-- Conteneur des boutons dans cover -->
-          <!-- ajouter classes pour les couleurs par activite -->
-            <a class="ft-color-chat t-btn-pink ft-other-profile"><span>Send msg</span></a>
-            <a class="ft-color-game t-btn-pink ft-other-profile"><span>Invite to play</span></a>
+    <a class="ft-color-chat t-btn-pink ft-other-profile"><span>Send message</span></a>
+    <a class="ft-color-game t-btn-pink ft-other-profile"><span>Invite to play</span></a>
   </section>
 
   <section class="ft-content ft-container">
-    <div class="flex flex-col items-center text-center max-w-max ft-central-tab-container ft-centralTab">
+    <div class="flex flex-col items-center text-center max-w-max ft-central-tab-container">
       <div class="ft-profile-pic"></div>
-      <div class="ft-connectedCircle"></div>
-      <div class="ft-tabFolder" id="titleProfile"></div>
-      <div id="onlineStatus">Online</div>
-      <div class="ft-tabContent ft-title ft-centralTab">
+      <!-- ajouter la valeur ft-circle-green ou ft-circle-gray selon le statut de connexion de la personne -->
+      <div class="ft-connection-circle"></div>
+      <div class="ft-tab-folder" id="title-profile"></div>
+      <!-- Par defaut en ligne -->
+      <div class="ft-tab-content ft-color-profile">Online</div>
+      <div class="ft-tab-content ft-color-profile ft-title" id="username">
           Pouetteuuh
       </div>
-      <div class="ft-tabContent ft-centralTab" id="buttonsContainer">
+      <!-- <div class="ft-tabContent ft-centralTab" id="buttonsContainer"> -->
+      <div class="ft-tab-content ft-color-profile" id="buttons-container">
         <!-- Bouton pour ajouter la personne en ami (profil d'un tiers) -->
         <a class="t-btn-pink ft-color-add ft-other-profile"><span>[+]</span></a>
         <!-- Bouton pour bloquer la personne (profil d'un tiers) -->
@@ -24,8 +25,8 @@
         <!-- Bouton pour editer son profil (SON profil uniquement) -->
         <a class="t-btn-pink ft-color-edit ft-my-profile" id="edit"><span>[ed.]</span></a>
       </div>
-      <div class="ft-color-profile ft-tabContent ft-centralTab">
-      </div>
+      <!-- <div class="ft-color-profile ft-tabContent ft-centralTab">
+      </div> -->
     </div>
                     
     <!-- CODE DE MICHELE -->
@@ -38,12 +39,17 @@
         </ul> -->
     <!-- /CODE DE MICHELE -->
 
-    <div class="flex flex-col items-center text-center max-w-max ft-leftTab" id="stats">
-      <div class="ft-tabFolder ft-title">
+    <div class="flex flex-col text-center max-w-max ft-left-tab" id="stats">
+      <div class="ft-tab-folder ft-tab-title">
         Stats
       </div>
-      <div class="ft-tabContent">
-        tabContent de stats
+      <!-- <div class="ft-tab-content ft-color-game flex flex-col text-left"> -->
+      <div class="ft-tab-content ft-color-game grid-cols-2 grid-rows-4 grid-flow-row text-left">
+          <div class="ft-item-title">number of matches:</div>
+          <div class="ft-item-title">victories:</div>
+          <div class="ft-item-title">level:</div>
+          <div class="ft-item-title">numbers of ...:</div>
+          <div class="ft-item-result">25</div>
             <!-- Ci-dessous le titre de l'onglet -->
       </div>
     </div>
@@ -67,34 +73,6 @@
 
 <style scoped>
 
-/* JUSTE POUR REPERER FACILEMENT */
-
-button {
-  border: none;
-  padding: 15px 32px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 1em;
-  margin: 0.5em;
-}
-/* /JUSTE POUR REPERER FACILEMENT */
-
-
-
-/* button#add {
-  background: var(--mint);
-}
-
-button#block {
-  background: var(--red);
-}
-
-button#edit {
-  background: var(--gray);
-} */
-
-
 .ft-cover {
     background: url(./../assets/img/jr-korpa-9XngoIpxcEo-unsplash.jpg);
 }
@@ -117,22 +95,50 @@ button#edit {
   transform: translateX(-50%);
 }
 
-/* .ft-centralTab {
-    position: relative;
-    top: -16em;
-    left: 50vw;
-    transform: translateX(-50%);
-} */
-
-/* .ft-tabContent.ft-centralTab {
-  background: var(--light-purple);
-} */
-
-#onlineStatus {
+.ft-tab-content {
   width: 100%;
+  box-shadow: 5px 5px 4px rgba(0, 0, 0, 0.4);
 }
 
-.ft-flexContainer#stats {
+.ft-central-tab-container.ft-tab-content {
+  background: var(--light-purple);
+}
+
+.ft-connection-circle {
+  position:relative;
+  top: 2.5em;
+  z-index:2;
+}
+
+.ft-tab-folder {
+    width: fit-content;
+    /* border-bottom: 1.5em solid var(--mint); */
+}
+
+.ft-tab-folder.ft-tab-title {
+  border-bottom: 1.5em solid var(--mint);
+}
+
+/* .ft-tabContent#title-profile {
+  text-overflow: ellipsis;
+} */
+
+#title-profile {
+  text-overflow: ellipsis;
+    font-size: 2rem;
+    width: 10em;
+    border-bottom: 1.5em solid var(--light-purple);
+}
+
+.ft-tab-content#buttons-container {
+  padding: 2em 0 12em 0;
+}
+
+.ft-tab-content.ft-color-game {
+  background: var(--light);
+}
+
+.ft-left-tab#stats {
     position: relative;
     top:-23em;
     left: 8em;
@@ -140,41 +146,7 @@ button#edit {
     /* align-content: center; */
 }
 
-.ft-connectedCircle {
-  position:relative;
-  top: 2.5em;
-  z-index:2;
-}
-
-.ft-tabFolder {
-    width: fit-content;
-    border-bottom: 1.5em solid var(--mint);
-}
-
-.ft-tabContent#titleProfile {
-  text-overflow: ellipsis;
-}
-
-#titleProfile {
-    font-size: 2rem;
-    width: 10em;
-    border-bottom: 1.5em solid var(--light-purple);
-}
-
-.ft-tabContent.ft-centralTab, #onlineStatus {
-  width:100%;
-  background: var(--light-purple);
-}
-
-.ft-tabContent {
-  /* height: 10em; */
-  font-size: 2rem;
-}
-
-.ft-tabContent#buttonsContainer {
-  /* padding-top: 3em; */
-  padding: 2em 0 5em 0;
-}
+/* POUR DEBUG UNIQUEMENT */
 
 /* .ft-other-profile {
   display: none;
@@ -182,6 +154,12 @@ button#edit {
 
 .ft-my-profile {
   display: none;
+}
+
+/* ^^ POUR DEBUG UNIQUEMENT ^^ */
+
+.ft-item-title {
+  background: red;
 }
 
 </style>
