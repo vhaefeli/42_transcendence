@@ -28,6 +28,11 @@ export class UserController {
     return await this.userService.new(createUserDto);
   }
 
+  @Get('me')
+  async getMyProfile(@Request() req: any) {
+    return await this.userService.getMe(req.user.sub);
+  }
+
   @Post('update-username')
   async updateUsername(
     @Body() updateUsernameDto: UpdateUsernameDto,
@@ -52,21 +57,5 @@ export class UserController {
       req.user.sub,
     );
     return friend;
-    /*
-    let friendDto: FriendInfoDto;
-    if (friend == null) friendDto = { isFriend: false };
-    else
-      friendDto = {
-        id: friend.id,
-        username: friend.username,
-        isFriend: true,
-      };
-    return JSON.stringify(friendDto, null, 4);
-    */
-  }
-
-  @Get('me')
-  async getMyProfile(@Request() req: any) {
-    return await this.userService.getMe(req.user.sub);
   }
 }
