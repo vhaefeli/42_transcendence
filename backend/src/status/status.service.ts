@@ -17,7 +17,7 @@ export class StatusService {
     configService: ConfigService,
   ) {
     this.online_threshold =
-      +configService.get<number>('ONLINE_THRESHOLD_S') * 1000;
+      +configService.get<number>('SOCKET_ONLINE_THRESHOLD_S') * 1000;
   }
 
   async isOnline(user: { id?: number; username?: string }): Promise<boolean> {

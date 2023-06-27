@@ -23,13 +23,14 @@ export class StatusGateway
   implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
 {
   private secret: string;
-  private debug_prints = true;
+  private debug: boolean;
   constructor(
     private jwtService: JwtService,
     configService: ConfigService,
     private readonly prisma: PrismaService,
   ) {
     this.secret = configService.get<string>('JWT_SECRET_KEY');
+    this.debug = configService.get<boolean>('SOCKET_DEBUG') === true;
   }
 
   @WebSocketServer() server: Server;
@@ -54,7 +55,9 @@ export class StatusGateway
   }
 
   afterInit() {
-    Logger.debug('Gateway initiated');
+    if (this.debug) {
+      Logger.debug('Gateway initiated');
+    }
     return;
   }
 
@@ -71,12 +74,11 @@ export class StatusGateway
       client.data['user'] = payload;
       client.data['last_online'] = new Date();
     } catch (error) {
-      if (this.debug_prints)
-        Logger.debug('Client connection declined: bad token');
+      if (this.debug) Logger.debug('Client connection declined: bad token');
       client.disconnect();
       return;
     }
-    if (this.debug_prints) {
+    if (this.debug) {
       Logger.debug(
         `{${client.request?.user?.sub}, ${client.request?.user?.username}} CONNECTED`,
       );
@@ -84,7 +86,7 @@ export class StatusGateway
   }
 
   handleDisconnect(client: any) {
-    if (this.debug_prints)
+    if (this.debug)
       Logger.debug(
         `{${client.request?.user?.sub}, ${client.request?.user?.username}} DISCONNECTED`,
       );
