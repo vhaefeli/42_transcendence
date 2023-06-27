@@ -25,7 +25,11 @@
   background: var(--mint);
 }
 
-.ft-color-profile {
+a.t-btn-pink:active.ft-color-game {
+  border: 0.2em dotted var(--mint);
+}
+
+.ft-color-profile, a.t-btn-pink:active.ft-color-profile {
   background: var(--light-purple);
 }
 
@@ -44,8 +48,20 @@
     border-radius: 50%;
 }
 
-.ft-circle-green {
+.ft-circle-green, .ft-color-add {
     background: var(--green);
+}
+
+.ft-color-block {
+  background: var(--red);
+}
+
+.ft-color-edit {
+  background: var(--gray);
+}
+
+.ft-color-remove {
+  background: var(--red);
 }
 
 .ft-circle-gray {
