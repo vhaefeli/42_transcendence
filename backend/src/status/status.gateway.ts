@@ -42,8 +42,8 @@ export class StatusGateway
 
   @UseGuards(WsGuard)
   @SubscribeMessage('i-am-alive')
-  async clientIsOnline() {
-    return;
+  async clientIsOnline(client: any) {
+    client.data['last_online'] = new Date();
   }
 
   @UseGuards(WsGuard)
@@ -68,6 +68,7 @@ export class StatusGateway
       });
       client.request['user'] = payload;
       client.data['user'] = payload;
+      client.data['last_online'] = new Date();
     } catch (error) {
       Logger.log('Client connection declined: bad token');
       client.disconnect();
