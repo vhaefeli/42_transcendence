@@ -141,6 +141,7 @@ export class UsersService {
   }
 
   async getMe(my_id: number): Promise<MyProfileDto> {
+    const status = this.statusService.getStatus({ id: my_id });
     try {
       const user = await this.prisma.user.findUniqueOrThrow({
         where: { id: my_id },
@@ -149,12 +150,11 @@ export class UsersService {
           username: true,
           avatar_url: true,
           twoFA_enabled: true,
-          last_online: true,
         },
       });
       return {
         ...user,
-        status: this.statusService.getStatusByTime(user.last_online),
+        status: await status,
       };
     } catch (e) {
       Logger.error(e.code + ' ' + e.msg);

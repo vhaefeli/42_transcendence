@@ -39,11 +39,8 @@ export class StatusGateway
   }
 
   @SubscribeMessage('i-am-alive')
-  async clientIsOnline(client: any) {
-    await this.prisma.user.update({
-      where: { id: client.request.user.sub },
-      data: { last_online: new Date() },
-    });
+  async clientIsOnline() {
+    return;
   }
 
   @SubscribeMessage('forceDisconnect')
@@ -66,6 +63,7 @@ export class StatusGateway
         where: { id: payload.sub, username: payload.username },
       });
       client.request['user'] = payload;
+      client.data['user'] = payload;
     } catch (error) {
       Logger.log('Client connection declined: bad token');
       client.disconnect();
