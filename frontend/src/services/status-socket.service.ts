@@ -22,7 +22,7 @@ class StatusSocketService {
       try {
         this.sessionStore = useSessionStore();
       } catch {
-        await sleep(100);
+        await sleep(200);
       }
     }
     await this.connect();
@@ -45,7 +45,7 @@ class StatusSocketService {
 
     setInterval(() => {
       this.iAmAlive();
-    }, 1000 * 3);
+    }, 1000 * 15);
   }
 
   async connect() {
@@ -67,7 +67,7 @@ class StatusSocketService {
     });
 
     for (let i = 0; this.connected === undefined; i++) {
-      await sleep(100);
+      await sleep(200);
       if (i > 50) this.connected = false;
     }
 
