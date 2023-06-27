@@ -25,28 +25,42 @@ interface User {
   invites: Invites[]
   twoFA_enabled: false
   status: string
+  level: string
+  rank: number
+  nb_match: number
+  nb_jeux: number
 }
 
 export const useUserStore = defineStore("userStore", {
   state: (): State => ({
       user: {},
+      loading: false
   }),
   actions: {
     // get user infos
-    async getMe(access_token) {
+    async getMe(sessionStore) {
+      this.loading = true
         await axios({
           url: "/api/user/me",
           method: "get",
-          headers: { Authorization: `Bearer ${access_token}` },
+          headers: { Authorization: `Bearer ${sessionStore.access_token}` },
         })
           .then((response) => {
-            this.user = response.data;
-            console.log("loaded profile");
+            this.user = response.data
+            this.user.isLogged = true
+            this.loading = false
           })
           .catch((error) => {
-              console.error(`unexpected error: ${error.response.status} ${error.response.statusText}`);
-              alert('unexpected error with token!');
-          });
+            if (error.response.status == 401) {
+              console.log(
+                `invalid access token: ${error.response.status} ${error.response.statusText}`
+              );
+              this.user.isLogged = false
+            } else {
+              console.log(`unexpected error: ${error.response.status} ${error.response.statusText}`)
+            }
+            this.loading = false
+          })
       },
       // get list of friends
       async getFriends(access_token) {
@@ -240,6 +254,3 @@ export const useUserStore = defineStore("userStore", {
       
     }
 })
-
-// 401 > se délogger et rediriger vers le login
-// gérer les erreurs
