@@ -37,6 +37,7 @@ class StatusSocketService {
         } else if (mutation.events.newValue === false) {
           this.socket?.emit("forceDisconnect");
           this.socket?.disconnect();
+          this.connected = undefined;
           console.log("socket.io/status disconnected");
         }
       }
