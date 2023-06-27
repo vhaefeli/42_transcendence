@@ -11,13 +11,9 @@ type Friends = {
   is_blocked: boolean
 };
 
-type From = {
-  from: object
-};
-
 type Invites = {
   id: number
-  invitations_received: From
+  username: string
 };
 
 interface User {
@@ -26,9 +22,9 @@ interface User {
   username: string
   avatar_url: string
   friends: Friends[]
-  invites: Invites
+  invites: Invites[]
   twoFA_enabled: false
-  status: "OFFLINE"
+  status: string
 }
 
 export const useUserStore = defineStore("userStore", {
@@ -55,7 +51,7 @@ export const useUserStore = defineStore("userStore", {
       // get list of friends
       async getFriends(access_token) {
         await axios({
-          url: "/api/user/friends",
+          url: "/api/user/friend/all",
           method: "get",
           headers: { Authorization: `Bearer ${access_token}` },
         })
@@ -70,7 +66,7 @@ export const useUserStore = defineStore("userStore", {
       // get list of friends
       async getInvites(access_token) {
         await axios({
-          url: "/api/invite/view",
+          url: "/api/user/friend/invite/received",
           method: "get",
           headers: { Authorization: `Bearer ${access_token}` },
         })
@@ -92,9 +88,9 @@ export const useUserStore = defineStore("userStore", {
       // accept a friend
       async acceptFriend(friendname, access_token) {
           await axios({
-            url: `/api/invite/accept/${friendname}`,
+            url: `/api/user/friend/invite/accept/${friendname}`,
             method: "post",
-            headers: { "Content-Type": "application/json", Authorization: `Bearer ${access_token}` },
+            headers: { Authorization: `Bearer ${access_token}` },
           })
             .then((response) => {
               // To execute when the request is successful
@@ -118,9 +114,9 @@ export const useUserStore = defineStore("userStore", {
       // add a friend
       async addFriend(friendname, access_token) {
        await axios({
-         url: `/api/invite/${friendname}`,
+         url: `/api/user/friend/invite/${friendname}`,
          method: "post",
-         headers: { "Content-Type": "application/json", Authorization: `Bearer ${access_token}` },
+         headers: { Authorization: `Bearer ${access_token}` },
        })
          .then((response) => {
            // To execute when the request is successful
