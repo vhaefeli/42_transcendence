@@ -42,6 +42,10 @@ class StatusSocketService {
         }
       }
     });
+
+    setInterval(() => {
+      this.iAmAlive();
+    }, 1000 * 3);
   }
 
   async connect() {
@@ -69,6 +73,11 @@ class StatusSocketService {
 
     if (this.connected) console.log(`socket.io/status connected successfully`);
     else console.error(`socket.io/status failed to connect`);
+  }
+
+  async iAmAlive() {
+    if (!(await this.tryConnection())) return;
+    this.socket?.emit("i-am-alive");
   }
 
   async ping() {

@@ -35,11 +35,21 @@ export class StatusGateway
   @SubscribeMessage('message')
   handleMessage(client: any, payload: any): string {
     Logger.log(
-      `Message from user {${client.request.user.sub}, ${client.request.user.username}}: ${payload}`,
+      `{${client.request.user.sub}, ${client.request.user.username}} MESSAGE: ${payload}`,
     );
     if (payload === 'PING') return 'PONG';
     Logger.log(payload);
     return 'Hello world!';
+  }
+
+  @SubscribeMessage('i-am-alive')
+  clientIsOnline(client: any) {
+    const time = new Date();
+    Logger.log(
+      `{${client.request.user.sub}, ${
+        client.request.user.username
+      }} IS ALIVE: ${time.toLocaleTimeString()}`,
+    );
   }
 
   @SubscribeMessage('forceDisconnect')
@@ -67,10 +77,14 @@ export class StatusGateway
       client.disconnect();
       return;
     }
-    Logger.log(`Client connected`);
+    Logger.log(
+      `{${client.request.user.sub}, ${client.request.user.username}} CONNECTED`,
+    );
   }
 
   handleDisconnect(client: any) {
-    Logger.log(`Client disconnected`);
+    Logger.log(
+      `{${client.request.user.sub}, ${client.request.user.username}} DISCONNECTED`,
+    );
   }
 }
