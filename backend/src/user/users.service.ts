@@ -7,8 +7,10 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { AuthService } from 'src/auth/auth.service';
 import { AvatarService } from 'src/avatar/avatar.service';
+import { FriendService } from 'src/friend/friend.service';
 import { PrismaService } from 'src/prisma.service';
 import { CreateUserDto } from 'src/user/create-user.dto';
 import { UpdateUsernameReturnDto } from 'src/user/update-username-return.dto';
@@ -24,7 +26,13 @@ export class UsersService {
     @Inject(forwardRef(() => AuthService))
     private authService: AuthService,
     private avatarService: AvatarService,
-  ) {}
+    private configService: ConfigService,
+    @Inject(forwardRef(() => FriendService))
+    private friendService: FriendService,
+  ) {
+    if (configService.get<string>('BACKEND_AUTOPOPULATE_DB') === 'true')
+      prisma.autoPopulateDB();
+  }
 
   async findOne(username: string): Promise<any> {
     return await this.prisma.user.findUnique({
@@ -104,85 +112,6 @@ export class UsersService {
     }
   }
 
-  async getFriends(id: number) {
-    const friends = await this.prisma.user.findUnique({
-      where: { id: id },
-      select: {
-        friends_added: {
-          select: {
-            id: true,
-            username: true,
-          },
-        },
-        friends: {
-          select: {
-            id: true,
-            username: true,
-          },
-        },
-      },
-    });
-    const res = new Array<{ id: number; username: string }>();
-    friends.friends.forEach((element) => {
-      res.push({ id: element.id, username: element.username });
-    });
-    friends.friends_added.forEach((element) => {
-      res.push({ id: element.id, username: element.username });
-    });
-    return res;
-  }
-
-  async areFriends(id1: number, id2: number): Promise<boolean> {
-    return (
-      (await this.prisma.user.findFirst({
-        where: {
-          AND: [
-            {
-              id: id1,
-            },
-            {
-              OR: [
-                {
-                  friends: {
-                    some: {
-                      id: id2,
-                    },
-                  },
-                },
-                {
-                  friends_added: {
-                    some: {
-                      id: id2,
-                    },
-                  },
-                },
-              ],
-            },
-          ],
-        },
-      })) != null
-    );
-    //const otherFriendFound = await this.prisma.user.findFirst({
-    //  where: { username: user },
-    //  select: {
-    //    friends: {
-    //      where: { username: friend },
-    //      select: {
-    //        id: true,
-    //        username: true,
-    //      },
-    //    },
-    //    friends_added: {
-    //      where: { username: friend },
-    //      select: {
-    //        id: true,
-    //        username: true,
-    //      },
-    //    },
-    //  },
-    //});
-  }
-
   async getProfile(
     username: string,
     my_id: number = null,
@@ -201,7 +130,7 @@ export class UsersService {
         is_friend:
           my_id === user.id || my_id == null
             ? false
-            : await this.areFriends(my_id, user.id),
+            : await this.friendService.areFriends(my_id, user.id),
       };
     } catch (e) {
       if (e.code == 'P2025') throw new NotFoundException();
@@ -237,23 +166,6 @@ export class UsersService {
         select: { id: true },
       })
     ).id;
-  }
-
-  async removeFriendship(my_id: number, friend_username: string) {
-    try {
-      if (!(await this.areFriends(my_id, await this.getId(friend_username)))) {
-        throw new Error();
-      }
-      await this.prisma.user.update({
-        where: { id: my_id },
-        data: {
-          friends: { disconnect: { username: friend_username } },
-          friends_added: { disconnect: { username: friend_username } },
-        },
-      });
-    } catch (e) {
-      throw new NotFoundException();
-    }
   }
 
   async generateUniqueUsername(wished_username: string): Promise<string> {

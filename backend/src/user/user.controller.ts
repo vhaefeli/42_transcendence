@@ -45,12 +45,6 @@ export class UserController {
     return;
   }
 
-  @Get('friends')
-  async findFriends(@Request() req: any) {
-    const friends = await this.userService.getFriends(req.user.sub);
-    return JSON.stringify(friends, null, 4);
-  }
-
   @Get('profile/:username')
   async findFriend(@Param() params: any, @Request() req: any) {
     const friend = await this.userService.getProfile(
@@ -74,10 +68,5 @@ export class UserController {
   @Get('me')
   async getMyProfile(@Request() req: any) {
     return await this.userService.getMe(req.user.sub);
-  }
-
-  @Delete('friend/:username')
-  async removeFriendship(@Param() params: any, @Request() req: any) {
-    await this.userService.removeFriendship(req.user.sub, params.username);
   }
 }
