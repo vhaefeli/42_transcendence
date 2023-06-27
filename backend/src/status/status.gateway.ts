@@ -22,7 +22,8 @@ import { PrismaService } from 'src/prisma.service';
 export class StatusGateway
   implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
 {
-  secret: string;
+  private secret: string;
+  private debug_prints = true;
   constructor(
     private jwtService: JwtService,
     configService: ConfigService,
@@ -53,7 +54,7 @@ export class StatusGateway
   }
 
   afterInit() {
-    // Logger.log('Gateway initiated');
+    Logger.debug('Gateway initiated');
     return;
   }
 
@@ -70,18 +71,22 @@ export class StatusGateway
       client.data['user'] = payload;
       client.data['last_online'] = new Date();
     } catch (error) {
-      Logger.log('Client connection declined: bad token');
+      if (this.debug_prints)
+        Logger.debug('Client connection declined: bad token');
       client.disconnect();
       return;
     }
-    Logger.log(
-      `{${client.request?.user?.sub}, ${client.request?.user?.username}} CONNECTED`,
-    );
+    if (this.debug_prints) {
+      Logger.debug(
+        `{${client.request?.user?.sub}, ${client.request?.user?.username}} CONNECTED`,
+      );
+    }
   }
 
   handleDisconnect(client: any) {
-    Logger.log(
-      `{${client.request?.user?.sub}, ${client.request?.user?.username}} DISCONNECTED`,
-    );
+    if (this.debug_prints)
+      Logger.debug(
+        `{${client.request?.user?.sub}, ${client.request?.user?.username}} DISCONNECTED`,
+      );
   }
 }
