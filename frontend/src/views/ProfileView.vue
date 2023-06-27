@@ -44,12 +44,11 @@
         Stats
       </div>
       <!-- <div class="ft-tab-content ft-color-game flex flex-col text-left"> -->
-      <div class="ft-tab-content ft-color-game grid-cols-2 grid-rows-4 grid-flow-row text-left">
-          <div class="ft-item-title">number of matches:</div>
-          <div class="ft-item-title">victories:</div>
-          <div class="ft-item-title">level:</div>
-          <div class="ft-item-title">numbers of ...:</div>
-          <div class="ft-item-result">25</div>
+      <div class="ft-tab-content ft-color-game ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left">
+          <div class="ft-item-title ft-text ft-tab-separator ft-color-game">number of matches:</div>
+          <div class="ft-item-title ft-text ft-tab-separator ft-color-game">victories:</div>
+          <div class="ft-item-title ft-text ft-tab-separator ft-color-game">level:</div>
+          <div class="ft-item-title ft-text ft-color-game">numbers of ...:</div>
             <!-- Ci-dessous le titre de l'onglet -->
       </div>
     </div>
@@ -134,17 +133,35 @@
   padding: 2em 0 12em 0;
 }
 
+.ft-tab-separator {
+  padding: 1em;
+}
+
+.ft-tab-border.ft-color-game, .ft-tab-separator.ft-color-game {
+  border-color: var(--mint);
+}
+
 .ft-tab-content.ft-color-game {
-  background: var(--light);
+  background: var(--gray);
 }
 
 .ft-left-tab#stats {
     position: relative;
     top:-23em;
-    left: 8em;
+    left: 20vw;
     width: 30em;
-    /* align-content: center; */
 }
+
+.ft-tab-border {
+  width: 30em;
+  border: 0.3em solid;
+  padding: 1.5em;
+}
+
+.ft-tab-separator {
+  border-bottom: 0.3em solid;
+}
+
 
 /* POUR DEBUG UNIQUEMENT */
 
@@ -156,10 +173,11 @@
   display: none;
 }
 
+.ft-item-title {
+  padding: 1.5em;
+}
+
 /* ^^ POUR DEBUG UNIQUEMENT ^^ */
 
-.ft-item-title {
-  background: red;
-}
 
 </style>
