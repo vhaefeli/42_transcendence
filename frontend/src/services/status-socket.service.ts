@@ -44,9 +44,22 @@ class StatusSocketService {
     });
   }
 
+  async connect() {
+    if (!this.sessionStore.isLoggedIn) return;
+    this.connected = undefined;
+    this.socket = io(`${this.url}/status`, {
+      auth: {
+        token: this.sessionStore.access_token,
+      },
+    });
+    await this.wait_connected();
+  }
+
   async wait_connected() {
     this.socket?.on("connect", () => {
-      this.connected = this.socket?.connected;
+      this.socket?.emit("message", "PING", (response: string) => {
+        if (response === "PONG") this.connected = true;
+      });
     });
 
     for (let i = 0; this.connected === undefined; i++) {
@@ -71,17 +84,6 @@ class StatusSocketService {
       await this.connect();
     }
     return this.connected;
-  }
-
-  async connect() {
-    if (!this.sessionStore.isLoggedIn) return;
-    this.connected = undefined;
-    this.socket = io(`${this.url}/status`, {
-      auth: {
-        token: this.sessionStore.access_token,
-      },
-    });
-    await this.wait_connected();
   }
 }
 
