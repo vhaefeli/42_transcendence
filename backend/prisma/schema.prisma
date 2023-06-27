@@ -10,12 +10,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum status_type {
-  ONLINE
-  OFFLINE
-  INGAME
-}
-
 model User {
   id              Int @id @default(autoincrement())
   username        String @unique
@@ -23,7 +17,6 @@ model User {
   id42            Int? @unique
   access_token42  String? @unique
   avatar_url      String
-  status          status_type @default(OFFLINE)
   twoFA_enabled   Boolean @default(false)
   invitations_sent		FriendshipInvitation[]	@relation("from_user")
   invitations_received	FriendshipInvitation[]	@relation("to_user")
