@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Logger, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import {
@@ -10,6 +10,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
+import { WsGuard } from 'src/auth/ws.guard';
 import { PrismaService } from 'src/prisma.service';
 
 @WebSocketGateway({
@@ -32,17 +33,20 @@ export class StatusGateway
 
   @WebSocketServer() server: Server;
 
+  @UseGuards(WsGuard)
   @SubscribeMessage('message')
   handleMessage(_client: any, payload: any): string {
     if (payload === 'PING') return 'PONG';
     return 'Hello world!';
   }
 
+  @UseGuards(WsGuard)
   @SubscribeMessage('i-am-alive')
   async clientIsOnline() {
     return;
   }
 
+  @UseGuards(WsGuard)
   @SubscribeMessage('forceDisconnect')
   disconnectMe(client: any) {
     client.disconnect(true);
@@ -70,13 +74,13 @@ export class StatusGateway
       return;
     }
     Logger.log(
-      `{${client.request.user.sub}, ${client.request.user.username}} CONNECTED`,
+      `{${client.request?.user?.sub}, ${client.request?.user?.username}} CONNECTED`,
     );
   }
 
   handleDisconnect(client: any) {
     Logger.log(
-      `{${client.request.user.sub}, ${client.request.user.username}} DISCONNECTED`,
+      `{${client.request?.user?.sub}, ${client.request?.user?.username}} DISCONNECTED`,
     );
   }
 }

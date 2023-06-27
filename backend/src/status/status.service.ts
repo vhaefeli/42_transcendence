@@ -18,8 +18,8 @@ export class StatusService {
   }): Promise<StatusType> {
     for (const socket of await this.statusGateway.server.fetchSockets()) {
       if (
-        user?.id === socket.data.user.sub ||
-        user?.username === socket.data.user.username
+        user?.id === socket.data?.user.sub ||
+        user?.username === socket.data?.user.username
       )
         return StatusType.ONLINE;
     }
