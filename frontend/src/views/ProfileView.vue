@@ -4,7 +4,7 @@
     <a class="ft-color-game t-btn-pink ft-other-profile"><span>Invite to play</span></a>
   </section>
 
-  <section class="ft-content ft-container">
+  <section class="ft-container">
     <div class="flex flex-col items-center text-center max-w-max ft-central-tab-container">
       <div class="ft-profile-pic"></div>
       <!-- ajouter la valeur ft-circle-green ou ft-circle-gray selon le statut de connexion de la personne -->
@@ -49,6 +49,31 @@
           <div class="ft-item-title ft-text ft-tab-separator ft-color-game">victories:</div>
           <div class="ft-item-title ft-text ft-tab-separator ft-color-game">level:</div>
           <div class="ft-item-title ft-text ft-color-game">numbers of ...:</div>
+            <!-- Ci-dessous le titre de l'onglet -->
+      </div>
+    </div>
+
+    <div class="flex flex-col text-center max-w-max ft-right-tab" id="match-history">
+      <div class="ft-tab-folder ft-tab-title">
+        Match history
+      </div>
+      <!-- <div class="ft-tab-content ft-color-game flex flex-col text-left"> -->
+      <div class="ft-tab-content ft-color-game ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left">
+          <div class="ft-item-title ft-text ft-tab-separator ft-color-game">
+            12.05.2023<br/>
+            lost against Thingy (Pitaya level)
+          </div>
+          <div class="ft-item-title ft-text ft-tab-separator ft-color-game">
+            13.05.2023<br/>
+            lost against Thingy (Pitaya level)</div>
+          <div class="ft-item-title ft-text ft-tab-separator ft-color-game">
+            14.05.2023<br/>
+            lost against Thingy (Pitaya level)
+          </div>
+          <div class="ft-item-title ft-text ft-color-game">
+            22.05.2023<br/>
+            lost against everyone (Kumquat level)
+          </div>
             <!-- Ci-dessous le titre de l'onglet -->
       </div>
     </div>
@@ -146,10 +171,17 @@
 }
 
 .ft-left-tab#stats {
-    position: relative;
-    top:-23em;
-    left: 20vw;
-    width: 30em;
+  position: relative;
+  top:-23em;
+  left: 26vw;
+  width: 30em;
+}
+
+.ft-right-tab#match-history {
+  position: relative;
+  top:-35em;
+  left: 40vw;
+  width: 30em;
 }
 
 .ft-tab-border {
