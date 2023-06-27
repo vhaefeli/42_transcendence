@@ -65,38 +65,22 @@
           <li class="ft-item-title ft-text ft-bb-color-game">
             <p><h2>22.05.2023</h2></p>
             lost against everyone (Kumquat level)</li>
-
-        <!-- <div class="ft-item-title ft-text ft-tab-separator ft-bg-color-game">
-            12.05.2023<br/>
-            lost against Thingy (Pitaya level)
-          </div>
-          <div class="ft-item-title ft-text ft-tab-separator ft-bg-color-game">
-            13.05.2023<br/>
-            lost against Thingy (Pitaya level)</div>
-          <div class="ft-item-title ft-text ft-tab-separator ft-bg-color-game">
-            14.05.2023<br/>
-            lost against Thingy (Pitaya level)
-          </div>
-          <div class="ft-item-title ft-text ft-bg-color-game">
-            22.05.2023<br/>
-            lost against everyone (Kumquat level)
-          </div> -->
         </ul>
       </div>
     </div>
 
-    <div class="flex flex-col text-center max-w-max ft-left-tab" id="friends-requests">
-      <div class="ft-tab-folder ft-tab-title">Friends requests</div>
-      <div class="ft-tab-content ft-bg-color-profile ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left ft-scrollable">
+    <div class="flex flex-col text-center max-w-max ft-left-tab ft-my-profile" id="friends-requests">
+      <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Friends requests</div>
+      <div class="ft-tab-content ft-border-color-profile ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left ft-scrollable">
         <ul>
-          <li class="ft-item-title ft-text ft-tab-separator ft-bg-color-profile">
+          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile">
             Thingy
             <a class="t-btn-pink ft-color-add"><span>OK</span></a>
             <a class="t-btn-pink ft-color-block"><span>Nope</span></a>
           </li>
           <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile">Cerise</li>
           <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile">Jean-Daniel</li>
-          <li class="ft-item-title ft-text ft-bg-color-profile">Anne-Sylvie</li>
+          <li class="ft-item-title ft-text ft-bb-color-profile">Anne-Sylvie</li>
         </ul>
       </div>
     </div>
