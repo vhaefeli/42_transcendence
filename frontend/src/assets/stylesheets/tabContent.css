@@ -17,23 +17,53 @@
 }
 
 /* devraient etre deplaces */
-.ft-color-chat {
+/* BG colors */
+.ft-bg-color-chat {
   background: var(--pink);
 }
   
-a.ft-color-game {
+.ft-bg-color-game {
   background: var(--mint);
+}
+
+.ft-bg-color-profile, a.t-btn-pink:active.ft-bg-color-profile {
+  background: var(--light-purple);
+}
+
+/* Border-bottom colors */
+.ft-bb-color-game {
+  border-bottom-color: var(--mint);
+}
+
+.ft-bb-color-profile {
+  border-bottom: var(--light-purple);
+}
+
+.ft-bb-color-chat {
+  border-bottom: var(--pink);
+}
+
+/* All four borders colors */
+.ft-border-color-game {
+  border-color: var(--mint);
+}
+
+.ft-border-color-profile {
+  border-color: var(--light-purple);
+}
+
+.ft-border-color-chat {
+  border-color: var(--pink);
+}
+
+.ft-tab-content.ft-tab-border {
+  background: var(--light-gray);
 }
 
 /* a.t-btn-pink:active.ft-color-game {
   border: 0.2em dotted var(--mint);
 } */
 
-.ft-color-profile, a.t-btn-pink:active.ft-color-profile {
-  background: var(--light-purple);
-}
-
-/* Renommer en ft-tab-folder, si doit rester en l'etat */
 .ft-tab-folder {
     position: relative;
     height: 1em;

@@ -40,7 +40,7 @@ h2, .ft-title {
     color: var(--light);
 }
 
-a.ft-color-game, a.ft-color-profile, a.ft-color-chat, a.ft-color-add, a.ft-color-remove, a.ft-color-block, a.ft-color-edit {
+a.ft-bg-color-game, a.ft-bg-color-profile, a.ft-bg-color-chat, a.ft-color-add, a.ft-color-remove, a.ft-color-block, a.ft-color-edit {
     color: var(--dark);
     font-size: 1rem;
 }

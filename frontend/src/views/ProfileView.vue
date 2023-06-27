@@ -1,7 +1,7 @@
 <template>
   <section class="ft-cover flex flex-col items-end justify-end">
-    <a class="ft-color-chat t-btn-pink ft-other-profile"><span>Send message</span></a>
-    <a class="ft-color-game t-btn-pink ft-other-profile"><span>Invite to play</span></a>
+    <a class="ft-bg-color-chat t-btn-pink ft-other-profile"><span>Send message</span></a>
+    <a class="ft-bg-color-game t-btn-pink ft-other-profile"><span>Invite to play</span></a>
   </section>
 
   <section class="ft-container">
@@ -11,12 +11,12 @@
       <div class="ft-connection-circle"></div>
       <div class="ft-tab-folder" id="title-profile"></div>
       <!-- Par defaut en ligne -->
-      <div class="ft-tab-content ft-color-profile">Online</div>
-      <div class="ft-tab-content ft-color-profile ft-title" id="username">
+      <div class="ft-tab-content ft-bg-color-profile">Online</div>
+      <div class="ft-tab-content ft-bg-color-profile ft-title" id="username">
           Pouetteuuh
       </div>
       <!-- <div class="ft-tabContent ft-centralTab" id="buttonsContainer"> -->
-      <div class="ft-tab-content ft-color-profile" id="buttons-container">
+      <div class="ft-tab-content ft-bg-color-profile" id="buttons-container">
         <!-- Bouton pour ajouter la personne en ami (profil d'un tiers) -->
         <a class="t-btn-pink ft-color-add ft-other-profile"><span>[+]</span></a>
         <!-- Bouton pour bloquer la personne (profil d'un tiers) -->
@@ -25,7 +25,7 @@
         <!-- Bouton pour editer son profil (SON profil uniquement) -->
         <a class="t-btn-pink ft-color-edit ft-my-profile" id="edit"><span>[ed.]</span></a>
       </div>
-      <!-- <div class="ft-color-profile ft-tabContent ft-centralTab">
+      <!-- <div class="ft-bg-color-profile ft-tabContent ft-centralTab">
       </div> -->
     </div>
                     
@@ -40,56 +40,63 @@
     <!-- /CODE DE MICHELE -->
 
     <div class="flex flex-col text-center max-w-max ft-left-tab" id="stats">
-      <div class="ft-tab-folder ft-tab-title">
-        Stats
-      </div>
-      <!-- <div class="ft-tab-content ft-color-game flex flex-col text-left"> -->
-      <div class="ft-tab-content ft-color-game ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left">
-          <div class="ft-item-title ft-text ft-tab-separator ft-color-game">number of matches:</div>
-          <div class="ft-item-title ft-text ft-tab-separator ft-color-game">victories:</div>
-          <div class="ft-item-title ft-text ft-tab-separator ft-color-game">level:</div>
-          <div class="ft-item-title ft-text ft-color-game">numbers of ...:</div>
+      <div class="ft-tab-folder ft-tab-title ft-bb-color-game">Stats</div>
+      <div class="ft-tab-content ft-border-color-game ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left">
+          <div class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">number of matches:</div>
+          <div class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">victories:</div>
+          <div class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">level:</div>
+          <div class="ft-item-title ft-text ft-bb-color-game">numbers of ...:</div>
       </div>
     </div>
 
     <div class="flex flex-col text-center max-w-max ft-right-tab" id="match-history">
-      <div class="ft-tab-folder ft-tab-title">
-        Match history
-      </div>
-      <!-- <div class="ft-tab-content ft-color-game flex flex-col text-left"> -->
-      <div class="ft-tab-content ft-color-game ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left ft-scrollable">
+      <div class="ft-tab-folder ft-tab-title ft-bb-color-game">Match history</div>
+      <div class="ft-tab-content ft-border-color-game ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left ft-scrollable">
         <ul>
-          <li class="ft-item-title ft-text ft-tab-separator ft-color-game">
+          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">
             <p><h2>12.05.2023</h2></p>
             lost against Thingy (Pitaya level)</li>
-            <li class="ft-item-title ft-text ft-tab-separator ft-color-game">
-              <p><h2>13.05.2023</h2></p>
+            <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">
+            <p><h2>13.05.2023</h2></p>
             lost against Thingy (Pitaya level)</li>
-          <li class="ft-item-title ft-text ft-tab-separator ft-color-game">
+          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">
             <p><h2>14.05.2023</h2></p>
-            lost against Thingy (Pitaya level)
-          </li>
-          <li class="ft-item-title ft-text ft-color-game">
+            lost against Thingy (Pitaya level)</li>
+          <li class="ft-item-title ft-text ft-bb-color-game">
             <p><h2>22.05.2023</h2></p>
-            lost against everyone (Kumquat level)
-          </li>
+            lost against everyone (Kumquat level)</li>
 
-
-        <!-- <div class="ft-item-title ft-text ft-tab-separator ft-color-game">
+        <!-- <div class="ft-item-title ft-text ft-tab-separator ft-bg-color-game">
             12.05.2023<br/>
             lost against Thingy (Pitaya level)
           </div>
-          <div class="ft-item-title ft-text ft-tab-separator ft-color-game">
+          <div class="ft-item-title ft-text ft-tab-separator ft-bg-color-game">
             13.05.2023<br/>
             lost against Thingy (Pitaya level)</div>
-          <div class="ft-item-title ft-text ft-tab-separator ft-color-game">
+          <div class="ft-item-title ft-text ft-tab-separator ft-bg-color-game">
             14.05.2023<br/>
             lost against Thingy (Pitaya level)
           </div>
-          <div class="ft-item-title ft-text ft-color-game">
+          <div class="ft-item-title ft-text ft-bg-color-game">
             22.05.2023<br/>
             lost against everyone (Kumquat level)
           </div> -->
+        </ul>
+      </div>
+    </div>
+
+    <div class="flex flex-col text-center max-w-max ft-left-tab" id="friends-requests">
+      <div class="ft-tab-folder ft-tab-title">Friends requests</div>
+      <div class="ft-tab-content ft-bg-color-profile ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left ft-scrollable">
+        <ul>
+          <li class="ft-item-title ft-text ft-tab-separator ft-bg-color-profile">
+            Thingy
+            <a class="t-btn-pink ft-color-add"><span>OK</span></a>
+            <a class="t-btn-pink ft-color-block"><span>Nope</span></a>
+          </li>
+          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile">Cerise</li>
+          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile">Jean-Daniel</li>
+          <li class="ft-item-title ft-text ft-bg-color-profile">Anne-Sylvie</li>
         </ul>
       </div>
     </div>
@@ -152,13 +159,18 @@
 }
 
 .ft-tab-folder {
-    width: fit-content;
+  width: fit-content;
+  border-bottom-style: solid;
+  border-bottom-width: 1.5em;
     /* border-bottom: 1.5em solid var(--mint); */
 }
 
-.ft-tab-folder.ft-tab-title {
-  border-bottom: 1.5em solid var(--mint);
-}
+/* .ft-tab-folder.ft-tab-title {
+  /* border-bottom: 1.5em solid var(--mint);
+  border-bottom: 1.5em solid;
+} */
+
+
 
 /* .ft-tabContent#title-profile {
   text-overflow: ellipsis;
@@ -179,17 +191,13 @@
   padding: 1em;
 }
 
-.ft-tab-border.ft-color-game, .ft-tab-separator.ft-color-game {
+/* .ft-tab-border.ft-bg-color-game, .ft-tab-separator.ft-bg-color-game {
   border-color: var(--mint);
-}
-
-.ft-tab-content.ft-color-game {
-  background: var(--gray);
-}
+} */
 
 .ft-left-tab#stats {
   position: relative;
-  top:-23em;
+  top:-28em;
   left: 26vw;
   width: 30em;
 }
@@ -198,23 +206,32 @@
   position: relative;
   top:-35em;
   left: 40vw;
-  width: 30em;
+  width: 50em;
 }
 
 .ft-tab-border {
   width: 30em;
-  border: 0.3em solid;
-  padding: 1.5em;
+  border-style: solid;
+  border-width: 0.3em;
+  padding: 1em 4em 1em 4em;
 }
 
 .ft-tab-separator {
-  border-bottom: 0.3em solid;
+  border-bottom-width: 0.3em;
+  border-bottom-style:solid;
 }
 
 /* Piste : pour perso des barres de défilement, utiliser "PerfectScrollbar" ou "Custom Scrollbar" (JS). */
 .ft-scrollable {
   height: 20em;
   overflow: auto;
+}
+
+.ft-left-tab#friends-requests {
+  position: relative;
+  top:-35em;
+  left: 22vw;
+  width: 50em;
 }
 
 /* POUR DEBUG UNIQUEMENT */
