@@ -49,7 +49,6 @@
           <div class="ft-item-title ft-text ft-tab-separator ft-color-game">victories:</div>
           <div class="ft-item-title ft-text ft-tab-separator ft-color-game">level:</div>
           <div class="ft-item-title ft-text ft-color-game">numbers of ...:</div>
-            <!-- Ci-dessous le titre de l'onglet -->
       </div>
     </div>
 
@@ -58,8 +57,25 @@
         Match history
       </div>
       <!-- <div class="ft-tab-content ft-color-game flex flex-col text-left"> -->
-      <div class="ft-tab-content ft-color-game ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left">
-          <div class="ft-item-title ft-text ft-tab-separator ft-color-game">
+      <div class="ft-tab-content ft-color-game ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left ft-scrollable">
+        <ul>
+          <li class="ft-item-title ft-text ft-tab-separator ft-color-game">
+            <p><h2>12.05.2023</h2></p>
+            lost against Thingy (Pitaya level)</li>
+            <li class="ft-item-title ft-text ft-tab-separator ft-color-game">
+              <p><h2>13.05.2023</h2></p>
+            lost against Thingy (Pitaya level)</li>
+          <li class="ft-item-title ft-text ft-tab-separator ft-color-game">
+            <p><h2>14.05.2023</h2></p>
+            lost against Thingy (Pitaya level)
+          </li>
+          <li class="ft-item-title ft-text ft-color-game">
+            <p><h2>22.05.2023</h2></p>
+            lost against everyone (Kumquat level)
+          </li>
+
+
+        <!-- <div class="ft-item-title ft-text ft-tab-separator ft-color-game">
             12.05.2023<br/>
             lost against Thingy (Pitaya level)
           </div>
@@ -73,8 +89,8 @@
           <div class="ft-item-title ft-text ft-color-game">
             22.05.2023<br/>
             lost against everyone (Kumquat level)
-          </div>
-            <!-- Ci-dessous le titre de l'onglet -->
+          </div> -->
+        </ul>
       </div>
     </div>
     
@@ -110,6 +126,7 @@
     z-index:1;
     background: url(./../assets/img/chat.png);
     background-size: cover;
+    border: 0.2em solid var(--purple);
 }
 
 .ft-central-tab-container {
@@ -194,6 +211,11 @@
   border-bottom: 0.3em solid;
 }
 
+/* Piste : pour perso des barres de défilement, utiliser "PerfectScrollbar" ou "Custom Scrollbar" (JS). */
+.ft-scrollable {
+  height: 20em;
+  overflow: auto;
+}
 
 /* POUR DEBUG UNIQUEMENT */
 
@@ -210,6 +232,7 @@
 }
 
 /* ^^ POUR DEBUG UNIQUEMENT ^^ */
+
 
 
 </style>
