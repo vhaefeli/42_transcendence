@@ -24,7 +24,6 @@ model User {
   access_token42  String? @unique
   avatar_url      String
   status          status_type @default(OFFLINE)
-  last_online     DateTime        @default(now())
   twoFA_enabled   Boolean @default(false)
   invitations_sent		FriendshipInvitation[]	@relation("from_user")
   invitations_received	FriendshipInvitation[]	@relation("to_user")
