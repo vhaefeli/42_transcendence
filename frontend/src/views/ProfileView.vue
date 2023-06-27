@@ -2,13 +2,13 @@
   <section class="ft-cover flex flex-col items-end justify-end">
         <!-- Conteneur des boutons dans cover -->
           <!-- ajouter classes pour les couleurs par activite -->
-            <a><button class="ft-color-chat">Send msg</button></a>
-            <a><button class="ft-color-game">Invite to play</button></a>
+            <a class="ft-color-chat t-btn-pink ft-other-profile"><span>Send msg</span></a>
+            <a class="ft-color-game t-btn-pink ft-other-profile"><span>Invite to play</span></a>
   </section>
 
   <section class="ft-content ft-container">
     <div class="flex flex-col items-center text-center max-w-max ft-central-tab-container ft-centralTab">
-      <div class="ft-profilePic"></div>
+      <div class="ft-profile-pic"></div>
       <div class="ft-connectedCircle"></div>
       <div class="ft-tabFolder" id="titleProfile"></div>
       <div id="onlineStatus">Online</div>
@@ -17,12 +17,12 @@
       </div>
       <div class="ft-tabContent ft-centralTab" id="buttonsContainer">
         <!-- Bouton pour ajouter la personne en ami (profil d'un tiers) -->
-        <button class="otherProfile" id="add">[+]</button>
+        <a class="t-btn-pink ft-color-add ft-other-profile"><span>[+]</span></a>
         <!-- Bouton pour bloquer la personne (profil d'un tiers) -->
-        <button class="otherProfile" id="block">[blk]</button>
+        <a class="t-btn-pink ft-color-block ft-other-profile" id="block"><span>[blk]</span></a>
 
         <!-- Bouton pour editer son profil (SON profil uniquement) -->
-        <button class="myProfile" id="edit">[ed.]</button>
+        <a class="t-btn-pink ft-color-edit ft-my-profile" id="edit"><span>[ed.]</span></a>
       </div>
       <div class="ft-color-profile ft-tabContent ft-centralTab">
       </div>
@@ -52,6 +52,9 @@
 </template>
   
 <script setup>
+  // import TransButton from '../components/TransButton.vue'
+
+
     import { usePlayerStore } from '../stores/PlayerStore'
     import { storeToRefs } from 'pinia'
     
@@ -79,7 +82,7 @@ button {
 
 
 
-button#add {
+/* button#add {
   background: var(--mint);
 }
 
@@ -89,14 +92,14 @@ button#block {
 
 button#edit {
   background: var(--gray);
-}
+} */
 
 
 .ft-cover {
     background: url(./../assets/img/jr-korpa-9XngoIpxcEo-unsplash.jpg);
 }
 
-.ft-profilePic {
+.ft-profile-pic {
     position: relative;
     top: 3em;
     width: 6em;
@@ -171,6 +174,14 @@ button#edit {
 .ft-tabContent#buttonsContainer {
   /* padding-top: 3em; */
   padding: 2em 0 5em 0;
+}
+
+/* .ft-other-profile {
+  display: none;
+} */
+
+.ft-my-profile {
+  display: none;
 }
 
 </style>
