@@ -14,11 +14,6 @@ export class AuthController {
     return this.authService.SignIn(signInDto.username, signInDto.password);
   }
 
-  @Get('info')
-  testAuth(@Request() req: any) {
-    return req.user;
-  }
-
   @Public()
   @Post('42api')
   async registerLogin42(@Body() login42ApiDto: Login42ApiDto) {
@@ -26,5 +21,10 @@ export class AuthController {
       login42ApiDto.code,
       login42ApiDto.state,
     );
+  }
+
+  @Get('info')
+  testAuth(@Request() req: any) {
+    return req.user;
   }
 }

@@ -90,6 +90,18 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
               { username: 'FoodieExplorer' },
             ],
           },
+          blocked_users: {
+            connect: [
+              { username: 'FoodieExplorer' },
+              { username: 'TravelBug123' },
+            ],
+          },
+          blocked_by: {
+            connect: [
+              { username: 'FoodieExplorer' },
+              { username: 'FitnessFanatic22' },
+            ],
+          },
         },
       });
       await this.friendshipInvitation.create({
