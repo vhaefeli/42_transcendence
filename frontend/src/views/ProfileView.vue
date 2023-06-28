@@ -254,9 +254,11 @@
 }
 
 .ft-connection-circle#friends-pic {
-  position:relative;
+  position:absolute;
   top: 2.5em;
+  right: -0.6em;
   z-index:2;
+  /* align-content: end; */
   align-items: end;
 }
 
