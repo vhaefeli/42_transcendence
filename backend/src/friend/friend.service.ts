@@ -9,17 +9,19 @@ import {
 } from '@nestjs/common';
 import { BlockService } from 'src/block/block.service';
 import { PrismaService } from 'src/prisma.service';
+import { StatusService } from 'src/status/status.service';
 import { TokenInfoDto } from 'src/user/token-info.dto';
 import { UsersService } from 'src/user/users.service';
+
 import { FriendInfoDto } from './friend-info.dto';
 
 @Injectable()
 export class FriendService {
   constructor(
     private prisma: PrismaService,
-    @Inject(forwardRef(() => UsersService))
-    private usersService: UsersService,
+    @Inject(forwardRef(() => UsersService)) private usersService: UsersService,
     private blockService: BlockService,
+    private statusService: StatusService,
   ) {
     prisma.$use(async (params, next) => {
       if (
@@ -187,25 +189,23 @@ export class FriendService {
         },
       },
     });
-    const res = new Array<FriendInfoDto>();
     const blocked_users = await this.blockService.findBlocked(id);
-    friends.friends.forEach((friend) => {
-      res.push({
-        id: friend.id,
-        username: friend.username,
-        is_blocked:
-          blocked_users.find((element) => friend.id === element.id)?.id != null,
-      });
+
+    const res = new Array<Promise<FriendInfoDto>>();
+    friends.friends.concat(friends.friends_added).forEach((friend) => {
+      res.push(
+        new Promise(async (resolve) =>
+          resolve({
+            ...friend,
+            is_blocked:
+              blocked_users.find((element) => friend.id === element.id)?.id !=
+              null,
+            status: await this.statusService.getStatus({ id: friend.id }),
+          }),
+        ),
+      );
     });
-    friends.friends_added.forEach((friend) => {
-      res.push({
-        id: friend.id,
-        username: friend.username,
-        is_blocked:
-          blocked_users.find((element) => friend.id === element.id)?.id != null,
-      });
-    });
-    return res;
+    return await Promise.all(res);
   }
 
   async removeFriendship(my_id: number, friend_username: string) {
