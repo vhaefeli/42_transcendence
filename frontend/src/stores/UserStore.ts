@@ -8,13 +8,12 @@ export const useUserStore = defineStore("userStore", {
       user: {},
       friends: [],
       invites: [],
+      invitesSent: [],
       blocked: [],
-      loading: false
   }),
   actions: {
     // get user infos
     async getMe(sessionStore) {
-      this.loading = true
         await axios({
           url: "/api/user/me",
           method: "get",
@@ -23,8 +22,8 @@ export const useUserStore = defineStore("userStore", {
           .then((response) => {
             this.user = response.data
             this.user.isLogged = true
-            this.loading = false
             console.log("me loaded")
+            return true;
           })
           .catch((error) => {
             if (error.response.status == 401) {
@@ -35,7 +34,7 @@ export const useUserStore = defineStore("userStore", {
             } else {
               console.log(`unexpected error: ${error.response.status} ${error.response.statusText}`)
             }
-            this.loading = false
+            return false;
           })
       },
       // get list of friends
@@ -48,9 +47,18 @@ export const useUserStore = defineStore("userStore", {
           .then((response) => {
             this.friends = response.data;
             console.log("loaded friends");
+            return true;
           })
           .catch((error) => {
-              console.error(`unexpected error: ${error.response.status} ${error.response.statusText}`)
+            if (error.response.status == 401) {
+              console.log(
+                `invalid access token: ${error.response.status} ${error.response.statusText}`
+              );
+              this.user.isLogged = false
+            } else {
+              console.log(`unexpected error: ${error.response.status} ${error.response.statusText}`)
+            }
+            return false;
           });
       },
       // get list of friends
@@ -63,16 +71,46 @@ export const useUserStore = defineStore("userStore", {
           .then((response) => {
             this.invites = response.data;
             console.log("loaded invites");
+            return true;
           })
           .catch((error) => {
             if (error.response.status == 401) {
               console.log(
                 `invalid access token: ${error.response.status} ${error.response.statusText}`
               );
-            } else
+              this.user.isLogged = false
+            } else {
               console.error(
                 `unexpected error: ${error.response.status} ${error.response.statusText}`
               );
+            }
+            return false;
+          });
+      },
+      // get list of friends
+      async getInvitesSent(access_token) {
+        await axios({
+          url: "/api/user/friend/invite/sent",
+          method: "get",
+          headers: { Authorization: `Bearer ${access_token}` },
+        })
+          .then((response) => {
+            this.invitesSent = response.data;
+            console.log("loaded sent invites");
+            return true;
+          })
+          .catch((error) => {
+            if (error.response.status == 401) {
+              console.log(
+                `invalid access token: ${error.response.status} ${error.response.statusText}`
+              );
+              this.user.isLogged = false
+            } else {
+              console.error(
+                `unexpected error: ${error.response.status} ${error.response.statusText}`
+              );
+            }
+            return false;
           });
       },
       // accept a friend
@@ -85,24 +123,27 @@ export const useUserStore = defineStore("userStore", {
             .then((response) => {
               // To execute when the request is successful
               console.log('loaded invitation')
-              console.log(`${response.status} + ${response.statusText}`);
               // update the friends list
               this.getFriends(access_token)
-
               // update pending list
               this.getInvites(access_token)
               return true;
             })
             .catch((error) => {
-              // To execute when the request fails
-              if (error.response.status == 409)
+              if (error.response.status == 401) {
                 console.log(
-                  `user already exists: ${error.response.status} ${error.response.statusText}`
+                  `invalid access token: ${error.response.status} ${error.response.statusText}`
                 );
-              else
+                this.user.isLogged = false
+              } else if (error.response.status == 404) {
+                console.log(
+                  `invitation not found: ${error.response.status} ${error.response.statusText}`
+                );
+              } else {
                 console.error(
                   `unexpected error: ${error.response.status} ${error.response.statusText}`
                 );
+              }
               return false;
             });
       },
@@ -122,15 +163,20 @@ export const useUserStore = defineStore("userStore", {
               return true;
             })
             .catch((error) => {
-              // To execute when the request fails
-              if (error.response.status == 409)
+              if (error.response.status == 401) {
                 console.log(
-                  `user already exists: ${error.response.status} ${error.response.statusText}`
+                  `invalid access token: ${error.response.status} ${error.response.statusText}`
                 );
-              else
+                this.user.isLogged = false
+              } else if (error.response.status == 404) {
+                console.log(
+                  `invitation not found: ${error.response.status} ${error.response.statusText}`
+                );
+              } else {
                 console.error(
                   `unexpected error: ${error.response.status} ${error.response.statusText}`
                 );
+              }
               return false;
             });
       },
@@ -145,19 +191,29 @@ export const useUserStore = defineStore("userStore", {
            // To execute when the request is successful
            console.log('loaded invitation')
            console.log(`${response.status} + ${response.statusText}`);
+           getInvitesSent(access_token)
            return true;
          })
          .catch((error) => {
-           // To execute when the request fails
-           if (error.response.status == 409)
-             console.log(
-               `user already exists: ${error.response.status} ${error.response.statusText}`
-             );
-           else
-             console.error(
-               `unexpected error: ${error.response.status} ${error.response.statusText}`
-             );
-           return false;
+          if (error.response.status == 401) {
+            console.log(
+              `invalid access token: ${error.response.status} ${error.response.statusText}`
+            );
+            this.user.isLogged = false
+          } else if (error.response.status == 404) {
+            console.log(
+              `user not found: ${error.response.status} ${error.response.statusText}`
+            );
+          } else if (error.response.status == 409) {
+            console.log(
+              `can't send invitation to this user: ${error.response.status} ${error.response.statusText}`
+            );
+          } else {
+            console.error(
+              `unexpected error: ${error.response.status} ${error.response.statusText}`
+            );
+          }
+          return false;
          });
       },
       // delete a friend
@@ -178,16 +234,21 @@ export const useUserStore = defineStore("userStore", {
            return true;
          })
          .catch((error) => {
-           // To execute when the request fails
-           if (error.response.status == 409)
-             console.log(
-               `user already exists: ${error.response.status} ${error.response.statusText}`
-             );
-           else
-             console.error(
-               `unexpected error: ${error.response.status} ${error.response.statusText}`
-             );
-           return false;
+          if (error.response.status == 401) {
+            console.log(
+              `invalid access token: ${error.response.status} ${error.response.statusText}`
+            );
+            this.user.isLogged = false
+          } else if (error.response.status == 404) {
+            console.log(
+              `friend not found: ${error.response.status} ${error.response.statusText}`
+            );
+          } else {
+            console.error(
+              `unexpected error: ${error.response.status} ${error.response.statusText}`
+            );
+          }
+          return false;
          });
       },
         // list all blocked users
@@ -204,15 +265,16 @@ export const useUserStore = defineStore("userStore", {
               return true;
             })
             .catch((error) => {
-              // To execute when the request fails
-              if (error.response.status == 409)
+              if (error.response.status == 401) {
                 console.log(
-                  `user already exists: ${error.response.status} ${error.response.statusText}`
+                  `invalid access token: ${error.response.status} ${error.response.statusText}`
                 );
-              else
+                this.user.isLogged = false
+              } else {
                 console.error(
                   `unexpected error: ${error.response.status} ${error.response.statusText}`
                 );
+              }
               return false;
             });
         },
@@ -227,18 +289,24 @@ export const useUserStore = defineStore("userStore", {
               // To execute when the request is successful
               console.log(`${username} is blocked`)
               this.getBlockedUsers(access_token)
+              this.getFriends(access_token)
               return true;
             })
             .catch((error) => {
-              // To execute when the request fails
-              if (error.response.status == 409)
+              if (error.response.status == 401) {
                 console.log(
-                  `user already exists: ${error.response.status} ${error.response.statusText}`
+                  `invalid access token: ${error.response.status} ${error.response.statusText}`
                 );
-              else
+                this.user.isLogged = false
+              } else if (error.response.status == 404) {
+                console.log(
+                  `user to block not found: ${error.response.status} ${error.response.statusText}`
+                );
+              } else {
                 console.error(
                   `unexpected error: ${error.response.status} ${error.response.statusText}`
                 );
+              }
               return false;
             });
         },
@@ -257,15 +325,20 @@ export const useUserStore = defineStore("userStore", {
               return true;
             })
             .catch((error) => {
-              // To execute when the request fails
-              if (error.response.status == 409)
+              if (error.response.status == 401) {
                 console.log(
-                  `user already exists: ${error.response.status} ${error.response.statusText}`
+                  `invalid access token: ${error.response.status} ${error.response.statusText}`
                 );
-              else
+                this.user.isLogged = false
+              } else if (error.response.status == 404) {
+                console.log(
+                  `user to unblock not found: ${error.response.status} ${error.response.statusText}`
+                );
+              } else {
                 console.error(
                   `unexpected error: ${error.response.status} ${error.response.statusText}`
                 );
+              }
               return false;
             });
         },
