@@ -6,9 +6,9 @@
 
   <section class="ft-container">
     <div class="flex flex-col items-center text-center max-w-max ft-central-tab-container">
-      <div class="ft-profile-pic"></div>
+      <div class="ft-profile-pic" id="current-profile-pic"></div>
       <!-- ajouter la valeur ft-circle-green ou ft-circle-gray selon le statut de connexion de la personne -->
-      <div class="ft-connection-circle"></div>
+      <div class="ft-connection-circle" id="current-profile-pic"></div>
       <div class="ft-tab-folder" id="title-profile"></div>
       <!-- Par defaut en ligne -->
       <div class="ft-tab-content ft-bg-color-profile">Online</div>
@@ -84,6 +84,36 @@
         </ul>
       </div>
     </div>
+
+    <div class="flex flex-col text-center max-w-max ft-right-tab ft-my-profile" id="friends-list">
+      <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Friends</div>
+      <div class="ft-tab-content ft-border-color-profile ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left ft-scrollable">
+        <ul>
+          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile">
+            <div class="ft-profile-pic" id="friends-pic">
+              <div class="ft-connection-circle" id="friends-pic"></div>
+            </div>
+            Thingy
+            <a class="t-btn-pink ft-bg-color-profile"><span>[msg]</span></a>
+            <a class="t-btn-pink ft-color-remove"><span>[rm]</span></a>
+            <a class="t-btn-pink ft-color-block"><span>[blk]</span></a>
+          </li>
+          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile">Cerise</li>
+          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile">Jean-Daniel</li>
+          <li class="ft-item-title ft-text ft-bb-color-profile">Anne-Sylvie</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="flex flex-col text-center max-w-max ft-left-tab ft-my-profile" id="friends-search">
+      <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Add a new friend</div>
+      <div class="ft-tab-content ft-border-color-profile ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left">
+          <div class="flex flex-row justify-center">
+            <input type="text" placeholder="Search by username">
+            <a class="t-btn-pink ft-color-add"><span>Add</span></a>
+          </div>
+      </div>
+    </div>
     
   </section>
 </template>
@@ -108,16 +138,12 @@
     background: url(./../assets/img/jr-korpa-9XngoIpxcEo-unsplash.jpg);
 }
 
-.ft-profile-pic {
-    position: relative;
-    top: 3em;
-    width: 6em;
-    height: 6em;
-    border-radius: 20%;
-    z-index:1;
-    background: url(./../assets/img/chat.png);
-    background-size: cover;
-    border: 0.2em solid var(--purple);
+.ft-profile-pic#current-profile-pic {
+  position: relative;
+  top: 3em;
+  z-index:1;
+  background: url(./../assets/img/chat.png);
+  background-size: cover;
 }
 
 .ft-central-tab-container {
@@ -136,7 +162,7 @@
   background: var(--light-purple);
 }
 
-.ft-connection-circle {
+.ft-connection-circle#current-profile-pic {
   position:relative;
   top: 2.5em;
   z-index:2;
@@ -175,10 +201,6 @@
   padding: 1em;
 }
 
-/* .ft-tab-border.ft-bg-color-game, .ft-tab-separator.ft-bg-color-game {
-  border-color: var(--mint);
-} */
-
 .ft-left-tab#stats {
   position: relative;
   top:-28em;
@@ -213,20 +235,47 @@
 
 .ft-left-tab#friends-requests {
   position: relative;
-  top:-35em;
+  top:-40em;
   left: 22vw;
+  width: 50em;
+}
+
+.ft-right-tab#friends-list {
+  position: relative;
+  top:-48em;
+  left: 50vw;
+  width: 50em;
+}
+
+.ft-profile-pic#friends-pic {
+  position: relative;
+  background: url(./../assets/img/ben-neale-zpxKdH_xNSI-unsplash.jpg);
+  background-size: cover;
+}
+
+.ft-connection-circle#friends-pic {
+  position:relative;
+  top: 2.5em;
+  z-index:2;
+  align-items: end;
+}
+
+.ft-left-tab#friends-search {
+  position: relative;
+  top:-52em;
+  left: 15vw;
   width: 50em;
 }
 
 /* POUR DEBUG UNIQUEMENT */
 
-/* .ft-other-profile {
-  display: none;
-} */
-
-.ft-my-profile {
+.ft-other-profile {
   display: none;
 }
+
+/* .ft-my-profile {
+  display: none;
+} */
 
 .ft-item-title {
   padding: 1.5em;
