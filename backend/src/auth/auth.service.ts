@@ -9,19 +9,34 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { AxiosError } from 'axios';
 import { Profile42Api } from 'src/user/profile-42api.dto';
 import { UsersService } from 'src/user/users.service';
+import { readFileSync } from 'fs';
+import * as nodemailer from 'nodemailer';
+import * as totp from 'totp-generator';
 
 @Injectable()
 export class AuthService {
+  transporter: any;
+  template: string;
   constructor(
     @Inject(forwardRef(() => UsersService))
     private usersService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService,
     private http: HttpService,
-  ) {}
+  ) {
+    this.transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      auth: {
+        user: configService.get<string>('EMAIL_2FA_USER'),
+        pass: configService.get<string>('EMAIL_2FA_PASS'),
+      },
+    });
+    this.template = readFileSync('2fa_code_email_template.html').toString();
+  }
 
   async CreateToken(id: number, username: string) {
     return {
@@ -93,5 +108,21 @@ export class AuthService {
         profile42,
       ),
     };
+  }
+
+  async test2fa(address: string) {
+    const info = await this.transporter.sendMail({
+      from: `"Transcendance team" <${this.configService.get<string>(
+        'EMAIL_2FA_USER',
+      )}>`,
+      to: address,
+      subject: 'Your ft_transcendance authentication code',
+      //text: 'test2',
+      html: this.template.replace(
+        '{{USER_AUTH_CODE}}',
+        totp(this.configService.get<string>('EMAIL_TOTP_SECRET')),
+      ),
+    });
+    return;
   }
 }
