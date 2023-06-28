@@ -30,7 +30,7 @@ export class StatusGateway
     private readonly prisma: PrismaService,
   ) {
     this.secret = configService.get<string>('JWT_SECRET_KEY');
-    this.debug = configService.get<boolean>('SOCKET_DEBUG') === true;
+    this.debug = configService.get<string>('SOCKET_DEBUG') === 'true';
   }
 
   @WebSocketServer() server: Server;
