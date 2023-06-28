@@ -17,6 +17,14 @@
 }
 
 /* devraient etre deplaces */
+
+.ft-profile-pic {
+  width: 6em;
+  height: 6em;
+  border-radius: 20%;
+  border: 0.2em solid var(--purple);
+}
+
 /* BG colors */
 .ft-bg-color-chat {
   background: var(--pink);
