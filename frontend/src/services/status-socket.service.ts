@@ -1,7 +1,7 @@
 import { useSessionStore } from "@/stores/SessionStore";
 import { io, Socket } from "socket.io-client";
 
-async function sleep(ms: number) {
+export async function sleep(ms: number) {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
@@ -71,8 +71,9 @@ class StatusSocketService {
       if (i > 50) this.connected = false;
     }
 
-    if (this.connected) console.log(`socket.io/status connected successfully`);
-    else console.error(`socket.io/status failed to connect`);
+    if (this.connected) {
+      console.log(`socket.io/status connected successfully`);
+    } else console.error(`socket.io/status failed to connect`);
   }
 
   async iAmAlive() {
@@ -93,6 +94,19 @@ class StatusSocketService {
       await this.connect();
     }
     return this.connected;
+  }
+
+  async onConnect(
+    callback: Function,
+    timeout: { timeout: number; interval?: number },
+    ...args: any[]
+  ) {
+    if (timeout.interval === undefined) timeout.interval = 50;
+    for (let i = 0; i < timeout.timeout / timeout.interval; i++) {
+      if (this.connected === true) break;
+      await sleep(timeout.interval);
+    }
+    callback(...args);
   }
 }
 

@@ -43,7 +43,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useRouter } from "vue-router";
 import { useSessionStore } from "@/stores/SessionStore";
 import { statusService } from "@/services/status-socket.service";
@@ -126,22 +126,25 @@ async function LogIn(): Promise<boolean> {
       sessionStore.isLoggedIn = true;
       isLoggedIn.value = true;
       console.log("successfully logged in");
+      // TODO redirect to another page (using statusService.onConnect)
       // router.push({ name: 'profile', params: { username: login_username.value } })
-      LoadProfile();
+      statusService.onConnect(LoadProfile, { timeout: 500 });
       return true;
     })
     .catch((error) => {
-      isLoggedIn.value = false;
-      sessionStore.isLoggedIn = false;
-      if (error.response.status == 401)
-        console.log(
-          `invalid credentials: ${error.response.status} ${error.response.statusText}`
-        );
-      else
-        console.error(
-          `unexpected error: ${error.response.status} ${error.response.statusText}`
-        );
-      return false;
+      if (error instanceof AxiosError) {
+        isLoggedIn.value = false;
+        sessionStore.isLoggedIn = false;
+        if (error.response?.status == 401)
+          console.log(
+            `invalid credentials: ${error.response?.status} ${error.response?.statusText}`
+          );
+        else
+          console.error(
+            `unexpected error: ${error.response?.status} ${error.response?.statusText}`
+          );
+        return false;
+      } else throw error;
     });
   return true;
 }
