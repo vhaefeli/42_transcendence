@@ -7,7 +7,7 @@ import { FriendService } from './friend.service';
 @Module({
   controllers: [FriendController],
   providers: [FriendService],
-  imports: [forwardRef(() => UserModule), BlockModule],
+  imports: [forwardRef(() => UserModule), forwardRef(() => BlockModule)],
   exports: [FriendService],
 })
 export class FriendModule {}
