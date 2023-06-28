@@ -49,6 +49,8 @@ services:
       - ./backend:/app
     env_file:
       - .env
+    environment:
+      TZ: 'Europe/Zurich'
     restart: unless-stopped
     # user: "${UID}:${GID}"
     depends_on:
