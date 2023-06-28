@@ -127,13 +127,16 @@ export class UsersService {
           avatar_url: true,
         },
       });
-      return {
+      const res: UserProfileDto = {
         ...user,
         is_friend:
           my_id === user.id || my_id == null
             ? false
             : await this.friendService.areFriends(my_id, user.id),
       };
+      if (res.is_friend)
+        res.status = await this.statusService.getStatus({ id: res.id });
+      return res;
     } catch (e) {
       if (e.code == 'P2025') throw new NotFoundException();
       Logger.error(e.code + ' ' + e.msg);
