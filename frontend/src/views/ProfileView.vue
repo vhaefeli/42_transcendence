@@ -39,17 +39,30 @@
         </ul> -->
     <!-- /CODE DE MICHELE -->
 
-    <div class="flex flex-col text-center max-w-max ft-left-tab" id="stats">
+    <div class="flex flex-col text-center ft-left-tab" id="stats">
       <div class="ft-tab-folder ft-tab-title ft-bb-color-game">Stats</div>
-      <div class="ft-tab-content ft-border-color-game ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left">
-          <div class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">number of matches:</div>
-          <div class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">victories:</div>
-          <div class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">level:</div>
-          <div class="ft-item-title ft-text ft-bb-color-game">numbers of ...:</div>
+      <div class="ft-tab-content ft-border-color-game ft-tab-border flex flex-row justify-evenly ">
+        <!-- <div class="flex flex-col">3</div> -->
+          <div class="ft-item-title ft-bb-color-game flex flex-col">
+            <div class="ft-result-drk-text">23</div>
+            <div class="ft-text">matches</div>
+          </div>
+          <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
+            <div class="ft-result-drk-text">12</div>
+            <div class="ft-text">victories</div>
+          </div>
+          <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
+            <div class="ft-result-drk-text">2</div>
+            <div class="ft-text">perfect victories</div>
+          </div>
+          <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
+            <div class="ft-result-drk-text">Pitya</div>
+            <div class="ft-text">level</div>
+          </div>
       </div>
     </div>
 
-    <div class="flex flex-col text-center max-w-max ft-right-tab" id="match-history">
+    <div class="flex flex-col text-center ft-right-tab" id="match-history">
       <div class="ft-tab-folder ft-tab-title ft-bb-color-game">Match history</div>
       <div class="ft-tab-content ft-border-color-game ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left ft-scrollable">
         <ul>
@@ -69,9 +82,9 @@
       </div>
     </div>
 
-    <div class="flex flex-col text-center max-w-max ft-left-tab ft-my-profile" id="friends-requests">
+    <div class="flex flex-col text-center ft-left-tab ft-my-profile" id="friends-requests">
       <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Friends requests</div>
-      <div class="ft-tab-content ft-border-color-profile ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left ft-scrollable">
+      <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left ft-scrollable">
         <ul>
           <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile">
             Thingy
@@ -85,35 +98,37 @@
       </div>
     </div>
 
-    <div class="flex flex-col text-center max-w-max ft-right-tab ft-my-profile" id="friends-list">
+    <div class="flex flex-col text-center ft-right-tab ft-my-profile" id="friends-list">
       <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Friends</div>
-      <div class="ft-tab-content ft-border-color-profile ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left ft-scrollable">
+      <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left ft-scrollable">
         <ul>
           <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile">
             <div class="ft-profile-pic" id="friends-pic">
               <div class="ft-connection-circle" id="friends-pic"></div>
             </div>
-            Thingy
-            <a class="t-btn-pink ft-bg-color-profile"><span>[msg]</span></a>
+            Jean-Eudes
+            <a class="t-btn-pink ft-bg-color-chat"><span>[msg]</span></a>
             <a class="t-btn-pink ft-color-remove"><span>[rm]</span></a>
             <a class="t-btn-pink ft-color-block"><span>[blk]</span></a>
           </li>
-          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile">Cerise</li>
-          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile">Jean-Daniel</li>
-          <li class="ft-item-title ft-text ft-bb-color-profile">Anne-Sylvie</li>
+          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile">Chris</li>
+          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile">Danielle</li>
+          <li class="ft-item-title ft-text ft-bb-color-profile">Pouette</li>
         </ul>
       </div>
     </div>
 
-    <div class="flex flex-col text-center max-w-max ft-left-tab ft-my-profile" id="friends-search">
+    <div class="flex flex-col text-center ft-left-tab ft-my-profile" id="friends-search">
       <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Add a new friend</div>
-      <div class="ft-tab-content ft-border-color-profile ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left">
+      <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left">
           <div class="flex flex-row justify-center">
             <input type="text" placeholder="Search by username">
             <a class="t-btn-pink ft-color-add"><span>Add</span></a>
           </div>
       </div>
     </div>
+
+    <!-- Pour les blocked, ajouter id="blocked" pour appliquer le bon fond -->
     
   </section>
 </template>
@@ -154,7 +169,8 @@
 }
 
 .ft-tab-content {
-  width: 100%;
+  min-width: 100%;
+  /* width: 100%; */
   box-shadow: 5px 5px 4px rgba(0, 0, 0, 0.4);
 }
 
@@ -206,17 +222,19 @@
   top:-28em;
   left: 26vw;
   width: 30em;
+
+  z-index: 1;
 }
 
 .ft-right-tab#match-history {
   position: relative;
   top:-35em;
   left: 40vw;
-  width: 50em;
+  width: 40em;
 }
 
 .ft-tab-border {
-  width: 30em;
+  /* width: 30em; */
   border-style: solid;
   border-width: 0.3em;
   padding: 1em 4em 1em 4em;
@@ -237,17 +255,19 @@
   position: relative;
   top:-40em;
   left: 22vw;
-  width: 50em;
+  width: 52em;
 }
 
 .ft-right-tab#friends-list {
   position: relative;
   top:-48em;
-  left: 50vw;
+  left: 40vw;
   width: 50em;
 }
 
 .ft-profile-pic#friends-pic {
+  width: 3em;
+  height: 3em;
   position: relative;
   background: url(./../assets/img/ben-neale-zpxKdH_xNSI-unsplash.jpg);
   background-size: cover;
@@ -266,7 +286,11 @@
   position: relative;
   top:-52em;
   left: 15vw;
-  width: 50em;
+  width: 30em;
+}
+
+.ft-tab-content.ft-tab-border#blocked {
+  background: var(--dark-gray);
 }
 
 /* POUR DEBUG UNIQUEMENT */
