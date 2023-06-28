@@ -1,15 +1,23 @@
 import {
+  forwardRef,
+  Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { FriendService } from 'src/friend/friend.service';
 import { PrismaService } from 'src/prisma.service';
-import { TokenInfoDto } from 'src/user/token-info.dto';
+
+import { BlockedUserDto } from './blocked-user.dto';
 
 @Injectable()
 export class BlockService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => FriendService))
+    private friendService: FriendService,
+  ) {}
 
   async isBlocked(my_id: number, username: string) {
     return (
@@ -24,14 +32,25 @@ export class BlockService {
     );
   }
 
-  async findBlocked(my_id: number): Promise<Array<TokenInfoDto>> {
+  async findBlocked(my_id: number): Promise<Array<BlockedUserDto>> {
     try {
-      return (
+      const blocked_users = new Array<Promise<BlockedUserDto>>();
+      for (const user of (
         await this.prisma.user.findUniqueOrThrow({
           where: { id: my_id },
           select: { blocked_users: { select: { id: true, username: true } } },
         })
-      ).blocked_users;
+      ).blocked_users) {
+        blocked_users.push(
+          new Promise(async (resolve) =>
+            resolve({
+              ...user,
+              is_friend: await this.friendService.areFriends(my_id, user.id),
+            }),
+          ),
+        );
+      }
+      return await Promise.all(blocked_users);
     } catch (error) {
       Logger.error(error.code);
     }
