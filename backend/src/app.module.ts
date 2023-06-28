@@ -10,6 +10,7 @@ import { AvatarModule } from './avatar/avatar.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { StatusModule } from './status/status.module';
+import { BlockModule } from './block/block.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { StatusModule } from './status/status.module';
     FriendModule,
     AvatarModule,
     StatusModule,
+    BlockModule,
   ],
   controllers: [AppController],
   providers: [

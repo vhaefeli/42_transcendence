@@ -7,9 +7,11 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { BlockService } from 'src/block/block.service';
 import { PrismaService } from 'src/prisma.service';
 import { TokenInfoDto } from 'src/user/token-info.dto';
 import { UsersService } from 'src/user/users.service';
+import { FriendInfoDto } from './friend-info.dto';
 
 @Injectable()
 export class FriendService {
@@ -17,6 +19,7 @@ export class FriendService {
     private prisma: PrismaService,
     @Inject(forwardRef(() => UsersService))
     private usersService: UsersService,
+    private blockService: BlockService,
   ) {
     prisma.$use(async (params, next) => {
       if (
@@ -184,12 +187,23 @@ export class FriendService {
         },
       },
     });
-    const res = new Array<{ id: number; username: string }>();
-    friends.friends.forEach((element) => {
-      res.push({ id: element.id, username: element.username });
+    const res = new Array<FriendInfoDto>();
+    const blocked_users = await this.blockService.findBlocked(id);
+    friends.friends.forEach((friend) => {
+      res.push({
+        id: friend.id,
+        username: friend.username,
+        is_blocked:
+          blocked_users.find((element) => friend.id === element.id)?.id != null,
+      });
     });
-    friends.friends_added.forEach((element) => {
-      res.push({ id: element.id, username: element.username });
+    friends.friends_added.forEach((friend) => {
+      res.push({
+        id: friend.id,
+        username: friend.username,
+        is_blocked:
+          blocked_users.find((element) => friend.id === element.id)?.id != null,
+      });
     });
     return res;
   }

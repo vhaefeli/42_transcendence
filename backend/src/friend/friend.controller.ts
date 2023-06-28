@@ -13,6 +13,16 @@ import { FriendService } from './friend.service';
 export class FriendController {
   constructor(private friendService: FriendService) {}
 
+  @Get('all')
+  async findFriends(@Request() req: any) {
+    return await this.friendService.getFriends(req.user.sub);
+  }
+
+  @Delete(':username')
+  async removeFriendship(@Param() params: any, @Request() req: any) {
+    await this.friendService.removeFriendship(req.user.sub, params.username);
+  }
+
   @Post('invite/:username')
   async sendFriendshipInvitation(@Param() params: any, @Request() req: any) {
     if (req.user.username == params.username) throw new ConflictException();
@@ -44,15 +54,5 @@ export class FriendController {
       params.from_username,
       req.user.sub,
     );
-  }
-
-  @Get('all')
-  async findFriends(@Request() req: any) {
-    return await this.friendService.getFriends(req.user.sub);
-  }
-
-  @Delete(':username')
-  async removeFriendship(@Param() params: any, @Request() req: any) {
-    await this.friendService.removeFriendship(req.user.sub, params.username);
   }
 }

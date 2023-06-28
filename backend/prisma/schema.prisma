@@ -11,17 +11,20 @@ datasource db {
 }
 
 model User {
-  id              Int @id @default(autoincrement())
-  username        String @unique
+  id              Int @id       @default(autoincrement())
+  username        String        @unique
   password        String?
-  id42            Int? @unique
-  access_token42  String? @unique
+  id42            Int?          @unique
+  access_token42  String?       @unique
   avatar_url      String
-  twoFA_enabled   Boolean @default(false)
-  invitations_sent		FriendshipInvitation[]	@relation("from_user")
-  invitations_received	FriendshipInvitation[]	@relation("to_user")
-  friends_added			User[]					@relation("Friendship")
-  friends				User[]					@relation("Friendship")
+  twoFA_enabled   Boolean       @default(false)
+
+  invitations_sent        FriendshipInvitation[]	@relation("from_user")
+  invitations_received    FriendshipInvitation[]	@relation("to_user")
+  friends_added           User[]                  @relation("Friendship")
+  friends                 User[]                  @relation("Friendship")
+  blocked_users           User[]                  @relation("Block")
+  blocked_by              User[]                  @relation("Block")
 }
 
 model FriendshipInvitation {
