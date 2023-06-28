@@ -19,6 +19,7 @@ export class FriendService {
     private prisma: PrismaService,
     @Inject(forwardRef(() => UsersService))
     private usersService: UsersService,
+    @Inject(forwardRef(() => BlockService))
     private blockService: BlockService,
   ) {
     prisma.$use(async (params, next) => {
