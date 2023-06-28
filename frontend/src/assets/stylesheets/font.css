@@ -23,21 +23,25 @@ p, a, .ft-text {
     font-family: 'JetBrains';
 }
 
-h1, h2, h3, h4, h5, h6, .ft-title, .ft-tab-title {
+h1, h2, h3, h4, h5, h6, .ft-title, .ft-tab-title, .ft-result-drk-text {
     font-family: 'Array', 'Audiowide', monospace;
     font-style: normal;
 }
 
-h1 {
+h1, .ft-result-drk-text {
     font-size: 3rem;
 }
 
-h2, .ft-title {
+h2, .ft-title, .ft-result-drk-text {
     font-size: 2rem;
 }
 
 .ft-title, .ft-tab-title {
     color: var(--light);
+}
+
+.ft-result-drk-text {
+    color: var(--dark);
 }
 
 a.ft-bg-color-game, a.ft-bg-color-profile, a.ft-bg-color-chat, a.ft-color-add, a.ft-color-remove, a.ft-color-block, a.ft-color-edit {
