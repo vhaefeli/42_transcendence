@@ -36,24 +36,32 @@
         <div class="mb-9">
             <!-- list of friends -->
             <h2>My friends</h2>
-            <div v-for="friend in user.friends" :key="friend.id" class="flex justify-between border-4 border-sky-500 p-3 mb-1">
-                <div>
-                    <p>id: {{ friend.id }}</p>
-                    <p>name: {{ friend.username }}</p>
+            <div v-for="friend in friends" :key="friend.id" class="flex justify-between border-4 border-sky-500 p-3 mb-1">
+                <div v-if="!friend.is_blocked">
+                    <div>
+                        <p>id: {{ friend.id }}</p>
+                        <p>name: {{ friend.username }}</p>
+                    </div>
+                    <button
+                        class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+                        @click="removeFriend(friend.username)"
+                        >
+                            remove friendship
+                        </button>
+                    <button
+                        class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+                        @click="blockUser(friend.username)"
+                        >
+                            block this friend
+                        </button>  
                 </div>
-                <button
-                    class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-                    @click="userStore.delFriend(friend.username, sessionStore.access_token)"
-                    >
-                        remove friendship
-                    </button>
             </div>
         </div>
         <div class="">
             <!-- list of pending invitations -->
             <h2>Pending invitations</h2>
-            <div v-if="user.invites && user.invites">
-                <div v-for="invitation in user.invites" :key="invitation.id" class="flex justify-between border-4 border-sky-500 p-3">
+            <div v-if="invites">
+                <div v-for="invitation in invites" :key="invitation.id" class="flex justify-between border-4 border-sky-500 p-3">
                     <div class="">
                         <p>id: {{ invitation.id }}</p>
                         <p>name: {{ invitation.username }}</p>
@@ -63,6 +71,30 @@
                     @click="acceptFriend(invitation.username)"
                     >
                         accept friend
+                    </button>
+                    <button
+                    class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+                    @click="blockUser(invitation.username)"
+                    >
+                        block this user
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="">
+            <!-- list of pending invitations -->
+            <h2>Blocked users</h2>
+            <div v-if="blocked">
+                <div v-for="block in blocked" :key="block.id" class="flex justify-between border-4 border-sky-500 p-3">
+                    <div class="">
+                        <p>id: {{ block.id }}</p>
+                        <p>name: {{ block.username }}</p>
+                    </div>
+                    <button
+                    class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+                    @click="unblockUser(block.username)"
+                    >
+                        unblock
                     </button>
                 </div>
             </div>
@@ -99,8 +131,10 @@
     // other variables
     let newFriend = ref('')
     let allUsers: { id: number, username: string }[];
+    // let myFriends = ref([]);
 
-    const { user, loading } = storeToRefs(userStore)
+
+    const { user, loading, friends, invites, blocked } = storeToRefs(userStore)
 
     // onBeforeMount is executed before the component is mounted
     // way of using await because we can't do it in setup
@@ -113,6 +147,7 @@
             if (user.value.isLogged) {
                 await userStore.getFriends(sessionStore.access_token);
                 await userStore.getInvites(sessionStore.access_token);
+                await userStore.getBlockedUsers(sessionStore.access_token);
             } else {
                 isLoggedIn.value = false;
                 sessionStore.isLoggedIn = false;
@@ -145,6 +180,18 @@
 
     function acceptFriend(friendname) {
         userStore.acceptFriend(friendname, sessionStore.access_token);
+    }
+
+    function removeFriend(friendname) {
+        userStore.delFriend(friendname, sessionStore.access_token)
+    }
+
+    function blockUser(username) {
+        userStore.blockUser(username, sessionStore.access_token)
+    }
+
+    function unblockUser(username) {
+        userStore.unblockUser(username, sessionStore.access_token)
     }
 
 </script>

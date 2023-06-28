@@ -1,39 +1,14 @@
 import { defineStore } from "pinia";
 import axios from "axios";
 
-type State = {
-  user: User
-};
-
-type Friends = {
-  id: number
-  username: string
-  is_blocked: boolean
-};
-
-type Invites = {
-  id: number
-  username: string
-};
-
-interface User {
-  id: number
-  isLogged: boolean
-  username: string
-  avatar_url: string
-  friends: Friends[]
-  invites: Invites[]
-  twoFA_enabled: false
-  status: string
-  level: string
-  rank: number
-  nb_match: number
-  nb_jeux: number
-}
+type State = {};
 
 export const useUserStore = defineStore("userStore", {
   state: (): State => ({
       user: {},
+      friends: [],
+      invites: [],
+      blocked: [],
       loading: false
   }),
   actions: {
@@ -71,7 +46,7 @@ export const useUserStore = defineStore("userStore", {
           headers: { Authorization: `Bearer ${access_token}` },
         })
           .then((response) => {
-            this.user.friends = response.data;
+            this.friends = response.data;
             console.log("loaded friends");
           })
           .catch((error) => {
@@ -86,7 +61,7 @@ export const useUserStore = defineStore("userStore", {
           headers: { Authorization: `Bearer ${access_token}` },
         })
           .then((response) => {
-            this.user.invites = response.data;
+            this.invites = response.data;
             console.log("loaded invites");
           })
           .catch((error) => {
@@ -111,6 +86,11 @@ export const useUserStore = defineStore("userStore", {
               // To execute when the request is successful
               console.log('loaded invitation')
               console.log(`${response.status} + ${response.statusText}`);
+              // update the friends list
+              this.getFriends(access_token)
+
+              // update pending list
+              this.getInvites(access_token)
               return true;
             })
             .catch((error) => {
@@ -161,6 +141,11 @@ export const useUserStore = defineStore("userStore", {
        })
          .then((response) => {
            // To execute when the request is successful
+
+           // update the array
+           this.friends = this.friends.filter(
+            friend => friend.username !== friendname
+          );
            console.log(`friend ${friendname} deleted`)
            return true;
          })
@@ -178,7 +163,7 @@ export const useUserStore = defineStore("userStore", {
          });
       },
         // list all blocked users
-        async listBlockedUsers(access_token) {
+        async getBlockedUsers(access_token) {
           await axios({
             url: `/api/user/block`,
             method: "get",
@@ -186,6 +171,7 @@ export const useUserStore = defineStore("userStore", {
           })
             .then((response) => {
               // To execute when the request is successful
+              this.blocked = response.data;
               console.log('blocked users loaded')
               return true;
             })
