@@ -78,6 +78,12 @@
                     >
                         block this user
                     </button>
+                    <button
+                    class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+                    @click="iDontWantToBeFriend(invitation.username)"
+                    >
+                        i don't want to be friend
+                    </button>
                 </div>
             </div>
         </div>
@@ -89,6 +95,7 @@
                     <div class="">
                         <p>id: {{ block.id }}</p>
                         <p>name: {{ block.username }}</p>
+                        <p v-if="block.is_friend">friend</p>
                     </div>
                     <button
                     class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
@@ -132,7 +139,6 @@
     let newFriend = ref('')
     let allUsers: { id: number, username: string }[];
     // let myFriends = ref([]);
-
 
     const { user, loading, friends, invites, blocked } = storeToRefs(userStore)
 
@@ -180,6 +186,10 @@
 
     function acceptFriend(friendname) {
         userStore.acceptFriend(friendname, sessionStore.access_token);
+    }
+
+    function iDontWantToBeFriend(friendname) {
+        userStore.declineFriend(friendname, sessionStore.access_token);
     }
 
     function removeFriend(friendname) {

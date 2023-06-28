@@ -106,6 +106,34 @@ export const useUserStore = defineStore("userStore", {
               return false;
             });
       },
+      // delete invitation to deny
+      async declineFriend(friendname, access_token) {
+          await axios({
+            url: `/api/user/friend/invite/${friendname}`,
+            method: "delete",
+            headers: { Authorization: `Bearer ${access_token}` },
+          })
+            .then((response) => {
+              // To execute when the request is successful
+              console.log(`invitation from ${friendname} declined`)
+
+              // update pending list
+              this.getInvites(access_token)
+              return true;
+            })
+            .catch((error) => {
+              // To execute when the request fails
+              if (error.response.status == 409)
+                console.log(
+                  `user already exists: ${error.response.status} ${error.response.statusText}`
+                );
+              else
+                console.error(
+                  `unexpected error: ${error.response.status} ${error.response.statusText}`
+                );
+              return false;
+            });
+      },
       // add a friend
       async addFriend(friendname, access_token) {
        await axios({
@@ -197,7 +225,8 @@ export const useUserStore = defineStore("userStore", {
           })
             .then((response) => {
               // To execute when the request is successful
-              console.log('${username} is blocked')
+              console.log(`${username} is blocked`)
+              this.getBlockedUsers(access_token)
               return true;
             })
             .catch((error) => {
@@ -222,7 +251,9 @@ export const useUserStore = defineStore("userStore", {
           })
             .then((response) => {
               // To execute when the request is successful
-              console.log('${username} is unblocked')
+              console.log(`${username} is unblocked`)
+              this.getBlockedUsers(access_token)
+              this.getFriends(access_token)
               return true;
             })
             .catch((error) => {
