@@ -4,48 +4,50 @@
 
 a.t-btn-pink { 
     text-decoration: none;
-    color: var(--purple);
-    font-family: Audiowide;
-    font-size: 28px;
-    font-weight: 400;
+    /* color: var(--purple); */
+    /* font-family: Audiowide; */
+    /* font-size: 28px; */
+    /* font-weight: 400; */
     line-height: 36px;
     letter-spacing: 0em;
     text-align: center;
     display: inline-block;
-    background: var(--pink);
-    padding: 10px 10px;
-    border-top: solid 4px var(--light);
-    border-left: solid 4px var(--light);
-    border-right: solid 4px var(--purple);
-    border-bottom: solid 4px var(--purple);
+    /* background: var(--pink); */
+    /* padding: 10px 10px; */
+    padding: 0.5em 0.5em;
+    border-top: solid 0.3em var(--light);
+    border-left: solid 0.3em var(--light);
+    border-right: solid 0.3em var(--purple);
+    border-bottom: solid 0.3em var(--purple);
 }
 a.t-btn-pink span {
-    color: var(--purple);
+    /* color: var(--purple); */
     padding: 1px 32px;
-    border: 3px dotted var(--pink);
+    border: 0.2em dotted var(--pink);
     transition: border .5s ease;
 }
 
 a.t-btn-pink:hover span {
-    border: 3px dotted var(--purple);
+    border: 0.2em dotted var(--purple);
 }
 
 a.t-btn-pink:hover {
-    border-top: solid 6px var(--light);
-    border-left: solid 6px var(--light);
-    border-right: solid 6px var(--purple);
-    border-bottom: solid 6px var(--purple);
-    font-size: 29px;
+    border-top: solid 0.3em var(--light);
+    border-left: solid 0.3em var(--light);
+    border-right: solid 0.3em var(--purple);
+    border-bottom: solid 0.3em var(--purple);
+    /* font-size: 29px; */
+    /* font-size: 1.5rem; */
 }
 
 a.t-btn-pink:active {
-    border-top: solid 2px var(--light);
-    border-left: solid 2px var(--light);
-    border-right: solid 2px var(--purple);
-    border-bottom: solid 2px var(--purple);
-    font-size: 26px;
+    border-top: solid 0.3em var(--light);
+    border-left: solid 0.3em var(--light);
+    border-right: solid 0.3em var(--purple);
+    border-bottom: solid 0.3em var(--purple);
+    /* font-size: 1.2rem; */
 }
 
-a.t-btn-pink:active span {
-    border: 3px dotted var(--pink);
-}
+/* a.t-btn-pink:active span {
+    border: 0.2em dotted var(--pink);
+} */

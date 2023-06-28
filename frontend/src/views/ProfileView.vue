@@ -1,90 +1,131 @@
 <template>
-    <h1 class="mt-9">Profile page</h1>
-    <router-link to="/login">back to login</router-link>
-    <!-- Nadia: tu pourra tout remove et afficher correctement. Toutes les classes sont du Tailwind. -->
+  <section class="ft-cover flex flex-col items-end justify-end">
+    <a class="ft-bg-color-chat t-btn-pink ft-other-profile"><span>Send message</span></a>
+    <a class="ft-bg-color-game t-btn-pink ft-other-profile"><span>Invite to play</span></a>
+  </section>
 
-    <!-- check si on est sur son propre profile -->
-    <div v-if="user && user.username && user.username == route.params.username">
-        <div class="flex mb-9">
-            <img :src="user.avatar_url" alt="avatar img" class="mr-9"/>
-            <div class="mr-9">
-                <!-- profile -->
-                <p>username: {{ user.username }}<br />id: {{ user.id }}</p>
-                <p v-if="user.twoFA_enabled">2FA is enabled</p>
-                <p v-if="!user.twoFA_enabled">2FA is disabled</p>
-                <p class="mb-6">Status: {{ user.status }}</p>
-                <div class="flex flex-col">
-                    <input v-model="newFriend" placeholder="name of friend" /><br />
-                    <p>you want to add: {{ newFriend || 'nobody' }} ?</p>
-                    <button
-                    class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-                    @click="addFriend"
-                    >
-                    add a friend
-                    </button>
-                </div>
-            </div>
-            <div>
-                <h2>All users</h2>
-                <div v-if="allUsers">
-                    <div v-for="oderUser in allUsers" :key="oderUser.id">
-                        <p>{{ oderUser.username }}</p>
-                    </div>
-                </div>
-            </div>
-            
-        </div>
-    <div class="mb-9">
-        <!-- list of friends -->
+  <section class="ft-container">
+    <div class="flex flex-col items-center text-center max-w-max ft-central-tab-container">
+      <div class="ft-profile-pic" id="current-profile-pic"></div>
+      <!-- ajouter la valeur ft-circle-green ou ft-circle-gray selon le statut de connexion de la personne -->
+      <div class="ft-connection-circle" id="current-profile-pic"></div>
+      <div class="ft-tab-folder" id="title-profile"></div>
+      <!-- Par defaut en ligne -->
+      <div class="ft-tab-content ft-bg-color-profile">Online</div>
+      <div class="ft-tab-content ft-bg-color-profile ft-title" id="username">
+          Pouetteuuh
+      </div>
+      <!-- <div class="ft-tabContent ft-centralTab" id="buttonsContainer"> -->
+      <div class="ft-tab-content ft-bg-color-profile" id="buttons-container">
+        <!-- Bouton pour ajouter la personne en ami (profil d'un tiers) -->
+        <a class="t-btn-pink ft-color-add ft-other-profile"><span>[+]</span></a>
+        <!-- Bouton pour bloquer la personne (profil d'un tiers) -->
+        <a class="t-btn-pink ft-color-block ft-other-profile" id="block"><span>[blk]</span></a>
+
+        <!-- Bouton pour editer son profil (SON profil uniquement) -->
+        <a class="t-btn-pink ft-color-edit ft-my-profile" id="edit"><span>[ed.]</span></a>
+      </div>
+      <!-- <div class="ft-bg-color-profile ft-tabContent ft-centralTab">
+      </div> -->
+    </div>
+                    
+    <!-- CODE DE MICHELE -->
+    <!-- <h1>Profile page</h1>
+        <p>Name of user is {{ player[0].username }}</p>
         <h2>My friends</h2>
-        <div v-for="friend in user.firends" :key="friend.id" class="flex border-4 border-sky-500 p-3 mb-1">
-            <div>
-                <p>id: {{ friend.id }}</p>
-                <p>name: {{ friend.username }}</p>
-            </div>
-        </div>
-    </div>
-    <div class="">
-        <!-- list of pending invitations -->
-        <h2>Pending invitations</h2>
-        <div v-if="user.invites && user.invites.invitations_received">
-            <div v-for="invitation in user.invites.invitations_received" :key="invitation.id" class="flex justify-between border-4 border-sky-500 p-3">
-                <div class="">
-                    <p>id: {{ invitation.from.id }}</p>
-                    <p>name: {{ invitation.from.username }}</p>
-                </div>
-                <button
-                class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-                @click="acceptFriend(invitation.from.username)"
-                >
-                    accept friend
-                </button>
-            </div>
-        </div>
-    </div>
-    </div>
-    <div v-else>
-        <p>something went wrong</p>
+        
+        <ul v-for="friend in player[0].friends" key="userData.id">
+            <li>{{ friend.username }}</li>
+        </ul> -->
+    <!-- /CODE DE MICHELE -->
+
+    <div class="flex flex-col text-center max-w-max ft-left-tab" id="stats">
+      <div class="ft-tab-folder ft-tab-title ft-bb-color-game">Stats</div>
+      <div class="ft-tab-content ft-border-color-game ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left">
+          <div class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">number of matches:</div>
+          <div class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">victories:</div>
+          <div class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">level:</div>
+          <div class="ft-item-title ft-text ft-bb-color-game">numbers of ...:</div>
+      </div>
     </div>
 
-    <router-link to="/search-users">Search for users</router-link>
+    <div class="flex flex-col text-center max-w-max ft-right-tab" id="match-history">
+      <div class="ft-tab-folder ft-tab-title ft-bb-color-game">Match history</div>
+      <div class="ft-tab-content ft-border-color-game ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left ft-scrollable">
+        <ul>
+          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">
+            <p><h2>12.05.2023</h2></p>
+            lost against Thingy (Pitaya level)</li>
+            <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">
+            <p><h2>13.05.2023</h2></p>
+            lost against Thingy (Pitaya level)</li>
+          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">
+            <p><h2>14.05.2023</h2></p>
+            lost against Thingy (Pitaya level)</li>
+          <li class="ft-item-title ft-text ft-bb-color-game">
+            <p><h2>22.05.2023</h2></p>
+            lost against everyone (Kumquat level)</li>
+        </ul>
+      </div>
+    </div>
 
+    <div class="flex flex-col text-center max-w-max ft-left-tab ft-my-profile" id="friends-requests">
+      <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Friends requests</div>
+      <div class="ft-tab-content ft-border-color-profile ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left ft-scrollable">
+        <ul>
+          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile">
+            Thingy
+            <a class="t-btn-pink ft-color-add"><span>OK</span></a>
+            <a class="t-btn-pink ft-color-block"><span>Nope</span></a>
+          </li>
+          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile">Cerise</li>
+          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile">Jean-Daniel</li>
+          <li class="ft-item-title ft-text ft-bb-color-profile">Anne-Sylvie</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="flex flex-col text-center max-w-max ft-right-tab ft-my-profile" id="friends-list">
+      <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Friends</div>
+      <div class="ft-tab-content ft-border-color-profile ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left ft-scrollable">
+        <ul>
+          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile">
+            <div class="ft-profile-pic" id="friends-pic">
+              <div class="ft-connection-circle" id="friends-pic"></div>
+            </div>
+            Thingy
+            <a class="t-btn-pink ft-bg-color-profile"><span>[msg]</span></a>
+            <a class="t-btn-pink ft-color-remove"><span>[rm]</span></a>
+            <a class="t-btn-pink ft-color-block"><span>[blk]</span></a>
+          </li>
+          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile">Cerise</li>
+          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile">Jean-Daniel</li>
+          <li class="ft-item-title ft-text ft-bb-color-profile">Anne-Sylvie</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="flex flex-col text-center max-w-max ft-left-tab ft-my-profile" id="friends-search">
+      <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Add a new friend</div>
+      <div class="ft-tab-content ft-border-color-profile ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left">
+          <div class="flex flex-row justify-center">
+            <input type="text" placeholder="Search by username">
+            <a class="t-btn-pink ft-color-add"><span>Add</span></a>
+          </div>
+      </div>
+    </div>
+    
+  </section>
 </template>
   
 <script setup>
-    import { ref } from "vue";
-    import { useUserStore } from '../stores/UserStore'
-    import { useSessionStore } from "@/stores/SessionStore";
-    import { storeToRefs } from 'pinia'
-    import { useRoute } from 'vue-router'
-    import axios from "axios";
+  // import TransButton from '../components/TransButton.vue'
 
-    // to have the token
-    const sessionStore = useSessionStore();
+
+    import { usePlayerStore } from '../stores/PlayerStore'
+    import { storeToRefs } from 'pinia'
     
-    // routes
-    const userStore = useUserStore()
-    const route = useRoute()
+    const playerStore = usePlayerStore()
 
     // other variables
     let newFriend = ref('')
@@ -131,3 +172,160 @@
         });
     
 </script>
+
+<style scoped>
+
+.ft-cover {
+    background: url(./../assets/img/jr-korpa-9XngoIpxcEo-unsplash.jpg);
+}
+
+.ft-profile-pic#current-profile-pic {
+  position: relative;
+  top: 3em;
+  z-index:1;
+  background: url(./../assets/img/chat.png);
+  background-size: cover;
+}
+
+.ft-central-tab-container {
+  position: relative;
+  top: -16em;
+  left: 50vw;
+  transform: translateX(-50%);
+}
+
+.ft-tab-content {
+  width: 100%;
+  box-shadow: 5px 5px 4px rgba(0, 0, 0, 0.4);
+}
+
+.ft-central-tab-container.ft-tab-content {
+  background: var(--light-purple);
+}
+
+.ft-connection-circle#current-profile-pic {
+  position:relative;
+  top: 2.5em;
+  z-index:2;
+}
+
+.ft-tab-folder {
+  width: fit-content;
+  border-bottom-style: solid;
+  border-bottom-width: 1.5em;
+    /* border-bottom: 1.5em solid var(--mint); */
+}
+
+/* .ft-tab-folder.ft-tab-title {
+  /* border-bottom: 1.5em solid var(--mint);
+  border-bottom: 1.5em solid;
+} */
+
+
+
+/* .ft-tabContent#title-profile {
+  text-overflow: ellipsis;
+} */
+
+#title-profile {
+  text-overflow: ellipsis;
+    font-size: 2rem;
+    width: 10em;
+    border-bottom: 1.5em solid var(--light-purple);
+}
+
+.ft-tab-content#buttons-container {
+  padding: 2em 0 12em 0;
+}
+
+.ft-tab-separator {
+  padding: 1em;
+}
+
+.ft-left-tab#stats {
+  position: relative;
+  top:-28em;
+  left: 26vw;
+  width: 30em;
+}
+
+.ft-right-tab#match-history {
+  position: relative;
+  top:-35em;
+  left: 40vw;
+  width: 50em;
+}
+
+.ft-tab-border {
+  width: 30em;
+  border-style: solid;
+  border-width: 0.3em;
+  padding: 1em 4em 1em 4em;
+}
+
+.ft-tab-separator {
+  border-bottom-width: 0.3em;
+  border-bottom-style:solid;
+}
+
+/* Piste : pour perso des barres de défilement, utiliser "PerfectScrollbar" ou "Custom Scrollbar" (JS). */
+.ft-scrollable {
+  height: 20em;
+  overflow: auto;
+}
+
+.ft-left-tab#friends-requests {
+  position: relative;
+  top:-40em;
+  left: 22vw;
+  width: 50em;
+}
+
+.ft-right-tab#friends-list {
+  position: relative;
+  top:-48em;
+  left: 50vw;
+  width: 50em;
+}
+
+.ft-profile-pic#friends-pic {
+  position: relative;
+  background: url(./../assets/img/ben-neale-zpxKdH_xNSI-unsplash.jpg);
+  background-size: cover;
+}
+
+.ft-connection-circle#friends-pic {
+  position:absolute;
+  top: 2.5em;
+  right: -0.6em;
+  z-index:2;
+  /* align-content: end; */
+  align-items: end;
+}
+
+.ft-left-tab#friends-search {
+  position: relative;
+  top:-52em;
+  left: 15vw;
+  width: 50em;
+}
+
+/* POUR DEBUG UNIQUEMENT */
+
+.ft-other-profile {
+  display: none;
+}
+
+/* .ft-my-profile {
+  display: none;
+} */
+
+.ft-item-title {
+  padding: 1.5em;
+}
+
+/* ^^ POUR DEBUG UNIQUEMENT ^^ */
+
+
+
+</style>

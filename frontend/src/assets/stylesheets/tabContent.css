@@ -1,0 +1,117 @@
+/*
+    Cette page regroupe tout ce qui concerne les onglets qui sont utilsés et partagés entre les pages.
+*/
+
+.ft-cover {
+    min-height: 15em;
+}
+
+
+/* Renommer en ft-main-content-container et devrait etre deplace */
+.ft-container {
+    /* height: 100vh;
+    width: 100vw; */
+    box-sizing: border-box;
+    background: var(--gray);
+    /* border: 4px solid var(--orange); */
+}
+
+/* devraient etre deplaces */
+
+.ft-profile-pic {
+  width: 6em;
+  height: 6em;
+  border-radius: 20%;
+  border: 0.2em solid var(--purple);
+}
+
+/* BG colors */
+.ft-bg-color-chat {
+  background: var(--pink);
+}
+  
+.ft-bg-color-game {
+  background: var(--mint);
+}
+
+.ft-bg-color-profile, a.t-btn-pink:active.ft-bg-color-profile {
+  background: var(--light-purple);
+}
+
+/* Border-bottom colors */
+.ft-bb-color-game {
+  border-bottom-color: var(--mint);
+}
+
+.ft-bb-color-profile {
+  border-bottom: var(--light-purple);
+}
+
+.ft-bb-color-chat {
+  border-bottom: var(--pink);
+}
+
+/* All four borders colors */
+.ft-border-color-game {
+  border-color: var(--mint);
+}
+
+.ft-border-color-profile {
+  border-color: var(--light-purple);
+}
+
+.ft-border-color-chat {
+  border-color: var(--pink);
+}
+
+.ft-tab-content.ft-tab-border {
+  background: var(--light-gray);
+}
+
+/* a.t-btn-pink:active.ft-color-game {
+  border: 0.2em dotted var(--mint);
+} */
+
+.ft-tab-folder {
+    position: relative;
+    height: 1em;
+    border-right: 2em solid var(--invisible);
+    border-left: 2em solid var(--invisible);
+}
+
+/* Renommer en ft-connection-circle et devront etre deplaces */
+.ft-connection-circle {
+    width: 1em;
+    height: 1em;
+    border-radius: 50%;
+}
+
+/* Actuellement, le connection-circle est par defaut vert */
+/* Par la suite, donner la valeur circle-green ou circle-gray selon le statut de connexion de la personne */
+.ft-connection-circle, .ft-circle-green, .ft-color-add {
+    background: var(--green);
+}
+
+.ft-color-block {
+  background: var(--red);
+}
+
+.ft-color-edit {
+  background: var(--gray);
+}
+
+.ft-color-remove {
+  background: var(--red);
+}
+
+.ft-circle-gray {
+  background: var(--gray);
+}
+
+.ft-left-tab {
+    align-items: flex-start;
+}
+
+.ft-right-tab {
+    align-items: flex-end;
+}
