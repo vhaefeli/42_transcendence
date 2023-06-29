@@ -190,7 +190,6 @@ export const useUserStore = defineStore("userStore", {
          .then((response) => {
            // To execute when the request is successful
            console.log('loaded invitation')
-           console.log(`${response.status} + ${response.statusText}`);
            getInvitesSent(access_token)
            return true;
          })
@@ -226,10 +225,10 @@ export const useUserStore = defineStore("userStore", {
          .then((response) => {
            // To execute when the request is successful
 
-           // update the array
-           this.friends = this.friends.filter(
-            friend => friend.username !== friendname
-          );
+            // update the array
+            this.friends = this.friends.filter(
+              friend => friend.username !== friendname
+            );
            console.log(`friend ${friendname} deleted`)
            return true;
          })
