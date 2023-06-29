@@ -161,7 +161,7 @@
             isLoggedIn.value = true;
 
             // get user infos, friends, and invitations
-            await userStore.getMe(sessionStore);
+            await userStore.getMe(sessionStore.access_token);
             if (user.value.isLogged) {
                 await userStore.getFriends(sessionStore.access_token);
                 await userStore.getInvites(sessionStore.access_token);

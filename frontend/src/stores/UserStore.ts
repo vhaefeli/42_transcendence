@@ -13,11 +13,11 @@ export const useUserStore = defineStore("userStore", {
   }),
   actions: {
     // get user infos
-    async getMe(sessionStore) {
+    async getMe(access_token) {
         await axios({
           url: "/api/user/me",
           method: "get",
-          headers: { Authorization: `Bearer ${sessionStore.access_token}` },
+          headers: { Authorization: `Bearer ${access_token}` },
         })
           .then((response) => {
             this.user = response.data
