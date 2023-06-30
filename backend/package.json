@@ -28,7 +28,7 @@
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/serve-static": "^3.0.1",
     "@nestjs/typeorm": "^9.0.1",
-    "@prisma/client": "^4.15.0",
+    "@prisma/client": "^4.16.1",
     "@types/uuid": "^9.0.2",
     "axios": "^1.4.0",
     "class-transformer": "^0.5.1",
