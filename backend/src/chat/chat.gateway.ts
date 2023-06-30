@@ -1,4 +1,5 @@
 import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets'
+import { Server } from 'socket.io';
 
 @WebSocketGateway({
     namespace: 'chat',
@@ -7,11 +8,13 @@ import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from
     },
   })
 export class ChatGateway {
-    @WebSocketServer()
-    server;
+    @WebSocketServer() server: Server;
 
     @SubscribeMessage('message')
     handleMessage(@MessageBody() message: string): void {
         this.server.emit('message', message);
     }
+    // handleMessage(_client: any, payload: any): string {
+    //   return 'Hello world!';
+    // }
 }
