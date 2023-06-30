@@ -11,6 +11,9 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { StatusModule } from './status/status.module';
 import { BlockModule } from './block/block.module';
+import { TfaController } from './tfa/tfa.controller';
+import { TfaService } from './tfa/tfa.service';
+import { TfaModule } from './tfa/tfa.module';
 
 @Module({
   imports: [
@@ -28,13 +31,15 @@ import { BlockModule } from './block/block.module';
     AvatarModule,
     StatusModule,
     BlockModule,
+    TfaModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, TfaController],
   providers: [
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
+    TfaService,
   ],
   exports: [],
 })
