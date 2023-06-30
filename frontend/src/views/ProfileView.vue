@@ -4,8 +4,8 @@
     <!-- Nadia: tu pourra tout remove et afficher correctement. Toutes les classes sont du Tailwind. -->
 
     <!-- check si on est sur son propre profile -->
-    <div v-if="user && user.username && user.username == route.params.username">
-        <div class="flex mb-9">
+    <div v-if="user && user.isLogged && user.username == route.params.username" class="flex flex-col items-center">
+        <div class="flex mb-9 w-[60%]">
             <img :src="user.avatar_url" alt="avatar img" class="mr-9"/>
             <div class="mr-9">
                 <!-- profile -->
@@ -25,43 +25,99 @@
                 </div>
             </div>
             <div>
-                <h2>All users</h2>
+                <h2 class="text-2xl mb-4">All users</h2>
                 <div v-if="allUsers">
                     <div v-for="oderUser in allUsers" :key="oderUser.id">
                         <p>{{ oderUser.username }}</p>
                     </div>
                 </div>
-            </div>
-            
+            </div>   
         </div>
-    <div class="mb-9">
-        <!-- list of friends -->
-        <h2>My friends</h2>
-        <div v-for="friend in user.firends" :key="friend.id" class="flex border-4 border-sky-500 p-3 mb-1">
-            <div>
-                <p>id: {{ friend.id }}</p>
-                <p>name: {{ friend.username }}</p>
-            </div>
-        </div>
-    </div>
-    <div class="">
-        <!-- list of pending invitations -->
-        <h2>Pending invitations</h2>
-        <div v-if="user.invites && user.invites.invitations_received">
-            <div v-for="invitation in user.invites.invitations_received" :key="invitation.id" class="flex justify-between border-4 border-sky-500 p-3">
-                <div class="">
-                    <p>id: {{ invitation.from.id }}</p>
-                    <p>name: {{ invitation.from.username }}</p>
+        <div class="mb-9 font-size w-[60%]">
+            <!-- list of friends -->
+            <h2 class="text-2xl mb-4">My friends</h2>
+            <div v-for="friend in friends" :key="friend.id" class="flex justify-between border-4 border-sky-500 p-3 mb-1">
+                <div v-if="!friend.is_blocked">
+                    <div>
+                        <p>id: {{ friend.id }}</p>
+                        <p>name: {{ friend.username }}</p>
+                    </div>
+                    <button
+                        class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+                        @click="removeFriend(friend.username)"
+                        >
+                            remove friendship
+                        </button>
+                    <button
+                        class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+                        @click="blockUser(friend.username)"
+                        >
+                            block this friend
+                        </button>  
                 </div>
-                <button
-                class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-                @click="acceptFriend(invitation.from.username)"
-                >
-                    accept friend
-                </button>
             </div>
         </div>
-    </div>
+        <div class="w-[60%] mb-9">
+            <!-- list of pending invitations -->
+            <h2 class="text-2xl mb-4">Invitations sent</h2>
+            <div v-if="invitesSent">
+                <div v-for="invitation in invitesSent" :key="invitation.id" class="flex justify-between border-4 border-sky-500 p-3">
+                    <div class="">
+                        <p>id: {{ invitation.id }}</p>
+                        <p>name: {{ invitation.username }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="w-[60%] mb-9">
+            <!-- list of pending invitations -->
+            <h2 class="text-2xl mb-4">Pending invitations</h2>
+            <div v-if="invites">
+                <div v-for="invitation in invites" :key="invitation.id" class="flex justify-between border-4 border-sky-500 p-3">
+                    <div class="">
+                        <p>id: {{ invitation.id }}</p>
+                        <p>name: {{ invitation.username }}</p>
+                    </div>
+                    <button
+                    class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+                    @click="acceptFriend(invitation.username)"
+                    >
+                        accept friend
+                    </button>
+                    <button
+                    class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+                    @click="blockUserAndDelInvite(invitation.username)"
+                    >
+                        block this user
+                    </button>
+                    <button
+                    class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+                    @click="iDontWantToBeFriend(invitation.username)"
+                    >
+                        i don't want to be friend
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="w-[60%] mb-9">
+            <!-- list of pending invitations -->
+            <h2 class="text-2xl mb-4">Blocked users</h2>
+            <div v-if="blocked">
+                <div v-for="block in blocked" :key="block.id" class="flex justify-between border-4 border-sky-500 p-3">
+                    <div class="">
+                        <p>id: {{ block.id }}</p>
+                        <p>name: {{ block.username }}</p>
+                    </div>
+                    <p v-if="block.is_friend">friend</p>
+                    <button
+                    class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+                    @click="unblockUser(block.username)"
+                    >
+                        unblock
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
     <div v-else>
         <p>something went wrong</p>
@@ -71,43 +127,54 @@
 
 </template>
   
-<script setup>
-    import { ref } from "vue";
+<script setup lang="ts">
+    import { ref, onBeforeMount } from "vue";
+    import { storeToRefs } from 'pinia'
+    import { useRoute, useRouter } from 'vue-router'
+    import axios from "axios";
     import { useUserStore } from '../stores/UserStore'
     import { useSessionStore } from "@/stores/SessionStore";
-    import { storeToRefs } from 'pinia'
-    import { useRoute } from 'vue-router'
-    import axios from "axios";
 
-    // to have the token
-    const sessionStore = useSessionStore();
+    
+    // to have the token we need sessionStore
+    const sessionStore = useSessionStore()
     
     // routes
-    const userStore = useUserStore()
     const route = useRoute()
+    const router = useRouter()
+    
+    // we need userStore and a variable to check if logged in
+    const userStore = useUserStore()
+    const isLoggedIn = ref(false);
 
     // other variables
     let newFriend = ref('')
-    let allUsers = []
-    
-    // get user infos, friends and invitations
-    userStore.getMe(sessionStore.access_token);
-    userStore.getFriends(sessionStore.access_token);
-    userStore.getInvites(sessionStore.access_token);
+    let allUsers: { id: number, username: string }[];
+    // let myFriends = ref([]);
 
-    // make user refs when user infos is loaded
-    const { user } = storeToRefs(userStore)
-    
-    // functions related to friends
-    function addFriend() {
-        if (newFriend.value) {
-            userStore.addFriend(newFriend.value, sessionStore.access_token);
+    const { user, friends, invites, blocked, invitesSent } = storeToRefs(userStore)
+
+    // onBeforeMount is executed before the component is mounted
+    // way of using await because we can't do it in setup
+    onBeforeMount(async () => {
+        if (sessionStore.isLoggedIn) {
+            isLoggedIn.value = true;
+
+            // get user infos, friends, and invitations
+            await userStore.getMe(sessionStore.access_token);
+            if (user.value.isLogged) {
+                await userStore.getFriends(sessionStore.access_token);
+                await userStore.getInvites(sessionStore.access_token);
+                await userStore.getBlockedUsers(sessionStore.access_token);
+                await userStore.getInvitesSent(sessionStore.access_token);
+            } else {
+                isLoggedIn.value = false;
+                sessionStore.isLoggedIn = false;
+                sessionStore.access_token = "";
+                router.push({ name: 'login' })
+            }
         }
-    }
-
-    function acceptFriend(friendname) {
-        userStore.acceptFriend(friendname, sessionStore.access_token);
-    }
+    });
 
     // list all users
     axios({
@@ -120,14 +187,38 @@
         console.log("all users loaded");
         })
         .catch((error) => {
-        if (error.response.status == 401) {
-            console.log(
-            `invalid access token: ${error.response.status} ${error.response.statusText}`
-            );
-        } else
-            console.error(
-            `unexpected error: ${error.response.status} ${error.response.statusText}`
-            );
-        });
-    
+            console.error(`unexpected error: ${error.response.status} ${error.response.statusText}`);
+    });
+
+    // functions to delete because useless
+    function addFriend() {
+        if (newFriend.value) {
+            userStore.addFriend(newFriend.value, sessionStore.access_token);
+        }
+    }
+
+    function acceptFriend(friendname) {
+        userStore.acceptFriend(friendname, sessionStore.access_token);
+    }
+
+    function iDontWantToBeFriend(friendname) {
+        userStore.declineFriend(friendname, sessionStore.access_token);
+    }
+
+    function removeFriend(friendname) {
+        userStore.delFriend(friendname, sessionStore.access_token)
+    }
+
+    function blockUser(username) {
+        userStore.blockUser(username, sessionStore.access_token)
+    }
+
+    function blockUserAndDelInvite(username) {
+        userStore.blockUser(username, sessionStore.access_token)
+        userStore.declineFriend(username, sessionStore.access_token);
+    }
+
+    function unblockUser(username) {
+        userStore.unblockUser(username, sessionStore.access_token)
+    }
 </script>
