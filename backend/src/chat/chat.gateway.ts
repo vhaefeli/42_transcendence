@@ -11,10 +11,7 @@ export class ChatGateway {
     @WebSocketServer() server: Server;
 
     @SubscribeMessage('message')
-    handleMessage(@MessageBody() message: string): void {
-        this.server.emit('message', message);
+    handleMessage(@MessageBody() payload: { message: string, username: string, date: string }): void {
+        this.server.emit('message', payload);
     }
-    // handleMessage(_client: any, payload: any): string {
-    //   return 'Hello world!';
-    // }
 }
