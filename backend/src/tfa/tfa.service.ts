@@ -2,7 +2,9 @@ import {
   ConflictException,
   Injectable,
   Logger,
+  NotFoundException,
   ServiceUnavailableException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { readFileSync } from 'fs';
@@ -12,8 +14,12 @@ import * as totp from 'totp-generator';
 
 @Injectable()
 export class TfaService {
+  // 2fa registration code expires after 60 seconds
+  private readonly valid_time = 60 * 60 * 1000;
+
   transporter: any;
   template: string;
+
   constructor(
     private readonly configService: ConfigService,
     private prisma: PrismaService,
@@ -32,6 +38,12 @@ export class TfaService {
     } catch (error) {
       Logger.error(error);
     }
+  }
+
+  private isTimeOk(creation_time: Date): boolean {
+    if (new Date().getTime() - creation_time.getTime() >= this.valid_time)
+      return false;
+    return true;
   }
 
   async sendCode(
@@ -68,13 +80,20 @@ export class TfaService {
   async register2FA(id: number, address: string) {
     const existing = await this.prisma.tfaRegistration.findFirst({
       where: { userId: id },
-      select: { time: true, email: true },
+      select: {
+        time: true,
+        email: true,
+      },
     });
+
+    if (
+      await this.prisma.user.findFirst({
+        where: { AND: [{ id: id }, { tfa_enabled: true }] },
+      })
+    )
+      throw new ConflictException();
     if (existing) {
-      if (
-        new Date().getTime() - existing.time.getTime() >= 60 * 60 * 1000 ||
-        existing.email !== address
-      )
+      if (!this.isTimeOk(existing.time) || existing.email !== address)
         await this.prisma.tfaRegistration.delete({ where: { userId: id } });
       else
         throw new ConflictException(
@@ -91,5 +110,52 @@ export class TfaService {
         code: code_mail.code,
       },
     });
+  }
+
+  async confirm2FA(id: number, code: string) {
+    try {
+      const registration = await this.prisma.tfaRegistration.findFirstOrThrow({
+        where: { userId: id },
+        select: {
+          email: true,
+          code: true,
+          time: true,
+        },
+      });
+
+      if (!this.isTimeOk(registration.time)) {
+        await this.prisma.tfaRegistration.delete({ where: { userId: id } });
+        throw new NotFoundException();
+      }
+      if (registration.code !== code)
+        throw new UnauthorizedException('2fa code is invalid');
+
+      const promises = new Array<Promise<any>>();
+      promises.push(
+        this.prisma.user.update({
+          where: { id: id },
+          data: {
+            tfa_enabled: true,
+            tfa_email_address: registration.email,
+          },
+        }),
+      );
+      promises.push(
+        this.prisma.tfaRegistration.delete({
+          where: { userId: id },
+        }),
+      );
+      await Promise.all(promises);
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof UnauthorizedException
+      )
+        throw error;
+      if (error?.code === 'P2025') throw new NotFoundException();
+      if (error?.code) Logger.error(error.code + ' ' + error.msg);
+      else Logger.error(error);
+      return;
+    }
   }
 }
