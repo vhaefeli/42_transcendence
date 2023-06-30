@@ -25,6 +25,8 @@ model User {
   friends                 User[]                  @relation("Friendship")
   blocked_users           User[]                  @relation("Block")
   blocked_by              User[]                  @relation("Block")
+
+  tfa_registration        TfaRegistration?        @relation("tfa_registration")
 }
 
 model FriendshipInvitation {
@@ -33,4 +35,12 @@ model FriendshipInvitation {
   to		User	@relation(name: "to_user", fields: [toId], references: [id])
   toId		Int
   @@id([fromId, toId])
+}
+
+model TfaRegistration {
+  userId  Int     @id
+  user    User    @relation(name: "tfa_registration", fields: [userId], references: [id])
+  email   String
+  code    String
+  time    DateTime @default(now())
 }
