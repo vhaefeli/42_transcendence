@@ -11,6 +11,9 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Profile42Api } from 'src/user/profile-42api.dto';
 import { UsersService } from 'src/user/users.service';
+import { ReturnSignInDto } from './return-sign-in.dto';
+import { PrismaService } from 'src/prisma.service';
+import { TfaService } from 'src/tfa/tfa.service';
 
 @Injectable()
 export class AuthService {
@@ -19,6 +22,8 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private readonly configService: ConfigService,
+    private tfaService: TfaService,
+    private prisma: PrismaService,
     private http: HttpService,
   ) {}
 
@@ -31,11 +36,29 @@ export class AuthService {
     };
   }
 
-  async SignIn(username: string, pass: string): Promise<any> {
-    const user = await this.usersService.findOne(username);
+  async SignIn(username: string, pass: string): Promise<ReturnSignInDto> {
+    const user = await this.prisma.user.findFirst({
+      where: { username: username },
+      select: {
+        id: true,
+        username: true,
+        password: true,
+        tfa_enabled: true,
+      },
+    });
     if (user?.password !== pass) throw new UnauthorizedException();
 
-    return this.CreateToken(user.id, user.username);
+    const res: ReturnSignInDto = { tfa_enabled: user.tfa_enabled };
+    if (res.tfa_enabled) {
+      // TODO define tfaRequest model
+      // TODO use tfaService to create a new tfaRequest
+      // TODO return correct tfa_request_uuid
+      res.tfa_request_uuid = 'blablabla';
+    } else
+      res.access_token = (
+        await this.CreateToken(user.id, user.username)
+      ).access_token;
+    return res;
   }
 
   async login42Api(
