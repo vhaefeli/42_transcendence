@@ -17,7 +17,7 @@ model User {
   id42            Int?          @unique
   access_token42  String?       @unique
   avatar_url      String
-  twoFA_enabled   Boolean       @default(false)
+  tfa_enabled     Boolean       @default(false)
 
   invitations_sent        FriendshipInvitation[]	@relation("from_user")
   invitations_received    FriendshipInvitation[]	@relation("to_user")
@@ -27,6 +27,7 @@ model User {
   blocked_by              User[]                  @relation("Block")
 
   tfa_registration        TfaRegistration?        @relation("tfa_registration")
+  tfa_email_address       String?
 }
 
 model FriendshipInvitation {
