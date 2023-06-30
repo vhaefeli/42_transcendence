@@ -119,7 +119,7 @@
     // TO DO:
 
     // make channel routes like user
-    // comment les id se créer?
-    // utiliser la methode .logout du sessionstore
+    // comment les id se créer? changer les id!
+    // utiliser la methode .logout() du sessionstore
     // faire un channel store
 </script>
