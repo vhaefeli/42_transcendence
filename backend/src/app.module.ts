@@ -11,6 +11,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { StatusModule } from './status/status.module';
 import { BlockModule } from './block/block.module';
+import { ChatGateway } from './chat/chat.gateway';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { BlockModule } from './block/block.module';
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
+    ChatGateway,
   ],
   exports: [],
 })
