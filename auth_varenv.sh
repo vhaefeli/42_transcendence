@@ -8,11 +8,19 @@ else
 	data=$(curl -s -X POST localhost:3000/auth/login \
 		-H 'Content-Type: application/json' \
 		-d '{"username": '\"$username\"', "password": '\"$password\"'}')
-	token=$(echo $data | cut -d"\"" -f4)
+	tfa_enabled=$(echo $data | grep "\":true,\"" | wc -l)
+	token=$(echo $data | cut -d"\"" -f6)
+
 	if [ $(echo $data | grep "Unauthorized" | wc -l) -gt 0 ]; then
 		echo "Server returned: 401 Unauthorized"
 	else
-		export JWT_TOKEN=$token
-		echo "saved JWT TOKEN $token"
+		if [ $tfa_enabled -eq 0 ]; then
+			export JWT_TOKEN=$token
+			echo "saved JWT_TOKEN $token"
+		else
+			echo 2fa needed, code has been sent to your email
+			export TFA_UUID=$token
+			echo "saved TFA_UUID $token"
+		fi
 	fi
 fi
