@@ -14,7 +14,7 @@ import * as totp from 'totp-generator';
 
 @Injectable()
 export class TfaService {
-  // 2fa registration code expires after 60 seconds
+  // 2fa registration code expires after 60 minutes
   private readonly valid_time = 60 * 60 * 1000;
 
   transporter: any;
