@@ -27,10 +27,4 @@ export class AuthController {
   testAuth(@Request() req: any) {
     return req.user;
   }
-
-  @Public()
-  @Post('2fa')
-  async test2fa(@Body() fa2: { email: string }) {
-    await this.authService.test2fa(fa2.email);
-  }
 }
