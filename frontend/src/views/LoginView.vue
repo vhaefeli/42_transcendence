@@ -14,7 +14,7 @@
   </div>
   <button v-if="isLoggedIn" @click="LogOut">Logout</button>
   <div v-if="isLoggedIn">
-    <button @click="LoadProfile">reload</button><br>
+    <button @click="LoadProfile">reload</button><br />
     <router-link :to="'/user/' + user.username">see my profile</router-link>
     <br />
     <p>Your Profile:</p>
@@ -23,7 +23,7 @@
     <p v-if="user.twoFA_enabled">2FA is enabled</p>
     <p v-if="!user.twoFA_enabled">2FA is disabled</p>
     <p>Status: {{ user.status }}</p>
-    <img :src="user.avatar_url" alt="avatar img" width="200" height="200"/>
+    <img :src="user.avatar_url" alt="avatar img" width="200" height="200" />
   </div>
   <div v-if="true">
     <button
@@ -32,22 +32,30 @@
     >
       42 API Login/Registration
     </button>
+    <button
+      class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+      @click="statusService.ping()"
+    >
+      ping socket
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
-import axios from "axios";
-import { useRouter } from 'vue-router'
+import axios, { AxiosError } from "axios";
+import { useRouter } from "vue-router";
 import { useSessionStore } from "@/stores/SessionStore";
+import { statusService } from "@/services/status-socket.service";
 
 const isLoggedIn = ref(false);
 const login_username = ref("");
 const login_password = ref("");
 const createUser = ref(false);
-const router = useRouter()
+const router = useRouter();
 
 const sessionStore = useSessionStore();
+statusService;
 
 let user = ref({
   id: 0,
@@ -118,22 +126,25 @@ async function LogIn(): Promise<boolean> {
       sessionStore.isLoggedIn = true;
       isLoggedIn.value = true;
       console.log("successfully logged in");
+      // TODO redirect to another page (using statusService.onConnect)
       // router.push({ name: 'profile', params: { username: login_username.value } })
-      LoadProfile();
+      statusService.onConnect(LoadProfile, { timeout: 500 });
       return true;
     })
     .catch((error) => {
-      isLoggedIn.value = false;
-      sessionStore.isLoggedIn = false;
-      if (error.response.status == 401)
-        console.log(
-          `invalid credentials: ${error.response.status} ${error.response.statusText}`
-        );
-      else
-        console.error(
-          `unexpected error: ${error.response.status} ${error.response.statusText}`
-        );
-      return false;
+      if (error instanceof AxiosError) {
+        isLoggedIn.value = false;
+        sessionStore.isLoggedIn = false;
+        if (error.response?.status == 401)
+          console.log(
+            `invalid credentials: ${error.response?.status} ${error.response?.statusText}`
+          );
+        else
+          console.error(
+            `unexpected error: ${error.response?.status} ${error.response?.statusText}`
+          );
+        return false;
+      } else throw error;
     });
   return true;
 }
@@ -169,8 +180,7 @@ async function LoadProfile() {
 
 function LogOut() {
   isLoggedIn.value = false;
-  sessionStore.isLoggedIn = false;
-  sessionStore.access_token = "";
+  sessionStore.logout();
 }
 
 function Login42Api() {

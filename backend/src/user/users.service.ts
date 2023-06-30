@@ -18,6 +18,7 @@ import { UserProfileDto } from 'src/user/user-profile.dto';
 import { MyProfileDto } from './my-profile.dto';
 import { Profile42Api } from './profile-42api.dto';
 import { TokenInfoDto } from './token-info.dto';
+import { StatusService } from 'src/status/status.service';
 
 @Injectable()
 export class UsersService {
@@ -26,9 +27,10 @@ export class UsersService {
     @Inject(forwardRef(() => AuthService))
     private authService: AuthService,
     private avatarService: AvatarService,
-    private configService: ConfigService,
     @Inject(forwardRef(() => FriendService))
     private friendService: FriendService,
+    private statusService: StatusService,
+    configService: ConfigService,
   ) {
     if (configService.get<string>('BACKEND_AUTOPOPULATE_DB') === 'true')
       prisma.autoPopulateDB();
@@ -125,13 +127,16 @@ export class UsersService {
           avatar_url: true,
         },
       });
-      return {
+      const res: UserProfileDto = {
         ...user,
         is_friend:
           my_id === user.id || my_id == null
             ? false
             : await this.friendService.areFriends(my_id, user.id),
       };
+      if (res.is_friend)
+        res.status = await this.statusService.getStatus({ id: res.id });
+      return res;
     } catch (e) {
       if (e.code == 'P2025') throw new NotFoundException();
       Logger.error(e.code + ' ' + e.msg);
@@ -139,6 +144,7 @@ export class UsersService {
   }
 
   async getMe(my_id: number): Promise<MyProfileDto> {
+    const status = this.statusService.getStatus({ id: my_id });
     try {
       const user = await this.prisma.user.findUniqueOrThrow({
         where: { id: my_id },
@@ -147,11 +153,11 @@ export class UsersService {
           username: true,
           avatar_url: true,
           twoFA_enabled: true,
-          status: true,
         },
       });
       return {
         ...user,
+        status: await status,
       };
     } catch (e) {
       Logger.error(e.code + ' ' + e.msg);
