@@ -8,7 +8,11 @@ import { StatusModule } from 'src/status/status.module';
 @Module({
   controllers: [FriendController],
   providers: [FriendService],
-  imports: [forwardRef(() => UserModule), BlockModule, StatusModule],
+  imports: [
+    forwardRef(() => UserModule),
+    forwardRef(() => BlockModule),
+    StatusModule,
+  ],
   exports: [FriendService],
 })
 export class FriendModule {}

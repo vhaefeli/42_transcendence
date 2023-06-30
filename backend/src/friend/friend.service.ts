@@ -19,7 +19,9 @@ import { FriendInfoDto } from './friend-info.dto';
 export class FriendService {
   constructor(
     private prisma: PrismaService,
-    @Inject(forwardRef(() => UsersService)) private usersService: UsersService,
+    @Inject(forwardRef(() => UsersService))
+    private usersService: UsersService,
+    @Inject(forwardRef(() => BlockService))
     private blockService: BlockService,
     private statusService: StatusService,
   ) {
