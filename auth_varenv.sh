@@ -21,6 +21,18 @@ else
 			echo 2fa needed, code has been sent to your email
 			export TFA_UUID=$token
 			echo "saved TFA_UUID $token"
+			echo "enter your code:"
+			read
+			data=$(curl -s -X POST localhost:3000/auth/2fa/login \
+				-H 'Content-Type: application/json' \
+				-d '{"tfa_request_uuid":"'$TFA_UUID'","code":"'$REPLY'"}')
+			if [ $(echo $data | grep "message" | wc -l) -gt 0 ]; then
+				echo $data
+			else
+				token=$(echo $data | cut -d"\"" -f4)
+				export JWT_TOKEN=$token
+				echo "saved JWT_TOKEN $token"
+			fi
 		fi
 	fi
 fi
