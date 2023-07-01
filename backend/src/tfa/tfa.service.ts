@@ -158,4 +158,30 @@ export class TfaService {
       return;
     }
   }
+
+  async createTfaRequest(id: number, address: string) {
+    const d = new Date();
+    d.setDate(d.getDate() - 1);
+    const delete_old_promise = this.prisma.tfaRequest.deleteMany({
+      where: {
+        time: {
+          gt: d,
+        },
+      },
+    });
+
+    const code_mail = await this.sendCode(address);
+    if (!code_mail.success) throw new ServiceUnavailableException();
+    const tfa_request = await this.prisma.tfaRequest.create({
+      data: {
+        user: { connect: { id: id } },
+        code: code_mail.code,
+      },
+      select: {
+        id: true,
+      },
+    });
+    await delete_old_promise;
+    return tfa_request.id;
+  }
 }

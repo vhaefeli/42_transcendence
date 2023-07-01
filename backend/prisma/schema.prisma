@@ -26,8 +26,9 @@ model User {
   blocked_users           User[]                  @relation("Block")
   blocked_by              User[]                  @relation("Block")
 
-  tfa_registration        TfaRegistration?        @relation("tfa_registration")
   tfa_email_address       String?
+  tfa_registration        TfaRegistration?        @relation("tfa_registration")
+  tfa_request             TfaRequest[]            @relation("tfa_request")
 }
 
 model FriendshipInvitation {
@@ -44,4 +45,12 @@ model TfaRegistration {
   email   String
   code    String
   time    DateTime @default(now())
+}
+
+model TfaRequest {
+  id      String    @id @default(uuid())
+  userId  Int
+  user    User      @relation(name: "tfa_request", fields: [userId], references: [id])
+  code    String
+  time    DateTime  @default(now())
 }

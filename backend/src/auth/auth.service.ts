@@ -44,16 +44,17 @@ export class AuthService {
         username: true,
         password: true,
         tfa_enabled: true,
+        tfa_email_address: true,
       },
     });
     if (user?.password !== pass) throw new UnauthorizedException();
 
     const res: ReturnSignInDto = { tfa_enabled: user.tfa_enabled };
     if (res.tfa_enabled) {
-      // TODO define tfaRequest model
-      // TODO use tfaService to create a new tfaRequest
-      // TODO return correct tfa_request_uuid
-      res.tfa_request_uuid = 'blablabla';
+      res.tfa_request_uuid = await this.tfaService.createTfaRequest(
+        user.id,
+        user.tfa_email_address,
+      );
     } else
       res.access_token = (
         await this.CreateToken(user.id, user.username)
