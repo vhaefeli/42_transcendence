@@ -22,6 +22,7 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private readonly configService: ConfigService,
+    @Inject(forwardRef(() => TfaService))
     private tfaService: TfaService,
     private prisma: PrismaService,
     private http: HttpService,

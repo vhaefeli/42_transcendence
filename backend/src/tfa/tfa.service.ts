@@ -1,14 +1,17 @@
 import {
   ConflictException,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
   ServiceUnavailableException,
   UnauthorizedException,
+  forwardRef,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { readFileSync } from 'fs';
 import * as nodemailer from 'nodemailer';
+import { AuthService } from 'src/auth/auth.service';
 import { PrismaService } from 'src/prisma.service';
 import * as totp from 'totp-generator';
 
@@ -22,6 +25,8 @@ export class TfaService {
 
   constructor(
     private readonly configService: ConfigService,
+    @Inject(forwardRef(() => AuthService))
+    private authService: AuthService,
     private prisma: PrismaService,
   ) {
     try {
@@ -165,7 +170,7 @@ export class TfaService {
     const delete_old_promise = this.prisma.tfaRequest.deleteMany({
       where: {
         time: {
-          gt: d,
+          lt: d,
         },
       },
     });
@@ -183,5 +188,39 @@ export class TfaService {
     });
     await delete_old_promise;
     return tfa_request.id;
+  }
+
+  async validateTfaLogin(
+    uuid: string,
+    code: string,
+  ): Promise<{ access_token: string }> {
+    try {
+      const tfa_request = await this.prisma.tfaRequest.findFirstOrThrow({
+        where: {
+          AND: [{ id: uuid }, { code: code }],
+        },
+        select: {
+          id: true,
+          time: true,
+          user: {
+            select: { username: true, id: true },
+          },
+        },
+      });
+      if (tfa_request.time.getTime() < new Date().getTime() - 60 * 60 * 1000) {
+        throw new UnauthorizedException();
+      }
+      await this.prisma.tfaRequest.delete({ where: { id: tfa_request.id } });
+      return await this.authService.CreateToken(
+        tfa_request.user.id,
+        tfa_request.user.username,
+      );
+    } catch (error) {
+      if (error instanceof UnauthorizedException) throw error;
+      if (error.code === 'P2025') throw new UnauthorizedException();
+      if (error?.code) Logger.error(`${error.code} ${error.message}`);
+      else Logger.error(error);
+      throw error;
+    }
   }
 }

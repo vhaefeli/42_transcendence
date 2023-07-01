@@ -16,7 +16,7 @@ import { TfaModule } from 'src/tfa/tfa.module';
     forwardRef(() => UserModule),
     HttpModule,
     JwtModule.registerAsync({ useClass: JwtConfigService, global: true }),
-    TfaModule,
+    forwardRef(() => TfaModule),
   ],
   exports: [AuthGuard, AuthService, WsGuard],
 })

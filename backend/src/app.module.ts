@@ -14,6 +14,7 @@ import { BlockModule } from './block/block.module';
 import { TfaController } from './tfa/tfa.controller';
 import { TfaService } from './tfa/tfa.service';
 import { TfaModule } from './tfa/tfa.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { TfaModule } from './tfa/tfa.module';
     StatusModule,
     BlockModule,
     TfaModule,
+    AuthModule,
   ],
   controllers: [AppController, TfaController],
   providers: [
