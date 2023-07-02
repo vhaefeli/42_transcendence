@@ -223,4 +223,24 @@ export class TfaService {
       throw error;
     }
   }
+
+  async disableTFA(id: number) {
+    try {
+      const user = this.prisma.user.update({
+        where: { id: id },
+        data: {
+          tfa_enabled: false,
+          tfa_email_address: null,
+        },
+      });
+      const requests = this.prisma.tfaRequest.deleteMany({
+        where: { userId: id },
+      });
+      await Promise.all([user, requests]);
+    } catch (error) {
+      if (error?.code) Logger.error(`${error.code} ${error.message}`);
+      else Logger.error(error);
+      throw error;
+    }
+  }
 }

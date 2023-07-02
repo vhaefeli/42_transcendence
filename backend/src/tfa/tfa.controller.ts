@@ -27,4 +27,9 @@ export class TfaController {
       tfaLoginDto.code,
     );
   }
+
+  @Patch('disable')
+  async disable2FA(@Request() req: any) {
+    await this.tfaService.disableTFA(req.user.sub);
+  }
 }
