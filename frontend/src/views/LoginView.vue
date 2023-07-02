@@ -22,6 +22,21 @@
       42 API Login/Registration
     </button>
   </div>
+  <div id="tfa-form" v-if="show_tfa_form">
+    <input v-model="tfa_code" placeholder="code" /><br />
+    <button
+      @click="cancel2FALogin"
+      class="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded"
+    >
+      cancel
+    </button>
+    <button
+      @click="validate2FALogin"
+      class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+    >
+      validate
+    </button>
+  </div>
   <button v-if="isLoggedIn" @click="LogOut">Logout</button>
   <div v-if="isLoggedIn">
     <button @click="LoadProfile">reload</button><br />
@@ -58,9 +73,14 @@ const login_username = ref("");
 const login_password = ref("");
 const router = useRouter();
 
+const show_tfa_form = ref(false);
+const tfa_code = ref("");
+
 const sessionStore = useSessionStore();
 const { isLoggedIn } = storeToRefs(sessionStore);
 statusService;
+
+let tfa_uuid = "";
 
 let user = ref({
   id: 0,
@@ -127,13 +147,19 @@ async function LogIn(createUser = false): Promise<boolean> {
     data: payload,
   })
     .then((response) => {
-      sessionStore.access_token = response.data.access_token;
-      sessionStore.isLoggedIn = true;
-      show_login_form.value = false;
-      console.log("successfully logged in");
-      // TODO redirect to another page (using statusService.onConnect)
-      // router.push({ name: 'profile', params: { username: login_username.value } })
-      LoadProfile();
+      if (response.data.tfa_enabled) {
+        show_login_form.value = false;
+        show_tfa_form.value = true;
+        tfa_uuid = response.data.tfa_request_uuid;
+      } else {
+        sessionStore.access_token = response.data.access_token;
+        sessionStore.isLoggedIn = true;
+        show_login_form.value = false;
+        console.log("successfully logged in");
+        // TODO redirect to another page (using statusService.onConnect)
+        // router.push({ name: 'profile', params: { username: login_username.value } })
+        LoadProfile();
+      }
       return true;
     })
     .catch((error) => {
@@ -204,5 +230,34 @@ function Login42Api() {
   )}&redirect_uri=${encodeURIComponent(
     redirect_uri
   )}&response_type=code&state=${sessionStore.getUUID()}`;
+}
+
+async function validate2FALogin() {
+  if (tfa_code.value.length == 0) {
+    console.log("please insert code");
+    return;
+  }
+  await axios({
+    url: "api/auth/2fa/login",
+    method: "post",
+    headers: { "Content-Type": "application/json" },
+    data: { tfa_request_uuid: tfa_uuid, code: tfa_code.value.trim() },
+  })
+    .then((response) => {
+      sessionStore.access_token = response.data.access_token;
+      sessionStore.isLoggedIn = true;
+      show_tfa_form.value = false;
+      LoadProfile();
+    })
+    .catch((error: AxiosError) => {
+    if (error.response?.status == 401) console.log(`${error.response?.statusText}: tfa verification failed`);
+    else console.log(error);
+    });
+}
+
+function cancel2FALogin() {
+  show_tfa_form.value = false;
+  show_login_form.value = true;
+  tfa_uuid = "";
 }
 </script>
