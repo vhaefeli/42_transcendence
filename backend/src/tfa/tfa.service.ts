@@ -15,6 +15,7 @@ import * as nodemailer from 'nodemailer';
 import { AuthService } from 'src/auth/auth.service';
 import { PrismaService } from 'src/prisma.service';
 import * as totp from 'totp-generator';
+import { v4 as uuid } from 'uuid';
 
 @Injectable()
 export class TfaService {
@@ -56,7 +57,11 @@ export class TfaService {
     subject = 'authentication code',
   ): Promise<{ success: boolean; code?: string }> {
     try {
-      const code = totp(this.configService.get<string>('EMAIL_TOTP_SECRET'));
+      const code = totp(
+        uuid()
+          .replace(/[-0189]/gi, 't')
+          .toUpperCase(),
+      );
       const info = await this.transporter.sendMail({
         from: `"Transcendance team" <${this.configService.get<string>(
           'EMAIL_2FA_USER',
