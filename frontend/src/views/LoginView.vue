@@ -20,8 +20,8 @@
     <p>Your Profile:</p>
     <br />
     <p>username {{ user.username }}<br />id {{ user.id }}</p>
-    <p v-if="user.twoFA_enabled">2FA is enabled</p>
-    <p v-if="!user.twoFA_enabled">2FA is disabled</p>
+    <p v-if="user.tfa_enabled">2FA is enabled</p>
+    <p v-if="!user.tfa_enabled">2FA is disabled</p>
     <p>Status: {{ user.status }}</p>
     <img :src="user.avatar_url" alt="avatar img" width="200" height="200" />
   </div>
@@ -61,7 +61,7 @@ let user = ref({
   id: 0,
   username: "",
   avatar_url: "",
-  twoFA_enabled: false,
+  tfa_enabled: false,
   status: "OFFLINE",
 });
 
@@ -72,7 +72,7 @@ type Payload = {
 
 if (sessionStore.isLoggedIn) {
   isLoggedIn.value = true;
-  LoadProfile();
+  statusService.onConnect(LoadProfile, { timeout: 1000 });
 }
 
 async function CreateUser(payload: Payload): Promise<boolean> {
@@ -128,7 +128,7 @@ async function LogIn(): Promise<boolean> {
       console.log("successfully logged in");
       // TODO redirect to another page (using statusService.onConnect)
       // router.push({ name: 'profile', params: { username: login_username.value } })
-      statusService.onConnect(LoadProfile, { timeout: 500 });
+      statusService.onConnect(LoadProfile, { timeout: 1000 });
       return true;
     })
     .catch((error) => {
