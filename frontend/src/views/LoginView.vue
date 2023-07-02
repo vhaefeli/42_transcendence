@@ -1,15 +1,25 @@
 <template>
   <h1>Login page</h1>
-  <div id="login-form" v-if="!isLoggedIn">
+  <div id="login-form" v-if="show_login_form">
     <input v-model="login_username" placeholder="username" /><br />
     <input v-model="login_password" placeholder="password" /><br />
-    <p>Create new user?</p>
-    <input type="checkbox" id="checkbox" v-model="createUser" /><br />
     <button
       class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-      @click="LogIn"
+      @click="LogIn(true)"
     >
-      create/login
+      create user
+    </button>
+    <button
+      class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+      @click="LogIn(false)"
+    >
+      login
+    </button>
+    <button
+      @click="Login42Api"
+      class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+    >
+      42 API Login/Registration
     </button>
   </div>
   <button v-if="isLoggedIn" @click="LogOut">Logout</button>
@@ -27,12 +37,6 @@
   </div>
   <div v-if="true">
     <button
-      @click="Login42Api"
-      class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-    >
-      42 API Login/Registration
-    </button>
-    <button
       class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
       @click="statusService.ping()"
     >
@@ -47,14 +51,15 @@ import axios, { AxiosError } from "axios";
 import { useRouter } from "vue-router";
 import { useSessionStore } from "@/stores/SessionStore";
 import { statusService } from "@/services/status-socket.service";
+import { storeToRefs } from "pinia";
 
-const isLoggedIn = ref(false);
+const show_login_form = ref(true);
 const login_username = ref("");
 const login_password = ref("");
-const createUser = ref(false);
 const router = useRouter();
 
 const sessionStore = useSessionStore();
+const { isLoggedIn } = storeToRefs(sessionStore);
 statusService;
 
 let user = ref({
@@ -71,8 +76,8 @@ type Payload = {
 };
 
 if (sessionStore.isLoggedIn) {
-  isLoggedIn.value = true;
-  statusService.onConnect(LoadProfile, { timeout: 1000 });
+  show_login_form.value = false;
+  LoadProfile();
 }
 
 async function CreateUser(payload: Payload): Promise<boolean> {
@@ -109,12 +114,12 @@ async function CreateUser(payload: Payload): Promise<boolean> {
   return true;
 }
 
-async function LogIn(): Promise<boolean> {
+async function LogIn(createUser = false): Promise<boolean> {
   const payload = {
     username: login_username.value,
     password: login_password.value,
   };
-  if (createUser.value) await CreateUser(payload);
+  if (createUser) await CreateUser(payload);
   await axios({
     url: "/api/auth/login",
     method: "post",
@@ -124,16 +129,16 @@ async function LogIn(): Promise<boolean> {
     .then((response) => {
       sessionStore.access_token = response.data.access_token;
       sessionStore.isLoggedIn = true;
-      isLoggedIn.value = true;
+      show_login_form.value = false;
       console.log("successfully logged in");
       // TODO redirect to another page (using statusService.onConnect)
       // router.push({ name: 'profile', params: { username: login_username.value } })
-      statusService.onConnect(LoadProfile, { timeout: 1000 });
+      LoadProfile();
       return true;
     })
     .catch((error) => {
       if (error instanceof AxiosError) {
-        isLoggedIn.value = false;
+        show_login_form.value = true;
         sessionStore.isLoggedIn = false;
         if (error.response?.status == 401)
           console.log(
@@ -150,7 +155,14 @@ async function LogIn(): Promise<boolean> {
 }
 
 async function LoadProfile() {
-  if (!isLoggedIn.value) {
+  // waits until socket is connected (or 1000ms)
+  await statusService.onConnect(
+    () => {
+      return;
+    },
+    { timeout: 1000 }
+  );
+  if (!sessionStore.isLoggedIn) {
     console.log("user is not logged in");
     return;
   }
@@ -179,7 +191,7 @@ async function LoadProfile() {
 }
 
 function LogOut() {
-  isLoggedIn.value = false;
+  show_login_form.value = true;
   sessionStore.logout();
 }
 
