@@ -39,12 +39,18 @@ model FriendshipInvitation {
   @@id([fromId, toId])
 }
 
+enum TfaRegistrationType {
+  ENABLE
+  DISABLE
+}
+
 model TfaRegistration {
   userId  Int     @id
   user    User    @relation(name: "tfa_registration", fields: [userId], references: [id])
   email   String
   code    String
   time    DateTime @default(now())
+  type    TfaRegistrationType @default(ENABLE)
 }
 
 model TfaRequest {

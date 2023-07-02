@@ -32,4 +32,12 @@ export class TfaController {
   async disable2FA(@Request() req: any) {
     await this.tfaService.disableTFA(req.user.sub);
   }
+
+  @Patch('disable/confirm')
+  async confirmDisable2FA(
+    @Request() req: any,
+    @Body() confirm2FADto: Confirm2FADto,
+  ) {
+    await this.tfaService.confirmDisableTFA(req.user.sub, confirm2FADto.code);
+  }
 }

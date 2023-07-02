@@ -1,14 +1,15 @@
 import {
   ConflictException,
+  forwardRef,
   Inject,
   Injectable,
   Logger,
   NotFoundException,
   ServiceUnavailableException,
   UnauthorizedException,
-  forwardRef,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { TfaRegistrationType } from '@prisma/client';
 import { readFileSync } from 'fs';
 import * as nodemailer from 'nodemailer';
 import { AuthService } from 'src/auth/auth.service';
@@ -25,8 +26,7 @@ export class TfaService {
 
   constructor(
     private readonly configService: ConfigService,
-    @Inject(forwardRef(() => AuthService))
-    private authService: AuthService,
+    @Inject(forwardRef(() => AuthService)) private authService: AuthService,
     private prisma: PrismaService,
   ) {
     try {
@@ -53,6 +53,7 @@ export class TfaService {
 
   async sendCode(
     address: string,
+    subject = 'authentication code',
   ): Promise<{ success: boolean; code?: string }> {
     try {
       const code = totp(this.configService.get<string>('EMAIL_TOTP_SECRET'));
@@ -61,7 +62,7 @@ export class TfaService {
           'EMAIL_2FA_USER',
         )}>`,
         to: address,
-        subject: 'Your ft_transcendance authentication code',
+        subject: `Your ft_transcendance ${subject}`,
         // text: 'test2',
         html: this.template.replace('{{USER_AUTH_CODE}}', code),
       });
@@ -84,7 +85,7 @@ export class TfaService {
 
   async register2FA(id: number, address: string) {
     const existing = await this.prisma.tfaRegistration.findFirst({
-      where: { userId: id },
+      where: { AND: [{ userId: id }, { type: TfaRegistrationType.ENABLE }] },
       select: {
         time: true,
         email: true,
@@ -106,13 +107,14 @@ export class TfaService {
         );
     }
 
-    const code_mail = await this.sendCode(address);
+    const code_mail = await this.sendCode(address, '2fa registration code');
     if (!code_mail.success) throw new ServiceUnavailableException();
     await this.prisma.tfaRegistration.create({
       data: {
         userId: id,
         email: address,
         code: code_mail.code,
+        type: TfaRegistrationType.ENABLE,
       },
     });
   }
@@ -120,7 +122,7 @@ export class TfaService {
   async confirm2FA(id: number, code: string) {
     try {
       const registration = await this.prisma.tfaRegistration.findFirstOrThrow({
-        where: { userId: id },
+        where: { AND: [{ userId: id }, { type: TfaRegistrationType.ENABLE }] },
         select: {
           email: true,
           code: true,
@@ -225,22 +227,91 @@ export class TfaService {
   }
 
   async disableTFA(id: number) {
+    const user = await this.prisma.user.findFirstOrThrow({
+      where: { id: id },
+      select: {
+        tfa_enabled: true,
+        tfa_email_address: true,
+      },
+    });
+    if (!user.tfa_enabled)
+      throw new ConflictException('2fa is not enabled for this user');
+
+    const existing = await this.prisma.tfaRegistration.findFirst({
+      where: { AND: [{ userId: id }, { type: TfaRegistrationType.DISABLE }] },
+      select: {
+        time: true,
+        email: true,
+      },
+    });
+    if (existing) {
+      if (!this.isTimeOk(existing.time))
+        await this.prisma.tfaRegistration.delete({ where: { userId: id } });
+      else
+        throw new ConflictException(
+          'Recent 2fa registration with the same address already exists',
+        );
+    }
+
+    const code_mail = await this.sendCode(
+      user.tfa_email_address,
+      '2fa unregistration code',
+    );
+    if (!code_mail.success) throw new ServiceUnavailableException();
+    await this.prisma.tfaRegistration.create({
+      data: {
+        userId: id,
+        email: user.tfa_email_address,
+        code: code_mail.code,
+        type: TfaRegistrationType.DISABLE,
+      },
+    });
+  }
+
+  async confirmDisableTFA(id: number, code: string) {
     try {
-      const user = this.prisma.user.update({
-        where: { id: id },
-        data: {
-          tfa_enabled: false,
-          tfa_email_address: null,
+      const registration = await this.prisma.tfaRegistration.findFirstOrThrow({
+        where: { AND: [{ userId: id }, { type: TfaRegistrationType.DISABLE }] },
+        select: {
+          email: true,
+          code: true,
+          time: true,
         },
       });
-      const requests = this.prisma.tfaRequest.deleteMany({
-        where: { userId: id },
-      });
-      await Promise.all([user, requests]);
+
+      if (!this.isTimeOk(registration.time)) {
+        await this.prisma.tfaRegistration.delete({ where: { userId: id } });
+        throw new NotFoundException();
+      }
+      if (registration.code !== code)
+        throw new UnauthorizedException('2fa code is invalid');
+
+      const promises = new Array<Promise<any>>();
+      promises.push(
+        this.prisma.user.update({
+          where: { id: id },
+          data: {
+            tfa_enabled: false,
+            tfa_email_address: null,
+          },
+        }),
+      );
+      promises.push(
+        this.prisma.tfaRegistration.delete({
+          where: { userId: id },
+        }),
+      );
+      await Promise.all(promises);
     } catch (error) {
-      if (error?.code) Logger.error(`${error.code} ${error.message}`);
+      if (
+        error instanceof NotFoundException ||
+        error instanceof UnauthorizedException
+      )
+        throw error;
+      if (error?.code === 'P2025') throw new NotFoundException();
+      if (error?.code) Logger.error(error.code + ' ' + error.msg);
       else Logger.error(error);
-      throw error;
+      return;
     }
   }
 }
