@@ -45,8 +45,46 @@
     <p>Your Profile:</p>
     <br />
     <p>username {{ user.username }}<br />id {{ user.id }}</p>
-    <p v-if="user.tfa_enabled">2FA is enabled</p>
-    <p v-if="!user.tfa_enabled">2FA is disabled</p>
+    <div v-if="user.tfa_enabled">
+      <p>2FA is enabled</p>
+      <button
+        v-if="!show_tfa_enable_disable_confirmation"
+        @click="tfaDisable"
+        class="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded"
+      >
+        disable
+      </button>
+    </div>
+    <div v-if="!user.tfa_enabled">
+      <p>2FA is disabled</p>
+      <input
+        v-model="tfa_email"
+        placeholder="email"
+        v-if="!show_tfa_enable_disable_confirmation"
+      /><br />
+      <button
+        v-if="!show_tfa_enable_disable_confirmation"
+        @click="tfaEnable"
+        class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+      >
+        enable
+      </button>
+    </div>
+    <div v-if="show_tfa_enable_disable_confirmation">
+      <input v-model="tfa_code" placeholder="code" /><br />
+      <button
+        @click="validate2FARegistration"
+        class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+      >
+        validate
+      </button>
+      <button
+        @click="cancelTfaEnableDisable"
+        class="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded"
+      >
+        cancel
+      </button>
+    </div>
     <p>Status: {{ user.status }}</p>
     <img :src="user.avatar_url" alt="avatar img" width="200" height="200" />
   </div>
@@ -75,6 +113,8 @@ const router = useRouter();
 
 const show_tfa_form = ref(false);
 const tfa_code = ref("");
+const tfa_email = ref("");
+const show_tfa_enable_disable_confirmation = ref(false);
 
 const sessionStore = useSessionStore();
 const { isLoggedIn } = storeToRefs(sessionStore);
@@ -248,10 +288,12 @@ async function validate2FALogin() {
       sessionStore.isLoggedIn = true;
       show_tfa_form.value = false;
       LoadProfile();
+      tfa_code.value = "";
     })
     .catch((error: AxiosError) => {
-    if (error.response?.status == 401) console.log(`${error.response?.statusText}: tfa verification failed`);
-    else console.log(error);
+      if (error.response?.status == 401)
+        console.log(`${error.response?.statusText}: tfa verification failed`);
+      else console.log(error);
     });
 }
 
@@ -259,5 +301,85 @@ function cancel2FALogin() {
   show_tfa_form.value = false;
   show_login_form.value = true;
   tfa_uuid = "";
+}
+
+let tfaRegistrationEnable = true;
+
+async function tfaEnable() {
+  if (!tfa_email.value.length) {
+    console.log("email must not be empty");
+    return;
+  }
+  await axios({
+    url: "api/auth/2fa/enable",
+    method: "patch",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${sessionStore.access_token}`,
+    },
+    data: { email: tfa_email.value },
+  })
+    .then((_response) => {
+      console.log("code has been sent");
+      show_tfa_enable_disable_confirmation.value = true;
+      tfaRegistrationEnable = true;
+    })
+    .catch((error) => {
+      if (error.response?.status === 409) {
+        show_tfa_enable_disable_confirmation.value = true;
+        tfaRegistrationEnable = true;
+      }
+      console.error(`${error.response.status} ${error.response.statusText}`);
+    });
+}
+
+async function tfaDisable() {
+  await axios({
+    url: "api/auth/2fa/disable",
+    method: "patch",
+    headers: {
+      Authorization: `Bearer ${sessionStore.access_token}`,
+    },
+  })
+    .then((_response) => {
+      console.log("code has been sent");
+      show_tfa_enable_disable_confirmation.value = true;
+      tfaRegistrationEnable = false;
+    })
+    .catch((error) => {
+      if (error.response?.status === 409) {
+        show_tfa_enable_disable_confirmation.value = true;
+        tfaRegistrationEnable = false;
+      }
+      console.error(`${error.response.status} ${error.response.statusText}`);
+    });
+}
+
+async function validate2FARegistration() {
+  if (tfa_code.value.length == 0) {
+    console.log("please insert code");
+    return;
+  }
+  await axios({
+    url: `api/auth/2fa/${tfaRegistrationEnable ? "enable" : "disable"}/confirm`,
+    method: "patch",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${sessionStore.access_token}`,
+    },
+    data: { code: tfa_code.value.trim() },
+  })
+    .then((response) => {
+      LoadProfile();
+      tfa_code.value = "";
+      show_tfa_enable_disable_confirmation.value = false;
+    })
+    .catch((error: AxiosError) => {
+      console.error(`${error.response?.status} ${error.response?.statusText}`);
+    });
+}
+
+function cancelTfaEnableDisable() {
+  show_tfa_enable_disable_confirmation.value = false;
 }
 </script>
