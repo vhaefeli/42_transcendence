@@ -44,6 +44,19 @@ export class ChatGateway
     this.server.emit('message', message);
   }
 
+  @UseGuards(WsGuard)
+  @SubscribeMessage('tabletennis')
+  pingPong(@MessageBody() payload: string) {
+    if (payload === 'PING') return 'PONG';
+    return 'WHAT?';
+  }
+
+  @UseGuards(WsGuard)
+  @SubscribeMessage('forceDisconnect')
+  disconnectMe(@ConnectedSocket() client: any) {
+    client.disconnect(true);
+  }
+
   async handleConnection(client: any, ...args: any[]) {
     try {
       const payload = await this.authService.socketConnectionAuth(

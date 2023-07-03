@@ -13,7 +13,7 @@ export abstract class SocketService {
   protected readonly namespace: string;
   protected readonly ping_event: string;
 
-  constructor(namespace: string, ping_event = "message") {
+  constructor(namespace: string, ping_event = "tabletennis") {
     this.url = import.meta.env.VITE_BACKEND_SERVER_URL;
     this.namespace = namespace;
     this.ping_event = ping_event;

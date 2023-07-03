@@ -34,7 +34,7 @@ class StatusService extends SocketService {
 
   async ping() {
     if (!(await this.tryConnection())) return;
-    this.socket?.emit("message", "PING", (response: string) => {
+    this.socket?.emit(this.ping_event, "PING", (response: string) => {
       console.log(`Server responded: ${response}`);
     });
   }

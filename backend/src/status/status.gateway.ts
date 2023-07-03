@@ -32,13 +32,6 @@ export class StatusGateway
   @WebSocketServer() server: Server;
 
   @UseGuards(WsGuard)
-  @SubscribeMessage('message')
-  handleMessage(@MessageBody() payload: any): string {
-    if (payload === 'PING') return 'PONG';
-    return 'Hello world!';
-  }
-
-  @UseGuards(WsGuard)
   @SubscribeMessage('i-am-alive')
   async clientIsOnline(@ConnectedSocket() client: any) {
     client.data['last_online'] = new Date();
@@ -48,6 +41,13 @@ export class StatusGateway
   @SubscribeMessage('forceDisconnect')
   disconnectMe(@ConnectedSocket() client: any) {
     client.disconnect(true);
+  }
+
+  @UseGuards(WsGuard)
+  @SubscribeMessage('tabletennis')
+  pingPong(@MessageBody() payload: string) {
+    if (payload === 'PING') return 'PONG';
+    return 'WHAT?';
   }
 
   afterInit() {
