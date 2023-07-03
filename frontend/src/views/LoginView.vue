@@ -2,7 +2,11 @@
   <h1>Login page</h1>
   <div id="login-form" v-if="show_login_form">
     <input v-model="login_username" placeholder="username" /><br />
-    <input type="password" v-model="login_password" placeholder="password" /><br />
+    <input
+      type="password"
+      v-model="login_password"
+      placeholder="password"
+    /><br />
     <button
       class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
       @click="LogIn(true)"
@@ -101,7 +105,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import axios, { AxiosError } from "axios";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useSessionStore } from "@/stores/SessionStore";
 import { statusService } from "@/services/status-socket.service";
 import { storeToRefs } from "pinia";
@@ -110,6 +114,7 @@ const show_login_form = ref(true);
 const login_username = ref("");
 const login_password = ref("");
 const router = useRouter();
+const route = useRoute();
 
 const show_tfa_form = ref(false);
 const tfa_code = ref("");
@@ -120,7 +125,7 @@ const sessionStore = useSessionStore();
 const { isLoggedIn } = storeToRefs(sessionStore);
 statusService;
 
-let tfa_uuid = "";
+let tfa_uuid: string | undefined = "";
 
 let user = ref({
   id: 0,
@@ -139,6 +144,12 @@ if (sessionStore.isLoggedIn) {
   show_login_form.value = false;
   LoadProfile();
 }
+
+tfa_uuid = route.query?.tfa_request_uuid?.toString();
+if (tfa_uuid) {
+  show_login_form.value = false;
+  show_tfa_form.value = true;
+} else tfa_uuid = "";
 
 async function CreateUser(payload: Payload): Promise<boolean> {
   if (!payload.username.length || !payload.username.length) {
