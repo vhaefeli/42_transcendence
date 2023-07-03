@@ -4,6 +4,6 @@ export class MyProfileDto {
   id: number;
   username: string;
   avatar_url: string;
-  twoFA_enabled: boolean;
+  tfa_enabled: boolean;
   status: StatusType;
 }

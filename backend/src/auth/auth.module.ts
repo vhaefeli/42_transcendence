@@ -7,6 +7,7 @@ import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 import { JwtConfigService } from './jwt.service';
 import { WsGuard } from './ws.guard';
+import { TfaModule } from 'src/tfa/tfa.module';
 
 @Module({
   controllers: [AuthController],
@@ -15,6 +16,7 @@ import { WsGuard } from './ws.guard';
     forwardRef(() => UserModule),
     HttpModule,
     JwtModule.registerAsync({ useClass: JwtConfigService, global: true }),
+    forwardRef(() => TfaModule),
   ],
   exports: [AuthGuard, AuthService, WsGuard],
 })

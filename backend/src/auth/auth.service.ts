@@ -9,17 +9,21 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { AxiosError } from 'axios';
+import { PrismaService } from 'src/prisma.service';
+import { TfaService } from 'src/tfa/tfa.service';
 import { Profile42Api } from 'src/user/profile-42api.dto';
 import { UsersService } from 'src/user/users.service';
+
+import { ReturnSignInDto } from './return-sign-in.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @Inject(forwardRef(() => UsersService))
-    private usersService: UsersService,
+    @Inject(forwardRef(() => UsersService)) private usersService: UsersService,
     private jwtService: JwtService,
-    private configService: ConfigService,
+    private readonly configService: ConfigService,
+    @Inject(forwardRef(() => TfaService)) private tfaService: TfaService,
+    private prisma: PrismaService,
     private http: HttpService,
   ) {}
 
@@ -32,17 +36,33 @@ export class AuthService {
     };
   }
 
-  async SignIn(username: string, pass: string): Promise<any> {
-    const user = await this.usersService.findOne(username);
+  async SignIn(username: string, pass: string): Promise<ReturnSignInDto> {
+    const user = await this.prisma.user.findFirst({
+      where: { username: username },
+      select: {
+        id: true,
+        username: true,
+        password: true,
+        tfa_enabled: true,
+        tfa_email_address: true,
+      },
+    });
     if (user?.password !== pass) throw new UnauthorizedException();
 
-    return this.CreateToken(user.id, user.username);
+    const res: ReturnSignInDto = { tfa_enabled: user.tfa_enabled };
+    if (res.tfa_enabled) {
+      res.tfa_request_uuid = await this.tfaService.createTfaRequest(
+        user.id,
+        user.tfa_email_address,
+      );
+    } else
+      res.access_token = (
+        await this.CreateToken(user.id, user.username)
+      ).access_token;
+    return res;
   }
 
-  async login42Api(
-    code: string,
-    state: string,
-  ): Promise<{ access_token: string }> {
+  async login42Api(code: string, state: string): Promise<ReturnSignInDto> {
     let access_token42: string;
     let profile42: Profile42Api;
 
@@ -65,7 +85,7 @@ export class AuthService {
       .catch((error) => {
         if (error.response.status == 401) throw new UnauthorizedException();
         Logger.error(error);
-        throw new InternalServerErrorException();
+        throw error;
       });
 
     await this.http
@@ -85,12 +105,28 @@ export class AuthService {
       .catch((error) => {
         if (error.response.status == 401) throw new UnauthorizedException();
         Logger.error(error);
-        throw new InternalServerErrorException();
+        throw error;
       });
+    const access_token = await this.usersService.login42API(
+      access_token42,
+      profile42,
+    );
+    const user = await this.prisma.user.findUnique({
+      where: { id42: profile42.id },
+      select: {
+        id: true,
+        tfa_enabled: true,
+        tfa_email_address: true,
+      },
+    });
+    if (!user.tfa_enabled) {
+      return { tfa_enabled: user.tfa_enabled, access_token: access_token };
+    }
     return {
-      access_token: await this.usersService.login42API(
-        access_token42,
-        profile42,
+      tfa_enabled: user.tfa_enabled,
+      tfa_request_uuid: await this.tfaService.createTfaRequest(
+        user.id,
+        user.tfa_email_address,
       ),
     };
   }

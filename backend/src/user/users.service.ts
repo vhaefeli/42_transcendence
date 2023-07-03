@@ -152,7 +152,7 @@ export class UsersService {
           id: true,
           username: true,
           avatar_url: true,
-          twoFA_enabled: true,
+          tfa_enabled: true,
         },
       });
       return {
