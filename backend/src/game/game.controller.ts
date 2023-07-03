@@ -8,7 +8,7 @@ export class GameController {
 
   @Post('new')
   async newGame(@Body() createGameDto: CreateGameDto) {
-    console.log('newInitiated by id :', createGameDto.initiatedById);
+    // console.log('newInitiated by id :', createGameDto.initiatedById);
     return await this.gameservice.newGame(createGameDto);
   }
 }

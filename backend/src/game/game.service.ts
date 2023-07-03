@@ -19,8 +19,9 @@ export class GameService {
       });
       return { game };
     } catch (e) {
-      throw new NotFoundException();
-      Logger.error(e);
+      if (e.code == 'P2003') throw new NotFoundException();
+      if (e?.code) Logger.error(e.code + ' ' + e.msg);
+      else Logger.error(e);
     }
   }
 }

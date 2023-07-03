@@ -26,7 +26,7 @@ model User {
   blocked_users        User[]                 @relation("Block")
   blocked_by           User[]                 @relation("Block")
 
-  Game Game[]
+  games Game[]
 }
 
 model FriendshipInvitation {
