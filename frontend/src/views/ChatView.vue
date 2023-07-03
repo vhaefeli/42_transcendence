@@ -27,11 +27,11 @@
   
 <script setup>
     import { ref, onBeforeMount } from "vue";
-    import { io } from "socket.io-client";
     import { storeToRefs } from 'pinia'
     import { useRoute, useRouter } from 'vue-router'
     import { useSessionStore } from "@/stores/SessionStore";
     import { useUserStore } from '../stores/UserStore'
+    import { chatService } from "@/services/chat-socket.service";
 
     // routes
     const router = useRouter()
@@ -55,11 +55,6 @@
         }
     });
 
-    const socket = io(`http://localhost:3000/chat`, {
-      auth: {
-        token: sessionStore.access_token,
-      },
-    });
 
     let oldMessages = [
         {
@@ -86,25 +81,17 @@
     messages.value = oldMessages
 
     const handleSubmitNewMessage = () => {
-        const now = new Date();
-        const options = {
-            weekday: 'short',
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            timeZone: 'Europe/Zurich',
-            hour12: false
-        };
-        const payload = { message: message.value, date: now.toLocaleString('en-US', options) };
-        socket.emit('message', payload)
+        chatService.sendNewMessage(message.value);
     }
 
-    socket.on('message', (payload) => {
-        console.log(payload.date)
+    chatService.onConnect((chat) => {
+      chat.socket?.on('message', (payload) => {
+        console.log(payload.date);
         handleNewMessage(payload);
-    })
+      });
+    },
+    { timeout: 10000 },
+    chatService);
 
     const handleNewMessage = (payload) => {
         messages.value.push({
