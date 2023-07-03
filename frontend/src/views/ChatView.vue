@@ -97,7 +97,7 @@
             timeZone: 'Europe/Zurich',
             hour12: false
         };
-        const payload = { message: message.value, username: userStore.user.username, date: now.toLocaleString('en-US', options) };
+        const payload = { message: message.value, date: now.toLocaleString('en-US', options) };
         socket.emit('message', payload)
     }
 

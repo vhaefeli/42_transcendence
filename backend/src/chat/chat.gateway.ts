@@ -1,6 +1,7 @@
 import { Logger, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
+  ConnectedSocket,
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -9,7 +10,7 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
 import { WsGuard } from 'src/auth/ws.guard';
 
@@ -31,9 +32,15 @@ export class ChatGateway
   @UseGuards(WsGuard)
   @SubscribeMessage('message')
   handleMessage(
-    @MessageBody() payload: { message: string; username: string; date: string },
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: { message: string; date: string },
   ): void {
-    this.server.emit('message', payload);
+    const message = {
+      message: payload.message,
+      username: client.data?.user.username,
+      date: payload.date,
+    };
+    this.server.emit('message', message);
   }
 
   async handleConnection(client: any, ...args: any[]) {
@@ -64,7 +71,7 @@ export class ChatGateway
 
   async afterInit(server: any) {
     if (this.debug) {
-      Logger.debug('Gateway initiated');
+      Logger.debug('Chat gateway initialized');
     }
     return;
   }

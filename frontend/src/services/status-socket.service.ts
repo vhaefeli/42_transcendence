@@ -5,6 +5,10 @@ export async function sleep(ms: number) {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// TODO
+// * create generalized Socket parent class
+// * create subclasses StatusSocket and ChatSocket
+
 class StatusSocketService {
   socket: Socket | undefined;
   url: string;

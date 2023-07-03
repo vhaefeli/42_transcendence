@@ -49,7 +49,7 @@ export class StatusGateway
 
   afterInit() {
     if (this.debug) {
-      Logger.debug('Gateway initiated');
+      Logger.debug('Status gateway initialized');
     }
     return;
   }
