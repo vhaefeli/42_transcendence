@@ -29,6 +29,7 @@ export class UsersService {
     private avatarService: AvatarService,
     @Inject(forwardRef(() => FriendService))
     private friendService: FriendService,
+    @Inject(forwardRef(() => StatusService))
     private statusService: StatusService,
     configService: ConfigService,
   ) {
@@ -152,7 +153,7 @@ export class UsersService {
           id: true,
           username: true,
           avatar_url: true,
-          twoFA_enabled: true,
+          tfa_enabled: true,
         },
       });
       return {

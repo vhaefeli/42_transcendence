@@ -17,7 +17,7 @@ model User {
   id42            Int?          @unique
   access_token42  String?       @unique
   avatar_url      String
-  twoFA_enabled   Boolean       @default(false)
+  tfa_enabled     Boolean       @default(false)
 
   invitations_sent        FriendshipInvitation[]	@relation("from_user")
   invitations_received    FriendshipInvitation[]	@relation("to_user")
@@ -25,12 +25,51 @@ model User {
   friends                 User[]                  @relation("Friendship")
   blocked_users           User[]                  @relation("Block")
   blocked_by              User[]                  @relation("Block")
+
+  tfa_email_address       String?
+  tfa_registration        TfaRegistration?        @relation("tfa_registration")
+  tfa_request             TfaRequest[]            @relation("tfa_request")
+  
+  games Game[]
 }
 
 model FriendshipInvitation {
-  from		User	@relation(name: "from_user", fields: [fromId], references: [id])
-  fromId	Int
-  to		User	@relation(name: "to_user", fields: [toId], references: [id])
-  toId		Int
+  from   User @relation(name: "from_user", fields: [fromId], references: [id])
+  fromId Int
+  to     User @relation(name: "to_user", fields: [toId], references: [id])
+  toId   Int
+
   @@id([fromId, toId])
+}
+
+enum TfaRegistrationType {
+  ENABLE
+  DISABLE
+}
+
+model TfaRegistration {
+  userId  Int     @id
+  user    User    @relation(name: "tfa_registration", fields: [userId], references: [id])
+  email   String
+  code    String
+  time    DateTime @default(now())
+  type    TfaRegistrationType @default(ENABLE)
+}
+
+model TfaRequest {
+  id      String    @id @default(uuid())
+  userId  Int
+  user    User      @relation(name: "tfa_request", fields: [userId], references: [id])
+  code    String
+  time    DateTime  @default(now())
+}
+
+model Game {
+  id            Int      @id @default(autoincrement())
+  date          DateTime @default(now())
+  initiatedBy   User     @relation(fields: [initiatedById], references: [id])
+  initiatedById Int
+  completed     Boolean  @default(false)
+
+  @@unique([date, initiatedById])
 }

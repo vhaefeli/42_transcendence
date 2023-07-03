@@ -12,6 +12,11 @@ import { join } from 'path';
 import { StatusModule } from './status/status.module';
 import { BlockModule } from './block/block.module';
 import { ChatModule } from './chat/chat.module';
+import { TfaController } from './tfa/tfa.controller';
+import { TfaService } from './tfa/tfa.service';
+import { TfaModule } from './tfa/tfa.module';
+import { AuthModule } from './auth/auth.module';
+import { GameModule } from './game/game.module';
 
 @Module({
   imports: [
@@ -30,13 +35,17 @@ import { ChatModule } from './chat/chat.module';
     StatusModule,
     BlockModule,
     ChatModule,
+    TfaModule,
+    AuthModule,
+    GameModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, TfaController],
   providers: [
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
+    TfaService,
   ],
   exports: [],
 })

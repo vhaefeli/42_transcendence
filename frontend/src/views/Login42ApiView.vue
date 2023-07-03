@@ -8,22 +8,24 @@
 
 <script setup lang="ts">
 import axios from "axios";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useSessionStore } from "@/stores/SessionStore";
 import { ref } from "vue";
 
 const state_fail = ref(false);
+const route = useRoute();
+const router = useRouter();
 
 const sessionStore = useSessionStore();
 
 getURLCode();
 
 function getURLCode() {
-  const code = useRoute().query.code?.toString();
-  const state = useRoute().query.state?.toString();
-  if (useRoute().query.error?.toString() === "access_denied") {
+  const code = route.query.code?.toString();
+  const state = route.query.state?.toString();
+  if (route.query.error?.toString() === "access_denied") {
     console.log(
-      `42Api access denied: ${useRoute().query.error_description?.toString()}`
+      `42Api access denied: ${route.query.error_description?.toString()}`
     );
     return;
   }
@@ -50,9 +52,14 @@ async function backendRegistration(code: string, state: string) {
     },
   })
     .then((response) => {
-      console.log("login successful, saved token");
-      sessionStore.access_token = response.data.access_token;
-      sessionStore.isLoggedIn = true;
+      if (!response.data.tfa_enabled) {
+        console.log("login successful, saved token");
+        sessionStore.access_token = response.data.access_token;
+        sessionStore.isLoggedIn = true;
+        router.push("/login/");
+      } else {
+        router.push(`/login?tfa_request_uuid=${response.data.tfa_request_uuid}`);
+      }
     })
     .catch((error) => {
       if (error.response.status == 401)
