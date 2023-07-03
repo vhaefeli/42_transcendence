@@ -1,6 +1,8 @@
 import { Logger, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
+  ConnectedSocket,
+  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   OnGatewayInit,
@@ -8,50 +10,37 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
 import { WsGuard } from 'src/auth/ws.guard';
 
 @WebSocketGateway({
-  namespace: 'status',
+  namespace: 'chat',
   cors: {
     origin: '*',
   },
 })
-export class StatusGateway
-  implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
+export class ChatGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   private debug: boolean;
   constructor(configService: ConfigService, private authService: AuthService) {
     this.debug = configService.get<string>('SOCKET_DEBUG') === 'true';
   }
-
   @WebSocketServer() server: Server;
 
   @UseGuards(WsGuard)
   @SubscribeMessage('message')
-  handleMessage(_client: any, payload: any): string {
-    if (payload === 'PING') return 'PONG';
-    return 'Hello world!';
-  }
-
-  @UseGuards(WsGuard)
-  @SubscribeMessage('i-am-alive')
-  async clientIsOnline(client: any) {
-    client.data['last_online'] = new Date();
-  }
-
-  @UseGuards(WsGuard)
-  @SubscribeMessage('forceDisconnect')
-  disconnectMe(client: any) {
-    client.disconnect(true);
-  }
-
-  afterInit() {
-    if (this.debug) {
-      Logger.debug('Status gateway initialized');
-    }
-    return;
+  handleMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: { message: string; date: string },
+  ): void {
+    const message = {
+      message: payload.message,
+      username: client.data?.user.username,
+      date: payload.date,
+    };
+    this.server.emit('message', message);
   }
 
   async handleConnection(client: any, ...args: any[]) {
@@ -61,7 +50,6 @@ export class StatusGateway
       );
       client.request['user'] = payload;
       client.data['user'] = payload;
-      client.data['last_online'] = new Date();
     } catch (error) {
       if (this.debug) Logger.debug('Client connection declined: bad token');
       client.disconnect();
@@ -74,10 +62,17 @@ export class StatusGateway
     }
   }
 
-  handleDisconnect(client: any) {
+  async handleDisconnect(client: any) {
     if (this.debug)
       Logger.debug(
         `{${client.request?.user?.sub}, ${client.request?.user?.username}} DISCONNECTED`,
       );
+  }
+
+  async afterInit(server: any) {
+    if (this.debug) {
+      Logger.debug('Chat gateway initialized');
+    }
+    return;
   }
 }

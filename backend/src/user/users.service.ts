@@ -29,6 +29,7 @@ export class UsersService {
     private avatarService: AvatarService,
     @Inject(forwardRef(() => FriendService))
     private friendService: FriendService,
+    @Inject(forwardRef(() => StatusService))
     private statusService: StatusService,
     configService: ConfigService,
   ) {

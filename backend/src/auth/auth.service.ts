@@ -3,7 +3,6 @@ import {
   forwardRef,
   Inject,
   Injectable,
-  InternalServerErrorException,
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -18,14 +17,17 @@ import { ReturnSignInDto } from './return-sign-in.dto';
 
 @Injectable()
 export class AuthService {
+  secret: string;
   constructor(
     @Inject(forwardRef(() => UsersService)) private usersService: UsersService,
     private jwtService: JwtService,
     private readonly configService: ConfigService,
     @Inject(forwardRef(() => TfaService)) private tfaService: TfaService,
-    private prisma: PrismaService,
     private http: HttpService,
-  ) {}
+    private prisma: PrismaService,
+  ) {
+    this.secret = configService.get<string>('JWT_SECRET_KEY');
+  }
 
   async CreateToken(id: number, username: string) {
     return {
@@ -60,6 +62,23 @@ export class AuthService {
         await this.CreateToken(user.id, user.username)
       ).access_token;
     return res;
+  }
+
+  async socketConnectionAuth(
+    token: string,
+  ): Promise<{ sub: number; username: string; iat: number; ext: number }> {
+    try {
+      const payload = this.jwtService.verify(token, {
+        secret: this.secret,
+      });
+
+      await this.prisma.user.findFirstOrThrow({
+        where: { id: payload.sub, username: payload.username },
+      });
+      return payload;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async login42Api(code: string, state: string): Promise<ReturnSignInDto> {
