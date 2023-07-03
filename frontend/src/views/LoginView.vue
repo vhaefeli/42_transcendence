@@ -290,7 +290,7 @@ async function validate2FALogin() {
     return;
   }
   await axios({
-    url: "api/auth/2fa/login",
+    url: "/api/auth/2fa/login",
     method: "post",
     headers: { "Content-Type": "application/json" },
     data: { tfa_request_uuid: tfa_uuid, code: tfa_code.value.trim() },
@@ -323,7 +323,7 @@ async function tfaEnable() {
     return;
   }
   await axios({
-    url: "api/auth/2fa/enable",
+    url: "/api/auth/2fa/enable",
     method: "patch",
     headers: {
       "Content-Type": "application/json",
@@ -347,7 +347,7 @@ async function tfaEnable() {
 
 async function tfaDisable() {
   await axios({
-    url: "api/auth/2fa/disable",
+    url: "/api/auth/2fa/disable",
     method: "patch",
     headers: {
       Authorization: `Bearer ${sessionStore.access_token}`,
@@ -373,7 +373,7 @@ async function validate2FARegistration() {
     return;
   }
   await axios({
-    url: `api/auth/2fa/${tfaRegistrationEnable ? "enable" : "disable"}/confirm`,
+    url: `/api/auth/2fa/${tfaRegistrationEnable ? "enable" : "disable"}/confirm`,
     method: "patch",
     headers: {
       "Content-Type": "application/json",
