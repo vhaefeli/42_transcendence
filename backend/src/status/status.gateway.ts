@@ -1,6 +1,5 @@
 import { Logger, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
 import {
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -10,8 +9,8 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server } from 'socket.io';
+import { AuthService } from 'src/auth/auth.service';
 import { WsGuard } from 'src/auth/ws.guard';
-import { PrismaService } from 'src/prisma.service';
 
 @WebSocketGateway({
   namespace: 'status',
@@ -22,14 +21,8 @@ import { PrismaService } from 'src/prisma.service';
 export class StatusGateway
   implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
 {
-  private secret: string;
   private debug: boolean;
-  constructor(
-    private jwtService: JwtService,
-    configService: ConfigService,
-    private readonly prisma: PrismaService,
-  ) {
-    this.secret = configService.get<string>('JWT_SECRET_KEY');
+  constructor(configService: ConfigService, private authService: AuthService) {
     this.debug = configService.get<string>('SOCKET_DEBUG') === 'true';
   }
 
@@ -63,13 +56,9 @@ export class StatusGateway
 
   async handleConnection(client: any, ...args: any[]) {
     try {
-      const payload = this.jwtService.verify(client.handshake.auth.token, {
-        secret: this.secret,
-      });
-
-      await this.prisma.user.findFirstOrThrow({
-        where: { id: payload.sub, username: payload.username },
-      });
+      const payload = await this.authService.socketConnectionAuth(
+        client.handshake.auth.token,
+      );
       client.request['user'] = payload;
       client.data['user'] = payload;
       client.data['last_online'] = new Date();

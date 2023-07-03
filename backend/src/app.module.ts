@@ -11,7 +11,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { StatusModule } from './status/status.module';
 import { BlockModule } from './block/block.module';
-import { ChatGateway } from './chat/chat.gateway';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -29,6 +29,7 @@ import { ChatGateway } from './chat/chat.gateway';
     AvatarModule,
     StatusModule,
     BlockModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [
@@ -36,7 +37,6 @@ import { ChatGateway } from './chat/chat.gateway';
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
-    ChatGateway,
   ],
   exports: [],
 })

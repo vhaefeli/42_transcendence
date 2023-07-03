@@ -9,19 +9,23 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { AxiosError } from 'axios';
+import { PrismaService } from 'src/prisma.service';
 import { Profile42Api } from 'src/user/profile-42api.dto';
 import { UsersService } from 'src/user/users.service';
 
 @Injectable()
 export class AuthService {
+  secret: string;
   constructor(
     @Inject(forwardRef(() => UsersService))
     private usersService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService,
     private http: HttpService,
-  ) {}
+    private prisma: PrismaService,
+  ) {
+    this.secret = configService.get<string>('JWT_SECRET_KEY');
+  }
 
   async CreateToken(id: number, username: string) {
     return {
@@ -37,6 +41,23 @@ export class AuthService {
     if (user?.password !== pass) throw new UnauthorizedException();
 
     return this.CreateToken(user.id, user.username);
+  }
+
+  async socketConnectionAuth(
+    token: string,
+  ): Promise<{ sub: number; username: string; iat: number; ext: number }> {
+    try {
+      const payload = this.jwtService.verify(token, {
+        secret: this.secret,
+      });
+
+      await this.prisma.user.findFirstOrThrow({
+        where: { id: payload.sub, username: payload.username },
+      });
+      return payload;
+    } catch (error) {
+      throw error;
+    }
   }
 
   async login42Api(
