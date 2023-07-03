@@ -3,11 +3,8 @@
     <div id="gameApp">
 		<router-link class="t-btn-pink" id="retHome" to="/"><span>X</span></router-link>
 		<img id="arcade" src="../assets/img/arcade.png" alt="arcade">
-    	<span :class="{ 'blinking-text': true }" id="ready">press ENTER<br>to set as ready</span>
-		<PongVue id="canvaPong"></PongVue>
-
-
-
+    	<!-- <span :class="{ 'blinking-text': true }" id="ready">press ENTER<br>to set as ready</span> -->
+		<PongVue></PongVue>
 	</div>
 </template>
   
@@ -16,41 +13,50 @@
 	import TransButton from '../components/TransButton.vue'
 	import PongVue from '@/components/Pong.vue';
 
+// 	const canvas = document.querySelector("canvas");
+// const ctx = canvas.getContext("2d");
+// ctx.fillStyle = "green";
+// // Add a rectangle at (10, 10) with size 100x100 pixels
+// ctx.fillRect(10, 10, 100, 100);
+
 </script>
 
 <style>
-#canvasPong{
+#pong{
 	position: absolute;
-	width: 70vw;
-	height: 40vw;
+	top:13.6%;
+	width: 50%;
+	height: 72.8%;
 	left: 50%;
 	transform: translateX(-50%);
+	background-color: rgba(255, 255, 255, 0.276);
 }
 
 #retHome{
 	position: absolute;
-	padding: 8px 8px;
-	top: 10px;
-	right: 10px;
+	padding: 2px 2px;
+	top: -5vh;
+	right: -5vh;
 }
 
 #arcade{
-	width: 80vw;
-	height: 45vw;
+	width: 100%;
+	align-self: center;
 }
 
 #ready{
 	color: white;
+	width: 100%;
 	text-align: center;
 	position: absolute;
 	font-family: 'Array-Regular';
 	font-size: 7vw;
-	top: 20vh;
+	top: 27%;
 	left: 50%;
 	transform: translateX(-50%);
 	z-index: 4;
 }
-
+ 
 
 .blinking-text {
   animation: blink-animation 1.5s infinite;
@@ -62,58 +68,19 @@
   100% { opacity: 1; }
 }
 
-.verticalLine#separation {
-	position: absolute;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	top: 50%;
-	width: 4px;
-	height: 32vw;
-	background-color: rgba(255, 255, 255, 0.647);
-}
-
-.paddlePlayer {
-	position: absolute;
-	display: none;
-	left: 30%;
-	transform: translate(-50%, -50%);
-	top: 56%;
-	width: 4px;
-	height: 4vw;
-	background-color: rgba(255, 255, 255, 0.7);
-}
-
-.mousemove {
-	height: 50px;
-	width: 50px;
-	border: 2px solid rgb(232, 116, 164);
-	position: absolute;
-	transform: translate(-50%, -50%);
-	left: 50%;
-	right: 50%;
-	border-radius: 50px;
-	/* transition: 0.2s ease; */
-	z-index: -1;
-}
-
-.verticalLine#paddleOpponent {
-	position: absolute;
-	left: 80%;
-	transform: translate(-50%, -50%);
-	top: 50%;
-	width: 4px;
-	height: 4vw;
-	background-color: rgba(255, 255, 255, 0.647);
-}
-
 #gameApp {
+	position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 	border-top: 0.3vw solid white;
 	border-left: 0.3vw solid white;
 	border-right: 0.3vw solid var(--purple);
 	border-bottom: 0.3vw solid var(--purple);
-	margin-top: 50vh;
-	padding: 2vw;
-	transform: translateY(-20%);
+	/* margin-top: 50vh; */
+	margin: 5vh;
+	/* padding: 2vw; */
+	background-color: var(--gray);
 }
 
 </style>
