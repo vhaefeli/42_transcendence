@@ -4,12 +4,14 @@ import { AvatarModule } from 'src/avatar/avatar.module';
 import { FriendModule } from 'src/friend/friend.module';
 import { UserController } from './user.controller';
 import { UsersService } from './users.service';
+import { StatusModule } from 'src/status/status.module';
 
 @Module({
   imports: [
     forwardRef(() => AuthModule),
     AvatarModule,
     forwardRef(() => FriendModule),
+    StatusModule,
   ],
   providers: [UsersService],
   controllers: [UserController],
