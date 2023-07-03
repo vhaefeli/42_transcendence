@@ -11,6 +11,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { StatusModule } from './status/status.module';
 import { BlockModule } from './block/block.module';
+import { GameModule } from './game/game.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { BlockModule } from './block/block.module';
     AvatarModule,
     StatusModule,
     BlockModule,
+    GameModule,
   ],
   controllers: [AppController],
   providers: [
