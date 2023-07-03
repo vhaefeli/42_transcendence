@@ -15,6 +15,7 @@ import { TfaController } from './tfa/tfa.controller';
 import { TfaService } from './tfa/tfa.service';
 import { TfaModule } from './tfa/tfa.module';
 import { AuthModule } from './auth/auth.module';
+import { GameModule } from './game/game.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { AuthModule } from './auth/auth.module';
     BlockModule,
     TfaModule,
     AuthModule,
+    GameModule,
   ],
   controllers: [AppController, TfaController],
   providers: [

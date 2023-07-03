@@ -29,13 +29,16 @@ model User {
   tfa_email_address       String?
   tfa_registration        TfaRegistration?        @relation("tfa_registration")
   tfa_request             TfaRequest[]            @relation("tfa_request")
+  
+  games Game[]
 }
 
 model FriendshipInvitation {
-  from		User	@relation(name: "from_user", fields: [fromId], references: [id])
-  fromId	Int
-  to		User	@relation(name: "to_user", fields: [toId], references: [id])
-  toId		Int
+  from   User @relation(name: "from_user", fields: [fromId], references: [id])
+  fromId Int
+  to     User @relation(name: "to_user", fields: [toId], references: [id])
+  toId   Int
+
   @@id([fromId, toId])
 }
 
@@ -59,4 +62,14 @@ model TfaRequest {
   user    User      @relation(name: "tfa_request", fields: [userId], references: [id])
   code    String
   time    DateTime  @default(now())
+}
+
+model Game {
+  id            Int      @id @default(autoincrement())
+  date          DateTime @default(now())
+  initiatedBy   User     @relation(fields: [initiatedById], references: [id])
+  initiatedById Int
+  completed     Boolean  @default(false)
+
+  @@unique([date, initiatedById])
 }
