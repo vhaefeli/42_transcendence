@@ -1,6 +1,8 @@
 import { Logger, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
+  ConnectedSocket,
+  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   OnGatewayInit,
@@ -21,7 +23,8 @@ import { WsGuard } from 'src/auth/ws.guard';
 export class StatusGateway
   implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit
 {
-  private debug: boolean;
+  private readonly debug: boolean;
+  private readonly namespace = 'STATUS';
   constructor(configService: ConfigService, private authService: AuthService) {
     this.debug = configService.get<string>('SOCKET_DEBUG') === 'true';
   }
@@ -30,26 +33,26 @@ export class StatusGateway
 
   @UseGuards(WsGuard)
   @SubscribeMessage('message')
-  handleMessage(_client: any, payload: any): string {
+  handleMessage(@MessageBody() payload: any): string {
     if (payload === 'PING') return 'PONG';
     return 'Hello world!';
   }
 
   @UseGuards(WsGuard)
   @SubscribeMessage('i-am-alive')
-  async clientIsOnline(client: any) {
+  async clientIsOnline(@ConnectedSocket() client: any) {
     client.data['last_online'] = new Date();
   }
 
   @UseGuards(WsGuard)
   @SubscribeMessage('forceDisconnect')
-  disconnectMe(client: any) {
+  disconnectMe(@ConnectedSocket() client: any) {
     client.disconnect(true);
   }
 
   afterInit() {
     if (this.debug) {
-      Logger.debug('Status gateway initialized');
+      Logger.debug(`${this.namespace}: gateway initialized`);
     }
     return;
   }
@@ -63,13 +66,13 @@ export class StatusGateway
       client.data['user'] = payload;
       client.data['last_online'] = new Date();
     } catch (error) {
-      if (this.debug) Logger.debug('Client connection declined: bad token');
+      //if (this.debug) Logger.debug('Client connection declined: bad token');
       client.disconnect();
       return;
     }
     if (this.debug) {
       Logger.debug(
-        `{${client.request?.user?.sub}, ${client.request?.user?.username}} CONNECTED`,
+        `${this.namespace}: {${client.request.user?.sub}, ${client.request.user?.username}} CONNECTED`,
       );
     }
   }
@@ -77,7 +80,7 @@ export class StatusGateway
   handleDisconnect(client: any) {
     if (this.debug)
       Logger.debug(
-        `{${client.request?.user?.sub}, ${client.request?.user?.username}} DISCONNECTED`,
+        `${this.namespace}: {${client.request.user?.sub}, ${client.request.user?.username}} DISCONNECTED`,
       );
   }
 }

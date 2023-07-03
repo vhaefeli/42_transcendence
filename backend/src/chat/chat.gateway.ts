@@ -24,6 +24,7 @@ export class ChatGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   private debug: boolean;
+  private readonly namespace = 'CHAT';
   constructor(configService: ConfigService, private authService: AuthService) {
     this.debug = configService.get<string>('SOCKET_DEBUG') === 'true';
   }
@@ -51,13 +52,13 @@ export class ChatGateway
       client.request['user'] = payload;
       client.data['user'] = payload;
     } catch (error) {
-      if (this.debug) Logger.debug('Client connection declined: bad token');
+      //if (this.debug) Logger.debug('Client connection declined: bad token');
       client.disconnect();
       return;
     }
     if (this.debug) {
       Logger.debug(
-        `{${client.request?.user?.sub}, ${client.request?.user?.username}} CONNECTED`,
+        `${this.namespace}: {${client.request.user?.sub}, ${client.request.user?.username}} CONNECTED`,
       );
     }
   }
@@ -65,13 +66,13 @@ export class ChatGateway
   async handleDisconnect(client: any) {
     if (this.debug)
       Logger.debug(
-        `{${client.request?.user?.sub}, ${client.request?.user?.username}} DISCONNECTED`,
+        `${this.namespace}: {${client.request.user?.sub}, ${client.request.user?.username}} DISCONNECTED`,
       );
   }
 
   async afterInit(server: any) {
     if (this.debug) {
-      Logger.debug('Chat gateway initialized');
+      Logger.debug(`${this.namespace}: gateway initialized`);
     }
     return;
   }
