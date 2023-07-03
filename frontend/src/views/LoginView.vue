@@ -2,7 +2,7 @@
   <h1>Login page</h1>
   <div id="login-form" v-if="show_login_form">
     <input v-model="login_username" placeholder="username" /><br />
-    <input v-model="login_password" placeholder="password" /><br />
+    <input type="password" v-model="login_password" placeholder="password" /><br />
     <button
       class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
       @click="LogIn(true)"
@@ -179,6 +179,7 @@ async function LogIn(createUser = false): Promise<boolean> {
     username: login_username.value,
     password: login_password.value,
   };
+  login_password.value = "";
   if (createUser) await CreateUser(payload);
   await axios({
     url: "/api/auth/login",
