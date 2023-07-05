@@ -10,10 +10,10 @@ export class ChatService {
     fromId: number,
     toId: number,
     message: string,
-    date: number,
+    date: Date,
   ) {
     try {
-      await this.prisma.directMessage.create({
+      return await this.prisma.directMessage.create({
         data: {
           from: { connect: { id: fromId } },
           to: { connect: { id: toId } },
@@ -35,5 +35,20 @@ export class ChatService {
       else Logger.error(error);
       throw error;
     }
+  }
+
+  async GetMyDirectMessages(id: number) {
+    return await this.prisma.directMessage.findMany({
+      where: {
+        OR: [{ fromId: id }, { toId: id }],
+      },
+      select: {
+        id: true,
+        fromId: true,
+        toId: true,
+        message: true,
+        date: true,
+      },
+    });
   }
 }

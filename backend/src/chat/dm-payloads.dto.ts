@@ -17,7 +17,15 @@ export class ReceivingDmDto {
 export class SendingDmDto {
   @IsNotEmpty()
   @IsNumber()
+  id: number;
+
+  @IsNotEmpty()
+  @IsNumber()
   fromId: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  toId: number;
 
   @IsNotEmpty()
   @IsString()

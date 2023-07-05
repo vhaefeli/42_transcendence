@@ -65,7 +65,7 @@ export class ChatGateway
     this.server.emit('message', message);
   }
 
-  async findConnectedUser(
+  async findConnectedUserById(
     id: number,
   ): Promise<RemoteSocket<DefaultEventsMap, any> | undefined> {
     for (const socket of await this.server.fetchSockets()) {
@@ -81,17 +81,19 @@ export class ChatGateway
     @MessageBody() payload: ReceivingDmDto,
   ) {
     const sending_msg: SendingDmDto = {
+      id: 0,
       fromId: client?.data.user.sub,
+      toId: payload.toId,
       message: payload.message,
-      date: new Date(payload.date).getTime(),
+      date: payload.date,
     };
     const save_message = this.chatService.SaveDirectMessage(
       sending_msg.fromId,
       payload.toId,
       payload.message,
-      sending_msg.date,
+      new Date(sending_msg.date),
     );
-    const destination = this.findConnectedUser(payload.toId);
+    const destination = this.findConnectedUserById(payload.toId);
 
     Logger.log(
       `${new Date(sending_msg.date)}: ${client.data?.user.sub} -> ${
@@ -101,8 +103,12 @@ export class ChatGateway
 
     await Promise.all([destination, save_message]);
 
+    sending_msg.id = (await save_message).id;
     if (await destination)
-      this.server.to((await destination).id).emit(JSON.stringify(sending_msg));
+      this.server
+        .to((await destination).id)
+        .emit('dm', JSON.stringify(sending_msg));
+    return 'ok';
   }
 
   @UseGuards(WsGuard)
@@ -118,21 +124,32 @@ export class ChatGateway
     client.disconnect(true);
   }
 
-  async handleConnection(client: any, ...args: any[]) {
+  async handleConnection(client: Socket, ...args: any[]) {
     try {
       const payload = await this.authService.socketConnectionAuth(
         client.handshake.auth.token,
       );
+      const direct_messages = this.chatService.GetMyDirectMessages(payload.sub);
+
       client.request['user'] = payload;
       client.data['user'] = payload;
+
+      for (const dm of await direct_messages) {
+        const msg: SendingDmDto = {
+          ...dm,
+          date: new Date(dm.date).getTime(),
+        };
+        client.emit('dm', JSON.stringify(msg));
+      }
     } catch (error) {
       //if (this.debug) Logger.debug('Client connection declined: bad token');
+      Logger.error(error);
       client.disconnect();
       return;
     }
     if (this.debug) {
       Logger.debug(
-        `${this.namespace}: {${client.request.user?.sub}, ${client.request.user?.username}} CONNECTED`,
+        `${this.namespace}: {${client.request['user'].sub}, ${client.request['user'].username}} CONNECTED`,
       );
     }
   }
