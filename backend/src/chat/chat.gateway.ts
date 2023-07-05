@@ -30,6 +30,19 @@ export class ChatGateway
   }
   @WebSocketServer() server: Server;
 
+  // References:
+  // * Rooms:
+  //    https://socket.io/docs/v3/rooms/
+  // * Emit CheatSheet:
+  //    https://socket.io/docs/v3/emit-cheatsheet/
+  //
+  // TODO:
+  // * DM payload structure
+  // * DM emit to single socket
+  //
+  // * Channel join room on connect
+  // * Channel emit to room
+
   @UseGuards(WsGuard)
   @SubscribeMessage('message')
   handleMessage(
@@ -42,6 +55,19 @@ export class ChatGateway
       date: payload.date,
     };
     this.server.emit('message', message);
+  }
+
+  @UseGuards(WsGuard)
+  @SubscribeMessage('dm')
+  sendDirectMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: { toId: number; message: string; date: number },
+  ) {
+    Logger.log(
+      `${new Date(payload.date).toLocaleString()}: ${
+        client.data?.user.sub
+      } -> ${payload.toId} "${payload.message}"`,
+    );
   }
 
   @UseGuards(WsGuard)
