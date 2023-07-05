@@ -10,9 +10,13 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
+import { RemoteSocket, Server, Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
 import { WsGuard } from 'src/auth/ws.guard';
+import { ReceivingDmDto, SendingDmDto } from './dm-payloads.dto';
+import { ChatService } from './chat.service';
+import { DefaultEventsMap } from 'socket.io/dist/typed-events';
+import { send } from 'process';
 
 @WebSocketGateway({
   namespace: 'chat',
@@ -25,7 +29,11 @@ export class ChatGateway
 {
   private debug: boolean;
   private readonly namespace = 'CHAT';
-  constructor(configService: ConfigService, private authService: AuthService) {
+  constructor(
+    configService: ConfigService,
+    private authService: AuthService,
+    private chatService: ChatService,
+  ) {
     this.debug = configService.get<string>('SOCKET_DEBUG') === 'true';
   }
   @WebSocketServer() server: Server;
@@ -57,17 +65,44 @@ export class ChatGateway
     this.server.emit('message', message);
   }
 
+  async findConnectedUser(
+    id: number,
+  ): Promise<RemoteSocket<DefaultEventsMap, any> | undefined> {
+    for (const socket of await this.server.fetchSockets()) {
+      if (socket.data?.user.sub === id) return socket;
+    }
+    return undefined;
+  }
+
   @UseGuards(WsGuard)
   @SubscribeMessage('dm')
-  sendDirectMessage(
+  async sendDirectMessage(
     @ConnectedSocket() client: Socket,
-    @MessageBody() payload: { toId: number; message: string; date: number },
+    @MessageBody() payload: ReceivingDmDto,
   ) {
-    Logger.log(
-      `${new Date(payload.date).toLocaleString()}: ${
-        client.data?.user.sub
-      } -> ${payload.toId} "${payload.message}"`,
+    const sending_msg: SendingDmDto = {
+      fromId: client?.data.user.sub,
+      message: payload.message,
+      date: new Date(payload.date).getTime(),
+    };
+    const save_message = this.chatService.SaveDirectMessage(
+      sending_msg.fromId,
+      payload.toId,
+      payload.message,
+      sending_msg.date,
     );
+    const destination = this.findConnectedUser(payload.toId);
+
+    Logger.log(
+      `${new Date(sending_msg.date)}: ${client.data?.user.sub} -> ${
+        payload.toId
+      } "${payload.message}"`,
+    );
+
+    await Promise.all([destination, save_message]);
+
+    if (await destination)
+      this.server.to((await destination).id).emit(JSON.stringify(sending_msg));
   }
 
   @UseGuards(WsGuard)
