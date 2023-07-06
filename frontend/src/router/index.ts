@@ -6,6 +6,7 @@ import AboutView from '../views/AboutView.vue'
 import GameSettingsView from '../views/GameSettingsView.vue'
 import GameView from '../views/GameView.vue'
 import ChatView from '../views/ChatView.vue'
+import DmsView from '../views/DmsView.vue'
 import LoginView from '../views/LoginView.vue'
 import Login42ApiView from '../views/Login42ApiView.vue'
 import SearchView from '../views/SearchView.vue'
@@ -47,6 +48,11 @@ const router = createRouter({
       path: '/chat',
       name: 'chat',
       component: ChatView
+    },
+    {
+      path: '/dms',
+      name: 'dms',
+      component: DmsView
     },
     {
       path: '/login',
