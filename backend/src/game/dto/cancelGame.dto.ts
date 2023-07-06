@@ -1,6 +1,6 @@
 import { IsNotEmpty } from 'class-validator';
 
-export class CreateGameDto {
+export class CancelGameDto {
   @IsNotEmpty()
-  readonly initiatedById: number;
+  readonly gameId: number;
 }

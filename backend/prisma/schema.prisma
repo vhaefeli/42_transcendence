@@ -10,27 +10,40 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum level_type {
+  INITIATION
+  BEGINNER
+  INTERMEDIATE
+  EXPERT
+}
+
 model User {
-  id              Int @id       @default(autoincrement())
-  username        String        @unique
-  password        String?
-  id42            Int?          @unique
-  access_token42  String?       @unique
-  avatar_url      String
-  tfa_enabled     Boolean       @default(false)
+  id             Int     @id @default(autoincrement())
+  username       String  @unique
+  password       String?
+  id42           Int?    @unique
+  access_token42 String? @unique
+  avatar_url     String
+  tfa_enabled    Boolean @default(false)
 
-  invitations_sent        FriendshipInvitation[]	@relation("from_user")
-  invitations_received    FriendshipInvitation[]	@relation("to_user")
-  friends_added           User[]                  @relation("Friendship")
-  friends                 User[]                  @relation("Friendship")
-  blocked_users           User[]                  @relation("Block")
-  blocked_by              User[]                  @relation("Block")
+  level   level_type @default(INITIATION)
+  rank    Int        @default(0)
+  nbMatch Int        @default(0)
+  nbGames Int        @default(0)
 
-  tfa_email_address       String?
-  tfa_registration        TfaRegistration?        @relation("tfa_registration")
-  tfa_request             TfaRequest[]            @relation("tfa_request")
-  
-  games Game[]
+  invitations_sent     FriendshipInvitation[] @relation("from_user")
+  invitations_received FriendshipInvitation[] @relation("to_user")
+  friends_added        User[]                 @relation("Friendship")
+  friends              User[]                 @relation("Friendship")
+  blocked_users        User[]                 @relation("Block")
+  blocked_by           User[]                 @relation("Block")
+
+  tfa_email_address String?
+  tfa_registration  TfaRegistration? @relation("tfa_registration")
+  tfa_request       TfaRequest[]     @relation("tfa_request")
+
+  games   Game[]
+  players Player[]
 }
 
 model FriendshipInvitation {
@@ -48,20 +61,20 @@ enum TfaRegistrationType {
 }
 
 model TfaRegistration {
-  userId  Int     @id
-  user    User    @relation(name: "tfa_registration", fields: [userId], references: [id])
-  email   String
-  code    String
-  time    DateTime @default(now())
-  type    TfaRegistrationType @default(ENABLE)
+  userId Int                 @id
+  user   User                @relation(name: "tfa_registration", fields: [userId], references: [id])
+  email  String
+  code   String
+  time   DateTime            @default(now())
+  type   TfaRegistrationType @default(ENABLE)
 }
 
 model TfaRequest {
-  id      String    @id @default(uuid())
-  userId  Int
-  user    User      @relation(name: "tfa_request", fields: [userId], references: [id])
-  code    String
-  time    DateTime  @default(now())
+  id     String   @id @default(uuid())
+  userId Int
+  user   User     @relation(name: "tfa_request", fields: [userId], references: [id])
+  code   String
+  time   DateTime @default(now())
 }
 
 model Game {
@@ -70,6 +83,36 @@ model Game {
   initiatedBy   User     @relation(fields: [initiatedById], references: [id])
   initiatedById Int
   completed     Boolean  @default(false)
+  player        Player[]
 
   @@unique([date, initiatedById])
+}
+
+enum mode_type {
+  BEGINNER
+  INTERMEDIATE
+  EXPERT
+}
+
+enum game_status {
+  WAITING
+  PLAYING
+  ENDED
+}
+
+model Player {
+  id                Int         @id @default(autoincrement())
+  game              Game        @relation(fields: [gameId], references: [id])
+  gameId            Int
+  seq               Int
+  player            User        @relation(fields: [playerId], references: [id])
+  playerId          Int
+  randomAssignation Boolean     @default(false)
+  mode              mode_type   @default(BEGINNER)
+  gameStatus        game_status @default(WAITING)
+  score             Int         @default(0)
+  abandon           Boolean     @default(false)
+  score4stat        Boolean     @default(false)
+
+  @@unique([gameId, playerId])
 }
