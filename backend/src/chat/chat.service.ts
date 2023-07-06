@@ -1,7 +1,16 @@
-import { ConflictException, Injectable, Logger } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 import { PrismaService } from 'src/prisma.service';
 import { CreateChannelDto } from './create-channel.dto';
+import { ChannelTypes } from '@prisma/client';
+import { FindChannelDto } from './find-channel.dto';
+import { ChannelAddMemberDto } from './channel-add-member.dto';
 
 @Injectable()
 export class ChatService {
@@ -74,6 +83,115 @@ export class ChatService {
     } catch (error) {
       if (error?.code === 'P2002') {
         throw new ConflictException('Channel name is already in use');
+      }
+      if (error?.code) Logger.error(error.code + ' ' + error.message);
+      else Logger.error(error);
+      throw error;
+    }
+  }
+
+  async FindAllChannels(my_id: number) {
+    try {
+      const channels = new Array<FindChannelDto>();
+      (
+        await this.prisma.channel.findMany({
+          where: {
+            OR: [
+              { type: { not: ChannelTypes.PRIVATE } },
+              { members: { some: { id: my_id } } },
+            ],
+          },
+          select: {
+            id: true,
+            name: true,
+            type: true,
+            ownerId: true,
+            admins: { select: { id: true } },
+            members: { select: { id: true } },
+          },
+        })
+      ).forEach((channel) => {
+        channels.push({
+          id: channel.id,
+          name: channel.name,
+          type: channel.type,
+          owner: channel.ownerId === my_id,
+          admin:
+            channel.admins.find((admin) => admin.id === my_id) !== undefined,
+          member:
+            channel.members.find((member) => member.id === my_id) !== undefined,
+        });
+      });
+      return channels;
+    } catch (error) {
+      if (error?.code) Logger.error(error.code + ' ' + error.message);
+      else Logger.error(error);
+      throw error;
+    }
+  }
+
+  async ChannelAddMember(
+    channelAddMemberDto: ChannelAddMemberDto,
+    my_id: number,
+  ) {
+    try {
+      const channel = await this.prisma.channel.findFirstOrThrow({
+        where: { id: channelAddMemberDto.channelId },
+        select: {
+          id: true,
+          type: true,
+          ownerId: true,
+          admins: { select: { id: true } },
+          members: { select: { id: true } },
+        },
+      });
+
+      // Channel is private and request user is not a member
+      if (
+        channel.type === ChannelTypes.PRIVATE &&
+        channel.members.find((member) => member.id === my_id) === undefined
+      )
+        throw new NotFoundException("Channel wasn't found");
+
+      // Request user is not the owner or an admin of the channel
+      if (
+        channel.ownerId !== my_id &&
+        channel.admins.find((admin) => admin.id === my_id) === undefined
+      )
+        throw new UnauthorizedException(
+          "You don't have the necessary privileges to add a user",
+        );
+
+      // User to add is already in the channel
+      if (
+        channel.members.find(
+          (admin) => admin.id === channelAddMemberDto.userId,
+        ) !== undefined
+      )
+        throw new ConflictException('User is already in channel');
+    } catch (error) {
+      if (
+        error instanceof UnauthorizedException ||
+        error instanceof NotFoundException ||
+        error instanceof ConflictException
+      )
+        throw error;
+      if (error?.code === 'P2025') {
+        throw new NotFoundException("Channel wasn't found");
+      }
+      if (error?.code) Logger.error(error.code + ' ' + error.message);
+      else Logger.error(error);
+      throw error;
+    }
+
+    try {
+      await this.prisma.channel.update({
+        where: { id: channelAddMemberDto.channelId },
+        data: { members: { connect: { id: channelAddMemberDto.userId } } },
+      });
+    } catch (error) {
+      if (error?.code === 'P2025') {
+        throw new NotFoundException("User wasn't found");
       }
       if (error?.code) Logger.error(error.code + ' ' + error.message);
       else Logger.error(error);
