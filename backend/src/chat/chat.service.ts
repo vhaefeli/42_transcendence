@@ -12,6 +12,7 @@ export class ChatService {
     message: string,
     date: Date,
   ) {
+    if (message.length == 0) throw new WsException('Empty message');
     try {
       return await this.prisma.directMessage.create({
         data: {
