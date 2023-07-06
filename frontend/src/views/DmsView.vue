@@ -23,6 +23,15 @@
             <input v-model="message" placeholder="blabla..." class="mr-4" />
             <button @click="handleSubmitNewMessage">Submit</button>
         </div>
+
+        <div>
+            <button
+      class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+      @click="chatService.reload()"
+    >
+      reload history
+    </button>
+        </div>
     </section>
 </template>
   
@@ -30,6 +39,7 @@
     import NavBar from "../components/NavBar.vue";
     import { ref, onBeforeMount } from "vue";
     import { storeToRefs } from 'pinia'
+    import axios from "axios";
     import { useRoute, useRouter } from 'vue-router'
     import { useSessionStore } from "@/stores/SessionStore";
     import { useUserStore } from '../stores/UserStore'
@@ -44,6 +54,8 @@
 
     const { user } = storeToRefs(userStore)
 
+    let otherUser
+
 
     onBeforeMount(async () => {
         if (sessionStore.isLoggedIn) {
@@ -57,6 +69,31 @@
         }
     });
 
+    axios({
+    url: "/api/user/profile/userTest",
+    method: "get",
+    headers: { Authorization: `Bearer ${sessionStore.access_token}` },
+  })
+    .then((response) => {
+      // To execute when the request is successful
+      otherUser = response.data;
+      console.log(`${response.status} + ${response.statusText}`);
+      return true;
+    })
+    .catch((error) => {
+      // To execute when the request fails
+      if (error.response.status == 404)
+        console.log(
+          `not found: ${error.response.status} ${error.response.statusText}`
+        );
+      else
+        console.error(
+          `unexpected error: ${error.response.status} ${error.response.statusText}`
+        );
+      return false;
+    });
+
+
 
     let oldMessages = [
         {
@@ -64,14 +101,12 @@
             message: 'coucou',
             username: 'fakeUser123',
             date: 'Fri, Jun 30, 2023, 21:34',
-            channelId: 1
         },
         {
             id: 2,
             message: 'salut!',
             username: 'superFakeUser456',
             date: 'Fri, Jun 30, 2023, 21:34',
-            channelId: 1
         }
     ]
 
@@ -81,26 +116,43 @@
     // 1. load messages which already exists (TO DO: load from database)
     messages.value = oldMessages
 
+    let dateOptions = {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        timeZone: "Europe/Zurich",
+        hour12: false,
+    };
+
     const handleSubmitNewMessage = () => {
-        chatService.sendNewMessage(message.value);
+        chatService.sendNewMessage(message.value, 1);
+        messages.value.push({
+            message: message.value,
+            username: user.username,
+            date: new Date().toLocaleString("en-US", dateOptions),
+        })
     }
 
+    // chatService.reload()
+
     chatService.onConnect((chat) => {
-      chat.socket?.on('message', (payload) => {
-        console.log(payload.date);
-        handleNewMessage(payload);
-      });
+        chat.socket?.on('dm', (payload) => {
+            console.log("recieving something: ")
+            console.log(payload)
+            handleNewMessage(payload);
+        });
     },
     { timeout: 10000 },
     chatService);
 
     const handleNewMessage = (payload) => {
         messages.value.push({
-            id: 3,
             message: payload.message,
             username: payload.username,
             date: payload.date,
-            channelId: 1
         })
     }
 </script>

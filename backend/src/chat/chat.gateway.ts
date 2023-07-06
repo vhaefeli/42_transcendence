@@ -123,7 +123,6 @@ export class ChatGateway
         client.handshake.auth.token,
       );
       const direct_messages = this.chatService.GetMyDirectMessages(payload.sub);
-
       client.request['user'] = payload;
       client.data['user'] = payload;
 

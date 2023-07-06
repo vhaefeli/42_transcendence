@@ -1,4 +1,4 @@
-import { SocketService } from "./socket.service";
+import { SocketService, sleep } from "./socket.service";
 
 class ChatService extends SocketService {
   private readonly dateOptions = {
@@ -20,13 +20,31 @@ class ChatService extends SocketService {
     return;
   }
 
-  async sendNewMessage(content: string) {
+  async sendNewMessage(content: string, id: number) {
     if (!(await this.tryConnection())) return;
-    this.socket?.emit("message", {
+    this.socket?.emit("dm", {
+      toId: id,
       message: content,
-      date: new Date().toLocaleString("en-US", this.dateOptions),
+      date: new Date().toLocaleString("en-US", this.dateOptions)
     });
   }
+
+  async reload() {
+    this.socket?.emit("forceDisconnect");
+    this.socket?.disconnect();
+    this.connected = undefined;
+    sleep(2000);
+    console.log("socket.io/status disconnected");
+    if (!(await this.tryConnection())) return;
+    this.onConnect((chat) => {
+      chat.socket?.on('dm', (payload) => {
+          console.log(payload);
+      });
+    },
+    { timeout: 10000 },
+    this)
+  }
+
 }
 
 export const chatService = new ChatService();

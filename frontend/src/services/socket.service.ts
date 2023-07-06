@@ -49,7 +49,6 @@ export abstract class SocketService {
         if (response === "PONG") this.connected = true;
       });
     });
-
     for (let i = 0; this.connected === undefined; i++) {
       await sleep(200);
       if (i > 50) this.connected = false;
