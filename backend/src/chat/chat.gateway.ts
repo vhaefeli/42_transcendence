@@ -84,13 +84,13 @@ export class ChatGateway
     );
     const destination = this.findConnectedUserById(payload.toId);
 
+    await Promise.all([destination, save_message]);
+
     Logger.log(
       `${new Date(payload.date)}: ${client.data?.user.sub} -> ${
         payload.toId
       } "${payload.message}"`,
     );
-
-    await Promise.all([destination, save_message]);
 
     const sending_msg: SendingDmDto = {
       id: (await save_message).id,
