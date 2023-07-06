@@ -1,6 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { ConflictException, Injectable, Logger } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 import { PrismaService } from 'src/prisma.service';
+import { CreateChannelDto } from './create-channel.dto';
 
 @Injectable()
 export class ChatService {
@@ -54,5 +55,29 @@ export class ChatService {
         date: true,
       },
     });
+  }
+
+  async CreateChannel(
+    createChannelDto: CreateChannelDto,
+    my_id: number,
+  ): Promise<{ id: number }> {
+    try {
+      return await this.prisma.channel.create({
+        data: {
+          ...createChannelDto,
+          ownerId: my_id,
+          members: { connect: { id: my_id } },
+          admins: { connect: { id: my_id } },
+        },
+        select: { id: true },
+      });
+    } catch (error) {
+      if (error?.code === 'P2002') {
+        throw new ConflictException('Channel name is already in use');
+      }
+      if (error?.code) Logger.error(error.code + ' ' + error.message);
+      else Logger.error(error);
+      throw error;
+    }
   }
 }
