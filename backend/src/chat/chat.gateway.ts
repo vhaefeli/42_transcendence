@@ -45,9 +45,6 @@ export class ChatGateway
   //    https://socket.io/docs/v3/emit-cheatsheet/
   //
   // TODO:
-  // * DM payload structure
-  // * DM emit to single socket
-  //
   // * Channel join room on connect
   // * Channel emit to room
 
@@ -108,7 +105,7 @@ export class ChatGateway
       this.server
         .to((await destination).id)
         .emit('dm', JSON.stringify(sending_msg));
-    return 'ok';
+    return await save_message;
   }
 
   @UseGuards(WsGuard)

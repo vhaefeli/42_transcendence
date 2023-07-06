@@ -20,6 +20,9 @@ export class ChatService {
           message: message,
           date: date,
         },
+        select: {
+          id: true,
+        },
       });
     } catch (error) {
       if (error?.code === 'P2025') {
