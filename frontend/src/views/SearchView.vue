@@ -1,4 +1,5 @@
 <template>
+  <NavBar/>
   <div>
     <h1>Search users</h1>
     <ModelListSelect
@@ -14,6 +15,7 @@
 </template>
 
 <script setup lang="ts">
+import NavBar from "../components/NavBar.vue";
 import { useSessionStore } from "@/stores/SessionStore";
 import { useUserStore } from "@/stores/UserStore";
 import axios from "axios";
