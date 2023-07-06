@@ -1,4 +1,5 @@
 <template>
+  <NavBar/>
   <h1>Login page</h1>
   <div id="login-form" v-if="show_login_form">
     <input v-model="login_username" placeholder="username" /><br />
@@ -103,6 +104,7 @@
 </template>
 
 <script setup lang="ts">
+import NavBar from "../components/NavBar.vue";
 import { ref } from "vue";
 import axios, { AxiosError } from "axios";
 import { useRoute, useRouter } from "vue-router";

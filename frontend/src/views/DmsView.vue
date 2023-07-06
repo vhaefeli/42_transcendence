@@ -1,5 +1,5 @@
 <template>
-    <NavBar/>
+    <NavBar></NavBar>
     <section class="flex flex-col items-center">
         <div class="mb-6 text-xl">Chat with friends</div>
         <div class="w-[60%] bg-slate-950 p-6 mb-6 max-h-screen[80vh] overflow-scroll">
