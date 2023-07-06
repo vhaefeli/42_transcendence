@@ -16,7 +16,6 @@ import { WsGuard } from 'src/auth/ws.guard';
 import { ReceivingDmDto, SendingDmDto } from './dm-payloads.dto';
 import { ChatService } from './chat.service';
 import { DefaultEventsMap } from 'socket.io/dist/typed-events';
-import { send } from 'process';
 
 @WebSocketGateway({
   namespace: 'chat',
@@ -77,34 +76,31 @@ export class ChatGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: ReceivingDmDto,
   ) {
-    const sending_msg: SendingDmDto = {
-      id: 0,
-      fromId: client?.data.user.sub,
-      toId: payload.toId,
-      message: payload.message,
-      date: payload.date,
-    };
     const save_message = this.chatService.SaveDirectMessage(
-      sending_msg.fromId,
+      client?.data.user.sub,
       payload.toId,
       payload.message,
-      new Date(sending_msg.date),
+      new Date(payload.date),
     );
     const destination = this.findConnectedUserById(payload.toId);
 
     Logger.log(
-      `${new Date(sending_msg.date)}: ${client.data?.user.sub} -> ${
+      `${new Date(payload.date)}: ${client.data?.user.sub} -> ${
         payload.toId
       } "${payload.message}"`,
     );
 
     await Promise.all([destination, save_message]);
 
-    sending_msg.id = (await save_message).id;
+    const sending_msg: SendingDmDto = {
+      id: (await save_message).id,
+      fromId: client?.data.user.sub,
+      toId: payload.toId,
+      message: payload.message,
+      date: payload.date,
+    };
     if (await destination)
-      this.server
-        .to((await destination).id)
-        .emit('dm', JSON.stringify(sending_msg));
+      this.server.to((await destination).id).emit('dm', sending_msg);
     return await save_message;
   }
 
