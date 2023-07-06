@@ -116,8 +116,28 @@ export class UsersService {
   }
 
   async getProfile(
+    profile: {
+      id: number;
+      username: string;
+      avatar_url: string;
+    },
+    my_id: number,
+  ): Promise<UserProfileDto> {
+    const res: UserProfileDto = {
+      ...profile,
+      is_friend:
+        my_id === profile.id || my_id == null
+          ? false
+          : await this.friendService.areFriends(my_id, profile.id),
+    };
+    if (res.is_friend)
+      res.status = await this.statusService.getStatus({ id: res.id });
+    return res;
+  }
+
+  async getProfileByUsername(
     username: string,
-    my_id: number = null,
+    my_id: number,
   ): Promise<UserProfileDto> {
     try {
       const user = await this.prisma.user.findUniqueOrThrow({
@@ -128,19 +148,30 @@ export class UsersService {
           avatar_url: true,
         },
       });
-      const res: UserProfileDto = {
-        ...user,
-        is_friend:
-          my_id === user.id || my_id == null
-            ? false
-            : await this.friendService.areFriends(my_id, user.id),
-      };
-      if (res.is_friend)
-        res.status = await this.statusService.getStatus({ id: res.id });
-      return res;
+      return await this.getProfile(user, my_id);
     } catch (e) {
       if (e.code == 'P2025') throw new NotFoundException();
       Logger.error(e.code + ' ' + e.msg);
+      if (e?.code) Logger.error(e.code + ' ' + e.msg);
+      throw e;
+    }
+  }
+
+  async getProfileById(id: number, my_id: number): Promise<UserProfileDto> {
+    try {
+      const user = await this.prisma.user.findUniqueOrThrow({
+        where: { id: id },
+        select: {
+          id: true,
+          username: true,
+          avatar_url: true,
+        },
+      });
+      return await this.getProfile(user, my_id);
+    } catch (e) {
+      if (e.code == 'P2025') throw new NotFoundException();
+      if (e?.code) Logger.error(e.code + ' ' + e.msg);
+      throw e;
     }
   }
 
