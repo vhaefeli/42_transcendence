@@ -135,8 +135,9 @@ export class ChatGateway
         client.emit('dm', JSON.stringify(msg));
       }
     } catch (error) {
-      //if (this.debug) Logger.debug('Client connection declined: bad token');
-      Logger.error(error);
+      if (error?.name === 'JsonWebTokenError') {
+        if (this.debug) Logger.debug('Client connection declined: bad token');
+      } else Logger.error(error);
       client.disconnect();
       return;
     }
