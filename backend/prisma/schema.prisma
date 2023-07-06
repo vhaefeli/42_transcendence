@@ -34,6 +34,12 @@ model User {
 
   dm_sent         DirectMessage[]	@relation("dm_from_user")
   dm_received     DirectMessage[]	@relation("dm_to_user")
+
+  channels_owner    Channel[] @relation(name: "channel_owner")
+  channels_admin    Channel[] @relation(name: "channel_admins")
+  channels_member   Channel[] @relation(name: "channel_members")
+  channels_muted    Channel[] @relation(name: "channel_muted")
+  channel_messages  ChannelMessage[] @relation(name: "channel_message")
 }
 
 model FriendshipInvitation {
@@ -85,4 +91,34 @@ model DirectMessage {
   to        User @relation(name: "dm_to_user", fields: [toId], references: [id])
   message   String
   date      DateTime
+}
+
+enum ChannelTypes {
+  PUBLIC
+  PROTECTED
+  PRIVATE
+}
+
+model Channel {
+  id        Int @id @default(autoincrement())
+  name      String @unique
+  type      ChannelTypes
+  password  String?
+
+  ownerId   Int
+  owner     User @relation(name: "channel_owner", fields: [ownerId], references: [id])
+  admins    User[] @relation(name: "channel_admins")
+  members   User[] @relation(name: "channel_members")
+  muted     User[] @relation(name: "channel_muted")
+  messages  ChannelMessage[]
+}
+
+model ChannelMessage {
+  id        Int @id @default(autoincrement())
+  message   String
+  date      DateTime
+  fromId    Int
+  channelId Int
+  from      User @relation(name: "channel_message", fields: [fromId], references: [id])
+  channel   Channel @relation(fields: [channelId], references: [id])
 }
