@@ -33,8 +33,8 @@ class ChatService extends SocketService {
     this.socket?.emit("forceDisconnect");
     this.socket?.disconnect();
     this.connected = undefined;
-    sleep(2000);
     console.log("socket.io/status disconnected");
+    await sleep(2000);
     if (!(await this.tryConnection())) return;
     this.onConnect((chat) => {
       chat.socket?.on('dm', (payload) => {
