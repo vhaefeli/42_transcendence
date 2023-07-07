@@ -2,6 +2,11 @@
     <NavBar></NavBar>
     <section class="flex flex-col items-center">
         <div class="mb-6 text-xl">Chat with friends</div>
+        <div v-for="recipient in recipients">
+            {{ getRecipientName(recipient) }}
+        </div>
+
+
         <div class="w-[60%] bg-slate-950 p-6 mb-6 max-h-screen[80vh] overflow-scroll">
             <div v-for="message in messages" :key="message.id">
                 <div v-if="message.username == user.username" class="grid">
@@ -37,7 +42,7 @@
   
 <script setup>
     import NavBar from "../components/NavBar.vue";
-    import { ref, onBeforeMount } from "vue";
+    import { ref, onBeforeMount, computed } from "vue";
     import { storeToRefs } from 'pinia'
     import axios from "axios";
     import { useRoute, useRouter } from 'vue-router'
@@ -55,6 +60,12 @@
     const { user } = storeToRefs(userStore)
 
     let otherUser
+    let allUsers
+
+    const getRecipientName = computed((recipient) => {
+        console.log(recipient)
+        return allUsers.find((user) => recipient.id === user.id)
+    })
 
     onBeforeMount(async () => {
         if (sessionStore.isLoggedIn) {
@@ -68,6 +79,28 @@
         }
     });
 
+    axios({
+        url: "/api/user/all",
+        method: "get",
+    })
+    .then((response) => {
+      // To execute when the request is successful
+      allUsers = response.data;
+      return true;
+    })
+    .catch((error) => {
+      // To execute when the request fails
+      if (error.response.status == 404)
+        console.log(
+          `not found: ${error.response.status} ${error.response.statusText}`
+        );
+      else
+        console.error(
+          `unexpected error: ${error.response.status} ${error.response.statusText}`
+        );
+      return false;
+    });
+    
     axios({
     url: "/api/user/profile/userTest",
     method: "get",
@@ -92,29 +125,11 @@
       return false;
     });
 
-
-
-    let oldMessages = [
-        {
-            id: 1,
-            message: 'coucou',
-            username: 'fakeUser123',
-            date: 'Fri, Jun 30, 2023, 21:34',
-        },
-        {
-            id: 2,
-            message: 'salut!',
-            username: 'superFakeUser456',
-            date: 'Fri, Jun 30, 2023, 21:34',
-        }
-    ]
-
     const message = ref("");
-    const messages = ref("");
+    const messages = ref([]);
+    let recipients = []
 
-    // 1. load messages which already exists (TO DO: load from database)
-    messages.value = oldMessages
-
+    // récupérer du navigateur
     let dateOptions = {
         weekday: "short",
         day: "numeric",
@@ -135,23 +150,40 @@
         })
     }
 
-    // chatService.reload()
-
     chatService.onConnect((chat) => {
+        // demander l'historique des msgs
+        chat.socket?.emit('dmHistory');
+
+        // récupérer l'historique des msgs
+        chat.socket?.on('dmHistory', (payload) => {
+            stockHistory(payload);
+        });
+
+        // récupérer un nouveau msg reçu
         chat.socket?.on('dm', (payload) => {
-            console.log("recieving something: ")
-            console.log(payload)
-            handleNewMessage(payload);
+            stockHistory(payload);
         });
     },
     { timeout: 10000 },
     chatService);
 
-    const handleNewMessage = (payload) => {
+    const stockHistory = (payload) => {
+        let id
         messages.value.push({
+            id: payload.id,
             message: payload.message,
-            username: payload.username,
-            date: payload.date,
+            fromId: payload.fromId,
+            toId: payload.toId,
+            date: new Date(payload.date).toLocaleString("en-US", dateOptions)
         })
+        if (payload.fromId === user.value.id) {
+            id = payload.toId
+        } else {
+            id = payload.fromId
+        }
+        if (recipients.indexOf(id) === -1 && (id != user.value.id)) {
+            recipients.push(id);
+        }
     }
+    console.log(recipients)
 </script>

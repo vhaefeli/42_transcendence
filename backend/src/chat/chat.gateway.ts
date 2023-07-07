@@ -130,7 +130,7 @@ export class ChatGateway
           ...dm,
           date: new Date(dm.date).getTime(),
         };
-        client.emit('dm', JSON.stringify(msg));
+        client.emit('dmHistory', msg);
       }
     } catch (error) {
       if (error?.code) Logger.error(`${error.code}, ${error.message}`);
