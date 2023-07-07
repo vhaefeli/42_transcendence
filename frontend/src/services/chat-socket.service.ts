@@ -26,6 +26,8 @@ class ChatService extends SocketService {
       toId: id,
       message: content,
       date: new Date().toLocaleString("en-US", this.dateOptions)
+    }, (res) => {
+      console.log(res);
     });
   }
 

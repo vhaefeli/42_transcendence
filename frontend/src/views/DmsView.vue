@@ -56,7 +56,6 @@
 
     let otherUser
 
-
     onBeforeMount(async () => {
         if (sessionStore.isLoggedIn) {
             // get user infos
