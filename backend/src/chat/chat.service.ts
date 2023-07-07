@@ -6,11 +6,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
-import { PrismaService } from 'src/prisma.service';
-import { CreateChannelDto } from './create-channel.dto';
 import { ChannelTypes } from '@prisma/client';
-import { FindChannelDto } from './find-channel.dto';
+import { PrismaService } from 'src/prisma.service';
+
 import { ChannelAddMemberDto } from './channel-add-member.dto';
+import { CreateChannelDto } from './create-channel.dto';
+import { FindChannelDto } from './find-channel.dto';
 
 @Injectable()
 export class ChatService {
@@ -215,5 +216,61 @@ export class ChatService {
       else Logger.error(error);
       throw error;
     }
+  }
+
+  async SaveChannelMessage(
+    senderId: number,
+    channelId: number,
+    message: string,
+    date: Date,
+  ) {
+    if (message.length == 0) throw new WsException('Empty message');
+    try {
+      return await this.prisma.channelMessage.create({
+        data: {
+          sender: { connect: { id: senderId } },
+          channel: { connect: { id: channelId } },
+          message: message,
+          date: date,
+        },
+        select: {
+          id: true,
+        },
+      });
+    } catch (error) {
+      if (error?.code === 'P2025')
+        throw new WsException(`channel with id ${channelId} doesn't exist`);
+      if (error?.code) Logger.error(error.code + ' ' + error.msg);
+      else Logger.error(error);
+      throw error;
+    }
+  }
+
+  async IsUserInChannel(userId: number, channelId: number): Promise<boolean> {
+    try {
+      await this.prisma.channel.findFirstOrThrow({
+        where: {
+          AND: [{ id: channelId }, { members: { some: { id: userId } } }],
+        },
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async GetMyChannelMessages(id: number) {
+    return await this.prisma.channelMessage.findMany({
+      where: {
+        channel: { members: { some: { id: id } } },
+      },
+      select: {
+        id: true,
+        senderId: true,
+        channelId: true,
+        message: true,
+        date: true,
+      },
+    });
   }
 }
