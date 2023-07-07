@@ -2,6 +2,7 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  Req,
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
@@ -9,6 +10,7 @@ import { CreatePlayerDto } from './dto/createPlayer.dto';
 import { UpdatePlayerDto } from './dto/updatePlayer.dto';
 import { parse } from 'path';
 import { Game, Player } from '@prisma/client';
+import { CreateBothPlayerDto } from './dto/createBothPlayer.dto';
 
 @Injectable()
 export class PlayerService {
@@ -39,6 +41,58 @@ export class PlayerService {
   }
   //
 
+  async newBothPlayer(
+    playerId: string,
+    createBothPlayerDto: CreateBothPlayerDto,
+  ) {
+    // ensure playerId is not equal to the opponentId
+    if (+playerId == createBothPlayerDto.opponentId) {
+      throw new UnauthorizedException("Opponent can't be the player");
+    }
+    // create the game with initiatedBy = sub
+    const game = await this.prisma.game.create({
+      data: {
+        initiatedById: +playerId,
+      },
+      select: {
+        id: true,
+      },
+    });
+    // create the players
+    try {
+      const player1 = await this.prisma.player.create({
+        data: {
+          gameId: game.id,
+          seq: 1,
+          playerId: +playerId,
+          mode: createBothPlayerDto.mode,
+        },
+        select: {
+          id: true,
+        },
+      });
+      const player2 = await this.prisma.player.create({
+        data: {
+          gameId: game.id,
+          seq: 2,
+          playerId: +createBothPlayerDto.opponentId,
+          mode: createBothPlayerDto.mode,
+        },
+        select: {
+          id: true,
+        },
+      });
+      const newGameId: number = game.id;
+      return { newGameId };
+    } catch (e) {
+      if (e.code == 'P2003') throw new NotFoundException();
+      if (e?.code) Logger.error(e.code + ' ' + e.msg);
+      else Logger.error(e);
+    }
+  }
+
+  //
+
   async updateStatus(updatePlayerDto: UpdatePlayerDto) {
     const playerUpdate = await this.prisma.player.update({
       where: {
@@ -56,18 +110,10 @@ export class PlayerService {
   }
 
   async invitedBy(playerId: string) {
-    // const result = await this.prisma.player.findMany({
-    //   where: { playerId: +playerId, seq: 2 },
-    //   select: {
-    //     id: true,
-    //     gameId: true,
-    //     seq: true,
-    //     playerId: true,
-
     const idnum: number = +playerId;
     Logger.log('playerID selected:' + idnum);
     const result = await this.prisma.$queryRaw`
-      SELECT "Game".id, "User".username, "User"."level"
+      SELECT "Game".id "Gameid", "User".username, "User"."level"
       FROM "Game", "Player", "User"
       WHERE "Player"."gameId" = "Game".id
         AND "Game".completed = 'false'
