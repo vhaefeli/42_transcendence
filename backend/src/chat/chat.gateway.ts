@@ -117,14 +117,13 @@ export class ChatGateway
     client.disconnect(true);
   }
 
-  async handleConnection(client: Socket, ...args: any[]) {
+  @UseGuards(WsGuard)
+  @SubscribeMessage('dmHistory')
+  async sendDmHistory(@ConnectedSocket() client: any) {
     try {
-      const payload = await this.authService.socketConnectionAuth(
-        client.handshake.auth.token,
+      const direct_messages = this.chatService.GetMyDirectMessages(
+        client.data.user.sub,
       );
-      const direct_messages = this.chatService.GetMyDirectMessages(payload.sub);
-      client.request['user'] = payload;
-      client.data['user'] = payload;
 
       for (const dm of await direct_messages) {
         const msg: SendingDmDto = {
@@ -133,6 +132,19 @@ export class ChatGateway
         };
         client.emit('dm', JSON.stringify(msg));
       }
+    } catch (error) {
+      if (error?.code) Logger.error(`${error.code}, ${error.message}`);
+      throw error;
+    }
+  }
+
+  async handleConnection(client: Socket, ...args: any[]) {
+    try {
+      const payload = await this.authService.socketConnectionAuth(
+        client.handshake.auth.token,
+      );
+      client.request['user'] = payload;
+      client.data['user'] = payload;
     } catch (error) {
       //if (this.debug) Logger.debug('Client connection declined: bad token');
       Logger.error(error);
