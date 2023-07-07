@@ -11,11 +11,12 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { RemoteSocket, Server, Socket } from 'socket.io';
+import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import { AuthService } from 'src/auth/auth.service';
 import { WsGuard } from 'src/auth/ws.guard';
-import { ReceivingDmDto, SendingDmDto } from './dm-payloads.dto';
+
 import { ChatService } from './chat.service';
-import { DefaultEventsMap } from 'socket.io/dist/typed-events';
+import { ReceivingDmDto, SendingDmDto } from './dm-payloads.dto';
 
 @WebSocketGateway({
   namespace: 'chat',
@@ -122,18 +123,20 @@ export class ChatGateway
       const payload = await this.authService.socketConnectionAuth(
         client.handshake.auth.token,
       );
-      const direct_messages = this.chatService.GetMyDirectMessages(payload.sub);
+      const channels = this.chatService.GetMyChannels(payload.sub);
 
       client.request['user'] = payload;
       client.data['user'] = payload;
 
-      for (const dm of await direct_messages) {
-        const msg: SendingDmDto = {
-          ...dm,
-          date: new Date(dm.date).getTime(),
-        };
-        client.emit('dm', JSON.stringify(msg));
-      }
+      await Promise.all([
+        new Promise(async (resolve) => {
+          (await channels).forEach((channel) => {
+            //Logger.log(`client joins ${channel.name}`);
+            client.join(channel.id.toString());
+          });
+          resolve;
+        }),
+      ]);
     } catch (error) {
       if (error?.name === 'JsonWebTokenError') {
         if (this.debug) Logger.debug('Client connection declined: bad token');

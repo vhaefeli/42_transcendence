@@ -198,4 +198,22 @@ export class ChatService {
       throw error;
     }
   }
+
+  async GetMyChannels(my_id: number) {
+    try {
+      return await this.prisma.channel.findMany({
+        where: {
+          members: { some: { id: my_id } },
+        },
+        select: {
+          id: true,
+          name: true,
+        },
+      });
+    } catch (error) {
+      if (error?.code) Logger.error(error.code + ' ' + error.message);
+      else Logger.error(error);
+      throw error;
+    }
+  }
 }
