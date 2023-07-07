@@ -3,6 +3,7 @@ import { PlayerService } from './player.service';
 import { CreatePlayerDto } from './dto/createPlayer.dto';
 import { UpdatePlayerDto } from './dto/updatePlayer.dto';
 import { CreateBothPlayerDto } from './dto/createBothPlayer.dto';
+import { PlayingGameDto } from './dto/playingGame.dto';
 
 @Controller('player')
 export class PlayerController {
@@ -44,5 +45,14 @@ export class PlayerController {
   async invitedBy(@Request() req: any) {
     // console.log(req.user.sub);
     return this.playerService.invitedBy(req.user.sub);
+  }
+
+  @Patch('playing')
+  async playingGame(
+    @Request() req: any,
+    @Body() playingGameDto: PlayingGameDto,
+  ) {
+    // console.log(req.user.sub);
+    return await this.playerService.playingGame(req.user.sub, playingGameDto);
   }
 }
