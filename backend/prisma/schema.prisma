@@ -117,8 +117,8 @@ model ChannelMessage {
   id        Int @id @default(autoincrement())
   message   String
   date      DateTime
-  fromId    Int
+  senderId  Int
   channelId Int
-  from      User @relation(name: "channel_message", fields: [fromId], references: [id])
+  sender    User @relation(name: "channel_message", fields: [senderId], references: [id])
   channel   Channel @relation(fields: [channelId], references: [id])
 }
