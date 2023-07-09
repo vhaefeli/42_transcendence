@@ -1,11 +1,4 @@
 <template>
-<<<<<<< HEAD
-    <div>profil</div>
-</template>
-  
-<script setup>
-</script>
-=======
     <h1 class="mt-9">Profile page</h1>
     <router-link to="/login">back to login</router-link>
     <!-- Nadia: tu pourra tout remove et afficher correctement. Toutes les classes sont du Tailwind. -->
@@ -229,4 +222,3 @@
         userStore.unblockUser(username, sessionStore.access_token)
     }
 </script>
->>>>>>> main

@@ -5,54 +5,12 @@
 </template>
 
 <script setup>
-
-	import { defineComponent, ref } from 'vue';
-    const pong = ref(null);
-	console.log(pong);
-    const canvas = pong.value;
-	console.log(canvas);
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        // Dessinez une ligne verticale
-        ctx.beginPath();
-        ctx.moveTo(50, 0);
-        ctx.lineTo(50, 100);
-        ctx.strokeStyle = 'green';
-        ctx.stroke();
-      }
-    }
-
-const paddlePlayer = document.getElementById("paddlePlayer");
-// console.log(paddlePlayer)
-
-// const canvas = document.querySelector("canvas");
-// const ctx = canvas.getContext("2d");
-// ctx.fillStyle = "green";
-// // Add a rectangle at (10, 10) with size 100x100 pixels
-// ctx.fillRect(10, 10, 100, 100);
-let paddlePos = 56;
-document.addEventListener('keydown', (event) => {
-let name = event.key;
-// console.log(name);
-
-
-if (name === "w")
-{
-	if (paddlePos > 36)
-		paddlePos-= 2;
-}
-if (name === "s")
-{ 
-	if (paddlePos < 74)
-		paddlePos+= 2;
-}
-
-paddlePlayer.style.top = paddlePos + "%";
-// console.log(paddlePos);
-});	
-
-
+        var canvas = document.getElementById('pong');
+        if (!canvas.getContext) {
+            throw "Error";
+        }
+        var ctx = canvas.getContext('2d');
+		console.log(ctx);
 
 </script>
 <style>
@@ -85,5 +43,4 @@ paddlePlayer.style.top = paddlePos + "%";
 	width: 4px;
 	height: 4vw;
 }
-
 </style>
