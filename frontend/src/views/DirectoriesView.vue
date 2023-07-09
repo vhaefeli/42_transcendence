@@ -1,4 +1,5 @@
 <template>
+    <NavBar/>
     <main class="ft-directoriesMain">
         <div class="ft-container">
             <!-- purple -->
@@ -44,6 +45,7 @@
 <script setup>
 // <script setup lang="ts">
 import { ref } from "vue";
+import NavBar from "../components/NavBar.vue";
 
 let folders = ref([
     { name: "profile", description: "check your profile" },

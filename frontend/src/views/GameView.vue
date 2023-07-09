@@ -1,4 +1,5 @@
 <template>
+<<<<<<< HEAD
 
     <div id="gameApp">
 		<router-link class="t-btn-pink" id="retHome" to="/"><span>X</span></router-link>
@@ -86,3 +87,12 @@
 }
 
 </style>
+=======
+    <NavBar/>
+    <div>Play a game</div>
+</template>
+  
+<script setup>
+import NavBar from "../components/NavBar.vue";
+</script>
+>>>>>>> main
