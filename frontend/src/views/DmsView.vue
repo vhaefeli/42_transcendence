@@ -4,10 +4,20 @@
         <div class="mb-6 text-xl">All my Dms</div>
         <div class="mb-6">
           <div v-for="recipient in recipients" :key="recipient">
-            <div @click="getActualRecipient(recipient)">{{ getRecipientName(recipient) }}</div>
+            <div @click="changeActualRecipient(recipient)">{{ getRecipientName(recipient) }}</div>
           </div>
         </div>
-        <div v-if="actual != -1">speaking with {{ actual.username }}</div>
+        <div class="mb-6">
+          <input v-model="newRecipient" placeholder="name of friend" /><br />
+              <p>you want to add: {{ newRecipient || 'nobody' }} ?</p>
+              <button
+              class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+              @click="addRecipient(newRecipient)"
+              >
+              add a friend
+              </button>
+        </div>
+        <div v-if="recipients.length > 0">speaking with {{ actual.username }}</div>
         <div v-else>No Dms yet</div>
 
         <div ref="scroller" class="w-[60%] bg-slate-950 p-6 mb-6 h-[300px] overflow-scroll">
@@ -33,13 +43,12 @@
             <input v-model="message" placeholder="blabla..." class="mr-4" />
             <button @click="handleSubmitNewMessage">Submit</button>
         </div>
-
     </section>
 </template>
   
 <script setup>
     import NavBar from "../components/NavBar.vue";
-    import { ref, onBeforeMount, onUpdated } from "vue";
+    import { ref, onUpdated } from "vue";
     import { storeToRefs } from 'pinia'
     import axios from "axios";
     import { useRoute, useRouter } from 'vue-router'
@@ -56,12 +65,36 @@
 
     const { user } = storeToRefs(userStore)
 
+    const actual = ref({})
+    const message = ref("");
+    const messages = ref([]);
+    let newRecipient = ref('')
     let allUsers
+    let recipients = []
+
+    let dateOptions = {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        timeZone: "Europe/Zurich",
+        hour12: false,
+    };
 
     const scroller = ref(null);
 
-    onBeforeMount(async () => {
-        if (sessionStore.isLoggedIn) {
+    loadMyself()
+
+    onUpdated(() => {
+      // when the DOM is updated I scroll to 
+      // bottom of the Div that contains messages
+      scrollToBottom();
+    })
+
+    async function loadMyself() {
+      if (sessionStore.isLoggedIn) {
             // get user infos
             await userStore.getMe(sessionStore.access_token);
             if (user.isLogged === false) {
@@ -70,13 +103,25 @@
                 router.push({ name: 'login' })
             }
         }
-    });
+    }
 
-    onUpdated(() => {
-      // when the DOM is updated I scroll to 
-      // bottom of the Div that contains messages
-      scrollToBottom();
-    })
+    // when there is socket going on
+    chatService.onConnect((chat) => {
+        // demander l'historique des msgs
+        chat.socket?.emit('dmHistory');
+
+        // récupérer l'historique des msgs
+        chat.socket?.on('dmHistory', (payload) => {
+            stockHistory(payload);
+        });
+
+        // récupérer un nouveau msg reçu
+        chat.socket?.on('dm', (payload) => {
+          pushToMessages(payload);
+        });
+    },
+    { timeout: 10000 },
+    chatService);
 
     // get all users
     axios({
@@ -101,23 +146,6 @@
       return false;
     });
 
-    const actual = ref({})
-    const message = ref("");
-    const messages = ref([]);
-    let recipients = []
-
-    // récupérer du navigateur
-    let dateOptions = {
-        weekday: "short",
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-        hour: "numeric",
-        minute: "numeric",
-        timeZone: "Europe/Zurich",
-        hour12: false,
-    };
-
     const handleSubmitNewMessage = () => {
         chatService.sendNewMessage(message.value, actual.value.id);
         messages.value.push({
@@ -129,32 +157,22 @@
         })
     }
 
-    chatService.onConnect((chat) => {
-        // demander l'historique des msgs
-        chat.socket?.emit('dmHistory');
-
-        // récupérer l'historique des msgs
-        chat.socket?.on('dmHistory', (payload) => {
-            stockHistory(payload);
-        });
-
-        // récupérer un nouveau msg reçu
-        chat.socket?.on('dm', (payload) => {
-            stockHistory(payload);
-        });
-    },
-    { timeout: 10000 },
-    chatService);
-
-    const stockHistory = (payload) => {
-        let id
-        messages.value.push({
+    function pushToMessages(payload) {
+      messages.value.push({
             id: payload.id,
             message: payload.message,
             fromId: payload.fromId,
             toId: payload.toId,
             date: new Date(payload.date).toLocaleString("en-US", dateOptions)
         })
+    }
+
+    const stockHistory = (payload) => {
+      // push recieved message to Messages Array
+      pushToMessages(payload)
+      
+      // make an Array of all user i'm speaking with
+      let id
         if (payload.fromId === user.value.id) {
             id = payload.toId
         } else {
@@ -163,23 +181,59 @@
         if (recipients.indexOf(id) === -1 && (id != user.value.id)) {
             recipients.push(id);
         }
-        // check actual recipient
+      
+        // check what is the actual recipient
         if (Object.keys(actual.value).length === 0 && recipients.length > 0) {
           actual.value =  allUsers.find((user) => recipients[0] === user.id)
-        } else if (Object.keys(actual.value).length === 0) {
-          actual.value = -1
         }
     }
 
+    const newRecipientObj = ref({})
+
+    async function getUserInfos(recipientName) {
+      axios({
+        url: `/api/user/profile/${recipientName}`,
+        method: "get",
+        headers: { Authorization: `Bearer ${sessionStore.access_token}` },
+      })
+      .then((response) => {
+        // To execute when the request is successful
+        newRecipientObj.value = response.data;
+        return true;
+      })
+      .catch((error) => {
+        // To execute when the request fails
+        if (error.response.status == 404)
+          console.log(
+            `not found: ${error.response.status} ${error.response.statusText}`
+          );
+        else
+          console.error(
+            `unexpected error: ${error.response.status} ${error.response.statusText}`
+          );
+        return false;
+      });
+    }
+
+    // add recipient to the list
+    async function addRecipient(recipientName) {
+      await getUserInfos(recipientName)
+      console.log("new: ", newRecipientObj)
+      recipients.push(newRecipientObj.value.id);
+    }
+
+    // return name of recipient
     function getRecipientName(recipient) {
         const userFind = allUsers.find((user) => recipient === user.id)
         return userFind.username
     }
 
-    function getActualRecipient(recipient) {
+    // used when click on recipient name
+    function changeActualRecipient(recipient) {
         actual.value = allUsers.find((user) => recipient === user.id)
     }
 
+    // scroll messages container to bottom
     function scrollToBottom() {
         let myScroller = scroller.value
         if (myScroller) {

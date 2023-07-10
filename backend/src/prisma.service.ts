@@ -180,6 +180,16 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
           },
         ],
       });
+      // for(let i = 0; i < 100000; i++) {
+      //   await this.directMessage.create({
+      //     data:
+      //       {
+      //         fromId: 1,
+      //         toId: 2,
+      //         message: 'Hello user',
+      //         date: new Date('Jul 03 2023 11:22:52'),
+      //       }
+      // })};
     } catch {}
   }
 }
