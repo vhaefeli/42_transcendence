@@ -9,6 +9,7 @@ import { UpdatePlayerDto } from './dto/updatePlayer.dto';
 import { CreateBothPlayerDto } from './dto/createBothPlayer.dto';
 import { PlayingGameDto } from './dto/playingGame.dto';
 import { UpdateCompletionDto } from './dto/updateCompletion.dto';
+import { CancelGameDto } from './dto/cancelGame.dto';
 
 @Injectable()
 export class PlayerService {
@@ -180,6 +181,51 @@ export class PlayerService {
           data: { gameStatus: 'PLAYING' },
         });
         return { resultPlayer };
+      } catch (e) {
+        // record not found
+        if (e.code == 'P2025') throw new NotFoundException();
+        if (e.code == 'ERROR') throw new NotFoundException();
+        if (e?.code) Logger.error(e.code + ' ' + e.msg);
+        else Logger.error(e);
+      }
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------------------
+  // Cancel game is planned to be the answer of the invitation, in case of NoP
+  async cancelGame(id: number, cancelGameDto: CancelGameDto) {
+    // ensure the user sub is the seq2 player
+    const env_ok = await this.prisma.player.findFirst({
+      where: {
+        gameId: +cancelGameDto.gameId,
+        playerId: +id,
+        seq: 2,
+      },
+    });
+    if (env_ok === null) {
+      // Logger.log('env_ok null');
+      throw new NotFoundException();
+    } else if (env_ok.gameStatus != 'WAITING') {
+      // Logger.log("env_ok.gameStatus != 'WAITING'");
+      throw new NotFoundException();
+    } else {
+      try {
+        //
+        const result = await this.prisma.game.update({
+          where: {
+            id: +cancelGameDto.gameId,
+          },
+          data: {
+            completed: false,
+          },
+        });
+        const resultPlayer = await this.prisma.player.updateMany({
+          where: {
+            gameId: +cancelGameDto.gameId,
+          },
+          data: { gameStatus: 'ENDED' },
+        });
+        return { result };
       } catch (e) {
         // record not found
         if (e.code == 'P2025') throw new NotFoundException();

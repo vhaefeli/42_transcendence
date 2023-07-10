@@ -4,6 +4,7 @@ import { UpdatePlayerDto } from './dto/updatePlayer.dto';
 import { CreateBothPlayerDto } from './dto/createBothPlayer.dto';
 import { PlayingGameDto } from './dto/playingGame.dto';
 import { UpdateCompletionDto } from './dto/updateCompletion.dto';
+import { CancelGameDto } from './dto/cancelGame.dto';
 
 @Controller('player')
 export class PlayerController {
@@ -49,6 +50,12 @@ export class PlayerController {
   ) {
     // console.log(req.user.sub);
     return await this.playerService.playingGame(req.user.sub, playingGameDto);
+  }
+
+  @Patch('cancel')
+  async cancelGame(@Request() req: any, @Body() cancelGameDto: CancelGameDto) {
+    console.log(req.user.sub);
+    return await this.playerService.cancelGame(req.user.sub, cancelGameDto);
   }
 
   @Post('random')
