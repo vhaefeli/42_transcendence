@@ -48,10 +48,6 @@ export class ChatGateway
   //    https://socket.io/docs/v3/rooms/
   // * Emit CheatSheet:
   //    https://socket.io/docs/v3/emit-cheatsheet/
-  //
-  // TODO:
-  // * Channel join room on connect
-  // * Channel emit to room
 
   @UseGuards(WsGuard)
   @SubscribeMessage('message')
