@@ -22,19 +22,15 @@
   </div>
   <div id="NotMemberChannels">
     <div v-for="channel in not_member_channels" :key="channel.id">
-      <div class="grid grid-cols-3">
+      <div class="flex w-2/3 h-2/3">
         <img :src="getTypeIcon(channel)" alt="icon" class="w-1/10 h-1/10" id="icon"/>
-        <p class="col-span-2">{{ channel.name }}</p>
+        <p class="col-span-1">{{ channel.name }}</p>
       </div>
     </div>
   </div>
 </template>
 
 <style>
-#icon {
-  max-width: 2%;
-  max-height: 2%;
-}
 #SearchAllChannels {
   max-width: 50%;
 }
