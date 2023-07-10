@@ -1,39 +1,52 @@
 <template>
   <NavBar />
-  <div id="SearchAllChannels" class="flex">
-    <h1>Search channels</h1>
-    <ModelListSelect
-      :list="all_channels"
-      v-model="selectedChannel"
-      optionValue="id"
-      optionText="name"
-      placeholder="Select channel"
-      class="flex-none"
-    >
-    </ModelListSelect>
-    <br />
-    <button
-      v-if="selectedChannel"
-      @click="validateSelection"
-      class="btn btn-blue"
-    >
-      Add
-    </button>
-  </div>
-  <div id="NotMemberChannels">
-    <div v-for="channel in not_member_channels" :key="channel.id">
-      <div class="flex w-2/3 h-2/3">
-        <img :src="getTypeIcon(channel)" alt="icon" class="w-1/10 h-1/10" id="icon"/>
-        <p class="col-span-1">{{ channel.name }}</p>
+  <section class="flex flex-col items-center w-full mt-10">
+    <h1 class="w-1/3">Search channels</h1>
+    <div id="SearchAllChannels" class="flex flex-row space-x-0.4 w-1/3">
+      <ModelListSelect
+        :list="all_channels"
+        v-model="selectedChannel"
+        optionValue="id"
+        optionText="name"
+        placeholder="Select channel"
+        class="w-full"
+      />
+      <button
+        v-if="selectedChannel"
+        @click="validateSelection"
+        class="btn btn-blue"
+      >
+        Add</button
+      ><button
+        v-if="!selectedChannel"
+        class="bg-blue-500 text-white font-bold py-2 px-4 rounded opacity-50 cursor-not-allowed"
+      >
+        Add
+      </button>
+    </div>
+    <!--
+      TODO center items in next div
+    <div id="NotMemberChannels" class="mt-10 flex flex-col items-center">
+    -->
+    <div id="NotMemberChannels" class="mt-10 flex flex-col items-center">
+      <div v-for="channel in all_channels" :key="channel.id">
+        <div
+          class="flex flex-row items-center space-x-4 p-3 rounded border-black border m-3 w-1/3 bg-purple-500"
+        >
+          <img
+            :src="getTypeIcon(channel)"
+            alt="icon"
+            class="max-w-4 max-h-4"
+            id="icon"
+          />
+          <h3 class="text-xl font-sans flex-1 truncate">{{ channel.name }}</h3>
+        </div>
       </div>
     </div>
-  </div>
+  </section>
 </template>
 
 <style>
-#SearchAllChannels {
-  max-width: 50%;
-}
 .btn {
   @apply font-bold py-2 px-4 rounded;
 }
