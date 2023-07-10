@@ -10,6 +10,7 @@ import DmsView from '../views/DmsView.vue'
 import LoginView from '../views/LoginView.vue'
 import Login42ApiView from '../views/Login42ApiView.vue'
 import SearchView from '../views/SearchView.vue'
+import SearchChannelsView from '../views/SearchChannelsView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -68,7 +69,12 @@ const router = createRouter({
       path: '/search-users',
       name: 'search test',
       component: SearchView,
-    }
+    },
+    {
+      path: '/search-channels',
+      name: 'Search Channels',
+      component: SearchChannelsView,
+    },
   ]
 })
 
