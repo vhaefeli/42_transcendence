@@ -28,7 +28,7 @@
       TODO center items in next div
     <div id="NotMemberChannels" class="mt-10 flex flex-col items-center">
     -->
-    <div id="NotMemberChannels" class="mt-10 flex flex-col items-center">
+    <div id="NotMemberChannels" class="mt-10">
       <div v-for="channel in all_channels" :key="channel.id">
         <div
           class="flex flex-row items-center space-x-4 p-3 rounded border-black border m-3 w-1/3 bg-purple-500"
