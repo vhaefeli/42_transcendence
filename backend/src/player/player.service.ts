@@ -10,6 +10,7 @@ import { CreateBothPlayerDto } from './dto/createBothPlayer.dto';
 import { PlayingGameDto } from './dto/playingGame.dto';
 import { UpdateCompletionDto } from './dto/updateCompletion.dto';
 import { CancelGameDto } from './dto/cancelGame.dto';
+import { level_type } from '@prisma/client';
 
 @Injectable()
 export class PlayerService {
@@ -115,12 +116,57 @@ export class PlayerService {
           gameStatus: 'ENDED',
         },
       });
+
       const gameUpdate = await this.prisma.game.update({
         where: {
           id: +updateCompletionDto.gameId,
         },
         data: {
           completed: true,
+        },
+      });
+
+      // definition des elements a ajouter au user
+      // Rank = somme de toutes les jeux victorieux
+      let newRank = 0;
+      if (updateCompletionDto.score == 2) {
+        newRank = 1;
+      }
+      // 1 match = toutes les parties gagnées (donc les 3 parties du jeu)
+      let newNbMatch = 0;
+      if (updateCompletionDto.score == 3) {
+        newNbMatch = 1;
+      }
+      // read the usewr for grapping the required values
+      const ExistingUser = await this.prisma.user.findFirst({
+        where: {
+          id: +playerId,
+        },
+      });
+
+      // treat the level
+      let newLevel: level_type;
+      // Après les 2 premières parties sans influence du score, passage à Debutant
+      if (ExistingUser.nbGames == 1) {
+        newLevel = 'BEGINNER';
+      }
+      // Après 3 parties victorieuses, passage à Moyen
+      if (ExistingUser.nbGames + newNbMatch == 3) {
+        newLevel = 'INTERMEDIATE';
+      }
+      // Après 5 parties victorieuses, passage à Expert
+      if (ExistingUser.nbGames + newNbMatch == 5) {
+        newLevel = 'EXPERT';
+      }
+      const updateUser = await this.prisma.user.update({
+        where: {
+          id: +playerId,
+        },
+        data: {
+          level: newLevel,
+          rank: ExistingUser.rank + newRank,
+          nbMatch: ExistingUser.nbMatch + newNbMatch,
+          nbGames: ExistingUser.nbGames + 1,
         },
       });
       if (playerUpdate.count != 1) {
@@ -156,7 +202,7 @@ export class PlayerService {
   }
 
   // ------------------------------------------------------------------------------------------------------
-  // Playing game is planned to be the answer of the invitation, in case of OK
+  // Playing game is the answer of the invitation, in case of OK
   async playingGame(id: number, playingGameDto: PlayingGameDto) {
     // ensure the user sub is the seq2 player
     const env_ok = await this.prisma.player.findFirst({
@@ -192,7 +238,7 @@ export class PlayerService {
   }
 
   // ------------------------------------------------------------------------------------------------------
-  // Cancel game is planned to be the answer of the invitation, in case of NoP
+  // Cancel game is the answer of the invitation, in case of NoP
   async cancelGame(id: number, cancelGameDto: CancelGameDto) {
     // ensure the user sub is the seq2 player
     const env_ok = await this.prisma.player.findFirst({
