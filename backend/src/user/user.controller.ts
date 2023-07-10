@@ -51,9 +51,18 @@ export class UserController {
   }
 
   @Get('profile/:username')
-  async findFriend(@Param() params: any, @Request() req: any) {
-    const friend = await this.userService.getProfile(
+  async findProfileByUsername(@Param() params: any, @Request() req: any) {
+    const friend = await this.userService.getProfileByUsername(
       params.username,
+      req.user.sub,
+    );
+    return friend;
+  }
+
+  @Get('profile/id/:id')
+  async findProfileById(@Param() params: any, @Request() req: any) {
+    const friend = await this.userService.getProfileById(
+      +params.id,
       req.user.sub,
     );
     return friend;
