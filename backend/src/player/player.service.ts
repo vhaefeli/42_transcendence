@@ -2,46 +2,20 @@ import {
   Injectable,
   Logger,
   NotFoundException,
-  Req,
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { CreatePlayerDto } from './dto/createPlayer.dto';
 import { UpdatePlayerDto } from './dto/updatePlayer.dto';
-import { parse } from 'path';
-import { Game, Player } from '@prisma/client';
 import { CreateBothPlayerDto } from './dto/createBothPlayer.dto';
 import { PlayingGameDto } from './dto/playingGame.dto';
+import { UpdateCompletionDto } from './dto/updateCompletion.dto';
 
 @Injectable()
 export class PlayerService {
   constructor(private prisma: PrismaService) {}
 
-  async newPlayer(createPlayerDto: CreatePlayerDto) {
-    try {
-      const player = await this.prisma.player.create({
-        data: {
-          gameId: +createPlayerDto.gameId,
-          seq: +createPlayerDto.seq,
-          playerId: +createPlayerDto.playerId,
-          randomAssignation:
-            String(createPlayerDto.randomAssignation).toLowerCase() === 'true',
-        },
-        select: {
-          id: true,
-        },
-      });
-      return { player };
-    } catch (e) {
-      if (e.code == 'P2003') throw new NotFoundException();
-      if (e.code == 'P2002')
-        throw new UnauthorizedException('Player already associated to a game');
-      if (e?.code) Logger.error(e.code + ' ' + e.msg);
-      else Logger.error(e);
-    }
-  }
-  //
-
+  // ------------------------------------------------------------------------------------------------------
+  // create the game with the 2 players from the custom game entry
   async newBothPlayer(
     playerId: string,
     createBothPlayerDto: CreateBothPlayerDto,
@@ -92,29 +66,79 @@ export class PlayerService {
     }
   }
 
-  //
-
-  async updateStatus(updatePlayerDto: UpdatePlayerDto) {
-    const playerUpdate = await this.prisma.player.update({
-      where: {
-        gameId_playerId: {
+  // ------------------------------------------------------------------------------------------------------
+  // when start is hit on the game, the game is considered as started, a stop will be an abandon
+  async updateStart(playerId: string, updatePlayerDto: UpdatePlayerDto) {
+    try {
+      const playerUpdate = await this.prisma.player.updateMany({
+        where: {
           gameId: +updatePlayerDto.gameId,
-          playerId: +updatePlayerDto.playerId,
+          playerId: +playerId,
+          gameStatus: 'PLAYING',
         },
-      },
-      data: {
-        //   WAITING PLAYING  ENDED
-        gameStatus: updatePlayerDto.gameStatus,
-      },
-    });
-    return [updatePlayerDto.gameStatus];
+        data: {
+          score4stat: true,
+        },
+      });
+      if (playerUpdate.count != 1) {
+        return { Start: 'Failed' };
+      } else {
+        return { Start: 'OK' };
+      }
+    } catch (e) {
+      if (e?.code) Logger.error(e.code + ' ' + e.msg);
+      else Logger.error(e);
+    }
   }
 
+  // ------------------------------------------------------------------------------------------------------
+  //
+  async updateCompletion(
+    playerId: string,
+    updateCompletionDto: UpdateCompletionDto,
+  ) {
+    Logger.log('updateCompletion');
+    if (+updateCompletionDto.score > 3) {
+      throw new UnauthorizedException('Max score is 3');
+    }
+    try {
+      const playerUpdate = await this.prisma.player.updateMany({
+        where: {
+          gameId: +updateCompletionDto.gameId,
+          playerId: +playerId,
+          gameStatus: 'PLAYING',
+          score4stat: true,
+        },
+        data: {
+          score: +updateCompletionDto.score,
+          gameStatus: 'ENDED',
+        },
+      });
+      const gameUpdate = await this.prisma.game.update({
+        where: {
+          id: +updateCompletionDto.gameId,
+        },
+        data: {
+          completed: true,
+        },
+      });
+      if (playerUpdate.count != 1) {
+        return { Completion: 'Failed' };
+      } else {
+        return { Completion: 'OK' };
+      }
+    } catch (e) {
+      if (e?.code) Logger.error(e.code + ' ' + e.msg);
+      else Logger.error(e);
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------------------
+  // list all invitation received by the connected user
   async invitedBy(playerId: string) {
     const idnum: number = +playerId;
-    Logger.log('playerID selected:' + idnum);
-    const result = await this.prisma.$queryRaw`
-      SELECT "Game".id "gameId", "User".username, "User"."level"
+    const game = await this.prisma.$queryRaw`
+      SELECT "Game".id "gameId", "User".username, "User"."level", "User"."avatar_url"
       FROM "Game", "Player", "User"
       WHERE "Player"."gameId" = "Game".id
         AND "Game".completed = 'false'
@@ -127,9 +151,9 @@ export class PlayerService {
             AND "Player"."playerId" = ${idnum}
         )
     `;
-    // Logger.log(result);
-    return result;
+    return game;
   }
+
   // ------------------------------------------------------------------------------------------------------
   // Playing game is planned to be the answer of the invitation, in case of OK
   async playingGame(id: number, playingGameDto: PlayingGameDto) {
@@ -153,13 +177,92 @@ export class PlayerService {
           where: {
             gameId: +playingGameDto.gameId,
           },
-          data: { gameStatus: 'PLAYING', score4stat: true },
+          data: { gameStatus: 'PLAYING' },
         });
         return { resultPlayer };
       } catch (e) {
         // record not found
         if (e.code == 'P2025') throw new NotFoundException();
         if (e.code == 'ERROR') throw new NotFoundException();
+        if (e?.code) Logger.error(e.code + ' ' + e.msg);
+        else Logger.error(e);
+      }
+    }
+  }
+
+  // ------------------------------------------------------------------------------------------------------
+  // manage the play against a random opponent
+  async random(playerId: number) {
+    // identify if there is already a random player waiting for playing
+    const Candidate = await this.prisma.player.findMany({
+      where: { gameStatus: 'WAITING', randomAssignation: true },
+    });
+
+    // determine if player1+game or player2 must be created
+    if (Candidate[0] == null) {
+      // Case : Create Game & Player 1-----------------------------------------
+      // create the game with initiatedBy = sub
+      const game = await this.prisma.game.create({
+        data: {
+          initiatedById: +playerId,
+        },
+        select: {
+          id: true,
+        },
+      });
+      // create the player 1
+      const player1 = await this.prisma.player.create({
+        data: {
+          gameId: game.id,
+          seq: 1,
+          playerId: +playerId,
+          // mode: 'INTERMEDIATE',
+          randomAssignation: true,
+        },
+        select: {
+          id: true,
+          gameId: true,
+        },
+      });
+      const gameId = player1.gameId;
+      return { gameId };
+    } else {
+      // Case : Create Player 2 -----------------------------------------------
+      // update player1 to avoid re-attribution to random
+
+      try {
+        // create the player 2
+        const player2 = await this.prisma.player.create({
+          data: {
+            gameId: Candidate[0].gameId,
+            seq: 2,
+            playerId: +playerId,
+            // mode: 'INTERMEDIATE',
+            gameStatus: 'PLAYING',
+            randomAssignation: false,
+          },
+          select: {
+            id: true,
+            gameId: true,
+          },
+        });
+        const player1U = await this.prisma.player.updateMany({
+          where: {
+            gameId: Candidate[0].gameId,
+            seq: 1,
+            // mode: 'INTERMEDIATE',
+            randomAssignation: true,
+          },
+          data: {
+            gameStatus: 'PLAYING',
+            randomAssignation: false,
+          },
+        });
+        const gameId = player2.gameId;
+        return { gameId };
+      } catch (e) {
+        // record not created as gameId & playerId are not unique.
+        if (e.code == 'P2002') throw new NotFoundException();
         if (e?.code) Logger.error(e.code + ' ' + e.msg);
         else Logger.error(e);
       }

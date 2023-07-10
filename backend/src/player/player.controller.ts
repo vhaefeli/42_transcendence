@@ -1,26 +1,13 @@
 import { Body, Controller, Get, Request, Patch, Post } from '@nestjs/common';
 import { PlayerService } from './player.service';
-import { CreatePlayerDto } from './dto/createPlayer.dto';
 import { UpdatePlayerDto } from './dto/updatePlayer.dto';
 import { CreateBothPlayerDto } from './dto/createBothPlayer.dto';
 import { PlayingGameDto } from './dto/playingGame.dto';
+import { UpdateCompletionDto } from './dto/updateCompletion.dto';
 
 @Controller('player')
 export class PlayerController {
   constructor(private playerService: PlayerService) {}
-
-  @Post('new')
-  async newPlayer(
-    @Request() req: any,
-    @Body() createPlayerDto: CreatePlayerDto,
-  ) {
-    // console.log('NewPlayer for gameId:', createPlayerDto.gameId);
-    // console.log(
-    //   'NewPlayer randomAssignation:',
-    //   createPlayerDto.randomAssignation,
-    // );
-    return await this.playerService.newPlayer(createPlayerDto);
-  }
 
   @Post('newBoth')
   async newBothPlayer(
@@ -33,12 +20,20 @@ export class PlayerController {
     );
   }
 
-  @Patch('status')
-  async updateStatus(@Body() updatePlayerDto: UpdatePlayerDto) {
-    // console.log('gameId :', updatePlayerDto.gameId);
-    // console.log('playerId :', updatePlayerDto.playerId);
-    // console.log('gameStatus: ', updatePlayerDto.gameStatus);
-    return await this.playerService.updateStatus(updatePlayerDto);
+  @Patch('start')
+  async updateStart(@Request() req: any, @Body() updateDto: UpdatePlayerDto) {
+    return await this.playerService.updateStart(req.user.sub, updateDto);
+  }
+
+  @Patch('completion')
+  async updateCompletion(
+    @Request() req: any,
+    @Body() updateCompletionDto: UpdateCompletionDto,
+  ) {
+    return await this.playerService.updateCompletion(
+      req.user.sub,
+      updateCompletionDto,
+    );
   }
 
   @Get('invitedBy')
@@ -54,5 +49,11 @@ export class PlayerController {
   ) {
     // console.log(req.user.sub);
     return await this.playerService.playingGame(req.user.sub, playingGameDto);
+  }
+
+  @Post('random')
+  async random(@Request() req: any) {
+    console.log(req.user.sub);
+    return await this.playerService.random(req.user.sub);
   }
 }

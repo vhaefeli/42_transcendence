@@ -52,7 +52,7 @@ export class GameService {
             id: +cancelGameDto.gameId,
           },
           data: {
-            completed: true,
+            completed: false,
           },
         });
         const resultPlayer = await this.prisma.player.updateMany({
