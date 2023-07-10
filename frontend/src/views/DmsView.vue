@@ -1,26 +1,31 @@
 <template>
     <NavBar></NavBar>
     <section class="flex flex-col items-center">
-        <div class="mb-6 text-xl">Chat with friends</div>
-        <div v-for="recipient in recipients">
-            {{ getRecipientName(recipient) }}
+        <div class="mb-6 text-xl">All my Dms</div>
+        <div class="mb-6">
+          <div v-for="recipient in recipients" :key="recipient">
+            <div @click="getActualRecipient(recipient)">{{ getRecipientName(recipient) }}</div>
+          </div>
         </div>
+        <div v-if="actual != -1">speaking with {{ actual.username }}</div>
+        <div v-else>No Dms yet</div>
 
-
-        <div class="w-[60%] bg-slate-950 p-6 mb-6 max-h-screen[80vh] overflow-scroll">
+        <div ref="scroller" class="w-[60%] bg-slate-950 p-6 mb-6 h-[300px] overflow-scroll">
             <div v-for="message in messages" :key="message.id">
-                <div v-if="message.username == user.username" class="grid">
+              <div v-if="actual.id === message.fromId || actual.id === message.toId">
+                <div v-if="message.fromId == user.id" class="grid">
                     <div class="mb-3 p-3 rounded-xl bg-orange-300 w-[70%] justify-self-end">
                         <p class="text-base mb-1">{{ message.message }}</p>
-                        <p class="text-xs">from <a class="text-orange-500 font-bold" href="#">{{ message.username }}</a> on {{ message.date }}</p>
+                        <p class="text-xs">from <a class="text-orange-500 font-bold" href="#">{{ user.username }}</a> on {{ message.date }}</p>
                     </div>
                 </div>
                 <div v-else>
                     <div class="mb-3 p-3 rounded-xl bg-orange-100 w-[70%]">
                         <p class="text-base mb-1">{{ message.message }}</p>
-                        <p class="text-xs">from <a class="text-orange-500 font-bold" href="#">{{ message.username }}</a> on {{ message.date }}</p>
+                        <p class="text-xs">from <a class="text-orange-500 font-bold" href="#">{{ actual.username }}</a> on {{ message.date }}</p>
                     </div>
                 </div>
+              </div>
             </div>
         </div>
     
@@ -29,20 +34,12 @@
             <button @click="handleSubmitNewMessage">Submit</button>
         </div>
 
-        <div>
-            <button
-      class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-      @click="chatService.reload()"
-    >
-      reload history
-    </button>
-        </div>
     </section>
 </template>
   
 <script setup>
     import NavBar from "../components/NavBar.vue";
-    import { ref, onBeforeMount, computed } from "vue";
+    import { ref, onBeforeMount, onUpdated } from "vue";
     import { storeToRefs } from 'pinia'
     import axios from "axios";
     import { useRoute, useRouter } from 'vue-router'
@@ -59,13 +56,9 @@
 
     const { user } = storeToRefs(userStore)
 
-    let otherUser
     let allUsers
 
-    const getRecipientName = computed((recipient) => {
-        console.log(recipient)
-        return allUsers.find((user) => recipient.id === user.id)
-    })
+    const scroller = ref(null);
 
     onBeforeMount(async () => {
         if (sessionStore.isLoggedIn) {
@@ -79,6 +72,13 @@
         }
     });
 
+    onUpdated(() => {
+      // when the DOM is updated I scroll to 
+      // bottom of the Div that contains messages
+      scrollToBottom();
+    })
+
+    // get all users
     axios({
         url: "/api/user/all",
         method: "get",
@@ -100,31 +100,8 @@
         );
       return false;
     });
-    
-    axios({
-    url: "/api/user/profile/userTest",
-    method: "get",
-    headers: { Authorization: `Bearer ${sessionStore.access_token}` },
-  })
-    .then((response) => {
-      // To execute when the request is successful
-      otherUser = response.data;
-      console.log(`${response.status} + ${response.statusText}`);
-      return true;
-    })
-    .catch((error) => {
-      // To execute when the request fails
-      if (error.response.status == 404)
-        console.log(
-          `not found: ${error.response.status} ${error.response.statusText}`
-        );
-      else
-        console.error(
-          `unexpected error: ${error.response.status} ${error.response.statusText}`
-        );
-      return false;
-    });
 
+    const actual = ref({})
     const message = ref("");
     const messages = ref([]);
     let recipients = []
@@ -142,8 +119,10 @@
     };
 
     const handleSubmitNewMessage = () => {
-        chatService.sendNewMessage(message.value, 1);
+        chatService.sendNewMessage(message.value, actual.value.id);
         messages.value.push({
+            fromId: user.value.id,
+            toId: actual.value.id,
             message: message.value,
             username: user.username,
             date: new Date().toLocaleString("en-US", dateOptions),
@@ -184,6 +163,27 @@
         if (recipients.indexOf(id) === -1 && (id != user.value.id)) {
             recipients.push(id);
         }
+        // check actual recipient
+        if (Object.keys(actual.value).length === 0 && recipients.length > 0) {
+          actual.value =  allUsers.find((user) => recipients[0] === user.id)
+        } else if (Object.keys(actual.value).length === 0) {
+          actual.value = -1
+        }
     }
-    console.log(recipients)
+
+    function getRecipientName(recipient) {
+        const userFind = allUsers.find((user) => recipient === user.id)
+        return userFind.username
+    }
+
+    function getActualRecipient(recipient) {
+        actual.value = allUsers.find((user) => recipient === user.id)
+    }
+
+    function scrollToBottom() {
+        let myScroller = scroller.value
+        if (myScroller) {
+          myScroller.scrollTop = myScroller.scrollHeight;
+        }
+    }
 </script>

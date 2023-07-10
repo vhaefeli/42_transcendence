@@ -15,8 +15,6 @@ class ChatService extends SocketService {
       toId: id,
       message: content,
       date: new Date().getTime()
-    }, (res) => {
-      console.log(res);
     });
   }
 
