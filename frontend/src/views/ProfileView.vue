@@ -150,7 +150,8 @@
 <style scoped>
 
 .ft-cover {
-    background: url(./../assets/img/jr-korpa-9XngoIpxcEo-unsplash.jpg);
+    background: url(./../assets/img/fond.png);
+    /* background: url(./../assets/img/jr-korpa-9XngoIpxcEo-unsplash.jpg); */
 }
 
 .ft-profile-pic#current-profile-pic {
