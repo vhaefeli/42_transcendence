@@ -20,6 +20,14 @@
         <div v-if="recipients.length > 0">speaking with {{ actual.username }}</div>
         <div v-else>No Dms yet</div>
 
+        <div v-if="isActualInfosLoaded">
+          <h2 class="text-xl">Profile of {{ actualInfos.username }}</h2>
+          <img :src="actualInfos.avatar_url" alt="avatar img" class="mr-9 w-14"/>
+          <div v-if="actualInfos.is_friend">is my friend</div>
+          <div v-else>is not my friend</div>
+        </div>
+        <div v-else>Profile loading...</div>
+
         <div ref="scroller" class="w-[60%] bg-slate-950 p-6 mb-6 h-[300px] overflow-scroll">
             <div v-for="message in messages" :key="message.id">
               <div v-if="actual.id === message.fromId || actual.id === message.toId">
@@ -48,10 +56,10 @@
   
 <script setup>
     import NavBar from "../components/NavBar.vue";
-    import { ref, onUpdated } from "vue";
+    import { ref, onUpdated, watchEffect } from "vue";
     import { storeToRefs } from 'pinia'
     import axios from "axios";
-    import { useRoute, useRouter } from 'vue-router'
+    import { useRouter } from 'vue-router'
     import { useSessionStore } from "@/stores/SessionStore";
     import { useUserStore } from '../stores/UserStore'
     import { chatService } from "@/services/chat-socket.service";
@@ -66,11 +74,17 @@
     const { user } = storeToRefs(userStore)
 
     const actual = ref({})
-    const message = ref("");
-    const messages = ref([]);
-    let newRecipient = ref('')
-    let allUsers
-    let recipients = []
+    const actualInfos = ref({})
+    const message = ref("")
+    const messages = ref([])
+    const scroller = ref(null);
+    const newRecipient = ref('')
+    const allUsers = ref([])
+    const recipients = ref([])
+
+    // Reactive flag for loaded data
+    const isAllUsersLoaded = ref(false)
+    const isActualInfosLoaded = ref(false)
 
     let dateOptions = {
         weekday: "short",
@@ -83,27 +97,11 @@
         hour12: false,
     };
 
-    const scroller = ref(null);
-
-    loadMyself()
-
     onUpdated(() => {
       // when the DOM is updated I scroll to 
       // bottom of the Div that contains messages
       scrollToBottom();
     })
-
-    async function loadMyself() {
-      if (sessionStore.isLoggedIn) {
-            // get user infos
-            await userStore.getMe(sessionStore.access_token);
-            if (user.isLogged === false) {
-                sessionStore.isLoggedIn = false;
-                sessionStore.access_token = "";
-                router.push({ name: 'login' })
-            }
-        }
-    }
 
     // when there is socket going on
     chatService.onConnect((chat) => {
@@ -122,29 +120,7 @@
     },
     { timeout: 10000 },
     chatService);
-
-    // get all users
-    axios({
-        url: "/api/user/all",
-        method: "get",
-    })
-    .then((response) => {
-      // To execute when the request is successful
-      allUsers = response.data;
-      return true;
-    })
-    .catch((error) => {
-      // To execute when the request fails
-      if (error.response.status == 404)
-        console.log(
-          `not found: ${error.response.status} ${error.response.statusText}`
-        );
-      else
-        console.error(
-          `unexpected error: ${error.response.status} ${error.response.statusText}`
-        );
-      return false;
-    });
+   
 
     const handleSubmitNewMessage = () => {
         chatService.sendNewMessage(message.value, actual.value.id);
@@ -167,7 +143,7 @@
         })
     }
 
-    const stockHistory = (payload) => {
+    const stockHistory = async (payload) => {
       // push recieved message to Messages Array
       pushToMessages(payload)
       
@@ -178,59 +154,41 @@
         } else {
             id = payload.fromId
         }
-        if (recipients.indexOf(id) === -1 && (id != user.value.id)) {
-            recipients.push(id);
+        if (recipients.value.indexOf(id) === -1 && (id != user.value.id)) {
+            recipients.value.push(id);
         }
       
         // check what is the actual recipient
-        if (Object.keys(actual.value).length === 0 && recipients.length > 0) {
-          actual.value =  allUsers.find((user) => recipients[0] === user.id)
+        if (isAllUsersLoaded.value && Object.keys(actual.value).length === 0 && recipients.value.length > 0) {
+          actual.value = allUsers.value.find((user) => recipients.value[0] === user.id)
+          getUserInfos(actual.value.username)
         }
     }
 
-    const newRecipientObj = ref({})
-
-    async function getUserInfos(recipientName) {
-      axios({
-        url: `/api/user/profile/${recipientName}`,
-        method: "get",
-        headers: { Authorization: `Bearer ${sessionStore.access_token}` },
-      })
-      .then((response) => {
-        // To execute when the request is successful
-        newRecipientObj.value = response.data;
-        return true;
-      })
-      .catch((error) => {
-        // To execute when the request fails
-        if (error.response.status == 404)
-          console.log(
-            `not found: ${error.response.status} ${error.response.statusText}`
-          );
-        else
-          console.error(
-            `unexpected error: ${error.response.status} ${error.response.statusText}`
-          );
-        return false;
-      });
-    }
-
     // add recipient to the list
-    async function addRecipient(recipientName) {
-      await getUserInfos(recipientName)
-      console.log("new: ", newRecipientObj)
-      recipients.push(newRecipientObj.value.id);
+    function addRecipient(recipientName) {
+        const userFind = allUsers.value.find((user) => recipientName === user.username)
+        // TO DO:
+        //  check if already exist
+        //  replace by search bar
+        //  check if user exist
+        recipients.value.push(userFind.id);
+        actual.value = userFind
     }
 
     // return name of recipient
     function getRecipientName(recipient) {
-        const userFind = allUsers.find((user) => recipient === user.id)
+      const userFind = allUsers.value.find((user) => recipient === user.id)
+      if (userFind) {
         return userFind.username
+      } else {
+        return "Loading..."
+      }
     }
 
     // used when click on recipient name
     function changeActualRecipient(recipient) {
-        actual.value = allUsers.find((user) => recipient === user.id)
+        actual.value = allUsers.value.find((user) => recipient === user.id)
     }
 
     // scroll messages container to bottom
@@ -240,4 +198,85 @@
           myScroller.scrollTop = myScroller.scrollHeight;
         }
     }
+
+    // Async functions 
+
+    async function loadMyself() {
+      if (sessionStore.isLoggedIn) {
+        // get user infos
+        await userStore.getMe(sessionStore.access_token);
+        if (user.isLogged === false) {
+          sessionStore.isLoggedIn = false;
+          sessionStore.access_token = "";
+          router.push({ name: 'login' })
+        }
+      }
+    }
+
+    async function getAllUsers() {
+      try {
+        const response = await axios.get("/api/user/all");
+        allUsers.value = response.data;
+        isAllUsersLoaded.value = true; // Set the flag to true when data is loaded
+        return true;
+      } catch (error) {
+        if (error.response && error.response.status == 404) {
+          console.log(`not found: ${error.response.status} ${error.response.statusText}`);
+        } else {
+          console.error(`unexpected error: ${error.response.status} ${error.response.statusText}`);
+        }
+        return false;
+      }
+    }
+
+    async function getUserInfos(username) {
+      await axios({
+        url: `/api/user/profile/${username}`,
+        method: "get",
+        headers: { Authorization: `Bearer ${sessionStore.access_token}` },
+      })
+        .then((response) => {
+          actualInfos.value = response.data
+          isActualInfosLoaded.value = true
+          return true;
+        })
+        .catch((error) => {
+          if (error.response.status == 401) {
+            console.log(
+              `invalid access token: ${error.response.status} ${error.response.statusText}`
+            );
+          } else if (error.response.status == 404) {
+            console.log(
+              `user not found: ${error.response.status} ${error.response.statusText}`
+            );
+          } else {
+            console.error(
+              `unexpected error: ${error.response.status} ${error.response.statusText}`
+            );
+          }
+          return false;
+        });
+    }
+    
+  loadMyself()
+  getAllUsers()
+
+  // Watches
+
+  // Watch for changes in the isAllUsersLoaded flag
+  watchEffect(() => {
+    if (isAllUsersLoaded.value) {
+      // The allUsers data is loaded, you can use it now
+      if (recipients.value.length > 0 && Object.keys(actual.value).length === 0) {
+        actual.value = allUsers.value.find((user) => recipients.value[0] === user.id)
+      }
+    }
+  })
+
+  // Watch for changes in the isAllUsersLoaded flag
+  watchEffect(() => {
+    if (actual.value.username) {
+      getUserInfos(actual.value.username)
+    }
+  })
 </script>
