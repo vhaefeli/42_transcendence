@@ -15,7 +15,7 @@ export class PlayerController {
     @Request() req: any,
     @Body() createPlayerDto: CreateBothPlayerDto,
   ) {
-    console.log(' ' + req.user.sub);
+    // console.log(' ' + req.user.sub);
     return await this.playerService.newBothPlayer(
       req.user.sub,
       createPlayerDto,
@@ -41,6 +41,11 @@ export class PlayerController {
   @Get('invitedBy')
   async invitedBy(@Request() req: any) {
     return this.playerService.invitedBy(req.user.sub);
+  }
+
+  @Get('log')
+  async log(@Request() req: any) {
+    return this.playerService.gameLog(req.user.sub);
   }
 
   @Patch('playing')

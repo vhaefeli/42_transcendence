@@ -15,7 +15,6 @@ import { level_type } from '@prisma/client';
 @Injectable()
 export class PlayerService {
   constructor(private prisma: PrismaService) {}
-
   // ------------------------------------------------------------------------------------------------------
   // create the game with the 2 players from the custom game entry
   async newBothPlayer(
@@ -35,7 +34,6 @@ export class PlayerService {
     if (user == null) {
       throw new UnauthorizedException('Opponent must exist');
     }
-
     // create the game with initiatedBy = sub
     const game = await this.prisma.game.create({
       data: {
@@ -77,7 +75,6 @@ export class PlayerService {
       else Logger.error(e);
     }
   }
-
   // ------------------------------------------------------------------------------------------------------
   // when start is hit on the game, the game is considered as started, a stop will be an abandon
   async updateStart(playerId: number, updatePlayerDto: UpdatePlayerDto) {
@@ -105,7 +102,6 @@ export class PlayerService {
       else Logger.error(e);
     }
   }
-
   // ------------------------------------------------------------------------------------------------------
   //
   async updateCompletion(
@@ -129,7 +125,6 @@ export class PlayerService {
           gameStatus: 'ENDED',
         },
       });
-
       const gameUpdate = await this.prisma.game.update({
         where: {
           id: updateCompletionDto.gameId,
@@ -138,11 +133,10 @@ export class PlayerService {
           completed: true,
         },
       });
-
       // definition des elements a ajouter au user
       // Rank = somme de toutes les jeux victorieux
       let newRank = 0;
-      if (updateCompletionDto.score == 2) {
+      if (updateCompletionDto.score >= 2) {
         newRank = 1;
       }
       // 1 match = toutes les parties gagnées (donc les 3 parties du jeu)
@@ -156,7 +150,6 @@ export class PlayerService {
           id: playerId,
         },
       });
-
       // treat the level
       let newLevel: level_type;
       // Après les 2 premières parties sans influence du score, passage à Debutant
@@ -194,25 +187,55 @@ export class PlayerService {
       else Logger.error(e);
     }
   }
-
   // ------------------------------------------------------------------------------------------------------
   // list all invitation received by the connected user
   async invitedBy(playerId: number) {
     const game = await this.prisma.$queryRaw`
-        SELECT "Game".id "gameId", "User".username, "User"."level", "User"."avatar_url"
-        FROM "Game", "Player", "User"
-        WHERE "Player"."gameId" = "Game".id
-          AND "Game".completed = 'false'
-          AND "Player".seq = 1
-          AND "Player"."playerId" = "User".id
-          AND "Game".id IN (
-            SELECT "Player"."gameId"
-            FROM "Player"
-            WHERE "Player".seq = 2
-              AND "Player"."playerId" = ${playerId}
-          )
-      `;
+          SELECT "Game".id "gameId", "User".username, "User"."level", "User"."avatar_url"
+          FROM "Game", "Player", "User"
+          WHERE "Player"."gameId" = "Game".id
+            AND "Game".completed = 'false'
+            AND "Player".seq = 1
+            AND "Player"."playerId" = "User".id
+            AND "Game".id IN (
+              SELECT "Player"."gameId"
+              FROM "Player"
+              WHERE "Player".seq = 2
+                AND "Player"."playerId" = ${playerId}
+            )
+        `;
     return game;
+  }
+
+  // ------------------------------------------------------------------------------------------------------
+  // list all games played by the connected user
+  async gameLog(playerId: number) {
+    const gameslog = await this.prisma.$queryRaw`
+    select "Game".date, "User".username, "Player".score, u2.username, p2.score, u2."level", ('won against ' || u2.username || ' (' || (u2."level") || ')')  "Result"
+    from  "Player", "Game", "User", "Player" p2, "User" u2
+    where 
+    "Player"."gameId" = "Game".id
+    and "Player"."playerId" = "User".id
+    and "Player"."playerId" =  ${playerId}
+    and "Player".score4stat = true
+    and "Player"."gameId" = p2."gameId"
+    and "Player".seq <> p2.seq
+    and p2."playerId" = u2.id
+    and "Player".score > p2.score
+    union all
+    select "Game".date, "User".username, "Player".score, u2.username, p2.score, u2."level", ('Lost againtst ' || u2.username || ' (' || (u2."level") || ')') "Result"
+    from  "Player", "Game", "User", "Player" p2, "User" u2
+    where 
+    "Player"."gameId" = "Game".id
+    and "Player"."playerId" = "User".id
+    and "Player"."playerId" =  ${playerId}
+    and "Player".score4stat = true
+    and "Player"."gameId" = p2."gameId"
+    and "Player".seq <> p2.seq
+    and p2."playerId" = u2.id
+    and "Player".score < p2.score
+      `;
+    return gameslog;
   }
 
   // ------------------------------------------------------------------------------------------------------
@@ -250,7 +273,6 @@ export class PlayerService {
       }
     }
   }
-
   // ------------------------------------------------------------------------------------------------------
   // Cancel game is the answer of the invitation, in case of NoP
   async cancelGame(id: number, cancelGameDto: CancelGameDto) {
@@ -296,7 +318,6 @@ export class PlayerService {
       }
     }
   }
-
   // ------------------------------------------------------------------------------------------------------
   // manage the play against a random opponent
   async random(playerId: number) {
@@ -304,7 +325,6 @@ export class PlayerService {
     const Candidate = await this.prisma.player.findMany({
       where: { gameStatus: 'WAITING', randomAssignation: true },
     });
-
     // determine if player1+game or player2 must be created
     if (Candidate[0] == null) {
       // Case : Create Game & Player 1-----------------------------------------
@@ -336,7 +356,6 @@ export class PlayerService {
     } else {
       // Case : Create Player 2 -----------------------------------------------
       // update player1 to avoid re-attribution to random
-
       try {
         // create the player 2
         const player2 = await this.prisma.player.create({

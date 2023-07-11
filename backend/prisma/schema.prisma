@@ -31,8 +31,8 @@ model User {
   nbMatch Int        @default(0)
   nbGames Int        @default(0)
 
-  invitations_sent     FriendshipInvitation[] @relation("from_user")
-  invitations_received FriendshipInvitation[] @relation("to_user")
+  invitations_sent     FriendshipInvitation[] @relation("fi_from_user")
+  invitations_received FriendshipInvitation[] @relation("fi_to_user")
   friends_added        User[]                 @relation("Friendship")
   friends              User[]                 @relation("Friendship")
   blocked_users        User[]                 @relation("Block")
@@ -47,6 +47,12 @@ model User {
 
   dm_sent     DirectMessage[] @relation("dm_from_user")
   dm_received DirectMessage[] @relation("dm_to_user")
+
+  channels_owner   Channel[]        @relation(name: "channel_owner")
+  channels_admin   Channel[]        @relation(name: "channel_admins")
+  channels_member  Channel[]        @relation(name: "channel_members")
+  channels_muted   Channel[]        @relation(name: "channel_muted")
+  channel_messages ChannelMessage[] @relation(name: "channel_message")
 }
 
 model FriendshipInvitation {
@@ -91,10 +97,6 @@ model Game {
   @@unique([date, initiatedById])
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 58e8e8aab9be3f871c5d77adefe67ea43348c0f2
 enum mode_type {
   BEGINNER
   INTERMEDIATE
@@ -121,17 +123,6 @@ model Player {
   abandon           Boolean     @default(false)
   score4stat        Boolean     @default(false)
 
-  model DirectMessage {
-  id      Int      @id @default(autoincrement())
-  fromId  Int
-  from    User     @relation(name: "dm_from_user", fields: [fromId], references: [id])
-  toId    Int
-  to      User     @relation(name: "dm_to_user", fields: [toId], references: [id])
-  message String
-  date    DateTime
-  <<<<<<< HEAD
-  =======
-
   @@unique([gameId, playerId])
 }
 
@@ -143,5 +134,34 @@ model DirectMessage {
   to      User     @relation(name: "dm_to_user", fields: [toId], references: [id])
   message String
   date    DateTime
-  >>>>>>> 58e8e8aab9be3f871c5d77adefe67ea43348c0f2
+}
+
+enum ChannelTypes {
+  PUBLIC
+  PROTECTED
+  PRIVATE
+}
+
+model Channel {
+  id       Int          @id @default(autoincrement())
+  name     String       @unique
+  type     ChannelTypes
+  password String?
+
+  ownerId  Int
+  owner    User             @relation(name: "channel_owner", fields: [ownerId], references: [id])
+  admins   User[]           @relation(name: "channel_admins")
+  members  User[]           @relation(name: "channel_members")
+  muted    User[]           @relation(name: "channel_muted")
+  messages ChannelMessage[]
+}
+
+model ChannelMessage {
+  id        Int      @id @default(autoincrement())
+  message   String
+  date      DateTime
+  senderId  Int
+  channelId Int
+  sender    User     @relation(name: "channel_message", fields: [senderId], references: [id])
+  channel   Channel  @relation(fields: [channelId], references: [id])
 }

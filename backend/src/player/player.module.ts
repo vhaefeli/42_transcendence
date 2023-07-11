@@ -8,4 +8,3 @@ import { PrismaService } from 'src/prisma.service';
   providers: [PlayerService, PrismaService],
 })
 export class PlayerModule {}
-
