@@ -9,13 +9,19 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
+  WsException,
 } from '@nestjs/websockets';
 import { RemoteSocket, Server, Socket } from 'socket.io';
+import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import { AuthService } from 'src/auth/auth.service';
 import { WsGuard } from 'src/auth/ws.guard';
-import { ReceivingDmDto, SendingDmDto } from './dm-payloads.dto';
+
 import { ChatService } from './chat.service';
-import { DefaultEventsMap } from 'socket.io/dist/typed-events';
+import { ReceivingDmDto, SendingDmDto } from './dm-payloads.dto';
+import {
+  ReceivingChannelMessageDto,
+  SendingChannelMessageDto,
+} from './channel-message.dto';
 
 @WebSocketGateway({
   namespace: 'chat',
@@ -42,10 +48,6 @@ export class ChatGateway
   //    https://socket.io/docs/v3/rooms/
   // * Emit CheatSheet:
   //    https://socket.io/docs/v3/emit-cheatsheet/
-  //
-  // TODO:
-  // * Channel join room on connect
-  // * Channel emit to room
 
   @UseGuards(WsGuard)
   @SubscribeMessage('message')
@@ -105,6 +107,54 @@ export class ChatGateway
   }
 
   @UseGuards(WsGuard)
+  @SubscribeMessage('channelHistory')
+  async sendChannelHistory(@ConnectedSocket() client: Socket) {
+    try {
+      const channel_messages = this.chatService.GetMyChannelMessages(
+        client.data.user.sub,
+      );
+      for (const m of await channel_messages) {
+        const msg: SendingChannelMessageDto = {
+          ...m,
+          date: new Date(m.date).getTime(),
+        };
+        client.emit('channelHistory', msg);
+      }
+    } catch (error) {
+      if (error?.code) Logger.error(`${error.code}, ${error.message}`);
+      throw error;
+    }
+  }
+
+  @UseGuards(WsGuard)
+  @SubscribeMessage('channel')
+  async sendChannelMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: ReceivingChannelMessageDto,
+  ) {
+    if (
+      !(await this.chatService.IsUserInChannel(
+        client.data.user.sub,
+        payload.channelId,
+      ))
+    )
+      throw new WsException('User is not in channel');
+    const save_message = await this.chatService.SaveChannelMessage(
+      client.data.user.sub,
+      payload.channelId,
+      payload.message,
+      new Date(payload.date),
+    );
+    const msg: SendingChannelMessageDto = {
+      id: save_message.id,
+      senderId: client.data.user.sub,
+      ...payload,
+    };
+    client.to(payload.channelId.toString()).emit('channel', msg);
+    return save_message;
+  }
+
+  @UseGuards(WsGuard)
   @SubscribeMessage('tabletennis')
   pingPong(@MessageBody() payload: string) {
     if (payload === 'PING') return 'PONG';
@@ -122,21 +172,24 @@ export class ChatGateway
       const payload = await this.authService.socketConnectionAuth(
         client.handshake.auth.token,
       );
-      const direct_messages = this.chatService.GetMyDirectMessages(payload.sub);
+      const channels = this.chatService.GetMyChannels(payload.sub);
 
       client.request['user'] = payload;
       client.data['user'] = payload;
 
-      for (const dm of await direct_messages) {
-        const msg: SendingDmDto = {
-          ...dm,
-          date: new Date(dm.date).getTime(),
-        };
-        client.emit('dm', JSON.stringify(msg));
-      }
+      await Promise.all([
+        new Promise(async (resolve) => {
+          (await channels).forEach((channel) => {
+            //Logger.log(`${payload.username} joins ${channel.name}`);
+            client.join(channel.id.toString());
+          });
+          resolve;
+        }),
+      ]);
     } catch (error) {
-      //if (this.debug) Logger.debug('Client connection declined: bad token');
-      Logger.error(error);
+      if (error?.name === 'JsonWebTokenError') {
+        if (this.debug) Logger.debug('Client connection declined: bad token');
+      } else Logger.error(error);
       client.disconnect();
       return;
     }
