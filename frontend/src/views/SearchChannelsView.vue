@@ -25,11 +25,12 @@
       </button>
     </div>
     <div class="flex flex-row w-full">
-      <div class="w-1/3"></div>
-      <div id="NotMemberChannels" class="mt-10 flex flex-col w-1/3">
-        <div v-for="channel in all_channels" :key="channel.id">
+      <div class="w-1/12"/>
+      <div id="NotMemberChannels" class="mt-10 grid grid-cols-3 w-5/6">
+        <div v-for="(channel, index) in all_channels" :key="channel.id" class="my-2 mx-1">
           <div
-            class="rounded border-black border space-x-4 p-3 m-3 items-center bg-purple-500 flex flex-row w-full"
+            class="rounded border-gray-600 border space-x-4 p-3 items-center flex flex-row w-full"
+            :class="{ 'first-col': index % 3 == 0, 'second-col': index % 3 == 1, 'third-col': index % 3 == 2}"
           >
             <img
               :src="getTypeIcon(channel)"
@@ -41,12 +42,21 @@
           </div>
         </div>
       </div>
-      <div class="w-1/3"></div>
+      <div class="w-1/12"/>
     </div>
   </section>
 </template>
 
 <style>
+.first-col {
+  background-color: var(--red);
+}
+.second-col {
+  background-color: var(--purple);
+}
+.third-col {
+  background-color: var(--green);
+}
 .btn {
   @apply font-bold py-2 px-4 rounded;
 }
