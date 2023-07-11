@@ -44,12 +44,15 @@ model User {
 
   games   Game[]
   players Player[]
+
+  dm_sent     DirectMessage[] @relation("dm_from_user")
+  dm_received DirectMessage[] @relation("dm_to_user")
 }
 
 model FriendshipInvitation {
-  from   User @relation(name: "from_user", fields: [fromId], references: [id])
+  from   User @relation(name: "fi_from_user", fields: [fromId], references: [id])
   fromId Int
-  to     User @relation(name: "to_user", fields: [toId], references: [id])
+  to     User @relation(name: "fi_to_user", fields: [toId], references: [id])
   toId   Int
 
   @@id([fromId, toId])
@@ -88,6 +91,7 @@ model Game {
   @@unique([date, initiatedById])
 }
 
+<<<<<<< HEAD
 enum mode_type {
   BEGINNER
   INTERMEDIATE
@@ -113,6 +117,15 @@ model Player {
   score             Int         @default(0)
   abandon           Boolean     @default(false)
   score4stat        Boolean     @default(false)
+
+  model DirectMessage {
+  id      Int      @id @default(autoincrement())
+  fromId  Int
+  from    User     @relation(name: "dm_from_user", fields: [fromId], references: [id])
+  toId    Int
+  to      User     @relation(name: "dm_to_user", fields: [toId], references: [id])
+  message String
+  date    DateTime
 
   @@unique([gameId, playerId])
 }

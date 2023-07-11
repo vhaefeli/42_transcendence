@@ -1,4 +1,5 @@
 <template>
+    <NavBar></NavBar>
     <h1 class="mt-9">Profile page</h1>
     <router-link to="/login">back to login</router-link>
     <!-- Nadia: tu pourra tout remove et afficher correctement. Toutes les classes sont du Tailwind. -->
@@ -134,6 +135,7 @@
     import axios from "axios";
     import { useUserStore } from '../stores/UserStore'
     import { useSessionStore } from "@/stores/SessionStore";
+    import NavBar from "@/components/NavBar.vue";
 
     
     // to have the token we need sessionStore

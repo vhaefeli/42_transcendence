@@ -12,6 +12,12 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
     await this.$connect();
   }
 
+  async enableShutdownHooks(app: INestApplication) {
+    this.$on('beforeExit', async () => {
+      await app.close();
+    });
+  }
+
   async autoPopulateDB() {
     // FOR DEBUG PURPOSES
     Logger.log('Creating test users');
@@ -116,12 +122,64 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
           from: { connect: { username: 'userTest' } },
         },
       });
+      await this.directMessage.createMany({
+        data: [
+          {
+            fromId: 1,
+            toId: 2,
+            message: 'Hello user',
+            date: new Date('Jul 03 2023 11:22:52'),
+          },
+          {
+            fromId: 2,
+            toId: 1,
+            message: 'Heyyyyy',
+            date: new Date('Jul 03 2023 14:00:03'),
+          },
+          {
+            fromId: 2,
+            toId: 1,
+            message: 'how r u doing',
+            date: new Date('Jul 03 2023 14:01:14'),
+          },
+          {
+            fromId: 1,
+            toId: 11,
+            message: 'Hello, you are a friend',
+            date: new Date('Dec 31 1970 00:00:00'),
+          },
+          {
+            fromId: 11,
+            toId: 1,
+            message: 'I am, indeed',
+            date: new Date('Dec 25 1999 10:10:10'),
+          },
+          {
+            fromId: 1,
+            toId: 6,
+            message: 'You are a blocked friend',
+            date: new Date('Jul 03 2023 11:22:52'),
+          },
+          {
+            fromId: 6,
+            toId: 1,
+            message: "And you shouldn' see this message",
+            date: new Date('Jul 05 2023 11:22:52'),
+          },
+          {
+            fromId: 1,
+            toId: 5,
+            message: "We aren' friends and you have blocked me",
+            date: new Date('Jul 03 2022 11:22:52'),
+          },
+          {
+            fromId: 5,
+            toId: 1,
+            message: "i don't like you",
+            date: new Date('Jul 03 2023 11:22:52'),
+          },
+        ],
+      });
     } catch {}
-  }
-
-  async enableShutdownHooks(app: INestApplication) {
-    this.$on('beforeExit', async () => {
-      await app.close();
-    });
   }
 }
