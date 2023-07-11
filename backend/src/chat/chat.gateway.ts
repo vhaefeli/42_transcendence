@@ -198,9 +198,6 @@ export class ChatGateway
       
       const channels = this.chatService.GetMyChannels(payload.sub);
 
-      client.request['user'] = payload;
-      client.data['user'] = payload;
-
       await Promise.all([
         new Promise(async (resolve) => {
           (await channels).forEach((channel) => {
