@@ -1,18 +1,23 @@
 <template>
-	<!-- <div class="vertical-line" id = "separation"></div> -->
-	<canvas ref="pong" id="pong" width="606" height="498">PONG GAME</canvas>
+	<div>TEST</div>
+	<div class="vertical-line" id="separation"></div>
+	<canvas ref="pongScreen" id="pong" width="606" height="498"></canvas>
 	<div @keydown="handleKeyDown" @keyup="handleKeyUp"></div>
 </template>
 
 <script setup>
-        var canvas = document.getElementById('pong');
-        if (!canvas.getContext) {
-            throw "Error";
-        }
-        var ctx = canvas.getContext('2d');
+	import { ref, onMounted } from 'vue'
+
+	const pongScreen = ref(null)
+	
+	onMounted(() => {
+        console.log("pong screen: ", pongScreen.value)
+		var ctx = pongScreen.value.getContext('2d');
 		console.log(ctx);
+    })
 
 </script>
+
 <style>
 
 .vertical-line {

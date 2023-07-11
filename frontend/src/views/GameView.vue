@@ -3,8 +3,8 @@
     <div id="gameApp">
 		<router-link class="t-btn-pink" id="retHome" to="/"><span>X</span></router-link>
 		<img id="arcade" src="../assets/img/arcade.png" alt="arcade">
-    	<!-- <span :class="{ 'blinking-text': true }" id="ready">press ENTER<br>to set as ready</span> -->
-		<PongVue />
+		 <span :class="{ 'blinking-text': true }" id="ready">press ENTER<br>to set as ready</span>
+		<PongVue></PongVue>
 	</div>
 </template>
   
@@ -25,7 +25,7 @@
 
 <style>
 #pong{
-	position: absolute;c
+	position: absolute;
 	top:13.6%;
 	width: 50%;
 	height: 72.8%;
@@ -84,12 +84,4 @@
 	/* padding: 2vw; */
 	background-color: var(--gray);
 }
-
 </style>
-    <NavBar/>
-    <div>Play a game</div>
-</template>
-  
-<script setup>
-import NavBar from "../components/NavBar.vue";
-</script>
