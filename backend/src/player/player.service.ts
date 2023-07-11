@@ -19,17 +19,27 @@ export class PlayerService {
   // ------------------------------------------------------------------------------------------------------
   // create the game with the 2 players from the custom game entry
   async newBothPlayer(
-    playerId: string,
+    playerId: number,
     createBothPlayerDto: CreateBothPlayerDto,
   ) {
     // ensure playerId is not equal to the opponentId
-    if (+playerId == createBothPlayerDto.opponentId) {
+    if (playerId == createBothPlayerDto.opponentId) {
       throw new UnauthorizedException("Opponent can't be the player");
     }
+    // ensure the opponenetId is existing
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id: createBothPlayerDto.opponentId,
+      },
+    });
+    if (user == null) {
+      throw new UnauthorizedException('Opponent must exist');
+    }
+
     // create the game with initiatedBy = sub
     const game = await this.prisma.game.create({
       data: {
-        initiatedById: +playerId,
+        initiatedById: playerId,
       },
       select: {
         id: true,
@@ -41,7 +51,7 @@ export class PlayerService {
         data: {
           gameId: game.id,
           seq: 1,
-          playerId: +playerId,
+          playerId: playerId,
           mode: createBothPlayerDto.mode,
         },
         select: {
@@ -52,7 +62,7 @@ export class PlayerService {
         data: {
           gameId: game.id,
           seq: 2,
-          playerId: +createBothPlayerDto.opponentId,
+          playerId: createBothPlayerDto.opponentId,
           mode: createBothPlayerDto.mode,
         },
         select: {
@@ -70,25 +80,28 @@ export class PlayerService {
 
   // ------------------------------------------------------------------------------------------------------
   // when start is hit on the game, the game is considered as started, a stop will be an abandon
-  async updateStart(playerId: string, updatePlayerDto: UpdatePlayerDto) {
+  async updateStart(playerId: number, updatePlayerDto: UpdatePlayerDto) {
+    let nbUpdate: number = 0;
     try {
       const playerUpdate = await this.prisma.player.updateMany({
         where: {
-          gameId: +updatePlayerDto.gameId,
-          playerId: +playerId,
+          gameId: updatePlayerDto.gameId,
+          playerId: playerId,
           gameStatus: 'PLAYING',
         },
         data: {
           score4stat: true,
         },
       });
-      if (playerUpdate.count != 1) {
-        return { Start: 'Failed' };
+      if (playerUpdate.count !== 1) {
+        throw new NotFoundException();
       } else {
+        nbUpdate = 1;
         return { Start: 'OK' };
       }
     } catch (e) {
       if (e?.code) Logger.error(e.code + ' ' + e.msg);
+      if (nbUpdate == 0) throw new NotFoundException();
       else Logger.error(e);
     }
   }
@@ -96,30 +109,30 @@ export class PlayerService {
   // ------------------------------------------------------------------------------------------------------
   //
   async updateCompletion(
-    playerId: string,
+    playerId: number,
     updateCompletionDto: UpdateCompletionDto,
   ) {
-    Logger.log('updateCompletion');
-    if (+updateCompletionDto.score > 3) {
+    let nbUpdate: number = 0;
+    if (updateCompletionDto.score > 3) {
       throw new UnauthorizedException('Max score is 3');
     }
     try {
       const playerUpdate = await this.prisma.player.updateMany({
         where: {
-          gameId: +updateCompletionDto.gameId,
-          playerId: +playerId,
+          gameId: updateCompletionDto.gameId,
+          playerId: playerId,
           gameStatus: 'PLAYING',
           score4stat: true,
         },
         data: {
-          score: +updateCompletionDto.score,
+          score: updateCompletionDto.score,
           gameStatus: 'ENDED',
         },
       });
 
       const gameUpdate = await this.prisma.game.update({
         where: {
-          id: +updateCompletionDto.gameId,
+          id: updateCompletionDto.gameId,
         },
         data: {
           completed: true,
@@ -140,7 +153,7 @@ export class PlayerService {
       // read the usewr for grapping the required values
       const ExistingUser = await this.prisma.user.findFirst({
         where: {
-          id: +playerId,
+          id: playerId,
         },
       });
 
@@ -160,7 +173,7 @@ export class PlayerService {
       }
       const updateUser = await this.prisma.user.update({
         where: {
-          id: +playerId,
+          id: playerId,
         },
         data: {
           level: newLevel,
@@ -169,35 +182,36 @@ export class PlayerService {
           nbGames: ExistingUser.nbGames + 1,
         },
       });
-      if (playerUpdate.count != 1) {
-        return { Completion: 'Failed' };
+      if (playerUpdate.count !== 1) {
+        throw new NotFoundException();
       } else {
+        nbUpdate = 1;
         return { Completion: 'OK' };
       }
     } catch (e) {
       if (e?.code) Logger.error(e.code + ' ' + e.msg);
+      if (nbUpdate == 0) throw new NotFoundException();
       else Logger.error(e);
     }
   }
 
   // ------------------------------------------------------------------------------------------------------
   // list all invitation received by the connected user
-  async invitedBy(playerId: string) {
-    const idnum: number = +playerId;
+  async invitedBy(playerId: number) {
     const game = await this.prisma.$queryRaw`
-      SELECT "Game".id "gameId", "User".username, "User"."level", "User"."avatar_url"
-      FROM "Game", "Player", "User"
-      WHERE "Player"."gameId" = "Game".id
-        AND "Game".completed = 'false'
-        AND "Player".seq = 1
-        AND "Player"."playerId" = "User".id
-        AND "Game".id IN (
-          SELECT "Player"."gameId"
-          FROM "Player"
-          WHERE "Player".seq = 2
-            AND "Player"."playerId" = ${idnum}
-        )
-    `;
+        SELECT "Game".id "gameId", "User".username, "User"."level", "User"."avatar_url"
+        FROM "Game", "Player", "User"
+        WHERE "Player"."gameId" = "Game".id
+          AND "Game".completed = 'false'
+          AND "Player".seq = 1
+          AND "Player"."playerId" = "User".id
+          AND "Game".id IN (
+            SELECT "Player"."gameId"
+            FROM "Player"
+            WHERE "Player".seq = 2
+              AND "Player"."playerId" = ${playerId}
+          )
+      `;
     return game;
   }
 
@@ -207,8 +221,8 @@ export class PlayerService {
     // ensure the user sub is the seq2 player
     const env_ok = await this.prisma.player.findFirst({
       where: {
-        gameId: +playingGameDto.gameId,
-        playerId: +id,
+        gameId: playingGameDto.gameId,
+        playerId: id,
         seq: 2,
       },
     });
@@ -222,7 +236,7 @@ export class PlayerService {
       try {
         const resultPlayer = await this.prisma.player.updateMany({
           where: {
-            gameId: +playingGameDto.gameId,
+            gameId: playingGameDto.gameId,
           },
           data: { gameStatus: 'PLAYING' },
         });
@@ -243,8 +257,8 @@ export class PlayerService {
     // ensure the user sub is the seq2 player
     const env_ok = await this.prisma.player.findFirst({
       where: {
-        gameId: +cancelGameDto.gameId,
-        playerId: +id,
+        gameId: cancelGameDto.gameId,
+        playerId: id,
         seq: 2,
       },
     });
@@ -259,7 +273,7 @@ export class PlayerService {
         //
         const result = await this.prisma.game.update({
           where: {
-            id: +cancelGameDto.gameId,
+            id: cancelGameDto.gameId,
           },
           data: {
             completed: false,
@@ -267,11 +281,12 @@ export class PlayerService {
         });
         const resultPlayer = await this.prisma.player.updateMany({
           where: {
-            gameId: +cancelGameDto.gameId,
+            gameId: cancelGameDto.gameId,
           },
           data: { gameStatus: 'ENDED' },
         });
-        return { result };
+        const resultReturned = 'Canceled';
+        return { resultReturned };
       } catch (e) {
         // record not found
         if (e.code == 'P2025') throw new NotFoundException();
@@ -296,7 +311,7 @@ export class PlayerService {
       // create the game with initiatedBy = sub
       const game = await this.prisma.game.create({
         data: {
-          initiatedById: +playerId,
+          initiatedById: playerId,
         },
         select: {
           id: true,
@@ -307,7 +322,7 @@ export class PlayerService {
         data: {
           gameId: game.id,
           seq: 1,
-          playerId: +playerId,
+          playerId: playerId,
           // mode: 'INTERMEDIATE',
           randomAssignation: true,
         },
@@ -328,7 +343,7 @@ export class PlayerService {
           data: {
             gameId: Candidate[0].gameId,
             seq: 2,
-            playerId: +playerId,
+            playerId: playerId,
             // mode: 'INTERMEDIATE',
             gameStatus: 'PLAYING',
             randomAssignation: false,

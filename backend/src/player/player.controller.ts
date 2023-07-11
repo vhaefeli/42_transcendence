@@ -15,6 +15,7 @@ export class PlayerController {
     @Request() req: any,
     @Body() createPlayerDto: CreateBothPlayerDto,
   ) {
+    console.log(' ' + req.user.sub);
     return await this.playerService.newBothPlayer(
       req.user.sub,
       createPlayerDto,
@@ -39,7 +40,6 @@ export class PlayerController {
 
   @Get('invitedBy')
   async invitedBy(@Request() req: any) {
-    // console.log(req.user.sub);
     return this.playerService.invitedBy(req.user.sub);
   }
 
@@ -54,13 +54,11 @@ export class PlayerController {
 
   @Patch('cancel')
   async cancelGame(@Request() req: any, @Body() cancelGameDto: CancelGameDto) {
-    console.log(req.user.sub);
     return await this.playerService.cancelGame(req.user.sub, cancelGameDto);
   }
 
   @Post('random')
   async random(@Request() req: any) {
-    console.log(req.user.sub);
     return await this.playerService.random(req.user.sub);
   }
 }
