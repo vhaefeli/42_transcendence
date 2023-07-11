@@ -92,6 +92,9 @@ model Game {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 58e8e8aab9be3f871c5d77adefe67ea43348c0f2
 enum mode_type {
   BEGINNER
   INTERMEDIATE
@@ -126,6 +129,19 @@ model Player {
   to      User     @relation(name: "dm_to_user", fields: [toId], references: [id])
   message String
   date    DateTime
+  <<<<<<< HEAD
+  =======
 
   @@unique([gameId, playerId])
+}
+
+model DirectMessage {
+  id      Int      @id @default(autoincrement())
+  fromId  Int
+  from    User     @relation(name: "dm_from_user", fields: [fromId], references: [id])
+  toId    Int
+  to      User     @relation(name: "dm_to_user", fields: [toId], references: [id])
+  message String
+  date    DateTime
+  >>>>>>> 58e8e8aab9be3f871c5d77adefe67ea43348c0f2
 }
