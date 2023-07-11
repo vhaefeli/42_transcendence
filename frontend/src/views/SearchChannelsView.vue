@@ -24,24 +24,24 @@
         Add
       </button>
     </div>
-    <!--
-      TODO center items in next div
-    <div id="NotMemberChannels" class="mt-10 flex flex-col items-center">
-    -->
-    <div id="NotMemberChannels" class="mt-10">
-      <div v-for="channel in all_channels" :key="channel.id">
-        <div
-          class="flex flex-row items-center space-x-4 p-3 rounded border-black border m-3 w-1/3 bg-purple-500"
-        >
-          <img
-            :src="getTypeIcon(channel)"
-            alt="icon"
-            class="max-w-4 max-h-4"
-            id="icon"
-          />
-          <h3 class="text-xl font-sans flex-1 truncate">{{ channel.name }}</h3>
+    <div class="flex flex-row w-full">
+      <div class="w-1/3"></div>
+      <div id="NotMemberChannels" class="mt-10 flex flex-col w-1/3">
+        <div v-for="channel in all_channels" :key="channel.id">
+          <div
+            class="rounded border-black border space-x-4 p-3 m-3 items-center bg-purple-500 flex flex-row w-full"
+          >
+            <img
+              :src="getTypeIcon(channel)"
+              alt="icon"
+              class="max-w-4 max-h-4"
+              id="icon"
+            />
+            <h3 class="text-xl font-sans truncate">{{ channel.name }}</h3>
+          </div>
         </div>
       </div>
+      <div class="w-1/3"></div>
     </div>
   </section>
 </template>
