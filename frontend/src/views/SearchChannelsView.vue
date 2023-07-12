@@ -2,10 +2,10 @@
   <NavBar />
   <section class="flex flex-col items-center w-full mt-10">
     <div class="flex flex-row w-full">
-      <div class="w-1/3/>"></div>
+      <div class="w-1/3" />
       <div class="w-1/3">
-        <h1 class="w-1/3">Search channels</h1>
-        <div id="SearchAllChannels" class="flex flex-row space-x-0.4 w-1/3">
+        <h1 class="mx-2">Search channels</h1>
+        <div id="SearchAllChannels" class="flex flex-row space-x-0.4 w-full">
           <ModelListSelect
             :list="all_channels"
             v-model="selectedChannel"
@@ -25,6 +25,7 @@
           </div>
         </div>
       </div>
+      <div class="w-1/3/>" />
     </div>
     <div class="flex flex-row w-full">
       <div class="w-1/12" />
