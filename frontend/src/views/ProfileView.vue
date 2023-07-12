@@ -135,8 +135,8 @@
               <li class="ft-text ml-2">John</li>
             </ul>
             <ul class="flex flex-row">
-              <li><a class="t-btn-pink ft-color-add"><span>[OK]</span></a></li>
-              <li><a class="t-btn-pink ft-color-remove"><span>[Nope]</span></a></li>
+              <li><a class="t-btn-pink ft-color-add"><span>[Accept]</span></a></li>
+              <li><a class="t-btn-pink ft-color-remove"><span>[Decline]</span></a></li>
             </ul>
           </li>
           <!-- UNIQUEMENT POUR GENERER CONTENU, COPIE DE THINGY CI-DESSOUS. NE PAS MODIFIER ICI-->
