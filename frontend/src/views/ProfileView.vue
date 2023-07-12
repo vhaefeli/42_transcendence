@@ -102,18 +102,72 @@
       <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Friends</div>
       <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left ft-scrollable">
         <ul>
-          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile">
-            <div class="ft-profile-pic" id="friends-pic">
-              <div class="ft-connection-circle" id="friends-pic"></div>
+          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-evenly">
+            <div class="flex flex-col">
+              <div class="ft-profile-pic" id="friends-pic">
+                <div class="ft-connection-circle ft-friend-status"></div>
+              </div>
             </div>
-            Jean-Eudes
-            <a class="t-btn-pink ft-bg-color-chat"><span>[msg]</span></a>
-            <a class="t-btn-pink ft-color-remove"><span>[rm]</span></a>
-            <a class="t-btn-pink ft-color-block"><span>[blk]</span></a>
+            <ul class="flex flex-col">
+              <li class="ft-text">Jean-Eudes</li>
+              <li class="ft-level-text">Pitaya level</li>
+            </ul>
+            <ul class="flex flex-row">
+              <li><a class="t-btn-pink ft-bg-color-chat"><span>[msg]</span></a></li>
+              <li><a class="t-btn-pink ft-color-remove"><span>[rm]</span></a></li>
+              <li><a class="t-btn-pink ft-color-block"><span>[blk]</span></a></li>
+            </ul>
           </li>
-          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile">Chris</li>
-          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile">Danielle</li>
-          <li class="ft-item-title ft-text ft-bb-color-profile">Pouette</li>
+          <!-- UNIQUEMENT POUR GENERER CONTENU, COPIE DE JEAN-EUDES CI-DESSOUS. NE PAS MODIFIER ICI-->
+          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-evenly">
+            <div class="flex flex-col">
+              <div class="ft-profile-pic" id="friends-pic">
+                <div class="ft-connection-circle ft-friend-status"></div>
+              </div>
+            </div>
+            <ul class="flex flex-col">
+              <li class="ft-text">Chris</li>
+              <li class="ft-level-text">Lemongrass level</li>
+            </ul>
+            <ul class="flex flex-row">
+              <li><a class="t-btn-pink ft-bg-color-chat"><span>[msg]</span></a></li>
+              <li><a class="t-btn-pink ft-color-remove"><span>[rm]</span></a></li>
+              <li><a class="t-btn-pink ft-color-block"><span>[blk]</span></a></li>
+            </ul>
+          </li>
+          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-evenly">
+            <div class="flex flex-col">
+              <div class="ft-profile-pic" id="friends-pic">
+                <div class="ft-connection-circle ft-friend-status"></div>
+              </div>
+            </div>
+            <ul class="flex flex-col">
+              <li class="ft-text">Danielle</li>
+              <li class="ft-level-text">Cherry tomato level</li>
+            </ul>
+            <ul class="flex flex-row">
+              <li><a class="t-btn-pink ft-bg-color-chat"><span>[msg]</span></a></li>
+              <li><a class="t-btn-pink ft-color-remove"><span>[rm]</span></a></li>
+              <li><a class="t-btn-pink ft-color-block"><span>[blk]</span></a></li>
+            </ul>
+          </li>
+          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-evenly">
+            <div class="flex flex-col">
+              <div class="ft-profile-pic" id="friends-pic">
+                <div class="ft-connection-circle ft-friend-status"></div>
+              </div>
+            </div>
+            <ul class="flex flex-col">
+              <li class="ft-text">Pouette</li>
+              <li class="ft-level-text">Yam level</li>
+            </ul>
+            <ul class="flex flex-row">
+              <li><a class="t-btn-pink ft-bg-color-chat"><span>[msg]</span></a></li>
+              <li><a class="t-btn-pink ft-color-remove"><span>[rm]</span></a></li>
+              <li><a class="t-btn-pink ft-color-block"><span>[blk]</span></a></li>
+            </ul>
+          </li>
+          <!-- UNIQUEMENT POUR GENERER CONTENU, COPIE DE JEAN-EUDES CI-DESSUS. NE PAS MODIFIER ICI -->
         </ul>
       </div>
     </div>
@@ -274,9 +328,9 @@
   background-size: cover;
 }
 
-.ft-connection-circle#friends-pic {
+.ft-connection-circle.ft-friend-status {
   position:absolute;
-  top: 2.5em;
+  top: 2em;
   right: -0.6em;
   z-index:2;
   /* align-content: end; */
