@@ -4,7 +4,8 @@ import {
   Logger,
   OnModuleInit,
 } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { ChannelTypes, PrismaClient } from '@prisma/client';
+import { channel } from 'diagnostics_channel';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
@@ -179,6 +180,129 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
             date: new Date('Jul 03 2023 11:22:52'),
           },
         ],
+      });
+      await this.channel.createMany({
+        data: [
+          {
+            name: 'VeryCoolChannel',
+            ownerId: 1,
+            type: ChannelTypes.PUBLIC,
+          },
+          {
+            name: 'MyFriendsClub',
+            ownerId: 6,
+            type: ChannelTypes.PRIVATE,
+          },
+          {
+            name: 'ProtectedChan',
+            ownerId: 1,
+            type: ChannelTypes.PROTECTED,
+            password: 'very_secret',
+          },
+          {
+            name: 'WeHateUserTest',
+            ownerId: 5,
+            type: ChannelTypes.PRIVATE,
+          },
+          {
+            name: 'IWantIceCream',
+            ownerId: 2,
+            type: ChannelTypes.PUBLIC,
+          },
+          {
+            name: 'timetoEAT!',
+            ownerId: 3,
+            type: ChannelTypes.PROTECTED,
+            password: 'cat',
+          },
+        ],
+      });
+      await this.channel.update({
+        where: { id: 1 },
+        data: {
+          admins: { connect: [{ id: 1 }] },
+          members: {
+            connect: [
+              { id: 1 },
+              { id: 2 },
+              { id: 3 },
+              { id: 4 },
+              { id: 4 },
+              { id: 6 },
+              { id: 7 },
+              { id: 8 },
+              { id: 9 },
+              { id: 10 },
+              { id: 11 },
+            ],
+          },
+        },
+      });
+      await this.channel.update({
+        where: { id: 2 },
+        data: {
+          admins: {
+            connect: [{ id: 1 }, { id: 6 }, { id: 10 }, { id: 8 }, { id: 11 }],
+          },
+          members: {
+            connect: [{ id: 1 }, { id: 6 }, { id: 10 }, { id: 8 }, { id: 11 }],
+          },
+        },
+      });
+      await this.channel.update({
+        where: { id: 3 },
+        data: {
+          admins: { connect: [{ id: 1 }] },
+          members: { connect: [{ id: 1 }, { id: 6 }] },
+        },
+      });
+      await this.channel.update({
+        where: { id: 4 },
+        data: {
+          admins: { connect: [{ id: 5 }] },
+          members: { connect: [{ id: 5 }, { id: 6 }] },
+        },
+      });
+      await this.channel.update({
+        where: { id: 5 },
+        data: {
+          admins: {
+            connect: [
+              { id: 2 },
+              { id: 3 },
+              { id: 4 },
+              { id: 5 },
+              { id: 6 },
+              { id: 7 },
+              { id: 8 },
+              { id: 9 },
+              { id: 10 },
+              { id: 11 },
+            ],
+          },
+          members: {
+            connect: [
+              { id: 1 },
+              { id: 2 },
+              { id: 3 },
+              { id: 4 },
+              { id: 5 },
+              { id: 6 },
+              { id: 7 },
+              { id: 8 },
+              { id: 9 },
+              { id: 10 },
+              { id: 11 },
+            ],
+          },
+        },
+      });
+      await this.channel.update({
+        where: { id: 6 },
+        data: {
+          admins: { connect: [{ id: 2 }] },
+          members: { connect: [{ id: 2 }] },
+        },
       });
     } catch {}
   }

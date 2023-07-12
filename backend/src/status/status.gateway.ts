@@ -66,7 +66,9 @@ export class StatusGateway
       client.data['user'] = payload;
       client.data['last_online'] = new Date();
     } catch (error) {
-      //if (this.debug) Logger.debug('Client connection declined: bad token');
+      if (error?.name === 'JsonWebTokenError') {
+        if (this.debug) Logger.debug('Client connection declined: bad token');
+      } else Logger.error(error);
       client.disconnect();
       return;
     }
