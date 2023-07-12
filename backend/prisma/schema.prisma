@@ -165,33 +165,3 @@ model ChannelMessage {
   sender    User     @relation(name: "channel_message", fields: [senderId], references: [id])
   channel   Channel  @relation(fields: [channelId], references: [id])
 }
-
-enum ChannelTypes {
-  PUBLIC
-  PROTECTED
-  PRIVATE
-}
-
-model Channel {
-  id        Int @id @default(autoincrement())
-  name      String @unique
-  type      ChannelTypes
-  password  String?
-
-  ownerId   Int
-  owner     User @relation(name: "channel_owner", fields: [ownerId], references: [id])
-  admins    User[] @relation(name: "channel_admins")
-  members   User[] @relation(name: "channel_members")
-  muted     User[] @relation(name: "channel_muted")
-  messages  ChannelMessage[]
-}
-
-model ChannelMessage {
-  id        Int @id @default(autoincrement())
-  message   String
-  date      DateTime
-  senderId  Int
-  channelId Int
-  sender    User @relation(name: "channel_message", fields: [senderId], references: [id])
-  channel   Channel @relation(fields: [channelId], references: [id])
-}
