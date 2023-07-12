@@ -92,8 +92,8 @@
               <li class="ft-text ml-2">Thingy</li>
             </ul>
             <ul class="flex flex-row">
-              <li><a class="t-btn-pink ft-color-add"><span>[OK]</span></a></li>
-              <li><a class="t-btn-pink ft-color-remove"><span>[Nope]</span></a></li>
+              <li><a class="t-btn-pink ft-color-add"><span>[Accept]</span></a></li>
+              <li><a class="t-btn-pink ft-color-remove"><span>[Decline]</span></a></li>
             </ul>
           </li>
 
@@ -104,8 +104,8 @@
               <li class="ft-text ml-2">Cerise</li>
             </ul>
             <ul class="flex flex-row">
-              <li><a class="t-btn-pink ft-color-add"><span>[OK]</span></a></li>
-              <li><a class="t-btn-pink ft-color-remove"><span>[Nope]</span></a></li>
+              <li><a class="t-btn-pink ft-color-add"><span>[Accept]</span></a></li>
+              <li><a class="t-btn-pink ft-color-remove"><span>[Decline]</span></a></li>
             </ul>
           </li>
           <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-between items-center">
@@ -114,8 +114,8 @@
               <li class="ft-text ml-2">Annabelle</li>
             </ul>
             <ul class="flex flex-row">
-              <li><a class="t-btn-pink ft-color-add"><span>[OK]</span></a></li>
-              <li><a class="t-btn-pink ft-color-remove"><span>[Nope]</span></a></li>
+              <li><a class="t-btn-pink ft-color-add"><span>[Accept]</span></a></li>
+              <li><a class="t-btn-pink ft-color-remove"><span>[Decline]</span></a></li>
             </ul>
           </li>
           <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-between items-center">
@@ -124,8 +124,8 @@
               <li class="ft-text ml-2">Jean-Pierre</li>
             </ul>
             <ul class="flex flex-row">
-              <li><a class="t-btn-pink ft-color-add"><span>[OK]</span></a></li>
-              <li><a class="t-btn-pink ft-color-remove"><span>[Nope]</span></a></li>
+              <li><a class="t-btn-pink ft-color-add"><span>[Accept]</span></a></li>
+              <li><a class="t-btn-pink ft-color-remove"><span>[Decline]</span></a></li>
             </ul>
           </li>
           <!-- Le dernier element n'a pas la classe ft-tab-separator -->
@@ -329,8 +329,8 @@
 
 .ft-left-tab#stats {
   position: relative;
-  top:-28em;
-  left: 26vw;
+  top:-28rem;
+  left: 10vw;
   width: 30em;
 
   z-index: 1;
@@ -339,8 +339,8 @@
 .ft-right-tab#match-history {
   position: relative;
   top:-35em;
-  left: 40vw;
-  width: 40em;
+  left: 45vw;
+  width: 40rem;
 }
 
 .ft-tab-border {
@@ -364,7 +364,7 @@
 .ft-left-tab#friends-requests {
   position: relative;
   top:-40em;
-  left: 22vw;
+  left: 15vw;
   width: 52em;
 }
 
@@ -384,11 +384,10 @@
 }
 
 .ft-connection-circle.ft-friend-status {
-  position:absolute;
-  top: 2em;
-  right: -0.6em;
+  position:relative;
+  top: 2.3rem;
+  right: -0.8rem;
   z-index:2;
-  /* align-content: end; */
   align-items: end;
 }
 
