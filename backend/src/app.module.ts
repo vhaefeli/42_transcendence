@@ -16,7 +16,7 @@ import { TfaController } from './tfa/tfa.controller';
 import { TfaService } from './tfa/tfa.service';
 import { TfaModule } from './tfa/tfa.module';
 import { AuthModule } from './auth/auth.module';
-import { GameModule } from './game/game.module';
+import { PlayerModule } from './player/player.module';
 
 @Module({
   imports: [
@@ -37,7 +37,7 @@ import { GameModule } from './game/game.module';
     ChatModule,
     TfaModule,
     AuthModule,
-    GameModule,
+    PlayerModule,
   ],
   controllers: [AppController, TfaController],
   providers: [

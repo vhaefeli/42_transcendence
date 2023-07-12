@@ -17,11 +17,11 @@ import { AuthService } from 'src/auth/auth.service';
 import { WsGuard } from 'src/auth/ws.guard';
 
 import { ChatService } from './chat.service';
-import { ReceivingDmDto, SendingDmDto } from './dm-payloads.dto';
+import { ReceivingDmDto, SendingDmDto } from './dto/dm-payloads.dto';
 import {
   ReceivingChannelMessageDto,
   SendingChannelMessageDto,
-} from './channel-message.dto';
+} from './dto/channel-message.dto';
 
 @WebSocketGateway({
   namespace: 'chat',
@@ -48,10 +48,6 @@ export class ChatGateway
   //    https://socket.io/docs/v3/rooms/
   // * Emit CheatSheet:
   //    https://socket.io/docs/v3/emit-cheatsheet/
-  //
-  // TODO:
-  // * Channel join room on connect
-  // * Channel emit to room
 
   @UseGuards(WsGuard)
   @SubscribeMessage('message')
