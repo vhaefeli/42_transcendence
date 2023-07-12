@@ -1,24 +1,29 @@
 <template>
   <NavBar />
   <section class="flex flex-col items-center w-full mt-10">
-    <h1 class="w-1/3">Search channels</h1>
-    <div id="SearchAllChannels" class="flex flex-row space-x-0.4 w-1/3">
-      <ModelListSelect
-        :list="all_channels"
-        v-model="selectedChannel"
-        optionValue="id"
-        optionText="name"
-        placeholder="Select channel"
-        class="w-full"
-      />
-      <div :class="{ 'cursor-not-allowed': !selectedChannel }">
-        <button
-          @click="validateSelection"
-          class="btn btn-blue"
-          :class="{ 'opacity-50 noClick': !selectedChannel }"
-        >
-          Add
-        </button>
+    <div class="flex flex-row w-full">
+      <div class="w-1/3/>"></div>
+      <div class="w-1/3">
+        <h1 class="w-1/3">Search channels</h1>
+        <div id="SearchAllChannels" class="flex flex-row space-x-0.4 w-1/3">
+          <ModelListSelect
+            :list="all_channels"
+            v-model="selectedChannel"
+            optionValue="id"
+            optionText="name"
+            placeholder="Select channel"
+            class="w-full"
+          />
+          <div :class="{ 'cursor-not-allowed': !selectedChannel }">
+            <button
+              @click="validateSelection"
+              class="btn btn-blue"
+              :class="{ 'opacity-50 noClick': !selectedChannel }"
+            >
+              Join
+            </button>
+          </div>
+        </div>
       </div>
     </div>
     <div class="flex flex-row w-full">
