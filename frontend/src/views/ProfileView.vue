@@ -23,7 +23,8 @@
         <a class="t-btn-pink ft-color-block ft-other-profile" id="block"><span>[blk]</span></a>
 
         <!-- Bouton pour editer son profil (SON profil uniquement) -->
-        <a class="t-btn-pink ft-color-edit ft-my-profile" id="edit"><span>[ed.]</span></a>
+        <!-- <a class="t-btn-pink ft-color-edit ft-my-profile" id="edit"><span>[ed.]</span></a> -->
+        <a class="t-btn-pink ft-color-edit ft-my-profile ft-icon-small" id="edit"><img src="../assets/img/icons/user-pen-solid.svg" alt=""></a>
       </div>
       <!-- <div class="ft-bg-color-profile ft-tabContent ft-centralTab">
       </div> -->
@@ -237,6 +238,9 @@
       </div>
     </div>
 
+    <img src="../assets/img/icons/table-tennis-paddle-ball-solid.svg" alt="is playing" class="ft-connection-circle">
+    <!-- <div class="ft-icon-test"></div> -->
+
     <!-- Pour les blocked, ajouter id="blocked" pour appliquer le bon fond -->
     
   </section>
@@ -418,6 +422,10 @@
 
 /* ^^ POUR DEBUG UNIQUEMENT ^^ */
 
+.ft-icon-test {
+  background: url(./../assets/img/icons/table-tennis-paddle-ball-solid.svg);
+  background-size: cover;
+}
 
 
 </style>
