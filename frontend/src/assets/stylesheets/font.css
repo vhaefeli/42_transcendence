@@ -32,6 +32,10 @@ h1, .ft-result-drk-text {
     font-size: 3rem;
 }
 
+.ft-tab-title {
+    font-size: 1.5rem;
+}
+
 h2, .ft-title, .ft-result-drk-text {
     font-size: 2rem;
 }
