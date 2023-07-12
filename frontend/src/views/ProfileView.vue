@@ -89,7 +89,7 @@
           <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-between items-center">
             <ul class="flex flex-row items-center">
               <li class="ft-profile-pic ft-friend-pic"></li>
-              <li class="ft-text m-2">Thingy</li>
+              <li class="ft-text ml-2">Thingy</li>
             </ul>
             <ul class="flex flex-row">
               <li><a class="t-btn-pink ft-color-add"><span>[OK]</span></a></li>
@@ -101,7 +101,7 @@
           <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-between items-center">
             <ul class="flex flex-row items-center">
               <li class="ft-profile-pic ft-friend-pic"></li>
-              <li class="ft-text m-2">Cerise</li>
+              <li class="ft-text ml-2">Cerise</li>
             </ul>
             <ul class="flex flex-row">
               <li><a class="t-btn-pink ft-color-add"><span>[OK]</span></a></li>
@@ -111,7 +111,7 @@
           <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-between items-center">
             <ul class="flex flex-row items-center">
               <li class="ft-profile-pic ft-friend-pic"></li>
-              <li class="ft-text m-2">Annabelle</li>
+              <li class="ft-text ml-2">Annabelle</li>
             </ul>
             <ul class="flex flex-row">
               <li><a class="t-btn-pink ft-color-add"><span>[OK]</span></a></li>
@@ -121,7 +121,7 @@
           <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-between items-center">
             <ul class="flex flex-row items-center">
               <li class="ft-profile-pic ft-friend-pic"></li>
-              <li class="ft-text m-2">Jean-Pierre</li>
+              <li class="ft-text ml-2">Jean-Pierre</li>
             </ul>
             <ul class="flex flex-row">
               <li><a class="t-btn-pink ft-color-add"><span>[OK]</span></a></li>
@@ -132,7 +132,7 @@
           <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between items-center">
             <ul class="flex flex-row items-center">
               <li class="ft-profile-pic ft-friend-pic"></li>
-              <li class="ft-text m-2">John</li>
+              <li class="ft-text ml-2">John</li>
             </ul>
             <ul class="flex flex-row">
               <li><a class="t-btn-pink ft-color-add"><span>[OK]</span></a></li>
@@ -149,15 +149,17 @@
       <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left ft-scrollable">
         <ul>
           <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-between">
-            <div class="flex flex-col">
-              <div class="ft-profile-pic ft-friend-pic">
-                <div class="ft-connection-circle ft-friend-status"></div>
+            <div class="flex flex-row items-center">
+              <div class="flex flex-col">
+                <div class="ft-profile-pic ft-friend-pic">
+                  <div class="ft-connection-circle ft-friend-status"></div>
+                </div>
               </div>
+              <ul class="flex flex-col justify-center">
+                <li class="ft-text ml-2">Jean-Eudes</li>
+                <li class="ft-level-text ml-2">Pitaya level</li>
+              </ul>
             </div>
-            <ul class="flex flex-col">
-              <li class="ft-text">Jean-Eudes</li>
-              <li class="ft-level-text">Pitaya level</li>
-            </ul>
             <ul class="flex flex-row">
               <li><a class="t-btn-pink ft-bg-color-chat"><span>[msg]</span></a></li>
               <li><a class="t-btn-pink ft-color-remove"><span>[rm]</span></a></li>
@@ -166,15 +168,17 @@
           </li>
           <!-- UNIQUEMENT POUR GENERER CONTENU, COPIE DE JEAN-EUDES CI-DESSOUS. NE PAS MODIFIER ICI-->
           <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-between">
-            <div class="flex flex-col">
-              <div class="ft-profile-pic ft-friend-pic">
-                <div class="ft-connection-circle ft-friend-status"></div>
+            <div class="flex flex-row items-center">
+              <div class="flex flex-col">
+                <div class="ft-profile-pic ft-friend-pic">
+                  <div class="ft-connection-circle ft-friend-status"></div>
+                </div>
               </div>
+              <ul class="flex flex-col justify-center">
+                <li class="ft-text ml-2">Chris</li>
+                <li class="ft-level-text ml-2">Lemongrass level</li>
+              </ul>
             </div>
-            <ul class="flex flex-col">
-              <li class="ft-text">Chris</li>
-              <li class="ft-level-text">Lemongrass level</li>
-            </ul>
             <ul class="flex flex-row">
               <li><a class="t-btn-pink ft-bg-color-chat"><span>[msg]</span></a></li>
               <li><a class="t-btn-pink ft-color-remove"><span>[rm]</span></a></li>
@@ -182,15 +186,17 @@
             </ul>
           </li>
           <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-between">
-            <div class="flex flex-col">
-              <div class="ft-profile-pic ft-friend-pic">
-                <div class="ft-connection-circle ft-friend-status"></div>
+            <div class="flex flex-row items-center">
+              <div class="flex flex-col">
+                <div class="ft-profile-pic ft-friend-pic">
+                  <div class="ft-connection-circle ft-friend-status"></div>
+                </div>
               </div>
+              <ul class="flex flex-col justify-center">
+                <li class="ft-text ml-2">Danielle</li>
+                <li class="ft-level-text ml-2">Cherry tomato level</li>
+              </ul>
             </div>
-            <ul class="flex flex-col">
-              <li class="ft-text">Danielle</li>
-              <li class="ft-level-text">Cherry tomato level</li>
-            </ul>
             <ul class="flex flex-row">
               <li><a class="t-btn-pink ft-bg-color-chat"><span>[msg]</span></a></li>
               <li><a class="t-btn-pink ft-color-remove"><span>[rm]</span></a></li>
@@ -199,15 +205,17 @@
           </li>
           <!-- Le dernier element n'a pas la classe ft-tab-separator -->
           <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between">
-            <div class="flex flex-col">
-              <div class="ft-profile-pic ft-friend-pic">
-                <div class="ft-connection-circle ft-friend-status"></div>
+            <div class="flex flex-row items-center">
+              <div class="flex flex-col">
+                <div class="ft-profile-pic ft-friend-pic">
+                  <div class="ft-connection-circle ft-friend-status"></div>
+                </div>
               </div>
+              <ul class="flex flex-col justify-center">
+                <li class="ft-text ml-2">Pouette</li>
+                <li class="ft-level-text ml-2">Yam level</li>
+              </ul>
             </div>
-            <ul class="flex flex-col">
-              <li class="ft-text">Pouette</li>
-              <li class="ft-level-text">Yam level</li>
-            </ul>
             <ul class="flex flex-row">
               <li><a class="t-btn-pink ft-bg-color-chat"><span>[msg]</span></a></li>
               <li><a class="t-btn-pink ft-color-remove"><span>[rm]</span></a></li>
