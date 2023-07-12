@@ -87,11 +87,9 @@
       <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left ft-scrollable">
         <ul>
           <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-between items-center">
-            <div class="flex flex-col">
-              <div class="ft-profile-pic ft-friend-pic"></div>
-            </div>
-            <ul class="flex flex-col">
-              <li class="ft-text">Thingy</li>
+            <ul class="flex flex-row items-center">
+              <li class="ft-profile-pic ft-friend-pic"></li>
+              <li class="ft-text m-2">Thingy</li>
             </ul>
             <ul class="flex flex-row">
               <li><a class="t-btn-pink ft-color-add"><span>[OK]</span></a></li>
@@ -101,11 +99,9 @@
 
           <!-- UNIQUEMENT POUR GENERER CONTENU, COPIE DE THINGY CI-DESSOUS. NE PAS MODIFIER ICI-->
           <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-between items-center">
-            <div class="flex flex-col">
-              <div class="ft-profile-pic ft-friend-pic"></div>
-            </div>
-            <ul class="flex flex-col">
-              <li class="ft-text">Cerise</li>
+            <ul class="flex flex-row items-center">
+              <li class="ft-profile-pic ft-friend-pic"></li>
+              <li class="ft-text m-2">Cerise</li>
             </ul>
             <ul class="flex flex-row">
               <li><a class="t-btn-pink ft-color-add"><span>[OK]</span></a></li>
@@ -113,11 +109,9 @@
             </ul>
           </li>
           <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-between items-center">
-            <div class="flex flex-col">
-              <div class="ft-profile-pic ft-friend-pic"></div>
-            </div>
-            <ul class="flex flex-col">
-              <li class="ft-text">Jean-Daniel</li>
+            <ul class="flex flex-row items-center">
+              <li class="ft-profile-pic ft-friend-pic"></li>
+              <li class="ft-text m-2">Annabelle</li>
             </ul>
             <ul class="flex flex-row">
               <li><a class="t-btn-pink ft-color-add"><span>[OK]</span></a></li>
@@ -125,11 +119,9 @@
             </ul>
           </li>
           <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-between items-center">
-            <div class="flex flex-col">
-              <div class="ft-profile-pic ft-friend-pic"></div>
-            </div>
-            <ul class="flex flex-col">
-              <li class="ft-text">Anne-Sylvie</li>
+            <ul class="flex flex-row items-center">
+              <li class="ft-profile-pic ft-friend-pic"></li>
+              <li class="ft-text m-2">Jean-Pierre</li>
             </ul>
             <ul class="flex flex-row">
               <li><a class="t-btn-pink ft-color-add"><span>[OK]</span></a></li>
@@ -138,11 +130,9 @@
           </li>
           <!-- Le dernier element n'a pas la classe ft-tab-separator -->
           <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between items-center">
-            <div class="flex flex-col">
-              <div class="ft-profile-pic ft-friend-pic"></div>
-            </div>
-            <ul class="flex flex-col">
-              <li class="ft-text">John</li>
+            <ul class="flex flex-row items-center">
+              <li class="ft-profile-pic ft-friend-pic"></li>
+              <li class="ft-text m-2">John</li>
             </ul>
             <ul class="flex flex-row">
               <li><a class="t-btn-pink ft-color-add"><span>[OK]</span></a></li>
