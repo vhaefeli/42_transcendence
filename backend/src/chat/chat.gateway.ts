@@ -167,15 +167,36 @@ export class ChatGateway
     client.disconnect(true);
   }
 
+  @UseGuards(WsGuard)
+  @SubscribeMessage('dmHistory')
+  async sendDmHistory(@ConnectedSocket() client: any) {
+    try {
+      const direct_messages = this.chatService.GetMyDirectMessages(
+        client.data.user.sub,
+      );
+
+      for (const dm of await direct_messages) {
+        const msg: SendingDmDto = {
+          ...dm,
+          date: new Date(dm.date).getTime(),
+        };
+        client.emit('dmHistory', msg);
+      }
+    } catch (error) {
+      if (error?.code) Logger.error(`${error.code}, ${error.message}`);
+      throw error;
+    }
+  }
+
   async handleConnection(client: Socket, ...args: any[]) {
     try {
       const payload = await this.authService.socketConnectionAuth(
         client.handshake.auth.token,
       );
-      const channels = this.chatService.GetMyChannels(payload.sub);
-
       client.request['user'] = payload;
       client.data['user'] = payload;
+      
+      const channels = this.chatService.GetMyChannels(payload.sub);
 
       await Promise.all([
         new Promise(async (resolve) => {
