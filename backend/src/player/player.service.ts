@@ -211,7 +211,7 @@ export class PlayerService {
   // list all games played by the connected user
   async gameLog(playerId: number) {
     const gameslog = await this.prisma.$queryRaw`
-    select "Game".date, "User".username, "Player".score, u2.username, p2.score, u2."level", ('won against ' || u2.username || ' (' || (u2."level") || ')')  "Result"
+    select "Game".date, ('won against ' || u2.username || ' (' || (u2."level") || ')')  "Result"
     from  "Player", "Game", "User", "Player" p2, "User" u2
     where 
     "Player"."gameId" = "Game".id
@@ -223,7 +223,7 @@ export class PlayerService {
     and p2."playerId" = u2.id
     and "Player".score > p2.score
     union all
-    select "Game".date, "User".username, "Player".score, u2.username, p2.score, u2."level", ('Lost againtst ' || u2.username || ' (' || (u2."level") || ')') "Result"
+    select "Game".date, ('Lost againtst ' || u2.username || ' (' || (u2."level") || ')') "Result"
     from  "Player", "Game", "User", "Player" p2, "User" u2
     where 
     "Player"."gameId" = "Game".id
