@@ -36,6 +36,10 @@ h2, .ft-title, .ft-result-drk-text {
     font-size: 2rem;
 }
 
+.ft-level-text {
+    font-size: 0.6rem;
+}
+
 .ft-title, .ft-tab-title {
     color: var(--light);
 }
