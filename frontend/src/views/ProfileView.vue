@@ -104,7 +104,7 @@
         <ul>
           <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-evenly">
             <div class="flex flex-col">
-              <div class="ft-profile-pic" id="friends-pic">
+              <div class="ft-profile-pic ft-friend-pic">
                 <div class="ft-connection-circle ft-friend-status"></div>
               </div>
             </div>
@@ -121,7 +121,7 @@
           <!-- UNIQUEMENT POUR GENERER CONTENU, COPIE DE JEAN-EUDES CI-DESSOUS. NE PAS MODIFIER ICI-->
           <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-evenly">
             <div class="flex flex-col">
-              <div class="ft-profile-pic" id="friends-pic">
+              <div class="ft-profile-pic ft-friend-pic">
                 <div class="ft-connection-circle ft-friend-status"></div>
               </div>
             </div>
@@ -137,7 +137,7 @@
           </li>
           <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-evenly">
             <div class="flex flex-col">
-              <div class="ft-profile-pic" id="friends-pic">
+              <div class="ft-profile-pic ft-friend-pic">
                 <div class="ft-connection-circle ft-friend-status"></div>
               </div>
             </div>
@@ -153,7 +153,7 @@
           </li>
           <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-evenly">
             <div class="flex flex-col">
-              <div class="ft-profile-pic" id="friends-pic">
+              <div class="ft-profile-pic ft-friend-pic">
                 <div class="ft-connection-circle ft-friend-status"></div>
               </div>
             </div>
@@ -320,7 +320,7 @@
   width: 50em;
 }
 
-.ft-profile-pic#friends-pic {
+.ft-profile-pic.ft-friend-pic {
   width: 3em;
   height: 3em;
   position: relative;
