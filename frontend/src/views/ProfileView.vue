@@ -24,7 +24,7 @@
 
         <!-- Bouton pour editer son profil (SON profil uniquement) -->
         <!-- <a class="t-btn-pink ft-color-edit ft-my-profile" id="edit"><span>[ed.]</span></a> -->
-        <a class="t-btn-pink ft-color-edit ft-my-profile ft-icon-small" id="edit"><img src="../assets/img/icons/user-pen-solid.svg" alt=""></a>
+        <a class="t-btn-pink ft-color-edit ft-my-profile ft-icon-small" id="edit"><img src="../assets/img/icons/user-pen-solid.svg" alt="edit my profile"></a>
       </div>
       <!-- <div class="ft-bg-color-profile ft-tabContent ft-centralTab">
       </div> -->
@@ -93,8 +93,8 @@
               <li class="ft-text ml-2">Thingy</li>
             </ul>
             <ul class="flex flex-row">
-              <li><a class="t-btn-pink ft-color-add"><span>[Accept]</span></a></li>
-              <li><a class="t-btn-pink ft-color-remove"><span>[Decline]</span></a></li>
+              <li><a class="t-btn-pink ft-color-add ft-icon-small"><img src="../assets/img/icons/circle-check-solid.svg" alt="accept friend request"></a></li>
+              <li><a class="t-btn-pink ft-color-remove ft-icon-small"><img src="../assets/img/icons/circle-xmark-solid.svg" alt="decline friend request"></a></li>
             </ul>
           </li>
 
@@ -105,8 +105,8 @@
               <li class="ft-text ml-2">Cerise</li>
             </ul>
             <ul class="flex flex-row">
-              <li><a class="t-btn-pink ft-color-add"><span>[Accept]</span></a></li>
-              <li><a class="t-btn-pink ft-color-remove"><span>[Decline]</span></a></li>
+              <li><a class="t-btn-pink ft-color-add ft-icon-small"><img src="../assets/img/icons/circle-check-solid.svg" alt="accept friend request"></a></li>
+              <li><a class="t-btn-pink ft-color-remove ft-icon-small"><img src="../assets/img/icons/circle-xmark-solid.svg" alt="decline friend request"></a></li>
             </ul>
           </li>
           <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-between items-center">
@@ -115,8 +115,8 @@
               <li class="ft-text ml-2">Annabelle</li>
             </ul>
             <ul class="flex flex-row">
-              <li><a class="t-btn-pink ft-color-add"><span>[Accept]</span></a></li>
-              <li><a class="t-btn-pink ft-color-remove"><span>[Decline]</span></a></li>
+              <li><a class="t-btn-pink ft-color-add ft-icon-small"><img src="../assets/img/icons/circle-check-solid.svg" alt="accept friend request"></a></li>
+              <li><a class="t-btn-pink ft-color-remove ft-icon-small"><img src="../assets/img/icons/circle-xmark-solid.svg" alt="decline friend request"></a></li>
             </ul>
           </li>
           <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-between items-center">
@@ -125,8 +125,8 @@
               <li class="ft-text ml-2">Jean-Pierre</li>
             </ul>
             <ul class="flex flex-row">
-              <li><a class="t-btn-pink ft-color-add"><span>[Accept]</span></a></li>
-              <li><a class="t-btn-pink ft-color-remove"><span>[Decline]</span></a></li>
+              <li><a class="t-btn-pink ft-color-add ft-icon-small"><img src="../assets/img/icons/circle-check-solid.svg" alt="accept friend request"></a></li>
+              <li><a class="t-btn-pink ft-color-remove ft-icon-small"><img src="../assets/img/icons/circle-xmark-solid.svg" alt="decline friend request"></a></li>
             </ul>
           </li>
           <!-- Le dernier element n'a pas la classe ft-tab-separator -->
@@ -136,8 +136,8 @@
               <li class="ft-text ml-2">John</li>
             </ul>
             <ul class="flex flex-row">
-              <li><a class="t-btn-pink ft-color-add"><span>[Accept]</span></a></li>
-              <li><a class="t-btn-pink ft-color-remove"><span>[Decline]</span></a></li>
+              <li><a class="t-btn-pink ft-color-add ft-icon-small"><img src="../assets/img/icons/circle-check-solid.svg" alt="accept friend request"></a></li>
+              <li><a class="t-btn-pink ft-color-remove ft-icon-small"><img src="../assets/img/icons/circle-xmark-solid.svg" alt="decline friend request"></a></li>
             </ul>
           </li>
           <!-- UNIQUEMENT POUR GENERER CONTENU, COPIE DE THINGY CI-DESSOUS. NE PAS MODIFIER ICI-->
@@ -162,9 +162,9 @@
               </ul>
             </div>
             <ul class="flex flex-row">
-              <li><a class="t-btn-pink ft-bg-color-chat"><span>[msg]</span></a></li>
-              <li><a class="t-btn-pink ft-color-remove"><span>[rm]</span></a></li>
-              <li><a class="t-btn-pink ft-color-block"><span>[blk]</span></a></li>
+              <li><a class="t-btn-pink ft-bg-color-chat ft-icon-small"><img src="../assets/img/icons/message-solid.svg" alt="send them a message"></a></li>
+              <li><a class="t-btn-pink ft-color-block ft-icon-small"><img src="../assets/img/icons/ban-solid.svg" alt="block them"></a></li>
+              <li><a class="t-btn-pink ft-color-remove ft-icon-small"><img src="../assets/img/icons/user-minus-solid.svg" alt="remove friendship"></a></li>
             </ul>
           </li>
           <!-- UNIQUEMENT POUR GENERER CONTENU, COPIE DE JEAN-EUDES CI-DESSOUS. NE PAS MODIFIER ICI-->
@@ -181,9 +181,9 @@
               </ul>
             </div>
             <ul class="flex flex-row">
-              <li><a class="t-btn-pink ft-bg-color-chat"><span>[msg]</span></a></li>
-              <li><a class="t-btn-pink ft-color-remove"><span>[rm]</span></a></li>
-              <li><a class="t-btn-pink ft-color-block"><span>[blk]</span></a></li>
+              <li><a class="t-btn-pink ft-bg-color-chat ft-icon-small"><img src="../assets/img/icons/message-solid.svg" alt="send them a message"></a></li>
+              <li><a class="t-btn-pink ft-color-block ft-icon-small"><img src="../assets/img/icons/ban-solid.svg" alt="block them"></a></li>
+              <li><a class="t-btn-pink ft-color-remove ft-icon-small"><img src="../assets/img/icons/user-minus-solid.svg" alt="remove friendship"></a></li>
             </ul>
           </li>
           <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-between">
@@ -199,9 +199,9 @@
               </ul>
             </div>
             <ul class="flex flex-row">
-              <li><a class="t-btn-pink ft-bg-color-chat"><span>[msg]</span></a></li>
-              <li><a class="t-btn-pink ft-color-remove"><span>[rm]</span></a></li>
-              <li><a class="t-btn-pink ft-color-block"><span>[blk]</span></a></li>
+              <li><a class="t-btn-pink ft-bg-color-chat ft-icon-small"><img src="../assets/img/icons/message-solid.svg" alt="send them a message"></a></li>
+              <li><a class="t-btn-pink ft-color-block ft-icon-small"><img src="../assets/img/icons/ban-solid.svg" alt="block them"></a></li>
+              <li><a class="t-btn-pink ft-color-remove ft-icon-small"><img src="../assets/img/icons/user-minus-solid.svg" alt="remove friendship"></a></li>
             </ul>
           </li>
           <!-- Le dernier element n'a pas la classe ft-tab-separator -->
@@ -218,9 +218,9 @@
               </ul>
             </div>
             <ul class="flex flex-row">
-              <li><a class="t-btn-pink ft-bg-color-chat"><span>[msg]</span></a></li>
-              <li><a class="t-btn-pink ft-color-remove"><span>[rm]</span></a></li>
-              <li><a class="t-btn-pink ft-color-block"><span>[blk]</span></a></li>
+              <li><a class="t-btn-pink ft-bg-color-chat ft-icon-small"><img src="../assets/img/icons/message-solid.svg" alt="send them a message"></a></li>
+              <li><a class="t-btn-pink ft-color-block ft-icon-small"><img src="../assets/img/icons/ban-solid.svg" alt="block them"></a></li>
+              <li><a class="t-btn-pink ft-color-remove ft-icon-small"><img src="../assets/img/icons/user-minus-solid.svg" alt="remove friendship"></a></li>
             </ul>
           </li>
           <!-- UNIQUEMENT POUR GENERER CONTENU, COPIE DE JEAN-EUDES CI-DESSUS. NE PAS MODIFIER ICI -->
@@ -233,7 +233,7 @@
       <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left">
           <div class="flex flex-row justify-center">
             <input type="text" placeholder="Search by username">
-            <a class="t-btn-pink ft-color-add"><span>Add</span></a>
+            <a class="t-btn-pink ft-color-add ft-icon-small"><img src="../assets/img/icons/user-plus-solid.svg" alt="send a friend request"></a>
           </div>
       </div>
     </div>
