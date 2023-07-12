@@ -86,14 +86,70 @@
       <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Friends requests</div>
       <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left ft-scrollable">
         <ul>
-          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile">
-            Thingy
-            <a class="t-btn-pink ft-color-add"><span>OK</span></a>
-            <a class="t-btn-pink ft-color-block"><span>Nope</span></a>
+          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-between items-center">
+            <div class="flex flex-col">
+              <div class="ft-profile-pic ft-friend-pic"></div>
+            </div>
+            <ul class="flex flex-col">
+              <li class="ft-text">Thingy</li>
+            </ul>
+            <ul class="flex flex-row">
+              <li><a class="t-btn-pink ft-color-add"><span>[OK]</span></a></li>
+              <li><a class="t-btn-pink ft-color-remove"><span>[Nope]</span></a></li>
+            </ul>
           </li>
-          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile">Cerise</li>
-          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile">Jean-Daniel</li>
-          <li class="ft-item-title ft-text ft-bb-color-profile">Anne-Sylvie</li>
+
+          <!-- UNIQUEMENT POUR GENERER CONTENU, COPIE DE THINGY CI-DESSOUS. NE PAS MODIFIER ICI-->
+          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-between items-center">
+            <div class="flex flex-col">
+              <div class="ft-profile-pic ft-friend-pic"></div>
+            </div>
+            <ul class="flex flex-col">
+              <li class="ft-text">Cerise</li>
+            </ul>
+            <ul class="flex flex-row">
+              <li><a class="t-btn-pink ft-color-add"><span>[OK]</span></a></li>
+              <li><a class="t-btn-pink ft-color-remove"><span>[Nope]</span></a></li>
+            </ul>
+          </li>
+          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-between items-center">
+            <div class="flex flex-col">
+              <div class="ft-profile-pic ft-friend-pic"></div>
+            </div>
+            <ul class="flex flex-col">
+              <li class="ft-text">Jean-Daniel</li>
+            </ul>
+            <ul class="flex flex-row">
+              <li><a class="t-btn-pink ft-color-add"><span>[OK]</span></a></li>
+              <li><a class="t-btn-pink ft-color-remove"><span>[Nope]</span></a></li>
+            </ul>
+          </li>
+          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-between items-center">
+            <div class="flex flex-col">
+              <div class="ft-profile-pic ft-friend-pic"></div>
+            </div>
+            <ul class="flex flex-col">
+              <li class="ft-text">Anne-Sylvie</li>
+            </ul>
+            <ul class="flex flex-row">
+              <li><a class="t-btn-pink ft-color-add"><span>[OK]</span></a></li>
+              <li><a class="t-btn-pink ft-color-remove"><span>[Nope]</span></a></li>
+            </ul>
+          </li>
+          <!-- Le dernier element n'a pas la classe ft-tab-separator -->
+          <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between items-center">
+            <div class="flex flex-col">
+              <div class="ft-profile-pic ft-friend-pic"></div>
+            </div>
+            <ul class="flex flex-col">
+              <li class="ft-text">John</li>
+            </ul>
+            <ul class="flex flex-row">
+              <li><a class="t-btn-pink ft-color-add"><span>[OK]</span></a></li>
+              <li><a class="t-btn-pink ft-color-remove"><span>[Nope]</span></a></li>
+            </ul>
+          </li>
+          <!-- UNIQUEMENT POUR GENERER CONTENU, COPIE DE THINGY CI-DESSOUS. NE PAS MODIFIER ICI-->
         </ul>
       </div>
     </div>
@@ -102,7 +158,7 @@
       <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Friends</div>
       <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left ft-scrollable">
         <ul>
-          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-evenly">
+          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-between">
             <div class="flex flex-col">
               <div class="ft-profile-pic ft-friend-pic">
                 <div class="ft-connection-circle ft-friend-status"></div>
@@ -119,7 +175,7 @@
             </ul>
           </li>
           <!-- UNIQUEMENT POUR GENERER CONTENU, COPIE DE JEAN-EUDES CI-DESSOUS. NE PAS MODIFIER ICI-->
-          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-evenly">
+          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-between">
             <div class="flex flex-col">
               <div class="ft-profile-pic ft-friend-pic">
                 <div class="ft-connection-circle ft-friend-status"></div>
@@ -135,7 +191,7 @@
               <li><a class="t-btn-pink ft-color-block"><span>[blk]</span></a></li>
             </ul>
           </li>
-          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-evenly">
+          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-between">
             <div class="flex flex-col">
               <div class="ft-profile-pic ft-friend-pic">
                 <div class="ft-connection-circle ft-friend-status"></div>
@@ -151,7 +207,8 @@
               <li><a class="t-btn-pink ft-color-block"><span>[blk]</span></a></li>
             </ul>
           </li>
-          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-evenly">
+          <!-- Le dernier element n'a pas la classe ft-tab-separator -->
+          <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between">
             <div class="flex flex-col">
               <div class="ft-profile-pic ft-friend-pic">
                 <div class="ft-connection-circle ft-friend-status"></div>
