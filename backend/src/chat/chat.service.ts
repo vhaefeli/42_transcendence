@@ -9,9 +9,9 @@ import { WsException } from '@nestjs/websockets';
 import { ChannelTypes } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 
-import { ChannelAddMemberDto } from './channel-add-member.dto';
-import { CreateChannelDto } from './create-channel.dto';
-import { FindChannelDto } from './find-channel.dto';
+import { ChannelAddMemberDto } from './dto/channel-add-member.dto';
+import { CreateChannelDto } from './dto/create-channel.dto';
+import { FindChannelDto } from './dto/find-channel.dto';
 
 @Injectable()
 export class ChatService {

@@ -17,11 +17,11 @@ import { AuthService } from 'src/auth/auth.service';
 import { WsGuard } from 'src/auth/ws.guard';
 
 import { ChatService } from './chat.service';
-import { ReceivingDmDto, SendingDmDto } from './dm-payloads.dto';
+import { ReceivingDmDto, SendingDmDto } from './dto/dm-payloads.dto';
 import {
   ReceivingChannelMessageDto,
   SendingChannelMessageDto,
-} from './channel-message.dto';
+} from './dto/channel-message.dto';
 
 @WebSocketGateway({
   namespace: 'chat',

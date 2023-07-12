@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsString, MinLength, ValidateIf } from 'class-validator';
-import { IsChannelType } from './channel-type.validator';
+import { IsChannelType } from '../channel-type.validator';
 import { ChannelTypes } from '@prisma/client';
 import { Transform } from 'class-transformer';
 
