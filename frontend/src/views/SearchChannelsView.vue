@@ -11,26 +11,46 @@
         placeholder="Select channel"
         class="w-full"
       />
-      <button
-        v-if="selectedChannel"
-        @click="validateSelection"
-        class="btn btn-blue"
-      >
-        Add</button
-      ><button
-        v-if="!selectedChannel"
-        class="bg-blue-500 text-white font-bold py-2 px-4 rounded opacity-50 cursor-not-allowed"
-      >
-        Add
-      </button>
+      <div :class="{ 'cursor-not-allowed': !selectedChannel }">
+        <button
+          @click="validateSelection"
+          class="btn btn-blue"
+          :class="{ 'opacity-50 noClick': !selectedChannel }"
+        >
+          Add
+        </button>
+      </div>
     </div>
     <div class="flex flex-row w-full">
-      <div class="w-1/12"/>
-      <div id="NotMemberChannels" class="mt-10 grid grid-cols-3 w-5/6">
-        <div v-for="(channel, index) in all_channels" :key="channel.id" class="my-2 mx-1">
+      <div class="w-1/12" />
+      <div id="ChannelList" class="mt-10 grid grid-cols-3 w-5/6">
+        <div
+          v-for="(channel, index) in all_channels"
+          :key="channel.id"
+          class="my-2 mx-1"
+          :class="{
+            'col-start-2':
+              all_channels.length % 3 == 1 && index == all_channels.length - 1,
+          }"
+        >
           <div
             class="rounded border-gray-600 border space-x-4 p-3 items-center flex flex-row w-full"
-            :class="{ 'first-col': index % 3 == 0, 'second-col': index % 3 == 1, 'third-col': index % 3 == 2}"
+            :class="{
+              'first-col':
+                index % 3 == 0 &&
+                !(
+                  all_channels.length % 3 == 1 &&
+                  index == all_channels.length - 1
+                ),
+              'second-col':
+                index % 3 == 1 ||
+                (all_channels.length % 3 == 1 &&
+                  index == all_channels.length - 1),
+              'third-col': index % 3 == 2,
+              second_col:
+                all_channels.length % 3 == 1 &&
+                index == all_channels.length - 1,
+            }"
           >
             <img
               :src="getTypeIcon(channel)"
@@ -42,7 +62,7 @@
           </div>
         </div>
       </div>
-      <div class="w-1/12"/>
+      <div class="w-1/12" />
     </div>
   </section>
 </template>
@@ -56,6 +76,9 @@
 }
 .third-col {
   background-color: var(--green);
+}
+.noClick {
+  pointer-events: none;
 }
 .btn {
   @apply font-bold py-2 px-4 rounded;
