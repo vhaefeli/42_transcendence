@@ -56,7 +56,7 @@
             <div class="ft-text">perfect victories</div>
           </div>
           <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
-            <div class="ft-result-drk-text">Pitya</div>
+            <div class="ft-result-drk-text">Pitaya</div>
             <div class="ft-text">level</div>
           </div>
       </div>
