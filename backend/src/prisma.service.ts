@@ -29,16 +29,28 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
             username: 'userTest',
             password: 'f',
             avatar_url: 'http://localhost:3000/avatar/default.jpg',
+            level: 'BEGINNER',
+            rank: 2,
+            nbMatch: 1,
+            nbGames: 3,
           },
           {
             username: 'TechGuru42',
             password: 'f',
             avatar_url: 'http://localhost:3000/avatar/default.jpg',
+            level: 'INITIATION',
+            rank: 1,
+            nbMatch: 0,
+            nbGames: 2,
           },
           {
             username: 'MusicLover88',
             password: 'f',
             avatar_url: 'http://localhost:3000/avatar/default.jpg',
+            level: 'INITIATION',
+            rank: 0,
+            nbMatch: 0,
+            nbGames: 1,
           },
           {
             username: 'TravelBug123',
@@ -303,6 +315,80 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
           admins: { connect: [{ id: 2 }] },
           members: { connect: [{ id: 2 }] },
         },
+      });
+      await this.game.createMany({
+        data: [
+          {
+            initiatedById: 1,
+            completed: true,
+          },
+          {
+            initiatedById: 1,
+            completed: true,
+          },
+          {
+            initiatedById: 1,
+            completed: true,
+          },
+        ],
+      });
+      await this.player.createMany({
+        data: [
+          {
+            gameId: 1,
+            seq: 1,
+            playerId: 1,
+            mode: 'BEGINNER',
+            gameStatus: 'ENDED',
+            score: 3,
+            score4stat: true,
+          },
+          {
+            gameId: 1,
+            seq: 2,
+            playerId: 3,
+            mode: 'BEGINNER',
+            gameStatus: 'ENDED',
+            score: 0,
+            score4stat: true,
+          },
+          {
+            gameId: 2,
+            seq: 1,
+            playerId: 1,
+            mode: 'BEGINNER',
+            gameStatus: 'ENDED',
+            score: 2,
+            score4stat: true,
+          },
+          {
+            gameId: 2,
+            seq: 2,
+            playerId: 2,
+            mode: 'BEGINNER',
+            gameStatus: 'ENDED',
+            score: 1,
+            score4stat: true,
+          },
+          {
+            gameId: 3,
+            seq: 1,
+            playerId: 1,
+            mode: 'BEGINNER',
+            gameStatus: 'ENDED',
+            score: 2,
+            score4stat: true,
+          },
+          {
+            gameId: 3,
+            seq: 2,
+            playerId: 2,
+            mode: 'BEGINNER',
+            gameStatus: 'ENDED',
+            score: 1,
+            score4stat: true,
+          },
+        ],
       });
     } catch {}
   }
