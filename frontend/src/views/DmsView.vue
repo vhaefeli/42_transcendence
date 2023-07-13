@@ -1,57 +1,57 @@
 <template>
     <NavBar></NavBar>
-    <section class="flex flex-col items-center">
-        <div class="mb-6 text-xl">All my Dms</div>
-        <div class="mb-6">
-          <div v-for="recipient in recipients" :key="recipient">
-            <div @click="changeActualRecipient(recipient)">{{ getRecipientName(recipient) }}</div>
+      <section id="chat-container" class="flex flex-col items-center">
+          <div class="mb-6 text-xl">All my Dms</div>
+          <div class="mb-6">
+            <div v-for="recipient in recipients" :key="recipient">
+              <div @click="changeActualRecipient(recipient)">{{ getRecipientName(recipient) }}</div>
+            </div>
           </div>
-        </div>
-        <div class="mb-6">
-          <input v-model="newRecipient" placeholder="name of friend" /><br />
-              <p>you want to add: {{ newRecipient || 'nobody' }} ?</p>
-              <button
-              class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-              @click="addRecipient(newRecipient)"
-              >
-              add a friend
-              </button>
-        </div>
-        <div v-if="recipients.length > 0">speaking with {{ actual.username }}</div>
-        <div v-else>No Dms yet</div>
-
-        <div v-if="isActualInfosLoaded">
-          <h2 class="text-xl">Profile of {{ actualInfos.username }}</h2>
-          <img :src="actualInfos.avatar_url" alt="avatar img" class="mr-9 w-14"/>
-          <div v-if="actualInfos.is_friend">is my friend</div>
-          <div v-else>is not my friend</div>
-        </div>
-        <div v-else>Profile loading...</div>
-
-        <div ref="scroller" class="w-[60%] bg-slate-950 p-6 mb-6 h-[300px] overflow-scroll">
-            <div v-for="message in messages" :key="message.id">
-              <div v-if="actual.id === message.fromId || actual.id === message.toId">
-                <div v-if="message.fromId == user.id" class="grid">
-                    <div class="mb-3 p-3 rounded-xl bg-orange-300 w-[70%] justify-self-end">
-                        <p class="text-base mb-1">{{ message.message }}</p>
-                        <p class="text-xs">from <a class="text-orange-500 font-bold" href="#">{{ user.username }}</a> on {{ message.date }}</p>
-                    </div>
-                </div>
-                <div v-else>
-                    <div class="mb-3 p-3 rounded-xl bg-orange-100 w-[70%]">
-                        <p class="text-base mb-1">{{ message.message }}</p>
-                        <p class="text-xs">from <a class="text-orange-500 font-bold" href="#">{{ actual.username }}</a> on {{ message.date }}</p>
-                    </div>
+          <div class="mb-6">
+            <input v-model="newRecipient" placeholder="name of friend" /><br />
+                <p>you want to add: {{ newRecipient || 'nobody' }} ?</p>
+                <button
+                class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+                @click="addRecipient(newRecipient)"
+                >
+                add a friend
+                </button>
+          </div>
+          <div v-if="recipients.length > 0">speaking with {{ actual.username }}</div>
+          <div v-else>No Dms yet</div>
+  
+          <div v-if="isActualInfosLoaded">
+            <h2 class="text-xl">Profile of {{ actualInfos.username }}</h2>
+            <img :src="actualInfos.avatar_url" alt="avatar img" class="mr-9 w-14"/>
+            <div v-if="actualInfos.is_friend">is my friend</div>
+            <div v-else>is not my friend</div>
+          </div>
+          <div v-else>Profile loading...</div>
+  
+          <div ref="scroller" class="w-[60%] bg-slate-950 p-6 mb-6 h-[300px] overflow-scroll">
+              <div v-for="message in messages" :key="message.id">
+                <div v-if="actual.id === message.fromId || actual.id === message.toId">
+                  <div v-if="message.fromId == user.id" class="grid">
+                      <div class="mb-3 p-3 rounded-xl bg-orange-300 w-[70%] justify-self-end">
+                          <p class="text-base mb-1">{{ message.message }}</p>
+                          <p class="text-xs">from <a class="text-orange-500 font-bold" href="#">{{ user.username }}</a> on {{ message.date }}</p>
+                      </div>
+                  </div>
+                  <div v-else>
+                      <div class="mb-3 p-3 rounded-xl bg-orange-100 w-[70%]">
+                          <p class="text-base mb-1">{{ message.message }}</p>
+                          <p class="text-xs">from <a class="text-orange-500 font-bold" href="#">{{ actual.username }}</a> on {{ message.date }}</p>
+                      </div>
+                  </div>
                 </div>
               </div>
-            </div>
-        </div>
-    
-        <div class="flex w-[60%]">
-            <input v-model="message" placeholder="blabla..." class="mr-4" />
-            <button @click="handleSubmitNewMessage">Submit</button>
-        </div>
-    </section>
+          </div>
+      
+          <div class="flex w-[60%]">
+              <input v-model="message" placeholder="blabla..." class="mr-4" />
+              <button @click="handleSubmitNewMessage">Submit</button>
+          </div>
+      </section>
 </template>
   
 <script setup>
@@ -280,3 +280,12 @@
     }
   })
 </script>
+
+<style>
+
+#chat-container {
+    background: var(--gray);
+	  border: 4px solid var(--dark-pink);
+}
+
+</style>
