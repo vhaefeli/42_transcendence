@@ -237,11 +237,6 @@
           </div>
       </div>
     </div>
-
-    <img src="../assets/img/icons/table-tennis-paddle-ball-solid.svg" alt="is playing" class="ft-connection-circle">
-    <!-- <div class="ft-icon-test"></div> -->
-
-    <!-- Pour les blocked, ajouter id="blocked" pour appliquer le bon fond -->
     
   </section>
 </template>
@@ -421,11 +416,6 @@
 }
 
 /* ^^ POUR DEBUG UNIQUEMENT ^^ */
-
-.ft-icon-test {
-  background: url(./../assets/img/icons/table-tennis-paddle-ball-solid.svg);
-  background-size: cover;
-}
 
 
 </style>
