@@ -173,22 +173,7 @@ export class ChatService {
   }
 
   async FindMyChannelMembers(my_id: number) {
-    const channel = await this.prisma.channel.findMany({
-
-        where: { type: { not: 'PRIVATE' } },
-        orderBy: {
-          name: 'asc',
-        },
-        select: {
-          id: true,
-          name: true,
-          type: true,
-        },
-      });
-      return channel;
-    
-    });
-    return channel;
+    return 'Channel';
   }
 
   async ChannelAddMember(
