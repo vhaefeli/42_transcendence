@@ -3,7 +3,7 @@
     <div id="gameApp">
 		<router-link class="t-btn-pink" id="retHome" to="/"><span>X</span></router-link>
 		<img id="arcade" src="../assets/img/arcade.png" alt="arcade">
-		 <span :class="{ 'blinking-text': true }" id="ready">press ENTER<br>to set as ready</span>
+		 <!-- <span :class="{ 'blinking-text': true }" id="ready">press ENTER<br>to set as ready</span> -->
 		<PongVue></PongVue>
 	</div>
 </template>
@@ -12,12 +12,6 @@
 	import { withDirectives } from 'vue';
 	import TransButton from '../components/TransButton.vue'
 	import PongVue from '@/components/Pong.vue';
-
-// 	const canvas = document.querySelector("canvas");
-// const ctx = canvas.getContext("2d");
-// ctx.fillStyle = "green";
-// // Add a rectangle at (10, 10) with size 100x100 pixels
-// ctx.fillRect(10, 10, 100, 100);
 
 </script>
 
@@ -31,7 +25,7 @@
 	height: 72.8%;
 	left: 50%;
 	transform: translateX(-50%);
-	background-color: rgba(255, 255, 255, 0.276);
+	/* background-color: rgba(255, 255, 255, 0.276); */
 }
 
 #retHome{
@@ -39,6 +33,7 @@
 	padding: 2px 2px;
 	top: -5vh;
 	right: -5vh;
+	background-color: var(--pink);
 }
 
 #arcade{
