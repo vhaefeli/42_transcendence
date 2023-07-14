@@ -21,14 +21,17 @@
 	let ballX: number = 278;
 	let ballY: number = 244;
 
-	let dx: number = (Math.floor(Math.random() * 21) - 10) / 5;
-	if (dx === 0 || dx === 2 || dx === -2)
-		dx = 1.8;
-	if (dx < 1.4 && dx > 0)
-		dx = 1.4;
-	if (dx > -1.4 && dx < 0)
-		dx = -1.4;
-	let dy: number = Math.sqrt(4 - (dx * dx));
+	const ballSpeed = 6;
+
+	let dx: number = (Math.floor(Math.random() * 21) - 10) / (10/ ballSpeed);
+	console.log(dx);
+	if (dx === 0 || dx === ballSpeed || dx === - ballSpeed)
+		dx = ballSpeed * 0.9;
+	if (dx < (ballSpeed * 0.7) && dx > 0)
+		dx = (ballSpeed * 0.7);
+	if (dx > -(ballSpeed * 0.7) && dx < 0)
+		dx = -(ballSpeed * 0.7);
+	let dy: number = Math.sqrt(ballSpeed * ballSpeed - (dx * dx));
 	let rend: number = (Math.floor(Math.random() * 2.1) - 1);
 	if (rend < 0)
 		dy = - dy;
@@ -97,7 +100,7 @@
 			
 			while (playerScore < 10 && opponentScore < 10)
 			{
-				await new Promise(resolve => setTimeout(resolve, 1));
+				await new Promise(resolve => setTimeout(resolve, 10));
 
 				ctx.clearRect(0, 0, 606, 498);
 				ballX+= dx;
@@ -123,15 +126,15 @@
 						ballX = 298;
 						ballY = 244;
 
-						dx = (Math.floor(Math.random() * 21) - 10) / 5;
-						if (dx === 0 || dx === 2 || dx === -2)
-							dx = 1.8;
-						if (dx < 1.4 && dx > 0)
-							dx = 1.4;
-						if (dx > -1.4 && dx < 0)
-							dx = -1.4;
-						dy = Math.sqrt(4 - (dx * dx));
-						rend = (Math.floor(Math.random() * 2.1) - 1);
+						let dx: number = (Math.floor(Math.random() * 21) - 10) / (10/ ballSpeed);
+						if (dx === 0 || dx === ballSpeed || dx === - ballSpeed)
+							dx = ballSpeed * 0.9;
+						if (dx < (ballSpeed * 0.7) && dx > 0)
+							dx = (ballSpeed * 0.7);
+						if (dx > -(ballSpeed * 0.7) && dx < 0)
+							dx = -(ballSpeed * 0.7);
+						let dy: number = Math.sqrt(ballSpeed * ballSpeed - (dx * dx));
+						let rend: number = (Math.floor(Math.random() * 2.1) - 1);
 						if (rend < 0)
 							dy = - dy;
 
