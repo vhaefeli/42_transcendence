@@ -6,12 +6,15 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
-import { ChannelTypes } from '@prisma/client';
+import { ChannelTypes, PrismaClient } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 
 import { ChannelAddMemberDto } from './dto/channel-add-member.dto';
 import { CreateChannelDto } from './dto/create-channel.dto';
 import { FindChannelDto } from './dto/find-channel.dto';
+import { ChannelAddAdminDto } from './dto/channel-add-admin.dto';
+import { ChannelRemoveAdminDto } from './dto/channel-remove-admin.dto';
+import { ChannelChangeDto } from './dto/channel-change.dto';
 
 @Injectable()
 export class ChatService {
@@ -129,6 +132,63 @@ export class ChatService {
       else Logger.error(error);
       throw error;
     }
+  }
+
+  async FindAllChannelsList(my_id: number) {
+    const channel = await this.prisma.channel.findMany({
+      where: { type: { not: 'PRIVATE' } },
+      orderBy: {
+        name: 'asc',
+      },
+      select: {
+        id: true,
+        name: true,
+        type: true,
+      },
+    });
+    return channel;
+  }
+
+  async FindMyChannels(my_id: number) {
+    const MyChannels = await this.prisma.$queryRaw`
+          SELECT
+          cm."A" AS "channelId",
+          cm."B" AS "userId",
+          c."name",
+          c."type",
+          CASE
+              WHEN ca."B" IS NOT NULL THEN 'Admin'
+              ELSE NULL
+          END AS "Admin"
+        FROM
+          "_channel_members" cm
+        JOIN
+          "Channel" c ON cm."A" = c."id"
+        LEFT JOIN
+          "_channel_admins" ca ON cm."A" = ca."A" AND ca."B" = cm."B"
+        WHERE
+          cm."B" = ${my_id};
+        `;
+    return MyChannels;
+  }
+
+  async FindMyChannelMembers(my_id: number) {
+    const channel = await this.prisma.channel.findMany({
+
+        where: { type: { not: 'PRIVATE' } },
+        orderBy: {
+          name: 'asc',
+        },
+        select: {
+          id: true,
+          name: true,
+          type: true,
+        },
+      });
+      return channel;
+    
+    });
+    return channel;
   }
 
   async ChannelAddMember(
@@ -273,4 +333,157 @@ export class ChatService {
       },
     });
   }
+
+  async ChannelAddAdmin(channelAddAdminDto: ChannelAddAdminDto, my_id: number) {
+    try {
+      const channel = await this.prisma.channel.findFirstOrThrow({
+        where: { id: channelAddAdminDto.channelId },
+        select: {
+          id: true,
+          type: true,
+          ownerId: true,
+          admins: { select: { id: true } },
+          members: { select: { id: true } },
+        },
+      });
+      // Request user is the owner
+      if (channel.ownerId !== my_id)
+        throw new UnauthorizedException(
+          "You don't have the necessary privileges to add an admin",
+        );
+
+      // User to add is already in the channel as admin
+      if (
+        channel.admins.find(
+          (admin) => admin.id === channelAddAdminDto.userId,
+        ) !== undefined
+      )
+        throw new ConflictException('Admin is already in channel');
+    } catch (error) {
+      if (
+        error instanceof UnauthorizedException ||
+        error instanceof NotFoundException ||
+        error instanceof ConflictException
+      )
+        throw error;
+      if (error?.code === 'P2025') {
+        throw new NotFoundException("Channel wasn't found");
+      }
+      if (error?.code) Logger.error(error.code + ' ' + error.message);
+      throw error;
+    }
+
+    try {
+      await this.prisma.channel.update({
+        where: { id: channelAddAdminDto.channelId },
+        data: { admins: { connect: { id: channelAddAdminDto.userId } } },
+      });
+    } catch (error) {
+      if (error?.code === 'P2025') {
+        throw new NotFoundException("User wasn't found");
+      }
+      if (error?.code) Logger.error(error.code + ' ' + error.message);
+      else Logger.error(error);
+      throw error;
+    }
+  }
+
+  async ChannelRemoveAdmin(
+    channelRemoveAdminDto: ChannelRemoveAdminDto,
+    my_id: number,
+  ) {
+    try {
+      const channel = await this.prisma.channel.findFirstOrThrow({
+        where: { id: channelRemoveAdminDto.channelId },
+        select: {
+          id: true,
+          type: true,
+          ownerId: true,
+          admins: { select: { id: true } },
+        },
+      });
+      // Request user is the owner
+      if (channel.ownerId !== my_id)
+        throw new UnauthorizedException(
+          "You don't have the necessary privileges to remove an Admin",
+        );
+
+      // Owner can't request to delete himself
+      if (my_id === channelRemoveAdminDto.userId)
+        throw new UnauthorizedException("You can't remove yourself as Admin");
+
+      // Ensure User to remove is in the channel as admin
+      if (
+        channel.admins.find(
+          (admin) => admin.id === channelRemoveAdminDto.userId,
+        ) === undefined
+      )
+        throw new ConflictException('Admin is not in channel');
+    } catch (error) {
+      if (
+        error instanceof UnauthorizedException ||
+        error instanceof NotFoundException ||
+        error instanceof ConflictException
+      )
+        throw error;
+      if (error?.code === 'P2025') {
+        throw new NotFoundException("Channel wasn't found");
+      }
+      if (error?.code) Logger.error(error.code + ' ' + error.message);
+      else Logger.error(error);
+      throw error;
+    }
+
+    try {
+      await this.prisma.channel.update({
+        where: { id: channelRemoveAdminDto.channelId },
+        data: {
+          admins: { disconnect: { id: channelRemoveAdminDto.userId } },
+        },
+      });
+    } catch (error) {
+      if (error?.code === 'P2025') {
+        throw new NotFoundException("Admin wasn't found");
+      }
+      if (error?.code) Logger.error(error.code + ' ' + error.message);
+      else Logger.error(error);
+      throw error;
+    }
+  }
+
+  // Channel change -- EN SUSSPEND
+  // async channelchange(channelChangeDto: ChannelChangeDto, my_id: number) {
+  //   try {
+  //     // retrieve the channel info
+  //     const channel = await this.prisma.channel.findFirstOrThrow({
+  //       where: { id: channelChangeDto.channelId },
+  //       select: {
+  //         id: true,
+  //         type: true,
+  //         ownerId: true,
+  //         admins: { select: { id: true } },
+  //       },
+  //     });
+  //     // user must be the admin
+  //     if (channel.ownerId !== my_id) {
+  //       throw new UnauthorizedException(
+  //         "You don't have the necessary privileges to manage the channel",
+  //       );
+  //     }
+  //     //
+  //   } catch (error) {
+  //     if (
+  //       error instanceof UnauthorizedException ||
+  //       error instanceof NotFoundException ||
+  //       error instanceof ConflictException
+  //     )
+  //       throw error;
+  //     if (error?.code === 'P2025') {
+  //       throw new NotFoundException("Channel wasn't found");
+  //     }
+  //     if (error?.code) Logger.error(error.code + ' ' + error.message);
+  //     else Logger.error(error);
+  //     throw error;
+  //   }
+  // }
 }

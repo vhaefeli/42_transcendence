@@ -2,6 +2,8 @@ import { Body, Controller, Get, Patch, Post, Request } from '@nestjs/common';
 import { CreateChannelDto } from './dto/create-channel.dto';
 import { ChatService } from './chat.service';
 import { ChannelAddMemberDto } from './dto/channel-add-member.dto';
+import { ChannelAddAdminDto } from './dto/channel-add-admin.dto';
+import { ChannelRemoveAdminDto } from './dto/channel-remove-admin.dto';
 
 @Controller('chat')
 export class ChatController {
@@ -20,6 +22,16 @@ export class ChatController {
     return await this.chatService.FindAllChannels(req.user.sub);
   }
 
+  @Get('channel/all4select')
+  async getAllChannelsList(@Request() req: any) {
+    return await this.chatService.FindAllChannelsList(req.user.sub);
+  }
+
+  @Get('channel/myChannels')
+  async getMyChannels(@Request() req: any) {
+    return await this.chatService.FindMyChannels(req.user.sub);
+  }
+
   @Patch('channel/member/add')
   async channelAddMember(
     @Request() req: any,
@@ -27,4 +39,34 @@ export class ChatController {
   ) {
     await this.chatService.ChannelAddMember(channelAddMemberDto, req.user.sub);
   }
+
+  @Patch('channel/admin/add')
+  async channelAddAdmin(
+    @Request() req: any,
+    @Body() channelAddAdminDto: ChannelAddAdminDto,
+  ) {
+    await this.chatService.ChannelAddAdmin(channelAddAdminDto, req.user.sub);
+  }
+
+  @Patch('channel/admin/remove')
+  async channelRemoveAdmin(
+    @Request() req: any,
+    @Body() channelRemoveAdminDto: ChannelRemoveAdminDto,
+  ) {
+    await this.chatService.ChannelRemoveAdmin(
+      channelRemoveAdminDto,
+      req.user.sub,
+    );
+  }
+
+  // @Patch('channel/change')
+  // async channelchange(
+  //   @Request() req: any,
+  //   @Body() channelChangeDto: ChannelChangeDto,
+  // ) {
+  //   await this.chatService.channelchange(
+  //     channelRemoveAdminDto,
+  //     req.user.sub,
+  //   );
+  // }
 }
