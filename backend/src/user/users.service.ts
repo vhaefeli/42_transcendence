@@ -66,11 +66,15 @@ export class UsersService {
   async new(usr: CreateUserDto): Promise<{ id: number; username: string }> {
     if (await this.isUsernameInUse(usr.username)) throw new ConflictException();
 
+    const hashed_pswd = this.authService.createHash(usr.password);
+    const avatar = this.avatarService.generateAvatar();
+    await Promise.all([hashed_pswd, avatar]);
+
     return await this.prisma.user.create({
       data: {
         username: usr.username,
-        password: usr.password,
-        avatar_url: await this.avatarService.generateAvatar(),
+        password: await hashed_pswd,
+        avatar_url: await avatar,
       },
       select: {
         id: true,

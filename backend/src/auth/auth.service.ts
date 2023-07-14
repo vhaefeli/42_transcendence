@@ -62,9 +62,20 @@ export class AuthService {
         password: true,
         tfa_enabled: true,
         tfa_email_address: true,
+        id42: true,
       },
     });
-    if (user?.password !== pass) throw new UnauthorizedException();
+    try {
+      if (
+        user.id42 != null ||
+        user.password == null ||
+        !(await this.compareHash(user.password, pass))
+      )
+        throw new UnauthorizedException();
+    } catch (error) {
+      if (error instanceof TypeError)
+        throw new UnauthorizedException('error with the hash');
+    }
 
     const res: ReturnSignInDto = { tfa_enabled: user.tfa_enabled };
     if (res.tfa_enabled) {
