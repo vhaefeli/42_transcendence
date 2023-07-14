@@ -64,3 +64,7 @@ a.t-btn-pink:hover {
 a.t-btn-pink:active {
     font-size: larger;
 }
+
+.ft-text-light-gray {
+    color: var(--light-gray);
+}

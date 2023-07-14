@@ -1,377 +1,227 @@
 <template>
 
-<!-- CODE DE MICHELE -->
-    <NavBar></NavBar>
-    <div id="profile-container">
-        <h1 class="mt-9">Profile page</h1>
-        <router-link to="/login">back to login</router-link>
-        <!-- Nadia: tu pourra tout remove et afficher correctement. Toutes les classes sont du Tailwind. -->
-    
-        <!-- check si on est sur son propre profile -->
-        <div v-if="user && user.isLogged && user.username == route.params.username" class="flex flex-col items-center">
-            <div class="flex mb-9 w-[60%]">
-                <img :src="user.avatar_url" alt="avatar img" class="mr-9"/>
-                <div class="mr-9">
-                    <!-- profile -->
-                    <p>username: {{ user.username }}<br />id: {{ user.id }}</p>
-                    <p v-if="user.twoFA_enabled">2FA is enabled</p>
-                    <p v-if="!user.twoFA_enabled">2FA is disabled</p>
-                    <p class="mb-6">Status: {{ user.status }}</p>
-                    <div class="flex flex-col">
-                        <input v-model="newFriend" placeholder="name of friend" /><br />
-                        <p>you want to add: {{ newFriend || 'nobody' }} ?</p>
-                        <button
-                        class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-                        @click="addFriend"
-                        >
-                        add a friend
-                        </button>
-                    </div>
-                </div>
-                <div>
-                    <h2 class="text-2xl mb-4">All users</h2>
-                    <div v-if="allUsers">
-                        <div v-for="oderUser in allUsers" :key="oderUser.id">
-                            <p>{{ oderUser.username }}</p>
-                        </div>
-                    </div>
-                </div>   
+  <NavBar></NavBar>
+  <div id="profile-container">
+    <section class="ft-cover flex flex-col items-end justify-end">
+      <a class="ft-bg-color-chat t-btn-pink ft-other-profile"><span>Send message</span></a>
+      <a class="ft-bg-color-game t-btn-pink ft-other-profile"><span>Invite to play</span></a>
+    </section>
+
+    <section class="ft-container">
+      <div class="flex flex-col items-center text-center max-w-max ft-central-tab-container">
+        <div class="ft-profile-pic" id="current-profile-pic" :style="{ 'background': 'url(' + user.avatar_url + ')' }"></div>
+        <!-- ajouter la valeur ft-circle-green ou ft-circle-gray selon le statut de connexion de la personne -->
+        <div class="ft-connection-circle" id="current-profile-pic"></div>
+        <div class="ft-tab-folder" id="title-profile"></div>
+        <!-- Par defaut en ligne -->
+        <div class="ft-tab-content ft-bg-color-profile">{{ user.status }}</div>
+        <div class="ft-tab-content ft-bg-color-profile ft-title" id="username">{{ user.username }}</div>
+        <!-- <div class="ft-tabContent ft-centralTab" id="buttonsContainer"> -->
+        <div class="ft-tab-content ft-bg-color-profile" id="buttons-container">
+          <!-- Bouton pour ajouter la personne en ami (profil d'un tiers) -->
+          <a class="t-btn-pink ft-color-add ft-other-profile"><span>[+]</span></a>
+          <!-- Bouton pour bloquer la personne (profil d'un tiers) -->
+          <a class="t-btn-pink ft-color-block ft-other-profile" id="block"><span>[blk]</span></a>
+
+          <!-- Bouton pour editer son profil (SON profil uniquement) -->
+          <!-- <a class="t-btn-pink ft-color-edit ft-my-profile" id="edit"><span>[ed.]</span></a> -->
+          <a class="t-btn-pink ft-color-edit ft-my-profile ft-icon-small icon-btn-cursor" id="edit"><img src="../assets/img/icons/user-pen-solid.svg" alt="edit my profile"></a>
+        </div>
+        <!-- <div class="ft-bg-color-profile ft-tabContent ft-centralTab">
+        </div> -->
+      </div>
+                      
+
+      <div class="flex flex-col text-center ft-left-tab" id="stats">
+        <div class="ft-tab-folder ft-tab-title ft-bb-color-game">Stats</div>
+        <div class="ft-tab-content ft-border-color-game ft-tab-border flex flex-row justify-evenly ">
+          <!-- <div class="flex flex-col">3</div> -->
+            <div class="ft-item-title ft-bb-color-game flex flex-col">
+              <div class="ft-result-drk-text">23</div>
+              <div class="ft-text">matches</div>
             </div>
-            <div class="mb-9 font-size w-[60%]">
-                <!-- list of friends -->
-                <h2 class="text-2xl mb-4">My friends</h2>
-                <div v-for="friend in friends" :key="friend.id" class="flex justify-between border-4 border-sky-500 p-3 mb-1">
-                    <div v-if="!friend.is_blocked">
-                        <div>
-                            <p>id: {{ friend.id }}</p>
-                            <p>name: {{ friend.username }}</p>
-                        </div>
-                        <button
-                            class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-                            @click="removeFriend(friend.username)"
-                            >
-                                remove friendship
-                            </button>
-                        <button
-                            class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-                            @click="blockUser(friend.username)"
-                            >
-                                block this friend
-                            </button>  
-                    </div>
-                </div>
+            <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
+              <div class="ft-result-drk-text">12</div>
+              <div class="ft-text">victories</div>
             </div>
-            <div class="w-[60%] mb-9">
-                <!-- list of pending invitations -->
-                <h2 class="text-2xl mb-4">Invitations sent</h2>
-                <div v-if="invitesSent">
-                    <div v-for="invitation in invitesSent" :key="invitation.id" class="flex justify-between border-4 border-sky-500 p-3">
-                        <div class="">
-                            <p>id: {{ invitation.id }}</p>
-                            <p>name: {{ invitation.username }}</p>
-                        </div>
-                    </div>
-                </div>
+            <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
+              <div class="ft-result-drk-text">2</div>
+              <div class="ft-text">perfect victories</div>
             </div>
-            <div class="w-[60%] mb-9">
-                <!-- list of pending invitations -->
-                <h2 class="text-2xl mb-4">Pending invitations</h2>
-                <div v-if="invites">
-                    <div v-for="invitation in invites" :key="invitation.id" class="flex justify-between border-4 border-sky-500 p-3">
-                        <div class="">
-                            <p>id: {{ invitation.id }}</p>
-                            <p>name: {{ invitation.username }}</p>
-                        </div>
-                        <button
-                        class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-                        @click="acceptFriend(invitation.username)"
-                        >
-                            accept friend
-                        </button>
-                        <button
-                        class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-                        @click="blockUserAndDelInvite(invitation.username)"
-                        >
-                            block this user
-                        </button>
-                        <button
-                        class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-                        @click="iDontWantToBeFriend(invitation.username)"
-                        >
-                            i don't want to be friend
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="w-[60%] mb-9">
-                <!-- list of pending invitations -->
-                <h2 class="text-2xl mb-4">Blocked users</h2>
-                <div v-if="blocked">
-                    <div v-for="block in blocked" :key="block.id" class="flex justify-between border-4 border-sky-500 p-3">
-                        <div class="">
-                            <p>id: {{ block.id }}</p>
-                            <p>name: {{ block.username }}</p>
-                        </div>
-                        <p v-if="block.is_friend">friend</p>
-                        <button
-                        class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-                        @click="unblockUser(block.username)"
-                        >
-                            unblock
-                        </button>
-                    </div>
-                </div>
+            <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
+              <div class="ft-result-drk-text">Pitaya</div>
+              <div class="ft-text">level</div>
             </div>
         </div>
-        <div v-else>
-            <p>something went wrong</p>
-        </div>
-    
-        <router-link to="/search-users">Search for users</router-link>
-    </div>
-<!-- CODE DE MICHELE CI-DESSUS -->
-
-
-  <section class="ft-cover flex flex-col items-end justify-end">
-    <a class="ft-bg-color-chat t-btn-pink ft-other-profile"><span>Send message</span></a>
-    <a class="ft-bg-color-game t-btn-pink ft-other-profile"><span>Invite to play</span></a>
-  </section>
-
-  <section class="ft-container">
-    <div class="flex flex-col items-center text-center max-w-max ft-central-tab-container">
-      <div class="ft-profile-pic" id="current-profile-pic"></div>
-      <!-- ajouter la valeur ft-circle-green ou ft-circle-gray selon le statut de connexion de la personne -->
-      <div class="ft-connection-circle" id="current-profile-pic"></div>
-      <div class="ft-tab-folder" id="title-profile"></div>
-      <!-- Par defaut en ligne -->
-      <div class="ft-tab-content ft-bg-color-profile">Online</div>
-      <div class="ft-tab-content ft-bg-color-profile ft-title" id="username">
-          Pouetteuuh
       </div>
-      <!-- <div class="ft-tabContent ft-centralTab" id="buttonsContainer"> -->
-      <div class="ft-tab-content ft-bg-color-profile" id="buttons-container">
-        <!-- Bouton pour ajouter la personne en ami (profil d'un tiers) -->
-        <a class="t-btn-pink ft-color-add ft-other-profile"><span>[+]</span></a>
-        <!-- Bouton pour bloquer la personne (profil d'un tiers) -->
-        <a class="t-btn-pink ft-color-block ft-other-profile" id="block"><span>[blk]</span></a>
 
-
-        <!-- Bouton pour editer son profil (SON profil uniquement) -->
-        <!-- <a class="t-btn-pink ft-color-edit ft-my-profile" id="edit"><span>[ed.]</span></a> -->
-        <a class="t-btn-pink ft-color-edit ft-my-profile ft-icon-small" id="edit"><img src="../assets/img/icons/user-pen-solid.svg" alt="edit my profile"></a>
-      </div>
-      <!-- <div class="ft-bg-color-profile ft-tabContent ft-centralTab">
-      </div> -->
-    </div>
-                    
-
-    <div class="flex flex-col text-center ft-left-tab" id="stats">
-      <div class="ft-tab-folder ft-tab-title ft-bb-color-game">Stats</div>
-      <div class="ft-tab-content ft-border-color-game ft-tab-border flex flex-row justify-evenly ">
-        <!-- <div class="flex flex-col">3</div> -->
-          <div class="ft-item-title ft-bb-color-game flex flex-col">
-            <div class="ft-result-drk-text">23</div>
-            <div class="ft-text">matches</div>
-          </div>
-          <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
-            <div class="ft-result-drk-text">12</div>
-            <div class="ft-text">victories</div>
-          </div>
-          <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
-            <div class="ft-result-drk-text">2</div>
-            <div class="ft-text">perfect victories</div>
-          </div>
-          <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
-            <div class="ft-result-drk-text">Pitaya</div>
-            <div class="ft-text">level</div>
-          </div>
-      </div>
-    </div>
-
-    <div class="flex flex-col text-center ft-right-tab" id="match-history">
-      <div class="ft-tab-folder ft-tab-title ft-bb-color-game">Match history</div>
-      <div class="ft-tab-content ft-border-color-game ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left ft-scrollable">
-        <ul>
-          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">
-            <p><h2>12.05.2023</h2></p>
-            lost against Thingy (Pitaya level)</li>
+      <div class="flex flex-col text-center ft-right-tab" id="match-history">
+        <div class="ft-tab-folder ft-tab-title ft-bb-color-game">Match history</div>
+        <div class="ft-tab-content ft-border-color-game ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left ft-scrollable">
+          <ul>
             <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">
-            <p><h2>13.05.2023</h2></p>
-            lost against Thingy (Pitaya level)</li>
-          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">
-            <p><h2>14.05.2023</h2></p>
-            lost against Thingy (Pitaya level)</li>
-          <li class="ft-item-title ft-text ft-bb-color-game">
-            <p><h2>22.05.2023</h2></p>
-            lost against everyone (Kumquat level)</li>
-        </ul>
+              <p><h2>12.05.2023</h2></p>
+              lost against Thingy (Pitaya level)</li>
+              <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">
+              <p><h2>13.05.2023</h2></p>
+              lost against Thingy (Pitaya level)</li>
+            <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">
+              <p><h2>14.05.2023</h2></p>
+              lost against Thingy (Pitaya level)</li>
+            <li class="ft-item-title ft-text ft-bb-color-game">
+              <p><h2>22.05.2023</h2></p>
+              lost against everyone (Kumquat level)</li>
+          </ul>
+        </div>
       </div>
-    </div>
 
-    <div class="flex flex-col text-center ft-left-tab ft-my-profile" id="friends-requests">
-      <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Friends requests</div>
-      <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left ft-scrollable">
-        <ul>
-          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-between items-center">
-            <ul class="flex flex-row items-center">
-              <li class="ft-profile-pic ft-friend-pic"></li>
-              <li class="ft-text ml-2">Thingy</li>
-            </ul>
-            <ul class="flex flex-row">
-              <li><a class="t-btn-pink ft-color-add ft-icon-small"><img src="../assets/img/icons/circle-check-solid.svg" alt="accept friend request"></a></li>
-              <li><a class="t-btn-pink ft-color-remove ft-icon-small"><img src="../assets/img/icons/circle-xmark-solid.svg" alt="decline friend request"></a></li>
-            </ul>
-          </li>
-
-          <!-- UNIQUEMENT POUR GENERER CONTENU, COPIE DE THINGY CI-DESSOUS. NE PAS MODIFIER ICI-->
-          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-between items-center">
-            <ul class="flex flex-row items-center">
-              <li class="ft-profile-pic ft-friend-pic"></li>
-              <li class="ft-text ml-2">Cerise</li>
-            </ul>
-            <ul class="flex flex-row">
-              <li><a class="t-btn-pink ft-color-add ft-icon-small"><img src="../assets/img/icons/circle-check-solid.svg" alt="accept friend request"></a></li>
-              <li><a class="t-btn-pink ft-color-remove ft-icon-small"><img src="../assets/img/icons/circle-xmark-solid.svg" alt="decline friend request"></a></li>
-            </ul>
-          </li>
-          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-between items-center">
-            <ul class="flex flex-row items-center">
-              <li class="ft-profile-pic ft-friend-pic"></li>
-              <li class="ft-text ml-2">Annabelle</li>
-            </ul>
-            <ul class="flex flex-row">
-              <li><a class="t-btn-pink ft-color-add ft-icon-small"><img src="../assets/img/icons/circle-check-solid.svg" alt="accept friend request"></a></li>
-              <li><a class="t-btn-pink ft-color-remove ft-icon-small"><img src="../assets/img/icons/circle-xmark-solid.svg" alt="decline friend request"></a></li>
-            </ul>
-          </li>
-          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-between items-center">
-            <ul class="flex flex-row items-center">
-              <li class="ft-profile-pic ft-friend-pic"></li>
-              <li class="ft-text ml-2">Jean-Pierre</li>
-            </ul>
-            <ul class="flex flex-row">
-              <li><a class="t-btn-pink ft-color-add ft-icon-small"><img src="../assets/img/icons/circle-check-solid.svg" alt="accept friend request"></a></li>
-              <li><a class="t-btn-pink ft-color-remove ft-icon-small"><img src="../assets/img/icons/circle-xmark-solid.svg" alt="decline friend request"></a></li>
-            </ul>
-          </li>
-          <!-- Le dernier element n'a pas la classe ft-tab-separator -->
-          <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between items-center">
-            <ul class="flex flex-row items-center">
-              <li class="ft-profile-pic ft-friend-pic"></li>
-              <li class="ft-text ml-2">John</li>
-            </ul>
-            <ul class="flex flex-row">
-              <li><a class="t-btn-pink ft-color-add ft-icon-small"><img src="../assets/img/icons/circle-check-solid.svg" alt="accept friend request"></a></li>
-              <li><a class="t-btn-pink ft-color-remove ft-icon-small"><img src="../assets/img/icons/circle-xmark-solid.svg" alt="decline friend request"></a></li>
-            </ul>
-          </li>
-          <!-- UNIQUEMENT POUR GENERER CONTENU, COPIE DE THINGY CI-DESSOUS. NE PAS MODIFIER ICI-->
-        </ul>
+      <div class="flex flex-col text-center ft-left-tab ft-my-profile" id="friends-requests">
+        <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Friends requests</div>
+        <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left ft-scrollable">
+          <ul>
+            <div v-if="invites">
+              <div v-if="invites.length === 0">No one wants to be your friend...yet!</div>
+              <div v-for="(invitation, index) in invites" :key="index">
+                <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between items-center" :class="index === invites.length - 1 ? '' : 'ft-tab-separator'">
+                  <ul class="flex flex-row items-center">
+                    <li class="ft-profile-pic ft-friend-pic"></li>
+                    <li class="ft-text ml-2">{{ invitation.username }}</li>
+                  </ul>
+                  <ul class="flex flex-row">
+                    <li><a class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor" @click="acceptFriend(invitation.username)"><img src="../assets/img/icons/circle-check-solid.svg" alt="accept friend request"></a></li>
+                    <li><a class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="iDontWantToBeFriend(invitation.username)"><img src="../assets/img/icons/circle-xmark-solid.svg" alt="decline friend request"></a></li>
+                    <li><a class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor"  @click="blockUserAndDelInvite(invitation.username)"><img src="../assets/icons/person-circle-minus-solid.svg" alt="block them"></a></li>
+                  </ul>
+                </li>  
+              </div>
+            </div>  
+          </ul>
+        </div>
       </div>
-    </div>
 
-    <div class="flex flex-col text-center ft-right-tab ft-my-profile" id="friends-list">
-      <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Friends</div>
-      <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left ft-scrollable">
-        <ul>
-          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-between">
-            <div class="flex flex-row items-center">
-              <div class="flex flex-col">
-                <div class="ft-profile-pic ft-friend-pic">
-                  <div class="ft-connection-circle ft-friend-status">
-                    <img src="../assets/img/icons/tennisBallBlack.png" alt="is playing" class="ft-playing">
-                  </div>
+      <div class="flex flex-col text-center ft-right-tab ft-my-profile" id="sent-requests">
+        <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Sent requests</div>
+        <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left ft-scrollable">
+          <ul>
+            <div v-if="invitesSent">
+                <div v-for="(invitation, index) in invitesSent" :key="index">
+                    <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between items-center" :class="index === invitesSent.length - 1 ? '' : 'ft-tab-separator'">
+                      <ul class="flex flex-row items-center">
+                        <li class="ft-profile-pic ft-friend-pic"></li>
+                        <li class="ft-text ml-2">{{ invitation.username }}</li>
+                      </ul>
+                    </li> 
                 </div>
-              </div>
-              <ul class="flex flex-col justify-center">
-                <li class="ft-text ml-2">Jean-Eudes</li>
-                <li class="ft-level-text ml-2">Pitaya level</li>
-              </ul>
-            </div>
-            <ul class="flex flex-row">
-              <li><a class="t-btn-pink ft-bg-color-chat ft-icon-small"><img src="../assets/img/icons/message-solid.svg" alt="send them a message"></a></li>
-              <li><a class="t-btn-pink ft-color-block ft-icon-small"><img src="../assets/img/icons/ban-solid.svg" alt="block them"></a></li>
-              <li><a class="t-btn-pink ft-color-remove ft-icon-small"><img src="../assets/img/icons/user-minus-solid.svg" alt="remove friendship"></a></li>
-            </ul>
-          </li>
-          <!-- UNIQUEMENT POUR GENERER CONTENU, COPIE DE JEAN-EUDES CI-DESSOUS. NE PAS MODIFIER ICI-->
-          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-between">
-            <div class="flex flex-row items-center">
-              <div class="flex flex-col">
-                <div class="ft-profile-pic ft-friend-pic">
-                  <div class="ft-connection-circle ft-friend-status">
-                    <img src="../assets/img/icons/tennisBallBlack.png" alt="is playing" class="ft-playing">
-                  </div>
-                </div>
-              </div>
-              <ul class="flex flex-col justify-center">
-                <li class="ft-text ml-2">Chris</li>
-                <li class="ft-level-text ml-2">Lemongrass level</li>
-              </ul>
-            </div>
-            <ul class="flex flex-row">
-              <li><a class="t-btn-pink ft-bg-color-chat ft-icon-small"><img src="../assets/img/icons/message-solid.svg" alt="send them a message"></a></li>
-              <li><a class="t-btn-pink ft-color-block ft-icon-small"><img src="../assets/img/icons/ban-solid.svg" alt="block them"></a></li>
-              <li><a class="t-btn-pink ft-color-remove ft-icon-small"><img src="../assets/img/icons/user-minus-solid.svg" alt="remove friendship"></a></li>
-            </ul>
-          </li>
-          <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-profile flex flex-row justify-between">
-            <div class="flex flex-row items-center">
-              <div class="flex flex-col">
-                <div class="ft-profile-pic ft-friend-pic">
-                  <div class="ft-connection-circle ft-friend-status">
-                    <img src="../assets/img/icons/tennisBallBlack.png" alt="is playing" class="ft-playing">
-                  </div>
-                </div>
-              </div>
-              <ul class="flex flex-col justify-center">
-                <li class="ft-text ml-2">Danielle</li>
-                <li class="ft-level-text ml-2">Cherry tomato level</li>
-              </ul>
-            </div>
-            <ul class="flex flex-row">
-              <li><a class="t-btn-pink ft-bg-color-chat ft-icon-small"><img src="../assets/img/icons/message-solid.svg" alt="send them a message"></a></li>
-              <li><a class="t-btn-pink ft-color-block ft-icon-small"><img src="../assets/img/icons/ban-solid.svg" alt="block them"></a></li>
-              <li><a class="t-btn-pink ft-color-remove ft-icon-small"><img src="../assets/img/icons/user-minus-solid.svg" alt="remove friendship"></a></li>
-            </ul>
-          </li>
-          <!-- Le dernier element n'a pas la classe ft-tab-separator -->
-          <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between">
-            <div class="flex flex-row items-center">
-              <div class="flex flex-col">
-                <div class="ft-profile-pic ft-friend-pic">
-                  <div class="ft-connection-circle ft-friend-status">
-                    <img src="../assets/img/icons/tennisBallBlack.png" alt="is playing" class="ft-playing">
-                  </div>
-                </div>
-              </div>
-              <ul class="flex flex-col justify-center">
-                <li class="ft-text ml-2">Pouette</li>
-                <li class="ft-level-text ml-2">Yam level</li>
-              </ul>
-            </div>
-            <ul class="flex flex-row">
-              <li><a class="t-btn-pink ft-bg-color-chat ft-icon-small"><img src="../assets/img/icons/message-solid.svg" alt="send them a message"></a></li>
-              <li><a class="t-btn-pink ft-color-block ft-icon-small"><img src="../assets/img/icons/ban-solid.svg" alt="block them"></a></li>
-              <li><a class="t-btn-pink ft-color-remove ft-icon-small"><img src="../assets/img/icons/user-minus-solid.svg" alt="remove friendship"></a></li>
-            </ul>
-          </li>
-          <!-- UNIQUEMENT POUR GENERER CONTENU, COPIE DE JEAN-EUDES CI-DESSUS. NE PAS MODIFIER ICI -->
-        </ul>
+            </div> 
+          </ul>
+        </div>
       </div>
-    </div>
 
-    <div class="flex flex-col text-center ft-left-tab ft-my-profile" id="friends-search">
-      <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Add a new friend</div>
-      <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left">
-          <div class="flex flex-row justify-center">
-            <input type="text" placeholder="Search by username">
-            <a class="t-btn-pink ft-color-add ft-icon-small"><img src="../assets/img/icons/user-plus-solid.svg" alt="send a friend request"></a>
-          </div>
+      <div class="flex flex-col text-center ft-left-tab ft-my-profile" id="friends-list">
+        <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Friends</div>
+        <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left ft-scrollable">
+          <ul>
+            <div v-for="(friend, index) in friends" :key="index">
+                <div v-if="!friend.is_blocked">
+                  <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between" :class="index === friends.length - 1 ? '' : 'ft-tab-separator'">
+                    <div class="flex flex-row items-center">
+                      <div class="flex flex-col">
+                        <div class="ft-profile-pic ft-friend-pic">
+                          <div class="ft-connection-circle ft-friend-status">
+                            <img src="../assets/img/icons/tennisBallBlack.png" alt="is playing" class="ft-playing">
+                          </div>
+                        </div>
+                      </div>
+                      <ul class="flex flex-col justify-center">
+                        <li class="ft-text ml-2">{{ friend.username }}</li>
+                        <li class="ft-level-text ml-2">Pitaya level TO DO</li>
+                      </ul>
+                    </div>
+                    <ul class="flex flex-row">
+                      <li><a class="t-btn-pink ft-bg-color-chat ft-icon-small icon-btn-size icon-btn-cursor"><img src="../assets/img/icons/message-solid.svg" alt="send them a message"></a></li>
+                      <li><a class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor" @click="blockUser(friend.username)"><img src="../assets/icons/person-circle-minus-solid.svg" alt="block them"></a></li>
+                      <li><a class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="removeFriend(friend.username)"><img src="../assets/img/icons/user-minus-solid.svg" alt="remove friendship"></a></li>
+                    </ul>
+                  </li>
+                </div>
+            </div>
+          </ul>
+        </div>
       </div>
-    </div>
-    
-  </section>
+
+      <div class="flex flex-col text-center ft-left-tab ft-my-profile" id="friends-search">
+        <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Add a new friend</div>
+        <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left">
+            <div class="flex flex-row justify-center">
+              <input type="text" placeholder="Search by username">
+              <a class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor"><img src="../assets/img/icons/user-plus-solid.svg" alt="send a friend request"></a>
+            </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col text-center ft-right-tab ft-my-profile" id="blocked-list">
+        <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Blocked users</div>
+        <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left ft-scrollable" id="blocked">
+          <ul>
+            <div v-if="blocked">
+                <div v-for="(block, index) in blocked" :key="index">
+                  <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between" :class="index === blocked.length - 1 ? '' : 'ft-tab-separator'">
+                      <div class="flex flex-row items-center">
+                        <div class="flex flex-col">
+                          <div class="ft-profile-pic ft-friend-pic"></div>
+                        </div>
+                        <ul class="flex flex-col justify-center ft-text-light-gray">
+                          <li class="ft-text ml-2">{{ block.username }}</li>
+                          <li class="ft-level-text ml-2 "><p v-if="block.is_friend">is my friend</p></li>
+                        </ul>
+                      </div>
+                      <ul class="flex flex-row">
+                        <li><a class="t-btn-pink ft-color-unblock ft-icon-small icon-btn-size icon-btn-cursor" @click="unblockUser(block.username)"><img src="../assets/icons/person-circle-check-solid.svg" alt="block them"></a></li>
+                      </ul>
+                    </li>
+                </div>
+            </div>
+          </ul>
+        </div>
+      </div>
+
+        <!-- CODE DE MICHELE -->
+        <!-- <div id="profile-container"> -->
+      
+            <!-- check si on est sur son propre profile -->
+            <!-- <div v-if="user && user.isLogged && user.username == route.params.username" class="flex flex-col items-center"> -->
+                <div class="flex mb-9 w-[60%]">
+                    <img :src="user.avatar_url" alt="avatar img" class="mr-9"/>
+                    <div class="mr-9">
+                        <p v-if="user.twoFA_enabled">2FA is enabled</p>
+                        <p v-if="!user.twoFA_enabled">2FA is disabled</p>
+                        <p class="mb-6">Status: {{ user.status }}</p>
+                        <div class="flex flex-col">
+                            <input v-model="newFriend" placeholder="name of friend" /><br />
+                            <p>you want to add: {{ newFriend || 'nobody' }} ?</p>
+                            <button
+                            class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+                            @click="addFriend"
+                            >
+                            add a friend
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl mb-4">All users</h2>
+                        <div v-if="allUsers">
+                            <div v-for="oderUser in allUsers" :key="oderUser.id">
+                                <p>{{ oderUser.username }}</p>
+                            </div>
+                        </div>
+                    </div>   
+                </div>
+              <!-- </div> -->
+            <router-link to="/search-users">Search for users</router-link>
+        
+  <!-- CODE DE MICHELE CI-DESSUS -->
+    </section>
+  </div>
 </template>
   
 <script setup lang="ts">
@@ -482,8 +332,7 @@
   position: relative;
   top: 3em;
   z-index:1;
-  background: url(./../assets/img/chat.png);
-  background-size: cover;
+  background-size: cover !important;
 }
 
 .ft-central-tab-container {
@@ -536,6 +385,7 @@
 
 .ft-tab-content#buttons-container {
   padding: 2em 0 12em 0;
+  height: 17rem;
 }
 
 .ft-tab-separator {
@@ -572,15 +422,17 @@
 
 /* Piste : pour perso des barres de défilement, utiliser "PerfectScrollbar" ou "Custom Scrollbar" (JS). */
 .ft-scrollable {
-  height: 20em;
+  max-height: 20rem;
+  min-height: 12rem;
   overflow: auto;
 }
 
 .ft-left-tab#friends-requests {
   position: relative;
-  top:-40em;
+  top: -40em;
   left: 15vw;
-  width: 52em;
+  width: 39em;
+  z-index: 1;
 }
 
 /* Pour DEBUG seulement, doit s-afficher ou non selon en jeu */
@@ -590,11 +442,17 @@
 
 /* -------------------- */
 
-.ft-right-tab#friends-list {
+.ft-left-tab#friends-list {
   position: relative;
-  top:-48em;
+  top: -43em;
   left: 40vw;
-  width: 50em;
+  width: 41em;
+}
+.ft-right-tab#sent-requests {
+  position: relative;
+  top: -45em;
+  left: 49vw;
+  width: 25em;
 }
 
 .ft-profile-pic.ft-friend-pic {
@@ -615,9 +473,16 @@
 
 .ft-left-tab#friends-search {
   position: relative;
-  top:-52em;
+  top: -47em;
   left: 15vw;
   width: 30em;
+  z-index: 2;
+}
+.ft-right-tab#blocked-list {
+  position: relative;
+  top: -43em;
+  left: 33vw;
+  width: 41em;
 }
 
 .ft-tab-content.ft-tab-border#blocked {
@@ -642,7 +507,9 @@
 
 #profile-container {
     background: var(--gray);
-	border: 4px solid var(--light-purple);
+    border: 4px solid var(--light-purple);
+    border-radius: 66px;
+    overflow: hidden;
 }
 
 </style>
