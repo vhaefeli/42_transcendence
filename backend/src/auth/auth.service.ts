@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import * as argon2 from 'argon2';
 import { PrismaService } from 'src/prisma.service';
 import { TfaService } from 'src/tfa/tfa.service';
 import { Profile42Api } from 'src/user/profile-42api.dto';
@@ -18,6 +19,7 @@ import { ReturnSignInDto } from './return-sign-in.dto';
 @Injectable()
 export class AuthService {
   secret: string;
+  private readonly argon_secret_buffer: Buffer;
   constructor(
     @Inject(forwardRef(() => UsersService)) private usersService: UsersService,
     private jwtService: JwtService,
@@ -27,6 +29,19 @@ export class AuthService {
     private prisma: PrismaService,
   ) {
     this.secret = configService.get<string>('JWT_SECRET_KEY');
+    this.argon_secret_buffer = Buffer.from(
+      configService.get<string>('ARGON_HASH_SECRET'),
+    );
+  }
+
+  async createHash(string: string): Promise<string> {
+    return await argon2.hash(string, { secret: this.argon_secret_buffer });
+  }
+
+  async compareHash(hash: string, toVerify: string): Promise<boolean> {
+    return await argon2.verify(hash, toVerify, {
+      secret: this.argon_secret_buffer,
+    });
   }
 
   async CreateToken(id: number, username: string) {
@@ -47,9 +62,20 @@ export class AuthService {
         password: true,
         tfa_enabled: true,
         tfa_email_address: true,
+        id42: true,
       },
     });
-    if (user?.password !== pass) throw new UnauthorizedException();
+    try {
+      if (
+        user.id42 != null ||
+        user.password == null ||
+        !(await this.compareHash(user.password, pass))
+      )
+        throw new UnauthorizedException();
+    } catch (error) {
+      if (error instanceof TypeError)
+        throw new UnauthorizedException('error with the hash');
+    }
 
     const res: ReturnSignInDto = { tfa_enabled: user.tfa_enabled };
     if (res.tfa_enabled) {

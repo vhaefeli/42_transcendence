@@ -1,17 +1,6 @@
-import { SocketService } from "./socket.service";
+import { SocketService, sleep } from "./socket.service";
 
 class ChatService extends SocketService {
-  private readonly dateOptions = {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "numeric",
-    minute: "numeric",
-    timeZone: "Europe/Zurich",
-    hour12: false,
-  };
-
   constructor() {
     super("chat");
   }
@@ -20,12 +9,17 @@ class ChatService extends SocketService {
     return;
   }
 
-  async sendNewMessage(content: string) {
+  async sendNewMessage(content: string, id: number) {
     if (!(await this.tryConnection())) return;
-    this.socket?.emit("message", {
+    this.socket?.emit("dm", {
+      toId: id,
       message: content,
-      date: new Date().toLocaleString("en-US", this.dateOptions),
+      date: new Date().getTime()
     });
+  }
+
+  async reload() {
+    this.socket?.emit('dmHistory');
   }
 }
 

@@ -9,13 +9,19 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
+  WsException,
 } from '@nestjs/websockets';
 import { RemoteSocket, Server, Socket } from 'socket.io';
+import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import { AuthService } from 'src/auth/auth.service';
 import { WsGuard } from 'src/auth/ws.guard';
-import { ReceivingDmDto, SendingDmDto } from './dm-payloads.dto';
+
 import { ChatService } from './chat.service';
-import { DefaultEventsMap } from 'socket.io/dist/typed-events';
+import { ReceivingDmDto, SendingDmDto } from './dto/dm-payloads.dto';
+import {
+  ReceivingChannelMessageDto,
+  SendingChannelMessageDto,
+} from './dto/channel-message.dto';
 
 @WebSocketGateway({
   namespace: 'chat',
@@ -42,10 +48,6 @@ export class ChatGateway
   //    https://socket.io/docs/v3/rooms/
   // * Emit CheatSheet:
   //    https://socket.io/docs/v3/emit-cheatsheet/
-  //
-  // TODO:
-  // * Channel join room on connect
-  // * Channel emit to room
 
   @UseGuards(WsGuard)
   @SubscribeMessage('message')
@@ -59,15 +61,6 @@ export class ChatGateway
       date: payload.date,
     };
     this.server.emit('message', message);
-  }
-
-  async findConnectedUserById(
-    id: number,
-  ): Promise<RemoteSocket<DefaultEventsMap, any> | undefined> {
-    for (const socket of await this.server.fetchSockets()) {
-      if (socket.data?.user.sub === id) return socket;
-    }
-    return undefined;
   }
 
   @UseGuards(WsGuard)
@@ -99,9 +92,58 @@ export class ChatGateway
       message: payload.message,
       date: payload.date,
     };
-    if (await destination)
-      this.server.to((await destination).id).emit('dm', sending_msg);
+    (await destination).forEach((socket) => {
+      this.server.to(socket.id).emit('dm', sending_msg);
+    });
     return await save_message;
+  }
+
+  @UseGuards(WsGuard)
+  @SubscribeMessage('channelHistory')
+  async sendChannelHistory(@ConnectedSocket() client: Socket) {
+    try {
+      const channel_messages = this.chatService.GetMyChannelMessages(
+        client.data.user.sub,
+      );
+      for (const m of await channel_messages) {
+        const msg: SendingChannelMessageDto = {
+          ...m,
+          date: new Date(m.date).getTime(),
+        };
+        client.emit('channelHistory', msg);
+      }
+    } catch (error) {
+      if (error?.code) Logger.error(`${error.code}, ${error.message}`);
+      throw error;
+    }
+  }
+
+  @UseGuards(WsGuard)
+  @SubscribeMessage('channel')
+  async sendChannelMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: ReceivingChannelMessageDto,
+  ) {
+    if (
+      !(await this.chatService.IsUserInChannel(
+        client.data.user.sub,
+        payload.channelId,
+      ))
+    )
+      throw new WsException('User is not in channel');
+    const save_message = await this.chatService.SaveChannelMessage(
+      client.data.user.sub,
+      payload.channelId,
+      payload.message,
+      new Date(payload.date),
+    );
+    const msg: SendingChannelMessageDto = {
+      id: save_message.id,
+      senderId: client.data.user.sub,
+      ...payload,
+    };
+    client.to(payload.channelId.toString()).emit('channel', msg);
+    return save_message;
   }
 
   @UseGuards(WsGuard)
@@ -117,26 +159,78 @@ export class ChatGateway
     client.disconnect(true);
   }
 
-  async handleConnection(client: Socket, ...args: any[]) {
+  @UseGuards(WsGuard)
+  @SubscribeMessage('dmHistory')
+  async sendDmHistory(@ConnectedSocket() client: any) {
     try {
-      const payload = await this.authService.socketConnectionAuth(
-        client.handshake.auth.token,
+      const direct_messages = this.chatService.GetMyDirectMessages(
+        client.data.user.sub,
       );
-      const direct_messages = this.chatService.GetMyDirectMessages(payload.sub);
-
-      client.request['user'] = payload;
-      client.data['user'] = payload;
 
       for (const dm of await direct_messages) {
         const msg: SendingDmDto = {
           ...dm,
           date: new Date(dm.date).getTime(),
         };
-        client.emit('dm', JSON.stringify(msg));
+        client.emit('dmHistory', msg);
       }
     } catch (error) {
-      //if (this.debug) Logger.debug('Client connection declined: bad token');
-      Logger.error(error);
+      if (error?.code) Logger.error(`${error.code}, ${error.message}`);
+      throw error;
+    }
+  }
+
+  async findConnectedUserById(
+    id: number,
+  ): Promise<Array<RemoteSocket<DefaultEventsMap, any>> | undefined> {
+    const userSockets = new Array<RemoteSocket<DefaultEventsMap, any>>();
+    for (const socket of await this.server.fetchSockets()) {
+      if (socket.data?.user.sub === id) userSockets.push(socket);
+    }
+    return userSockets;
+  }
+
+  KickAllFromChannel(channelId: number) {
+    this.server.socketsLeave(channelId.toString());
+  }
+
+  async KickUserFromChannel(channelId: number, userId: number) {
+    const userSockets = await this.findConnectedUserById(userId);
+    userSockets.forEach((socket) => {
+      socket.leave(channelId.toString());
+    });
+  }
+
+  async JoinUserToChannel(channelId: number, userId: number) {
+    const userSockets = await this.findConnectedUserById(userId);
+    userSockets.forEach((socket) => {
+      socket.join(channelId.toString());
+    });
+  }
+
+  async handleConnection(client: Socket, ...args: any[]) {
+    try {
+      const payload = await this.authService.socketConnectionAuth(
+        client.handshake.auth.token,
+      );
+      client.request['user'] = payload;
+      client.data['user'] = payload;
+
+      const channels = this.chatService.GetMyChannels(payload.sub);
+
+      await Promise.all([
+        new Promise(async (resolve) => {
+          (await channels).forEach((channel) => {
+            //Logger.log(`${payload.username} joins ${channel.name}`);
+            client.join(channel.id.toString());
+          });
+          resolve;
+        }),
+      ]);
+    } catch (error) {
+      if (error?.name === 'JsonWebTokenError') {
+        if (this.debug) Logger.debug('Client connection declined: bad token');
+      } else Logger.error(error);
       client.disconnect();
       return;
     }
