@@ -13,6 +13,7 @@
 	// keysPressed: { [key: string]: boolean } = {};
 
 	let playerPos: number = 249 - (paddleSize / 2);
+  const playerSpeed = 10;
 	let opponentPos: number = 249 - (paddleSize / 2);
 	const playerName = 'PLAYER 1';
 	const opponentName = 'PLAYER 2';
@@ -44,7 +45,7 @@
     DOWN,
     IDLE,
   }
-	
+
 	console.log(dx);
 	console.log(dy);
 
@@ -73,22 +74,6 @@
       if (this.keyDOWN) return PlayerAction.DOWN;
       return PlayerAction.IDLE;
     }
-        /*
-        if (event.code == 'KeyW') // Touche "haut"
-        { 
-          if (playerPos > 0)
-            playerPos-= 30;
-          if ((playerPos < 0))
-            playerPos = 0;
-        } 
-        else if (event.code == 'KeyS') // Touche "bas"
-        {
-          if (playerPos < 498 - paddleSize)
-            playerPos+= 30;
-          if (playerPos > 498 - paddleSize)
-            playerPos = 498 - paddleSize;
-        }
-        */
   }
   const keyHandler = new KeyHandler();
 
@@ -132,13 +117,31 @@
 		var ctx = pongScreen.value.getContext('2d');
 		console.log(ctx);
 
-
+    async function movePlayer() {
+      const action = keyHandler.getKeyState();
+      if (action === PlayerAction.UP) // Touche "haut"
+      { 
+        if (playerPos > 0)
+          playerPos-= playerSpeed;
+        if ((playerPos < 0))
+          playerPos = 0;
+      } 
+      else if (action === PlayerAction.DOWN) // Touche "bas"
+      {
+        if (playerPos < 498 - paddleSize)
+          playerPos+= playerSpeed;
+        if (playerPos > 498 - paddleSize)
+          playerPos = 498 - paddleSize;
+      }
+    }
 
 		async function play() {
 			
 			while (playerScore < 10 && opponentScore < 10)
 			{
 				await new Promise(resolve => setTimeout(resolve, 16 + 2/3));
+
+        movePlayer();
 
 				ctx.clearRect(0, 0, 606, 498);
 				ballX+= dx;
