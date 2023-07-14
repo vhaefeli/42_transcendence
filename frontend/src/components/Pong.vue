@@ -38,29 +38,67 @@
 
 	// let dx = 0;
 	// let dy = 2;
+
+  enum PlayerAction {
+    UP,
+    DOWN,
+    IDLE,
+  }
 	
 	console.log(dx);
 	console.log(dy);
-	
-	document.addEventListener("keydown", function(event)
-	{
-		if (event.code == 'KeyW') // Touche "haut"
-		{ 
-			if (playerPos > 0)
-				playerPos-= 30;
-			if ((playerPos < 0))
-				playerPos = 0;
-		} 
-		else if (event.code == 'KeyS') // Touche "bas"
-		{
-			if (playerPos < 498 - paddleSize)
-				playerPos+= 30;
-			if (playerPos > 498 - paddleSize)
-				playerPos = 498 - paddleSize;
-		}
-	});
 
-	
+  class KeyHandler {
+    private keyUP: boolean;
+    private keyDOWN: boolean;
+
+    constructor() {
+      this.keyUP = false;
+      this.keyDOWN = false;
+    }
+
+    changeKey(keydown: boolean, event: any) {
+        if (event.code == 'KeyW' || event.code == 'ArrowUp')
+        {
+          this.keyUP = keydown;
+        }
+        else if (event.code == 'KeyS' || event.code == 'ArrowDown') {
+          this.keyDOWN = keydown;
+        }
+    }
+
+    getKeyState(): PlayerAction {
+      if (this.keyUP === this.keyDOWN) return PlayerAction.IDLE;
+      if (this.keyUP) return PlayerAction.UP;
+      if (this.keyDOWN) return PlayerAction.DOWN;
+      return PlayerAction.IDLE;
+    }
+        /*
+        if (event.code == 'KeyW') // Touche "haut"
+        { 
+          if (playerPos > 0)
+            playerPos-= 30;
+          if ((playerPos < 0))
+            playerPos = 0;
+        } 
+        else if (event.code == 'KeyS') // Touche "bas"
+        {
+          if (playerPos < 498 - paddleSize)
+            playerPos+= 30;
+          if (playerPos > 498 - paddleSize)
+            playerPos = 498 - paddleSize;
+        }
+        */
+  }
+  const keyHandler = new KeyHandler();
+
+  document.addEventListener("keyup", (event) => {
+    keyHandler.changeKey(false, event);
+  });
+  document.addEventListener("keydown", (event) => {
+    keyHandler.changeKey(true, event);
+  });
+
 
 	function checkCollision(playerPos :number, ballY :number, paddleSize :number){
 		console.log('playerPos ', playerPos, ' ballY ', ballY, 'paddleSize', paddleSize);
