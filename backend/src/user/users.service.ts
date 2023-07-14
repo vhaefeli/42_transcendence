@@ -19,6 +19,7 @@ import { MyProfileDto } from './my-profile.dto';
 import { Profile42Api } from './profile-42api.dto';
 import { TokenInfoDto } from './token-info.dto';
 import { StatusService } from 'src/status/status.service';
+import { AutoPopulateDbService } from 'src/auto-populate-db/auto-populate-db.service';
 
 @Injectable()
 export class UsersService {
@@ -32,9 +33,10 @@ export class UsersService {
     @Inject(forwardRef(() => StatusService))
     private statusService: StatusService,
     configService: ConfigService,
+    autoPopulateDb: AutoPopulateDbService,
   ) {
     if (configService.get<string>('BACKEND_AUTOPOPULATE_DB') === 'true')
-      prisma.autoPopulateDB();
+      autoPopulateDb.AutoPopulateDb();
   }
 
   async findOne(username: string): Promise<any> {
