@@ -100,7 +100,7 @@
 			
 			while (playerScore < 10 && opponentScore < 10)
 			{
-				await new Promise(resolve => setTimeout(resolve, 10));
+				await new Promise(resolve => setTimeout(resolve, 16 + 2/3));
 
 				ctx.clearRect(0, 0, 606, 498);
 				ballX+= dx;
