@@ -1,10 +1,74 @@
 <template>
     <NavBar></NavBar>
-      <section id="chat-container" class="flex flex-col items-center">
-          <div class="mb-6 text-xl">All my Dms</div>
+    <div class="ft-chat-container">
+      <ChatNavBar></ChatNavBar>
+      <section class="ft-chat-inside-container flex p-6">
+
+        <!-- column 1 with profile -->
+        <div id="dm-profile-col">
+          <div v-if="isActualInfosLoaded">
+            <div class="flex flex-col items-center text-center max-w-max ft-central-tab-container">
+              <div class="ft-profile-pic" id="current-profile-pic" :style="{ 'background': 'url(' + actualInfos.avatar_url + ')' }"></div>
+              <!-- ajouter la valeur ft-circle-green ou ft-circle-gray selon le statut de connexion de la personne -->
+              <div class="ft-connection-circle" id="current-profile-pic"></div>
+              <div class="ft-tab-folder" id="title-profile"></div>
+              <!-- Par defaut en ligne -->
+              <div class="ft-tab-content ft-bg-color-profile">{{ actualInfos.status }}</div>
+              <div class="ft-tab-content ft-bg-color-profile ft-title" id="username">{{ actualInfos.username }}</div>
+              <div>
+                <div v-if="actualInfos.is_friend">is my friend</div>
+                  <div v-else>is not my friend</div>
+              </div>
+              <!-- <div class="ft-tabContent ft-centralTab" id="buttonsContainer"> -->
+              <div class="ft-tab-content ft-bg-color-profile" id="buttons-container">
+                <!-- Bouton pour ajouter la personne en ami (profil d'un tiers) -->
+                <a class="t-btn-pink ft-color-add ft-other-profile"><span>[+]</span></a>
+                <!-- Bouton pour bloquer la personne (profil d'un tiers) -->
+                <a class="t-btn-pink ft-color-block ft-other-profile" id="block"><span>[blk]</span></a>
+  
+                <!-- Bouton pour editer son profil (SON profil uniquement) -->
+                <!-- <a class="t-btn-pink ft-color-edit ft-my-profile" id="edit"><span>[ed.]</span></a> -->
+                <a class="t-btn-pink ft-color-edit ft-my-profile ft-icon-small icon-btn-cursor" id="edit"><img src="../assets/img/icons/user-pen-solid.svg" alt="edit my profile"></a>
+              </div>
+            </div>
+          </div>
+          <div v-else>Profile loading...</div>
+
+        </div>
+
+        <!-- column 2 with messages -->
+        <div id="dm-msg-col" class="grow relative">
+          <div ref="scroller" class="ft-chat-box p-6 overflow-scroll">
+              <div v-for="message in messages" :key="message.id">
+                <div v-if="actual.id === message.fromId || actual.id === message.toId">
+                  <div v-if="message.fromId == user.id" class="grid">
+                      <div class="ft-msg-container justify-self-end">
+                        <p class="text-xs ft-chat-date">{{ message.date }}</p>
+                        <p class="ft-chat-my-msg">{{ message.message }}</p>
+                      </div>
+                  </div>
+                  <div v-else>
+                      <div class="ft-msg-container">
+                        <p class="text-xs ft-chat-date">{{ message.date }}</p>
+                        <p class="text-base mb-1 ft-chat-recipient-msg">{{ message.message }}</p>
+                      </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="ft-bg-dark-gray flex p-2 absolute w-full bottom-0">
+                <input v-model="message" placeholder="blabla..." class="p-1 mr-4 ft-input" />
+                <a href="#" class="t-btn-pink ft-bg-color-chat"><button @click="handleSubmitNewMessage">Submit</button></a>
+            </div>
+        </div>
+      
+        <!-- column 3 with list of recipients -->
+        <div  id="dm-recipientList-col" class="bg-blue-600">
           <div class="mb-6">
+            <div v-if="recipients.length === 0">No Dms yet</div>
             <div v-for="recipient in recipients" :key="recipient">
-              <div @click="changeActualRecipient(recipient)">{{ getRecipientName(recipient) }}</div>
+              <div @click="changeActualRecipient(recipient)" :class="actual.id == recipient ? 'ft-actual-recipient' : ''" class="ft-recipient-name">{{ getRecipientName(recipient) }}</div>
             </div>
           </div>
           <div class="mb-6">
@@ -17,45 +81,19 @@
                 add a friend
                 </button>
           </div>
+        </div>
+      </section>
+
+        <!-- <section class="chat-inside-container flex flex-col items-center">
           <div v-if="recipients.length > 0">speaking with {{ actual.username }}</div>
           <div v-else>No Dms yet</div>
-  
-          <div v-if="isActualInfosLoaded">
-            <h2 class="text-xl">Profile of {{ actualInfos.username }}</h2>
-            <img :src="actualInfos.avatar_url" alt="avatar img" class="mr-9 w-14"/>
-            <div v-if="actualInfos.is_friend">is my friend</div>
-            <div v-else>is not my friend</div>
-          </div>
-          <div v-else>Profile loading...</div>
-  
-          <div ref="scroller" class="w-[60%] bg-slate-950 p-6 mb-6 h-[300px] overflow-scroll">
-              <div v-for="message in messages" :key="message.id">
-                <div v-if="actual.id === message.fromId || actual.id === message.toId">
-                  <div v-if="message.fromId == user.id" class="grid">
-                      <div class="mb-3 p-3 rounded-xl bg-orange-300 w-[70%] justify-self-end">
-                          <p class="text-base mb-1">{{ message.message }}</p>
-                          <p class="text-xs">from <a class="text-orange-500 font-bold" href="#">{{ user.username }}</a> on {{ message.date }}</p>
-                      </div>
-                  </div>
-                  <div v-else>
-                      <div class="mb-3 p-3 rounded-xl bg-orange-100 w-[70%]">
-                          <p class="text-base mb-1">{{ message.message }}</p>
-                          <p class="text-xs">from <a class="text-orange-500 font-bold" href="#">{{ actual.username }}</a> on {{ message.date }}</p>
-                      </div>
-                  </div>
-                </div>
-              </div>
-          </div>
-      
-          <div class="flex w-[60%]">
-              <input v-model="message" placeholder="blabla..." class="mr-4" />
-              <button @click="handleSubmitNewMessage">Submit</button>
-          </div>
-      </section>
+      </section> -->
+    </div>
 </template>
   
 <script setup>
     import NavBar from "../components/NavBar.vue";
+    import ChatNavBar from "../components/ChatNavBar.vue";
     import { ref, onUpdated, watchEffect } from "vue";
     import { storeToRefs } from 'pinia'
     import axios from "axios";
@@ -282,10 +320,29 @@
 </script>
 
 <style>
+  #dm-recipientList-col {
+    min-width: 4rem;
+    background-color: var(--dark-pink);
+    color: white;
+  }
 
-#chat-container {
-    background: var(--gray);
-	  border: 4px solid var(--dark-pink);
-}
+  .ft-recipient-name {
+    padding: 1rem;
+    border-bottom: 1px solid var(--dark-gray);
+    transition: padding .5s ease;
+    cursor: pointer;
+  }
 
+  .ft-recipient-name:hover {
+    padding-left: 1.5rem;
+  }
+
+  .ft-actual-recipient {
+    color: var(--dark-pink);
+    background-color: var(--dark-gray);
+  }
+
+  .ft-actual-recipient:hover {
+    padding-left: 1rem;
+  }
 </style>
