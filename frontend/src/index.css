@@ -5,6 +5,8 @@
 @import "./assets/stylesheets/style.css";
 @import "./assets/stylesheets/button.css";
 @import "./assets/stylesheets/font.css";
+@import "./assets/stylesheets/tabContent.css";
+@import "./assets/stylesheets/icons.css";
 
 @tailwind base;
 @tailwind components;
@@ -14,12 +16,19 @@
 :root {
     --light: #ffffff;
     --dark: #000000;
-    --gray: #B7B7B7;
+    --gray: #CFCDCE;
+    --light-gray: #e6e6e6;
+    --dark-gray: #1e1e1e;
+    --yellow: #F2CF00;
 
     --pink: #ED9CDB;
+    --dark-pink: #E975EC;
+    --light-purple: #9A61F5;
     --purple: #5C14D0;
     --orange: #EA7F35;
 
     --green: #00FFA3;
+    --mint: #72C7B9;
     --red: #EA4B35;
+    --invisible: #B7B7B700;
 }

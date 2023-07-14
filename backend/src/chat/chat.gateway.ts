@@ -64,15 +64,6 @@ export class ChatGateway
     this.server.emit('message', message);
   }
 
-  async findConnectedUserById(
-    id: number,
-  ): Promise<RemoteSocket<DefaultEventsMap, any> | undefined> {
-    for (const socket of await this.server.fetchSockets()) {
-      if (socket.data?.user.sub === id) return socket;
-    }
-    return undefined;
-  }
-
   @UseGuards(WsGuard)
   @SubscribeMessage('dm')
   async sendDirectMessage(
@@ -102,8 +93,9 @@ export class ChatGateway
       message: payload.message,
       date: payload.date,
     };
-    if (await destination)
-      this.server.to((await destination).id).emit('dm', sending_msg);
+    (await destination).forEach((socket) => {
+      this.server.to(socket.id).emit('dm', sending_msg);
+    });
     return await save_message;
   }
 
@@ -189,6 +181,34 @@ export class ChatGateway
     }
   }
 
+  async findConnectedUserById(
+    id: number,
+  ): Promise<Array<RemoteSocket<DefaultEventsMap, any>> | undefined> {
+    const userSockets = new Array<RemoteSocket<DefaultEventsMap, any>>();
+    for (const socket of await this.server.fetchSockets()) {
+      if (socket.data?.user.sub === id) userSockets.push(socket);
+    }
+    return userSockets;
+  }
+
+  KickAllFromChannel(channelId: number) {
+    this.server.socketsLeave(channelId.toString());
+  }
+
+  async KickUserFromChannel(channelId: number, userId: number) {
+    const userSockets = await this.findConnectedUserById(userId);
+    userSockets.forEach((socket) => {
+      socket.leave(channelId.toString());
+    });
+  }
+
+  async JoinUserToChannel(channelId: number, userId: number) {
+    const userSockets = await this.findConnectedUserById(userId);
+    userSockets.forEach((socket) => {
+      socket.join(channelId.toString());
+    });
+  }
+
   async handleConnection(client: Socket, ...args: any[]) {
     try {
       const payload = await this.authService.socketConnectionAuth(
@@ -196,7 +216,7 @@ export class ChatGateway
       );
       client.request['user'] = payload;
       client.data['user'] = payload;
-      
+
       const channels = this.chatService.GetMyChannels(payload.sub);
 
       await Promise.all([

@@ -19,6 +19,7 @@ import { MyProfileDto } from './my-profile.dto';
 import { Profile42Api } from './profile-42api.dto';
 import { TokenInfoDto } from './token-info.dto';
 import { StatusService } from 'src/status/status.service';
+import { AutoPopulateDbService } from 'src/auto-populate-db/auto-populate-db.service';
 
 @Injectable()
 export class UsersService {
@@ -32,9 +33,10 @@ export class UsersService {
     @Inject(forwardRef(() => StatusService))
     private statusService: StatusService,
     configService: ConfigService,
+    autoPopulateDb: AutoPopulateDbService,
   ) {
     if (configService.get<string>('BACKEND_AUTOPOPULATE_DB') === 'true')
-      prisma.autoPopulateDB();
+      autoPopulateDb.AutoPopulateDb();
   }
 
   async findOne(username: string): Promise<any> {
@@ -66,11 +68,15 @@ export class UsersService {
   async new(usr: CreateUserDto): Promise<{ id: number; username: string }> {
     if (await this.isUsernameInUse(usr.username)) throw new ConflictException();
 
+    const hashed_pswd = this.authService.createHash(usr.password);
+    const avatar = this.avatarService.generateAvatar();
+    await Promise.all([hashed_pswd, avatar]);
+
     return await this.prisma.user.create({
       data: {
         username: usr.username,
-        password: usr.password,
-        avatar_url: await this.avatarService.generateAvatar(),
+        password: await hashed_pswd,
+        avatar_url: await avatar,
       },
       select: {
         id: true,
