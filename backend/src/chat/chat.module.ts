@@ -8,5 +8,6 @@ import { ChatController } from './chat.controller';
   providers: [ChatGateway, ChatService],
   imports: [AuthModule],
   controllers: [ChatController],
+  exports: [ChatGateway],
 })
 export class ChatModule {}
