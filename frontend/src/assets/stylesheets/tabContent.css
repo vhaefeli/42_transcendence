@@ -88,7 +88,7 @@
 
 /* Actuellement, le connection-circle est par defaut vert */
 /* Par la suite, donner la valeur circle-green ou circle-gray selon le statut de connexion de la personne */
-.ft-connection-circle, .ft-circle-green, .ft-color-add {
+.ft-connection-circle, .ft-circle-green, .ft-color-add, .ft-color-unblock {
     background: var(--green);
 }
 

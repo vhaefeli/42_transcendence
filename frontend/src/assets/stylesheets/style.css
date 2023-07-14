@@ -10,7 +10,7 @@ html {
 }
 
 html, body {
-    background: var(--orange);
+    background: var(--dark);
     /* height: 100%; */
 }
 
