@@ -1,11 +1,66 @@
 /*
     Ce fichier regroupes tous les styles liés aux textes et aux polices.
 */
-
-h1 {
-    font-size: 52px;
+@import url(./../fonts/array/css/array.css);
+@font-face {
+    font-family: "Array";
+    src: url(./../fonts/array/fonts/Array-Regular.ttf);
 }
 
-h2 {
-    font-size: 22px;
+/* @import url(./../fonts/JetBrains_Mono/static/); */
+@font-face {
+    font-family: "JetBrains";
+    src: url(./../fonts/JetBrains_Mono/JetBrainsMono-VariableFont_wght.ttf);
+}
+
+/* @import url(./../fonts/array/css/array.css); */
+@font-face {
+    font-family: "Orbitron";
+    src: url(./../fonts/Orbitron/Orbitron-VariableFont_wght.ttf);
+}
+
+p, a, .ft-text {
+    font-family: 'JetBrains';
+}
+
+h1, h2, h3, h4, h5, h6, .ft-title, .ft-tab-title, .ft-result-drk-text {
+    font-family: 'Array', 'Audiowide', monospace;
+    font-style: normal;
+}
+
+h1, .ft-result-drk-text {
+    font-size: 3rem;
+}
+
+.ft-tab-title {
+    font-size: 1.5rem;
+}
+
+h2, .ft-title, .ft-result-drk-text {
+    font-size: 2rem;
+}
+
+.ft-level-text {
+    font-size: 0.6rem;
+}
+
+.ft-title, .ft-tab-title {
+    color: var(--light);
+}
+
+.ft-result-drk-text {
+    color: var(--dark);
+}
+
+a.ft-bg-color-game, a.ft-bg-color-profile, a.ft-bg-color-chat, a.ft-color-add, a.ft-color-remove, a.ft-color-block, a.ft-color-edit {
+    color: var(--dark);
+    font-size: 1rem;
+}
+
+a.t-btn-pink:hover {
+    font-size: larger;
+}
+
+a.t-btn-pink:active {
+    font-size: larger;
 }

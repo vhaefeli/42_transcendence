@@ -5,6 +5,8 @@
 @import "./assets/stylesheets/style.css";
 @import "./assets/stylesheets/button.css";
 @import "./assets/stylesheets/font.css";
+@import "./assets/stylesheets/tabContent.css";
+@import "./assets/stylesheets/icons.css";
 
 @tailwind base;
 @tailwind components;
@@ -17,6 +19,7 @@
     --gray: #CFCDCE;
     --light-gray: #e6e6e6;
     --dark-gray: #1e1e1e;
+    --yellow: #F2CF00;
 
     --pink: #ED9CDB;
     --dark-pink: #E975EC;
