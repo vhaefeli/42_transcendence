@@ -222,6 +222,10 @@ export class ChatService {
         ) !== undefined
       )
         throw new ConflictException('User is already in channel');
+      await this.chatGateway.JoinUserToChannel(
+        channelAddMemberDto.channelId,
+        channelAddMemberDto.userId,
+      );
     } catch (error) {
       if (
         error instanceof UnauthorizedException ||
