@@ -45,6 +45,12 @@ export class GameGateway
   }
 
   @UseGuards(WsGuard)
+  @SubscribeMessage('testLag')
+  testLag(@MessageBody() body: { client: number }) {
+    return { client: body.client, server: new Date().getTime() };
+  }
+
+  @UseGuards(WsGuard)
   @SubscribeMessage('forceDisconnect')
   disconnectMe(@ConnectedSocket() client: any) {
     client.disconnect(true);
