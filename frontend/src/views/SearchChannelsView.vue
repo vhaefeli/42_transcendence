@@ -17,8 +17,8 @@
           <div :class="{ 'cursor-not-allowed': !selectedChannel }">
             <button
               @click="validateSelection"
-              class="btn btn-blue"
-              :class="{ 'opacity-50 noClick': !selectedChannel }"
+              class="searchan-btn searchan-btn-blue"
+              :class="{ 'opacity-50 searchan-noClick': !selectedChannel }"
             >
               Join
             </button>
@@ -42,20 +42,17 @@
           <div
             class="rounded border-gray-600 border space-x-4 p-3 items-center flex flex-row w-full"
             :class="{
-              'first-col':
+              'searchan-first-col':
                 index % 3 == 0 &&
                 !(
                   all_channels.length % 3 == 1 &&
                   index == all_channels.length - 1
                 ),
-              'second-col':
+              'searchan-second-col':
                 index % 3 == 1 ||
                 (all_channels.length % 3 == 1 &&
                   index == all_channels.length - 1),
-              'third-col': index % 3 == 2,
-              second_col:
-                all_channels.length % 3 == 1 &&
-                index == all_channels.length - 1,
+              'searchan-third-col': index % 3 == 2,
             }"
           >
             <img
@@ -74,25 +71,25 @@
 </template>
 
 <style>
-.first-col {
+.searchan-first-col {
   background-color: var(--red);
 }
-.second-col {
+.searchan-second-col {
   background-color: var(--purple);
 }
-.third-col {
+.searchan-third-col {
   background-color: var(--green);
 }
-.noClick {
+.searchan-noClick {
   pointer-events: none;
 }
-.btn {
+.searchan-btn {
   @apply font-bold py-2 px-4 rounded;
 }
-.btn-blue {
+.searchan-btn-blue {
   @apply bg-blue-500 text-white;
 }
-.btn-blue:hover {
+.searchan-btn-blue:hover {
   @apply bg-blue-700;
 }
 </style>
