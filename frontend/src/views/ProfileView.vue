@@ -13,7 +13,7 @@
                 <img :src="user.avatar_url" alt="avatar img" class="mr-9"/>
                 <div class="mr-9">
                     <!-- profile -->
-                    <p>username: {{ user.username }}<br />id: {{ user.id }}</p>
+                    <!-- <p>username: {{ user.username }}<br />id: {{ user.id }}</p> -->
                     <p v-if="user.twoFA_enabled">2FA is enabled</p>
                     <p v-if="!user.twoFA_enabled">2FA is disabled</p>
                     <p class="mb-6">Status: {{ user.status }}</p>
@@ -139,22 +139,20 @@
 
   <section class="ft-container">
     <div class="flex flex-col items-center text-center max-w-max ft-central-tab-container">
-      <div class="ft-profile-pic" id="current-profile-pic"></div>
+      <div class="ft-profile-pic" id="current-profile-pic" :style="profileBg"></div>
+      <!-- <img :src="user.avatar_url" alt="avatar img" class="mr-9"/> -->
       <!-- ajouter la valeur ft-circle-green ou ft-circle-gray selon le statut de connexion de la personne -->
       <div class="ft-connection-circle" id="current-profile-pic"></div>
       <div class="ft-tab-folder" id="title-profile"></div>
       <!-- Par defaut en ligne -->
       <div class="ft-tab-content ft-bg-color-profile">Online</div>
-      <div class="ft-tab-content ft-bg-color-profile ft-title" id="username">
-          Pouetteuuh
-      </div>
+      <div class="ft-tab-content ft-bg-color-profile ft-title" id="username">{{ user.username }}</div>
       <!-- <div class="ft-tabContent ft-centralTab" id="buttonsContainer"> -->
       <div class="ft-tab-content ft-bg-color-profile" id="buttons-container">
         <!-- Bouton pour ajouter la personne en ami (profil d'un tiers) -->
         <a class="t-btn-pink ft-color-add ft-other-profile"><span>[+]</span></a>
         <!-- Bouton pour bloquer la personne (profil d'un tiers) -->
         <a class="t-btn-pink ft-color-block ft-other-profile" id="block"><span>[blk]</span></a>
-
 
         <!-- Bouton pour editer son profil (SON profil uniquement) -->
         <!-- <a class="t-btn-pink ft-color-edit ft-my-profile" id="edit"><span>[ed.]</span></a> -->
@@ -375,7 +373,7 @@
 </template>
   
 <script setup lang="ts">
-    import { ref, onBeforeMount } from "vue";
+    import { ref, onBeforeMount, computed } from "vue";
     import { storeToRefs } from 'pinia'
     import { useRoute, useRouter } from 'vue-router'
     import axios from "axios";
@@ -445,6 +443,10 @@
         }
     }
 
+    const profileBg = computed(() => {
+      return 'background: ' + user.avatar_url + ';';
+    });
+
     function acceptFriend(friendname) {
         userStore.acceptFriend(friendname, sessionStore.access_token);
     }
@@ -482,7 +484,7 @@
   position: relative;
   top: 3em;
   z-index:1;
-  background: url(./../assets/img/chat.png);
+  /* background: url(./../assets/img/chat.png); */
   background-size: cover;
 }
 
