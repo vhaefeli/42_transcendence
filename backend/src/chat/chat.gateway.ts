@@ -1,4 +1,4 @@
-import { Logger, UseGuards } from '@nestjs/common';
+import { Inject, Logger, UseGuards, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   ConnectedSocket,
@@ -37,6 +37,7 @@ export class ChatGateway
   constructor(
     configService: ConfigService,
     private authService: AuthService,
+    @Inject(forwardRef(() => ChatService))
     private chatService: ChatService,
   ) {
     this.debug = configService.get<string>('SOCKET_DEBUG') === 'true';

@@ -1,9 +1,11 @@
 import {
   ConflictException,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
   UnauthorizedException,
+  forwardRef,
 } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 import { ChannelTypes, PrismaClient } from '@prisma/client';
@@ -15,10 +17,15 @@ import { FindChannelDto } from './dto/find-channel.dto';
 import { ChannelAddAdminDto } from './dto/channel-add-admin.dto';
 import { ChannelRemoveAdminDto } from './dto/channel-remove-admin.dto';
 import { ChannelChangeDto } from './dto/channel-change.dto';
+import { ChatGateway } from './chat.gateway';
 
 @Injectable()
 export class ChatService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => ChatGateway))
+    private chatGateway: ChatGateway,
+  ) {}
 
   async SaveDirectMessage(
     fromId: number,
