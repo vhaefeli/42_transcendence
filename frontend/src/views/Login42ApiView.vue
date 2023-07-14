@@ -1,27 +1,34 @@
 <template>
   <h1>Logging in with your 42 account</h1>
-  <p>{{ code42 }}</p>
   <p v-if="state_fail">State does not match</p>
-  <router-link class="t-btn-pink" to="/login">Return to login/profile page</router-link>
+  <router-link class="t-btn-pink" to="/login"
+    >Return to login/profile page</router-link
+  >
 </template>
 
 <script setup lang="ts">
 import axios from "axios";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useSessionStore } from "@/stores/SessionStore";
 import { ref } from "vue";
 
 const state_fail = ref(false);
+const route = useRoute();
+const router = useRouter();
 
 const sessionStore = useSessionStore();
-
-let code42: string;
 
 getURLCode();
 
 function getURLCode() {
-  const code = useRoute().query.code?.toString();
-  const state = useRoute().query.state?.toString();
+  const code = route.query.code?.toString();
+  const state = route.query.state?.toString();
+  if (route.query.error?.toString() === "access_denied") {
+    console.log(
+      `42Api access denied: ${route.query.error_description?.toString()}`
+    );
+    return;
+  }
   if (code && state) {
     if (state != sessionStore.getUUID()) {
       console.log(`state: ${state}\nuuid: ${sessionStore.getUUID()}`);
@@ -29,7 +36,6 @@ function getURLCode() {
       state_fail.value = true;
       return;
     }
-    code42 = `API code: ${code}`;
   }
 
   backendRegistration(code, state);
@@ -46,12 +52,19 @@ async function backendRegistration(code: string, state: string) {
     },
   })
     .then((response) => {
-      console.log(response.data);
+      if (!response.data.tfa_enabled) {
+        console.log("login successful, saved token");
+        sessionStore.access_token = response.data.access_token;
+        sessionStore.isLoggedIn = true;
+        router.push("/login/");
+      } else {
+        router.push(`/login?tfa_request_uuid=${response.data.tfa_request_uuid}`);
+      }
     })
     .catch((error) => {
-      if (error.response.status == 409)
+      if (error.response.status == 401)
         console.log(
-          `user already exists: ${error.response.status} ${error.response.statusText}`
+          `42 rejected the login request: ${error.response.status} ${error.response.statusText}`
         );
       else
         console.error(

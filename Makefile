@@ -52,4 +52,7 @@ info:
 prune:
 		docker system prune --all
 
-.PHONY:	run all up down info prune
+open:
+		open http://localhost:5173/
+
+.PHONY:	run all up down info prune open

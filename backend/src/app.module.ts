@@ -4,11 +4,19 @@ import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
-import { InviteModule } from './invite/invite.module';
+import { FriendModule } from './friend/friend.module';
 import { UserModule } from './user/user.module';
 import { AvatarModule } from './avatar/avatar.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { StatusModule } from './status/status.module';
+import { BlockModule } from './block/block.module';
+import { ChatModule } from './chat/chat.module';
+import { TfaController } from './tfa/tfa.controller';
+import { TfaService } from './tfa/tfa.service';
+import { TfaModule } from './tfa/tfa.module';
+import { AuthModule } from './auth/auth.module';
+import { PlayerModule } from './player/player.module';
 
 @Module({
   imports: [
@@ -22,15 +30,22 @@ import { join } from 'path';
     }),
     PrismaModule,
     UserModule,
-    InviteModule,
+    FriendModule,
     AvatarModule,
+    StatusModule,
+    BlockModule,
+    ChatModule,
+    TfaModule,
+    AuthModule,
+    PlayerModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, TfaController],
   providers: [
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
+    TfaService,
   ],
   exports: [],
 })

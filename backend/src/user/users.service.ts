@@ -3,16 +3,22 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { AuthService } from 'src/auth/auth.service';
 import { AvatarService } from 'src/avatar/avatar.service';
+import { FriendService } from 'src/friend/friend.service';
 import { PrismaService } from 'src/prisma.service';
 import { CreateUserDto } from 'src/user/create-user.dto';
 import { UpdateUsernameReturnDto } from 'src/user/update-username-return.dto';
 import { UserProfileDto } from 'src/user/user-profile.dto';
 import { MyProfileDto } from './my-profile.dto';
+import { Profile42Api } from './profile-42api.dto';
+import { TokenInfoDto } from './token-info.dto';
+import { StatusService } from 'src/status/status.service';
 
 @Injectable()
 export class UsersService {
@@ -21,7 +27,15 @@ export class UsersService {
     @Inject(forwardRef(() => AuthService))
     private authService: AuthService,
     private avatarService: AvatarService,
-  ) {}
+    @Inject(forwardRef(() => FriendService))
+    private friendService: FriendService,
+    @Inject(forwardRef(() => StatusService))
+    private statusService: StatusService,
+    configService: ConfigService,
+  ) {
+    if (configService.get<string>('BACKEND_AUTOPOPULATE_DB') === 'true')
+      prisma.autoPopulateDB();
+  }
 
   async findOne(username: string): Promise<any> {
     return await this.prisma.user.findUnique({
@@ -101,88 +115,29 @@ export class UsersService {
     }
   }
 
-  async getFriends(id: number) {
-    const friends = await this.prisma.user.findUnique({
-      where: { id: id },
-      select: {
-        friends_added: {
-          select: {
-            id: true,
-            username: true,
-          },
-        },
-        friends: {
-          select: {
-            id: true,
-            username: true,
-          },
-        },
-      },
-    });
-    const res = new Array<{ id: number; username: string }>();
-    friends.friends.forEach((element) => {
-      res.push({ id: element.id, username: element.username });
-    });
-    friends.friends_added.forEach((element) => {
-      res.push({ id: element.id, username: element.username });
-    });
+  async getProfile(
+    profile: {
+      id: number;
+      username: string;
+      avatar_url: string;
+    },
+    my_id: number,
+  ): Promise<UserProfileDto> {
+    const res: UserProfileDto = {
+      ...profile,
+      is_friend:
+        my_id === profile.id || my_id == null
+          ? false
+          : await this.friendService.areFriends(my_id, profile.id),
+    };
+    if (res.is_friend)
+      res.status = await this.statusService.getStatus({ id: res.id });
     return res;
   }
 
-  async areFriends(id1: number, id2: number): Promise<boolean> {
-    return (
-      (await this.prisma.user.findFirst({
-        where: {
-          AND: [
-            {
-              id: id1,
-            },
-            {
-              OR: [
-                {
-                  friends: {
-                    some: {
-                      id: id2,
-                    },
-                  },
-                },
-                {
-                  friends_added: {
-                    some: {
-                      id: id2,
-                    },
-                  },
-                },
-              ],
-            },
-          ],
-        },
-      })) != null
-    );
-    //const otherFriendFound = await this.prisma.user.findFirst({
-    //  where: { username: user },
-    //  select: {
-    //    friends: {
-    //      where: { username: friend },
-    //      select: {
-    //        id: true,
-    //        username: true,
-    //      },
-    //    },
-    //    friends_added: {
-    //      where: { username: friend },
-    //      select: {
-    //        id: true,
-    //        username: true,
-    //      },
-    //    },
-    //  },
-    //});
-  }
-
-  async getProfile(
+  async getProfileByUsername(
     username: string,
-    my_id: number = null,
+    my_id: number,
   ): Promise<UserProfileDto> {
     try {
       const user = await this.prisma.user.findUniqueOrThrow({
@@ -193,20 +148,35 @@ export class UsersService {
           avatar_url: true,
         },
       });
-      return {
-        ...user,
-        is_friend:
-          my_id === user.id || my_id == null
-            ? false
-            : await this.areFriends(my_id, user.id),
-      };
+      return await this.getProfile(user, my_id);
     } catch (e) {
       if (e.code == 'P2025') throw new NotFoundException();
       Logger.error(e.code + ' ' + e.msg);
+      if (e?.code) Logger.error(e.code + ' ' + e.msg);
+      throw e;
+    }
+  }
+
+  async getProfileById(id: number, my_id: number): Promise<UserProfileDto> {
+    try {
+      const user = await this.prisma.user.findUniqueOrThrow({
+        where: { id: id },
+        select: {
+          id: true,
+          username: true,
+          avatar_url: true,
+        },
+      });
+      return await this.getProfile(user, my_id);
+    } catch (e) {
+      if (e.code == 'P2025') throw new NotFoundException();
+      if (e?.code) Logger.error(e.code + ' ' + e.msg);
+      throw e;
     }
   }
 
   async getMe(my_id: number): Promise<MyProfileDto> {
+    const status = this.statusService.getStatus({ id: my_id });
     try {
       const user = await this.prisma.user.findUniqueOrThrow({
         where: { id: my_id },
@@ -214,12 +184,12 @@ export class UsersService {
           id: true,
           username: true,
           avatar_url: true,
-          twoFA_enabled: true,
-          status: true,
+          tfa_enabled: true,
         },
       });
       return {
         ...user,
+        status: await status,
       };
     } catch (e) {
       Logger.error(e.code + ' ' + e.msg);
@@ -236,20 +206,46 @@ export class UsersService {
     ).id;
   }
 
-  async removeFriendship(my_id: number, friend_username: string) {
+  async generateUniqueUsername(wished_username: string): Promise<string> {
+    if (await this.isUsernameInUse(wished_username)) {
+      let n = 0;
+      while (await this.isUsernameInUse(wished_username + n.toFixed())) n++;
+      return wished_username + n.toFixed();
+    }
+    return wished_username;
+  }
+
+  async register42User(profile42: Profile42Api): Promise<TokenInfoDto> {
+    const user = this.prisma.user.create({
+      data: {
+        username: await this.generateUniqueUsername(profile42.login),
+        id42: profile42.id,
+        access_token42: profile42.access_token,
+        avatar_url: profile42.image_url,
+      },
+      select: { id: true, username: true },
+    });
+    return user;
+  }
+
+  async login42API(
+    access_token: string,
+    profile42: Profile42Api,
+  ): Promise<string> {
+    let user: TokenInfoDto;
     try {
-      if (!(await this.areFriends(my_id, await this.getId(friend_username)))) {
-        throw new Error();
-      }
-      await this.prisma.user.update({
-        where: { id: my_id },
-        data: {
-          friends: { disconnect: { username: friend_username } },
-          friends_added: { disconnect: { username: friend_username } },
-        },
+      user = await this.prisma.user.findUniqueOrThrow({
+        where: { id42: profile42.id },
+        select: { id: true, username: true },
       });
     } catch (e) {
-      throw new NotFoundException();
+      if (e.code === 'P2025') user = await this.register42User(profile42);
+      else {
+        Logger.error(e);
+        throw new InternalServerErrorException();
+      }
     }
+    return (await this.authService.CreateToken(user.id, user.username))
+      .access_token;
   }
 }
