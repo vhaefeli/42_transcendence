@@ -153,7 +153,9 @@
             <div class="flex flex-row items-center">
               <div class="flex flex-col">
                 <div class="ft-profile-pic ft-friend-pic">
-                  <div class="ft-connection-circle ft-friend-status"></div>
+                  <div class="ft-connection-circle ft-friend-status">
+                    <img src="../assets/img/icons/tennisBallBlack.png" alt="is playing" class="ft-playing">
+                  </div>
                 </div>
               </div>
               <ul class="flex flex-col justify-center">
@@ -172,7 +174,9 @@
             <div class="flex flex-row items-center">
               <div class="flex flex-col">
                 <div class="ft-profile-pic ft-friend-pic">
-                  <div class="ft-connection-circle ft-friend-status"></div>
+                  <div class="ft-connection-circle ft-friend-status">
+                    <img src="../assets/img/icons/tennisBallBlack.png" alt="is playing" class="ft-playing">
+                  </div>
                 </div>
               </div>
               <ul class="flex flex-col justify-center">
@@ -190,7 +194,9 @@
             <div class="flex flex-row items-center">
               <div class="flex flex-col">
                 <div class="ft-profile-pic ft-friend-pic">
-                  <div class="ft-connection-circle ft-friend-status"></div>
+                  <div class="ft-connection-circle ft-friend-status">
+                    <img src="../assets/img/icons/tennisBallBlack.png" alt="is playing" class="ft-playing">
+                  </div>
                 </div>
               </div>
               <ul class="flex flex-col justify-center">
@@ -209,7 +215,9 @@
             <div class="flex flex-row items-center">
               <div class="flex flex-col">
                 <div class="ft-profile-pic ft-friend-pic">
-                  <div class="ft-connection-circle ft-friend-status"></div>
+                  <div class="ft-connection-circle ft-friend-status">
+                    <img src="../assets/img/icons/tennisBallBlack.png" alt="is playing" class="ft-playing">
+                  </div>
                 </div>
               </div>
               <ul class="flex flex-col justify-center">
@@ -366,6 +374,13 @@
   left: 15vw;
   width: 52em;
 }
+
+/* Pour DEBUG seulement, doit s-afficher ou non selon en jeu */
+.ft-playing {
+  display: none;
+}
+
+/* -------------------- */
 
 .ft-right-tab#friends-list {
   position: relative;
