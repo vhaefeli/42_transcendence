@@ -14,7 +14,7 @@
 
         <!-- column 2 with messages -->
         <div id="dm-msg-col" class="grow relative">
-          <div ref="scroller" class="ft-chat-box p-6 overflow-scroll">
+          <div id="ft-scroller" ref="scroller" class="ft-chat-box p-6 overflow-scroll">
             <div v-if="is_blocked">
               <EmptyText :text="'You have blocked this user. Unblock he/her to see messages.'" :white="true" />
             </div>
@@ -170,9 +170,7 @@
 
     const stockHistory = async (payload) => {
       // push recieved message to Messages Array
-      pushToMessages(payload)
-      console.log(payload)
-      
+      pushToMessages(payload)      
       // make an Array of all user i'm speaking with
       let id
         if (payload.fromId === user.value.id) {
@@ -357,4 +355,20 @@
   .ft-actual-recipient:hover {
     padding-left: 1rem;
   }
+
+  /* scrollbar */
+
+  #ft-scroller::-webkit-scrollbar {
+      width: 22px;               /* width of the entire scrollbar */
+  }
+
+  #ft-scroller::-webkit-scrollbar-track {
+      background: #383838;        /* color of the tracking area */
+  }
+
+  #ft-scroller::-webkit-scrollbar-thumb {
+      background-color: #212121;    /* color of the scroll thumb */
+      border-radius: .3rem;       /* roundness of the scroll thumb */
+  }
+
 </style>
