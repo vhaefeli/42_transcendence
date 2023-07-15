@@ -3,13 +3,16 @@
 .ft-chat-container {
     background: var(--dark-pink);
 	border: 4px solid var(--dark-pink);
-    height: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-radius: 25px 25px 0 0;
 }
 
 .ft-chat-inside-container {
   background: var(--gray);
   border-top: 4px solid var(--light);
-  height: 100%;
+  flex: 1;
 }
 
 .ft-bg-dark-gray {
@@ -20,11 +23,10 @@
 
 #dm-msg-col {
     background-color: var(--dark-gray);
-    height: 70vh;
 }
 
 .ft-chat-box {
-    height: 85%;
+    height: 70vh;
 }
 
 .ft-msg-container {

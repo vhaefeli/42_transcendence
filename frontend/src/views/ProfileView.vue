@@ -1,5 +1,4 @@
 <template>
-
   <NavBar></NavBar>
   <div id="profile-container">
     <section class="ft-cover flex flex-col items-end justify-end">
@@ -138,7 +137,8 @@
                       </ul>
                     </div>
                     <ul class="flex flex-row">
-                      <li><a class="t-btn-pink ft-bg-color-chat ft-icon-small icon-btn-size icon-btn-cursor"><img src="../assets/img/icons/message-solid.svg" alt="send them a message"></a></li>
+                      <router-link :to="{ name: 'dms', query: { recipient: friend.id } }" class="t-btn-pink ft-bg-color-chat ft-icon-small icon-btn-size icon-btn-cursor"><img src="../assets/img/icons/message-solid.svg" alt="send them a message"></router-link>
+                      <!-- <li><a class="t-btn-pink ft-bg-color-chat ft-icon-small icon-btn-size icon-btn-cursor"><img src="../assets/img/icons/message-solid.svg" alt="send them a message"></a></li> -->
                       <li><a class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor" @click="blockUser(friend.username)"><img src="../assets/icons/person-circle-minus-solid.svg" alt="block them"></a></li>
                       <li><a class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="removeFriend(friend.username)"><img src="../assets/img/icons/user-minus-solid.svg" alt="remove friendship"></a></li>
                     </ul>
@@ -222,6 +222,7 @@
   <!-- CODE DE MICHELE CI-DESSUS -->
     </section>
   </div>
+  <div id="ft-bottom-line"></div>
 </template>
   
 <script setup lang="ts">
@@ -322,6 +323,14 @@
 </script>
 
 <style scoped>
+
+#ft-bottom-line {
+  width: 100%;
+  border-bottom: 4px solid var(--light-purple);
+  position: fixed;
+  bottom: 0;
+  z-index: 10000;
+}
 
 .ft-cover {
     background: url(./../assets/img/fond.png);
@@ -508,7 +517,7 @@
 #profile-container {
     background: var(--gray);
     border: 4px solid var(--light-purple);
-    border-radius: 66px;
+    border-radius: 25px 25px 0 0;
     overflow: hidden;
 }
 

@@ -7,30 +7,7 @@
         <!-- column 1 with profile -->
         <div id="dm-profile-col">
           <div v-if="isActualInfosLoaded">
-            <div class="flex flex-col items-center text-center max-w-max ft-central-tab-container">
-              <div class="ft-profile-pic" id="current-profile-pic" :style="{ 'background': 'url(' + actualInfos.avatar_url + ')' }"></div>
-              <!-- ajouter la valeur ft-circle-green ou ft-circle-gray selon le statut de connexion de la personne -->
-              <div class="ft-connection-circle" id="current-profile-pic"></div>
-              <div class="ft-tab-folder" id="title-profile"></div>
-              <!-- Par defaut en ligne -->
-              <div class="ft-tab-content ft-bg-color-profile">{{ actualInfos.status }}</div>
-              <div class="ft-tab-content ft-bg-color-profile ft-title" id="username">{{ actualInfos.username }}</div>
-              <div>
-                <div v-if="actualInfos.is_friend">is my friend</div>
-                  <div v-else>is not my friend</div>
-              </div>
-              <!-- <div class="ft-tabContent ft-centralTab" id="buttonsContainer"> -->
-              <div class="ft-tab-content ft-bg-color-profile" id="buttons-container">
-                <!-- Bouton pour ajouter la personne en ami (profil d'un tiers) -->
-                <a class="t-btn-pink ft-color-add ft-other-profile"><span>[+]</span></a>
-                <!-- Bouton pour bloquer la personne (profil d'un tiers) -->
-                <a class="t-btn-pink ft-color-block ft-other-profile" id="block"><span>[blk]</span></a>
-  
-                <!-- Bouton pour editer son profil (SON profil uniquement) -->
-                <!-- <a class="t-btn-pink ft-color-edit ft-my-profile" id="edit"><span>[ed.]</span></a> -->
-                <a class="t-btn-pink ft-color-edit ft-my-profile ft-icon-small icon-btn-cursor" id="edit"><img src="../assets/img/icons/user-pen-solid.svg" alt="edit my profile"></a>
-              </div>
-            </div>
+            <OtherUserProfile v-bind="actualInfos" :userStore="userStore" :sessionStore="sessionStore" />
           </div>
           <div v-else>Profile loading...</div>
 
@@ -70,6 +47,7 @@
             <div v-for="recipient in recipients" :key="recipient">
               <div @click="changeActualRecipient(recipient)" :class="actual.id == recipient ? 'ft-actual-recipient' : ''" class="ft-recipient-name">{{ getRecipientName(recipient) }}</div>
             </div>
+            <div v-if="!isInRecipients()"></div>
           </div>
           <div class="mb-6">
             <input v-model="newRecipient" placeholder="name of friend" /><br />
@@ -83,34 +61,35 @@
           </div>
         </div>
       </section>
-
-        <!-- <section class="chat-inside-container flex flex-col items-center">
-          <div v-if="recipients.length > 0">speaking with {{ actual.username }}</div>
-          <div v-else>No Dms yet</div>
-      </section> -->
     </div>
 </template>
   
 <script setup>
     import NavBar from "../components/NavBar.vue";
     import ChatNavBar from "../components/ChatNavBar.vue";
-    import { ref, onUpdated, watchEffect } from "vue";
+    import OtherUserProfile from "../components/OtherUserProfile.vue";
+    import { ref, onUpdated, watchEffect, onMounted } from "vue";
     import { storeToRefs } from 'pinia'
     import axios from "axios";
-    import { useRouter } from 'vue-router'
+    import { useRouter, useRoute } from 'vue-router'
     import { useSessionStore } from "@/stores/SessionStore";
     import { useUserStore } from '../stores/UserStore'
     import { chatService } from "@/services/chat-socket.service";
 
+    const route = useRoute()
+
+    // retrieve recipient i clicked on on other pages 
+    const queryRecipient = route.query.recipient
+    
     // routes
     const router = useRouter()
     
     // we need sessionStore and userStore
     const sessionStore = useSessionStore()
     const userStore = useUserStore()
-
+    
     const { user } = storeToRefs(userStore)
-
+    
     const actual = ref({})
     const actualInfos = ref({})
     const message = ref("")
@@ -119,11 +98,11 @@
     const newRecipient = ref('')
     const allUsers = ref([])
     const recipients = ref([])
-
+    
     // Reactive flag for loaded data
     const isAllUsersLoaded = ref(false)
     const isActualInfosLoaded = ref(false)
-
+    
     let dateOptions = {
         weekday: "short",
         day: "numeric",
@@ -212,6 +191,28 @@
         //  check if user exist
         recipients.value.push(userFind.id);
         actual.value = userFind
+    }
+
+    // add recipient by ID to the list
+    function addRecipientByID(queryRecipientId) {
+        const userFind = allUsers.value.find((user) => queryRecipientId == user.id)
+        if (userFind) {
+            recipients.value.push(userFind.id);
+            actual.value = userFind
+        }
+        // // TO DO:
+        // //  check if already exist
+        // //  replace by search bar
+        // //  check if user exist
+    }
+
+    function isInRecipients() {
+      if (recipients.value.find((recipient) => queryRecipient == recipient)) {
+        return true
+      } else {
+        addRecipientByID(queryRecipient)
+        return false
+      }
     }
 
     // return name of recipient
@@ -305,7 +306,9 @@
   watchEffect(() => {
     if (isAllUsersLoaded.value) {
       // The allUsers data is loaded, you can use it now
-      if (recipients.value.length > 0 && Object.keys(actual.value).length === 0) {
+      if (queryRecipient) {
+        actual.value = allUsers.value.find((user) => queryRecipient == user.id)
+      } else if (recipients.value.length > 0 && Object.keys(actual.value).length === 0) {
         actual.value = allUsers.value.find((user) => recipients.value[0] === user.id)
       }
     }
