@@ -9,13 +9,16 @@
           <div v-if="isActualInfosLoaded">
             <OtherUserProfile v-bind="actualInfos" :userStore="userStore" :sessionStore="sessionStore" />
           </div>
-          <div v-else>Profile loading...</div>
-
+            <div v-else>Profile loading...</div>
         </div>
 
         <!-- column 2 with messages -->
         <div id="dm-msg-col" class="grow relative">
           <div ref="scroller" class="ft-chat-box p-6 overflow-scroll">
+            <div v-if="is_blocked">
+              <EmptyText :text="'You have blocked this user. Unblock he/her to see messages.'" :white="true" />
+            </div>
+            <div v-else>
               <div v-for="message in messages" :key="message.id">
                 <div v-if="actual.id === message.fromId || actual.id === message.toId">
                   <div v-if="message.fromId == user.id" class="grid">
@@ -32,6 +35,7 @@
                   </div>
                 </div>
               </div>
+            </div>
             </div>
 
             <div class="ft-bg-dark-gray flex p-2 absolute w-full bottom-0">
@@ -68,7 +72,8 @@
     import NavBar from "../components/NavBar.vue";
     import ChatNavBar from "../components/ChatNavBar.vue";
     import OtherUserProfile from "../components/OtherUserProfile.vue";
-    import { ref, onUpdated, watchEffect, onMounted } from "vue";
+    import EmptyText from "@/components/EmptyText.vue";
+    import { ref, onUpdated, watchEffect } from "vue";
     import { storeToRefs } from 'pinia'
     import axios from "axios";
     import { useRouter, useRoute } from 'vue-router'
@@ -102,6 +107,9 @@
     // Reactive flag for loaded data
     const isAllUsersLoaded = ref(false)
     const isActualInfosLoaded = ref(false)
+
+    // TO DO: use the real infos from back
+    const is_blocked = false
     
     let dateOptions = {
         weekday: "short",
@@ -163,6 +171,7 @@
     const stockHistory = async (payload) => {
       // push recieved message to Messages Array
       pushToMessages(payload)
+      console.log(payload)
       
       // make an Array of all user i'm speaking with
       let id

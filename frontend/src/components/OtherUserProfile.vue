@@ -8,7 +8,7 @@
             <div class="ft-tab-content ft-bg-color-profile ft-title" id="username">{{ username }}</div>
             <div class="ft-tab-content ft-bg-color-profile flex flex-col items-center p-6">
                 <div v-if="is_friend" class="mb-3">
-                    <a class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="removeFriend(username)"><img src="../assets/img/icons/user-minus-solid.svg" alt="remove friendship"></a>
+                    <a title="remove friendship" class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="removeFriend(username)"><img src="../assets/img/icons/user-minus-solid.svg" alt="remove friendship"></a>
                 </div>
                 <div v-else class="mb-6">
                     <div v-if="is_invitation_pending">

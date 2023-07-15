@@ -31,7 +31,7 @@
       </div>
                       
 
-      <div class="flex flex-col text-center ft-left-tab" id="stats">
+      <div class="flex flex-col text-center ft-left-tab" id="stats" :class="{ foreground: foregroundTab === 'stats' }" @click="setForegroundTab('stats')">
         <div class="ft-tab-folder ft-tab-title ft-bb-color-game">Stats</div>
         <div class="ft-tab-content ft-border-color-game ft-tab-border flex flex-row justify-evenly ">
           <!-- <div class="flex flex-col">3</div> -->
@@ -54,7 +54,7 @@
         </div>
       </div>
 
-      <div class="flex flex-col text-center ft-right-tab" id="match-history">
+      <div class="flex flex-col text-center ft-right-tab" id="match-history" :class="{ foreground: foregroundTab === 'matchHistory' }" @click="setForegroundTab('matchHistory')">
         <div class="ft-tab-folder ft-tab-title ft-bb-color-game">Match history</div>
         <div class="ft-tab-content ft-border-color-game ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left ft-scrollable">
           <ul>
@@ -74,12 +74,12 @@
         </div>
       </div>
 
-      <div class="flex flex-col text-center ft-left-tab ft-my-profile" id="friends-requests">
+      <div class="flex flex-col text-center ft-left-tab ft-my-profile" id="friends-requests" :class="{ foreground: foregroundTab === 'friendsRequest' }" @click="setForegroundTab('friendsRequest')">
         <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Friends requests</div>
         <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left ft-scrollable">
           <ul>
             <div v-if="invites">
-              <div v-if="invites.length === 0">No one wants to be your friend...yet!</div>
+              <div v-if="invites.length === 0"><EmptyText :text="'No one wants to be your friend...yet!'" :white="false" /></div>
               <div v-for="(invitation, index) in invites" :key="index">
                 <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between items-center" :class="index === invites.length - 1 ? '' : 'ft-tab-separator'">
                   <ul class="flex flex-row items-center">
@@ -98,11 +98,12 @@
         </div>
       </div>
 
-      <div class="flex flex-col text-center ft-right-tab ft-my-profile" id="sent-requests">
+      <div class="flex flex-col text-center ft-right-tab ft-my-profile" id="sent-requests" :class="{ foreground: foregroundTab === 'sentRequests' }" @click="setForegroundTab('sentRequests')">
         <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Sent requests</div>
         <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left ft-scrollable">
           <ul>
             <div v-if="invitesSent">
+              <div v-if="invitesSent.length === 0"><EmptyText :text="'You never sent any request'" :white="false" /></div>
                 <div v-for="(invitation, index) in invitesSent" :key="index">
                     <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between items-center" :class="index === invitesSent.length - 1 ? '' : 'ft-tab-separator'">
                       <ul class="flex flex-row items-center">
@@ -116,10 +117,11 @@
         </div>
       </div>
 
-      <div class="flex flex-col text-center ft-left-tab ft-my-profile" id="friends-list">
+      <div class="flex flex-col text-center ft-left-tab ft-my-profile" id="friends-list" :class="{ foreground: foregroundTab === 'friends' }" @click="setForegroundTab('friends')">
         <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Friends</div>
         <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left ft-scrollable">
           <ul>
+            <div v-if="friends.length === 0"><EmptyText :text="'You have no friends... Looser!'" :white="false" /></div>
             <div v-for="(friend, index) in friends" :key="index">
                 <div v-if="!friend.is_blocked">
                   <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between" :class="index === friends.length - 1 ? '' : 'ft-tab-separator'">
@@ -149,7 +151,7 @@
         </div>
       </div>
 
-      <div class="flex flex-col text-center ft-left-tab ft-my-profile" id="friends-search">
+      <div class="flex flex-col text-center ft-left-tab ft-my-profile" id="friends-search" :class="{ foreground: foregroundTab === 'search' }" @click="setForegroundTab('search')">
         <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Add a new friend</div>
         <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left">
             <div class="flex flex-row justify-center">
@@ -164,6 +166,7 @@
         <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left ft-scrollable" id="blocked">
           <ul>
             <div v-if="blocked">
+                <div v-if="blocked.length === 0"><EmptyText :text="`You didn't block anybody`" :white="true" /></div>
                 <div v-for="(block, index) in blocked" :key="index">
                   <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between" :class="index === blocked.length - 1 ? '' : 'ft-tab-separator'">
                       <div class="flex flex-row items-center">
@@ -233,6 +236,7 @@
     import { useUserStore } from '../stores/UserStore'
     import { useSessionStore } from "@/stores/SessionStore";
     import NavBar from "@/components/NavBar.vue";
+    import EmptyText from "@/components/EmptyText.vue";
 
     
     // to have the token we need sessionStore
@@ -247,11 +251,15 @@
     const isLoggedIn = ref(false);
 
     // other variables
-    let newFriend = ref('')
+    const foregroundTab = ref('')
+    const newFriend = ref('')
     let allUsers: { id: number, username: string }[];
-    // let myFriends = ref([]);
 
     const { user, friends, invites, blocked, invitesSent } = storeToRefs(userStore)
+
+    function setForegroundTab(tab) {
+      foregroundTab.value = tab
+    }
 
     // onBeforeMount is executed before the component is mounted
     // way of using await because we can't do it in setup
@@ -323,6 +331,10 @@
 </script>
 
 <style scoped>
+
+.foreground {
+  z-index: 999;
+}
 
 #ft-bottom-line {
   width: 100%;
