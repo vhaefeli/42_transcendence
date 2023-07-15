@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 type State = {};
 
@@ -89,6 +89,7 @@ export const useUserStore = defineStore("userStore", {
       },
       // get list of friends
       async getInvitesSent(access_token) {
+        console.log("yep")
         await axios({
           url: "/api/user/friend/invite/sent",
           method: "get",
@@ -100,14 +101,14 @@ export const useUserStore = defineStore("userStore", {
             return true;
           })
           .catch((error) => {
-            if (error.response.status == 401) {
+            if (error.response?.status == 401) {
               console.log(
                 `invalid access token: ${error.response.status} ${error.response.statusText}`
               );
               this.user.isLogged = false
             } else {
               console.error(
-                `unexpected error: ${error.response.status} ${error.response.statusText}`
+                `unexpected error: ${error.response?.status} ${error.response?.statusText}`
               );
             }
             return false;
@@ -189,27 +190,27 @@ export const useUserStore = defineStore("userStore", {
        })
          .then((response) => {
            // To execute when the request is successful
+           this.getInvitesSent(access_token)
            console.log('loaded invitation')
-           getInvitesSent(access_token)
            return true;
          })
          .catch((error) => {
-          if (error.response.status == 401) {
+          if (error.response?.status == 401) {
             console.log(
               `invalid access token: ${error.response.status} ${error.response.statusText}`
             );
             this.user.isLogged = false
-          } else if (error.response.status == 404) {
+          } else if (error.response?.status == 404) {
             console.log(
               `user not found: ${error.response.status} ${error.response.statusText}`
             );
-          } else if (error.response.status == 409) {
+          } else if (error.response?.status == 409) {
             console.log(
               `can't send invitation to this user: ${error.response.status} ${error.response.statusText}`
             );
           } else {
             console.error(
-              `unexpected error: ${error.response.status} ${error.response.statusText}`
+              `unexpected error: ${error.response?.status} ${error.response?.statusText}`
             );
           }
           return false;
