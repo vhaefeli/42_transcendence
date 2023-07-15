@@ -18,6 +18,7 @@ import { ChannelAddAdminDto } from './dto/channel-add-admin.dto';
 import { ChannelRemoveAdminDto } from './dto/channel-remove-admin.dto';
 import { ChannelChangeDto } from './dto/channel-change.dto';
 import { ChatGateway } from './chat.gateway';
+import { MyChannelMembersDto } from './dto/myChannelMembers.dto';
 
 @Injectable()
 export class ChatService {
@@ -179,8 +180,19 @@ export class ChatService {
     return MyChannels;
   }
 
-  async FindMyChannelMembers(my_id: number) {
-    return 'Channel';
+  async FindMyChannelMembers(
+    my_id: number,
+    myChannelMembersDto: MyChannelMembersDto,
+  ) {
+    Logger.log('my_id ' + my_id);
+    Logger.log('channel ' + myChannelMembersDto.channelId);
+
+    const channelMembers = await this.prisma.channel.findMany({
+      where: { id: myChannelMembersDto.channelId },
+      select: { members: { select: { username: true } } },
+    });
+
+    return channelMembers;
   }
 
   async ChannelAddMember(
