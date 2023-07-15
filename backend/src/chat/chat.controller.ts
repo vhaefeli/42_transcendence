@@ -5,6 +5,7 @@ import { ChannelAddMemberDto } from './dto/channel-add-member.dto';
 import { ChannelAddAdminDto } from './dto/channel-add-admin.dto';
 import { ChannelRemoveAdminDto } from './dto/channel-remove-admin.dto';
 import { MyChannelMembersDto } from './dto/myChannelMembers.dto';
+import { ChannelAddMutedDto } from './dto/channel-add-muted.dto';
 
 @Controller('chat')
 export class ChatController {
@@ -69,6 +70,14 @@ export class ChatController {
       channelRemoveAdminDto,
       req.user.sub,
     );
+  }
+
+  @Patch('channel/muted/add')
+  async channelAddMuted(
+    @Request() req: any,
+    @Body() channelAddMutedDto: ChannelAddMutedDto,
+  ) {
+    await this.chatService.ChannelAddMuted(channelAddMutedDto, req.user.sub);
   }
 
   // @Patch('channel/change')
