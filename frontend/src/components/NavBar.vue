@@ -1,6 +1,6 @@
 <template>
     <nav id="ft-main-nav" class="w-full flex justify-center items-end">
-        <Vue3Lottie id="ft-lottie" :animationData="pongJSON" :height="`42px`" :width="`42px`" />
+        <Vue3Lottie id="ft-lottie" ref="pongLottie" @mouseover="playAnimation" @mouseleave="stopAnimation" :animationData="pongJSON" :height="`42px`" :width="`42px`" />
         <router-link
             :class="{ active: activeTab === 'profile' }"
             class="nav-tab nav-tab-profile"
@@ -29,16 +29,24 @@
   </template>
   <script setup>
     import { useUserStore } from '../stores/UserStore'
-    import { ref, onMounted } from 'vue'
+    import { ref } from 'vue'
     import pongJSON from '@/assets/json/pong.json'
     
     const userStore = useUserStore()
     const activeTab = ref('')
+    const pongLottie = ref(null)
+
+    function playAnimation() {
+        pongLottie.value.play()
+    }
+
+    function stopAnimation() {
+        pongLottie.value.stop()
+    }
     
     function setActiveTab(tab) {
         activeTab.value = tab
     }
-
 </script>
 
 <style scoped>

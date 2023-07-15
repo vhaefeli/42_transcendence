@@ -5,3 +5,13 @@
 .ft-icon-small {
   width: 3rem;
 }
+
+a.icon-btn-size {
+  height: 3rem;
+  width: 3rem;
+  display: flex;
+}
+
+a.icon-btn-cursor {
+  cursor: pointer;
+}
