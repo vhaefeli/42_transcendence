@@ -6,16 +6,25 @@
             <div class="ft-tab-folder" id="title-profile"></div>
             <div class="ft-tab-content ft-bg-color-profile">{{ status }}</div>
             <div class="ft-tab-content ft-bg-color-profile ft-title" id="username">{{ username }}</div>
-            <div class="ft-tab-content ft-bg-color-profile flex justify-center py-6">
-                <div v-if="is_friend">
+            <div class="ft-tab-content ft-bg-color-profile flex flex-col items-center p-6">
+                <div v-if="is_friend" class="mb-3">
                     <a class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="removeFriend(username)"><img src="../assets/img/icons/user-minus-solid.svg" alt="remove friendship"></a>
                 </div>
-                <div v-else>
-                    <a class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor" @click="addFriend()"><img src="../assets/img/icons/user-plus-solid.svg" alt="send a friend request"></a>
+                <div v-else class="mb-6">
+                    <div v-if="is_invitation_pending">
+                        <p>There is a pending friend request.</p>
+                        <p>Manage it on <router-link class="underline" :to= "'/user/' + props.userStore.user.username">my profile</router-link></p>
+                    </div>
+                    <div v-else>
+                        <a title="Request friendship" class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor" @click="addFriend()"><img src="../assets/img/icons/user-plus-solid.svg" alt="send a friend request"></a>
+                    </div>
                 </div>
-                <!-- TO DO: check if already blocked or not -->
-                <a class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor" @click="blockUser(friend.username)"><img src="../assets/icons/person-circle-minus-solid.svg" alt="block them"></a>
-                <a class="t-btn-pink ft-color-unblock ft-icon-small icon-btn-size icon-btn-cursor" @click="unblockUser(block.username)"><img src="../assets/icons/person-circle-check-solid.svg" alt="unblock them"></a>
+                <div v-if="is_blocked">
+                    <a title="Unblock this user" class="t-btn-pink ft-color-unblock ft-icon-small icon-btn-size icon-btn-cursor" @click="unblockUser(block.username)"><img src="../assets/icons/person-circle-check-solid.svg" alt="unblock them"></a>
+                </div>
+                <div v-else class="flex flex-col items-center">
+                    <a title="Block this user" class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor" @click="blockUser(friend.username)"><img src="../assets/icons/person-circle-minus-solid.svg" alt="block them"></a>
+                </div>
             </div>
         </div>
         <div class="flex flex-col pr-9">
@@ -37,6 +46,10 @@
         sessionStore: Object,
         userStore: Object,
     })
+
+    // TO DO: replace by true value
+    const is_blocked = true
+    const is_invitation_pending = false
 
     // get list of blocked?
 
