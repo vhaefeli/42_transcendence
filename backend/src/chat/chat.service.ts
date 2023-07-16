@@ -21,6 +21,7 @@ import { ChatGateway } from './chat.gateway';
 import { MyChannelMembersDto } from './dto/myChannelMembers.dto';
 import { ChannelAddMutedDto } from './dto/channel-add-muted.dto';
 import { ChannelRemoveMutedDto } from './dto/channel-remove-muted.dto';
+import { ChannelAddBannedDto } from './dto/channel-add-banned.dto';
 
 @Injectable()
 export class ChatService {
@@ -519,6 +520,143 @@ export class ChatService {
       await this.prisma.channel.update({
         where: { id: channelAddMutedDto.channelId },
         data: { muted: { connect: { id: channelAddMutedDto.userId } } },
+      });
+    } catch (error) {
+      if (error?.code === 'P2025') {
+        throw new NotFoundException("User wasn't found");
+      }
+      if (error?.code) Logger.error(error.code + ' ' + error.message);
+      else Logger.error(error);
+      throw error;
+    }
+  }
+
+  async ChannelRemoveMuted(
+    channelRemoveMutedDto: ChannelRemoveMutedDto,
+    my_id: number,
+  ) {
+    try {
+      const channel = await this.prisma.channel.findFirstOrThrow({
+        where: { id: channelRemoveMutedDto.channelId },
+        select: {
+          id: true,
+          type: true,
+          ownerId: true,
+          admins: { select: { id: true } },
+          muted: { select: { id: true } },
+        },
+      });
+      // Request user is the owner or an Admin
+      if (
+        channel.ownerId !== my_id &&
+        channel.admins.find((admin) => admin.id === my_id) === undefined
+      )
+        throw new UnauthorizedException(
+          "You don't have the necessary privileges to remove a Muted",
+        );
+
+      // Ensure User to remove is in the channel as muted
+      if (
+        channel.muted.find(
+          (muted) => muted.id === channelRemoveMutedDto.userId,
+        ) === undefined
+      )
+        throw new NotFoundException(
+          'User to be unmuted is not in the channel muted user',
+        );
+    } catch (error) {
+      if (
+        error instanceof UnauthorizedException ||
+        error instanceof NotFoundException ||
+        error instanceof ConflictException
+      )
+        throw error;
+      if (error?.code === 'P2025') {
+        throw new NotFoundException("Channel wasn't found");
+      }
+      if (error?.code) Logger.error(error.code + ' ' + error.message);
+      else Logger.error(error);
+      throw error;
+    }
+
+    try {
+      await this.prisma.channel.update({
+        where: { id: channelRemoveMutedDto.channelId },
+        data: {
+          muted: { disconnect: { id: channelRemoveMutedDto.userId } },
+        },
+      });
+    } catch (error) {
+      if (error?.code === 'P2025') {
+        throw new NotFoundException("Muted wasn't found");
+      }
+      if (error?.code) Logger.error(error.code + ' ' + error.message);
+      else Logger.error(error);
+      throw error;
+    }
+  }
+
+  async ChannelAddBanned(
+    channelAddBannedDto: ChannelAddBannedDto,
+    my_id: number,
+  ) {
+    try {
+      const channel = await this.prisma.channel.findFirstOrThrow({
+        where: { id: channelAddBannedDto.channelId },
+        select: {
+          id: true,
+          type: true,
+          ownerId: true,
+          admins: { select: { id: true } },
+          banned: { select: { id: true } },
+          members: { select: { id: true } },
+        },
+      });
+      // Request to mute must concern a member
+      if (
+        !channel.members.find(
+          (member) => member.id === channelAddMutedDto.userId,
+        )
+      ) {
+        throw new NotFoundException('User must be a member');
+      }
+
+      // Request user is the owner or an admin of the channel
+      if (
+        channel.ownerId !== my_id &&
+        channel.admins.find((admin) => admin.id === my_id) === undefined
+      )
+        throw new UnauthorizedException(
+          "You don't have the necessary privileges to ban",
+        );
+      // The owner can't be banned
+      if (channel.ownerId === channelAddBannedDto.userId)
+        throw new UnauthorizedException("The owner can't be banneded");
+      // User to add is already banneded
+      if (
+        channel.banned.find(
+          (banned) => banned.id === channelAddBannedDto.userId,
+        ) !== undefined
+      )
+        throw new ConflictException('User is already banned for the channel');
+    } catch (error) {
+      if (
+        error instanceof UnauthorizedException ||
+        error instanceof NotFoundException ||
+        error instanceof ConflictException
+      )
+        throw error;
+      if (error?.code === 'P2025') {
+        throw new NotFoundException("Channel wasn't found");
+      }
+      if (error?.code) Logger.error(error.code + ' ' + error.message);
+      throw error;
+    }
+
+    try {
+      await this.prisma.channel.update({
+        where: { id: channelAddBannedDto.channelId },
+        data: { banned: { connect: { id: channelAddBannedDto.userId } } },
       });
     } catch (error) {
       if (error?.code === 'P2025') {
