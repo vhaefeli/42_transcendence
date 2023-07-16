@@ -11,6 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import { AuthService } from 'src/auth/auth.service';
 import { AvatarService } from 'src/avatar/avatar.service';
 import { FriendService } from 'src/friend/friend.service';
+import { BlockService } from 'src/block/block.service';
 import { PrismaService } from 'src/prisma.service';
 import { CreateUserDto } from 'src/user/create-user.dto';
 import { UpdateUsernameReturnDto } from 'src/user/update-username-return.dto';
@@ -20,6 +21,7 @@ import { Profile42Api } from './profile-42api.dto';
 import { TokenInfoDto } from './token-info.dto';
 import { StatusService } from 'src/status/status.service';
 import { AutoPopulateDbService } from 'src/auto-populate-db/auto-populate-db.service';
+import { isBoolean } from 'class-validator';
 
 @Injectable()
 export class UsersService {
@@ -30,6 +32,8 @@ export class UsersService {
     private avatarService: AvatarService,
     @Inject(forwardRef(() => FriendService))
     private friendService: FriendService,
+    @Inject(forwardRef(() => BlockService))
+    private blockService: BlockService,
     @Inject(forwardRef(() => StatusService))
     private statusService: StatusService,
     configService: ConfigService,
@@ -121,6 +125,7 @@ export class UsersService {
     }
   }
 
+  // modif
   async getProfile(
     profile: {
       id: number;
@@ -131,6 +136,16 @@ export class UsersService {
   ): Promise<UserProfileDto> {
     const res: UserProfileDto = {
       ...profile,
+
+      is_blocked:
+        my_id === profile.id || my_id == null
+          ? false
+          : await this.blockService.isBlocked(my_id, profile.username),
+      is_pendingInvitation: await this.friendService.isPendingInvitation(
+        my_id,
+        profile.id,
+      ),
+
       is_friend:
         my_id === profile.id || my_id == null
           ? false
@@ -138,6 +153,8 @@ export class UsersService {
     };
     if (res.is_friend)
       res.status = await this.statusService.getStatus({ id: res.id });
+    // res.is_blocked = false;
+    // res.is_invited = true;
     return res;
   }
 

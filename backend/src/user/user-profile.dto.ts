@@ -4,6 +4,8 @@ export class UserProfileDto {
   id: number;
   username: string;
   avatar_url: string;
+  is_blocked: boolean;
+  is_pendingInvitation: boolean;
   is_friend: boolean;
   status?: StatusType;
 }

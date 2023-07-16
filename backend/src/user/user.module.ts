@@ -5,6 +5,7 @@ import { FriendModule } from 'src/friend/friend.module';
 import { UserController } from './user.controller';
 import { UsersService } from './users.service';
 import { StatusModule } from 'src/status/status.module';
+import { BlockModule } from 'src/block/block.module';
 import { AutoPopulateDbModule } from 'src/auto-populate-db/auto-populate-db.module';
 
 @Module({
@@ -13,6 +14,7 @@ import { AutoPopulateDbModule } from 'src/auto-populate-db/auto-populate-db.modu
     AvatarModule,
     forwardRef(() => FriendModule),
     StatusModule,
+    forwardRef(() => BlockModule),
     AutoPopulateDbModule,
   ],
   providers: [UsersService],
