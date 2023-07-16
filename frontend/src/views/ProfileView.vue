@@ -1,5 +1,5 @@
 <template>
-  <NavBar></NavBar>
+  <NavBar :showProfile="false"></NavBar>
   <div id="profile-container">
     <section class="ft-cover flex flex-col items-end justify-end">
       <a class="ft-bg-color-chat t-btn-pink ft-other-profile"><span>Send message</span></a>

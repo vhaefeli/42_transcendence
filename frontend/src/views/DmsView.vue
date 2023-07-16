@@ -1,5 +1,5 @@
 <template>
-    <NavBar></NavBar>
+    <NavBar :showProfile="true"></NavBar>
     <div class="ft-chat-container">
       <ChatNavBar></ChatNavBar>
       <section class="ft-chat-inside-container flex p-6">
