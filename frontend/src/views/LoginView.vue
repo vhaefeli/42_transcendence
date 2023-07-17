@@ -1,105 +1,108 @@
 <template>
   <NavBar/>
-  <h1>Login page</h1>
-  <div id="login-form" v-if="show_login_form">
-    <input v-model="login_username" placeholder="username" /><br />
-    <input
-      type="password"
-      v-model="login_password"
-      placeholder="password"
-    /><br />
-    <button
-      class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-      @click="LogIn(true)"
-    >
-      create user
-    </button>
-    <button
-      class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-      @click="LogIn(false)"
-    >
-      login
-    </button>
-    <button
-      @click="Login42Api"
-      class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-    >
-      42 API Login/Registration
-    </button>
-  </div>
-  <div id="tfa-form" v-if="show_tfa_form">
-    <input v-model="tfa_code" placeholder="code" /><br />
-    <button
-      @click="cancel2FALogin"
-      class="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded"
-    >
-      cancel
-    </button>
-    <button
-      @click="validate2FALogin"
-      class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-    >
-      validate
-    </button>
-  </div>
-  <button v-if="isLoggedIn" @click="LogOut">Logout</button>
-  <div v-if="isLoggedIn">
-    <button @click="LoadProfile">reload</button><br />
-    <router-link :to="'/user/' + user.username">see my profile</router-link>
-    <br />
-    <p>Your Profile:</p>
-    <br />
-    <p>username {{ user.username }}<br />id {{ user.id }}</p>
-    <div v-if="user.tfa_enabled">
-      <p>2FA is enabled</p>
-      <button
-        v-if="!show_tfa_enable_disable_confirmation"
-        @click="tfaDisable"
-        class="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded"
-      >
-        disable
-      </button>
-    </div>
-    <div v-if="!user.tfa_enabled">
-      <p>2FA is disabled</p>
+  <div class="text-white">
+    <h1>Login page</h1>
+    <div id="login-form" v-if="show_login_form">
+      <input v-model="login_username" placeholder="username" /><br />
       <input
-        v-model="tfa_email"
-        placeholder="email"
-        v-if="!show_tfa_enable_disable_confirmation"
+        type="password"
+        v-model="login_password"
+        placeholder="password"
       /><br />
       <button
-        v-if="!show_tfa_enable_disable_confirmation"
-        @click="tfaEnable"
+        class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+        @click="LogIn(true)"
+      >
+        create user
+      </button>
+      <button
+        class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+        @click="LogIn(false)"
+      >
+        login
+      </button>
+      <button
+        @click="Login42Api"
         class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
       >
-        enable
+        42 API Login/Registration
       </button>
     </div>
-    <div v-if="show_tfa_enable_disable_confirmation">
+    <div id="tfa-form" v-if="show_tfa_form">
       <input v-model="tfa_code" placeholder="code" /><br />
       <button
-        @click="validate2FARegistration"
-        class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-      >
-        validate
-      </button>
-      <button
-        @click="cancelTfaEnableDisable"
+        @click="cancel2FALogin"
         class="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded"
       >
         cancel
       </button>
+      <button
+        @click="validate2FALogin"
+        class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+      >
+        validate
+      </button>
     </div>
-    <p>Status: {{ user.status }}</p>
-    <img :src="user.avatar_url" alt="avatar img" width="200" height="200" />
-  </div>
-  <div v-if="true">
-    <button
-      class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-      @click="statusService.ping()"
-    >
-      ping socket
-    </button>
+    <button v-if="isLoggedIn" @click="LogOut">Logout</button>
+    <div v-if="isLoggedIn">
+      <button @click="LoadProfile">reload</button><br />
+      <router-link :to="'/user/' + user.username">see my profile</router-link>
+      <br />
+      <p>Your Profile:</p>
+      <br />
+      <p>username {{ user.username }}<br />id {{ user.id }}</p>
+      <div v-if="user.tfa_enabled">
+        <p>2FA is enabled</p>
+        <button
+          v-if="!show_tfa_enable_disable_confirmation"
+          @click="tfaDisable"
+          class="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded"
+        >
+          disable
+        </button>
+      </div>
+      <div v-if="!user.tfa_enabled">
+        <p>2FA is disabled</p>
+        <input
+          v-model="tfa_email"
+          placeholder="email"
+          v-if="!show_tfa_enable_disable_confirmation"
+        /><br />
+        <button
+          v-if="!show_tfa_enable_disable_confirmation"
+          @click="tfaEnable"
+          class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+        >
+          enable
+        </button>
+      </div>
+      <div v-if="show_tfa_enable_disable_confirmation">
+        <input v-model="tfa_code" placeholder="code" /><br />
+        <button
+          @click="validate2FARegistration"
+          class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+        >
+          validate
+        </button>
+        <button
+          @click="cancelTfaEnableDisable"
+          class="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded"
+        >
+          cancel
+        </button>
+      </div>
+      <p>Status: {{ user.status }}</p>
+      <img :src="user.avatar_url" alt="avatar img" width="200" height="200" />
+    </div>
+    <div v-if="true">
+      <button
+        class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+        @click="statusService.ping()"
+      >
+        ping socket
+      </button>
+    </div>
+
   </div>
 </template>
 
