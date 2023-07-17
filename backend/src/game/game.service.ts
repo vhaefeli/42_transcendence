@@ -1,9 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { ConnectedPlayers, Game, PlayerAction } from './game.entity';
 import { WsException } from '@nestjs/websockets';
 import { game_status } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
+import { GameGateway } from './game.gateway';
 
 @Injectable()
 export class GameService {
@@ -11,7 +12,11 @@ export class GameService {
   private readonly frame_time = 1000;
   private games = new Map<number, Game>();
 
-  constructor(private prisma: PrismaService) {
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => GameGateway))
+    private gameGateway: GameGateway,
+  ) {
     setInterval(this.gameLoop.bind(this), this.frame_time);
   }
 
@@ -22,7 +27,7 @@ export class GameService {
   findOrCreateGame(gameId: number): Game {
     let game = this.games.get(gameId);
     if (game === undefined) {
-      game = new Game({ id: gameId });
+      game = new Game({ id: gameId }, this.gameGateway, this.prisma);
       this.games.set(gameId, game);
     }
     return game;

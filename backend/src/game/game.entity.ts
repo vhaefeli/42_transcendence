@@ -1,6 +1,8 @@
-import { Logger } from '@nestjs/common';
+import { Inject, Logger, forwardRef } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
+import { GameGateway } from './game.gateway';
+import { PrismaService } from 'src/prisma.service';
 
 export enum GameModeType {
   NORMAL = 'NORMAL',
@@ -39,7 +41,11 @@ export class Game {
   private readonly p = new Array<Player>(2);
   private isActive = false;
 
-  constructor(gameInfo: { id: number; gameMode?: GameModeType }) {
+  constructor(
+    gameInfo: { id: number; gameMode?: GameModeType },
+    private gameGateway: GameGateway,
+    private prisma: PrismaService,
+  ) {
     this.id = gameInfo.id;
     if (gameInfo.gameMode === undefined) {
       this.gameModeName = GameModeType.NORMAL;
@@ -75,6 +81,7 @@ export class Game {
       socket: socket,
       isReady: false,
     };
+    socket.join(this.id.toString());
   }
 
   playerIsReadyToStart(userId: number) {
@@ -87,6 +94,15 @@ export class Game {
   async startGame() {
     // TODO: mark game as started
     this.isActive = true;
+    this.sendScoreToPlayers();
+  }
+
+  async sendScoreToPlayers() {
+    const msg = [
+      { id: this.p[0].id, score: this.p[0].score },
+      { id: this.p[1].id, score: this.p[1].score },
+    ];
+    this.gameGateway.server.to(this.id.toString()).emit('score', msg);
   }
 
   updatePlayerAction(userId: number, action: PlayerAction): boolean {

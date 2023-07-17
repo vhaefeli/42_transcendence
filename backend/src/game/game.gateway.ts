@@ -12,7 +12,7 @@ import {
   WebSocketServer,
   WsException,
 } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
+import { RemoteSocket, Server, Socket } from 'socket.io';
 import { WsGuard } from 'src/auth/ws.guard';
 import { AuthService } from 'src/auth/auth.service';
 import { ConfigService } from '@nestjs/config';
@@ -31,6 +31,7 @@ import {
 import { GameService } from './game.service';
 import { ConnectToGameDto } from './dto/connect-to-game.dto';
 import { UpdateActionGameDto } from './dto/update-action-game.dto';
+import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 
 @Catch(BadRequestException)
 export class BadRequestTransformationFilter extends BaseWsExceptionFilter {
@@ -68,11 +69,16 @@ export class GameGateway
     @ConnectedSocket() socket: Socket,
     @MessageBody() connectToGameDto: ConnectToGameDto,
   ) {
-    await this.gameService.connectToGame(
-      connectToGameDto.gameId,
-      socket.data.user.sub,
-      socket,
-    );
+    try {
+      await this.gameService.connectToGame(
+        connectToGameDto.gameId,
+        socket.data.user.sub,
+        socket,
+      );
+    } catch (e) {
+      if (this.debug) Logger.debug(e);
+      throw e;
+    }
   }
 
   @UsePipes(new ValidationPipe())
@@ -119,6 +125,16 @@ export class GameGateway
   pingPong(@MessageBody() payload: string) {
     if (payload === 'PING') return 'PONG';
     return 'WHAT?';
+  }
+
+  async findConnectedUserById(
+    id: number,
+  ): Promise<Array<RemoteSocket<DefaultEventsMap, any>> | undefined> {
+    const userSockets = new Array<RemoteSocket<DefaultEventsMap, any>>();
+    for (const socket of await this.server.fetchSockets()) {
+      if (socket.data?.user.sub === id) userSockets.push(socket);
+    }
+    return userSockets;
   }
 
   async handleConnection(client: Socket, ...args: any[]) {
