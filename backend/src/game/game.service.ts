@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { Game, PlayerAction } from './game.entity';
 import { WsException } from '@nestjs/websockets';
+import { game_status } from '@prisma/client';
 
 class Player {
   userId: number;
@@ -52,5 +53,9 @@ export class GameService {
     const game = this.games.get(gameId);
     if (!game) throw new WsException("Game doesn't exist");
     game.updatePlayerAction(userId, action);
+  }
+
+  getStatusOfGame(gameId: number): game_status | undefined {
+    return this.findGame(gameId)?.getStatus();
   }
 }
