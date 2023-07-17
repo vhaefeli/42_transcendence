@@ -103,7 +103,7 @@
         <div id="sentRequestsScroll" class="ft-tab-content ft-border-color-profile ft-tab-border text-left ft-scrollable">
           <ul>
             <div v-if="invitesSent">
-              <div v-if="invitesSent.length === 0"><EmptyText :text="'You never sent any request'" :white="false" /></div>
+              <div v-if="invitesSent.length === 0"><EmptyText :text="`No pending request!`" :white="false" /></div>
                 <div v-for="(invitation, index) in invitesSent" :key="index">
                     <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between items-center" :class="index === invitesSent.length - 1 ? '' : 'ft-tab-separator'">
                       <ul class="flex flex-row items-center">
