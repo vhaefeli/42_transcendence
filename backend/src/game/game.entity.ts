@@ -1,12 +1,16 @@
 import { Logger } from '@nestjs/common';
 import { Socket } from 'socket.io';
 
-type GameMode = {
+export enum GameModeType {
+  NORMAL = 'NORMAL',
+}
+
+type GameModeConfig = {
   INITIAL_HEIGHT: number;
 };
 
-export const GameModeList = new Map<string, GameMode>();
-GameModeList.set('NORMAL', {
+export const GameModeList = new Map<GameModeType, GameModeConfig>();
+GameModeList.set(GameModeType.NORMAL, {
   INITIAL_HEIGHT: 300,
 });
 
@@ -26,19 +30,19 @@ type Player = {
 
 export class Game {
   readonly id: number;
-  readonly gameModeName: string;
-  readonly gameMode: GameMode;
+  readonly gameModeName: GameModeType;
+  readonly gameMode: GameModeConfig;
   p = new Array<Player>(2);
 
   constructor(gameInfo: {
     id: number;
-    gameMode?: string;
+    gameMode?: GameModeType;
     players: [{ id: number }, { id: number }];
   }) {
     this.id = gameInfo.id;
 
     if (gameInfo.gameMode === undefined) {
-      this.gameModeName = 'NORMAL';
+      this.gameModeName = GameModeType.NORMAL;
       this.gameMode = GameModeList.get(this.gameModeName);
     } else if (
       (this.gameMode = GameModeList.get(gameInfo.gameMode)) !== undefined
