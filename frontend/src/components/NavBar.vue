@@ -10,20 +10,20 @@
             my profile
         </router-link>
         <router-link
-            :class="{ active: activeTab === 'chat' }"
-            class="nav-tab nav-tab-chat"
-            to="/dms"
-            @click="setActiveTab('chat')"
-        >
-            chat
-        </router-link>
-        <router-link
             :class="{ active: activeTab === 'game' }"
             class="nav-tab nav-tab-game"
             to="/game"
             @click="setActiveTab('game')"
         >
             game
+        </router-link>
+        <router-link
+            :class="{ active: activeTab === 'chat' }"
+            class="nav-tab nav-tab-chat"
+            to="/dms"
+            @click="setActiveTab('chat')"
+        >
+            chat
         </router-link>
     </nav>
   </template>
