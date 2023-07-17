@@ -13,7 +13,7 @@ import NavBar from "../components/NavBar.vue";
 
 #game-container {
     background: var(--gray);
-	border: 4px solid var(--mint);
+	border: 4px solid var(--sunset);
     min-height: 100vh;
 }
 

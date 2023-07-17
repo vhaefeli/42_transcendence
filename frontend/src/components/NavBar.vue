@@ -97,7 +97,7 @@ nav#ft-main-nav {
 }
 
 .nav-tab-game {
-    border-bottom: 1.5em solid var(--mint);
+    border-bottom: 1.5em solid var(--sunset);
 }
 
 </style>
