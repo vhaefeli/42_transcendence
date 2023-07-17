@@ -6,16 +6,13 @@
 
         <!-- column 1 with profile -->
         <div id="dm-profile-col">
-          <div v-if="isActualInfosLoaded">
-            <OtherUserProfile v-bind="actualInfos" :userStore="userStore" :sessionStore="sessionStore" />
-          </div>
-            <div v-else>Profile loading...</div>
+            <OtherUserProfile :key="actual.username" :username="actual.username" :userStore="userStore" :sessionStore="sessionStore" @updateBlocked="updateBlockedBool" />
         </div>
 
         <!-- column 2 with messages -->
         <div id="dm-msg-col" class="grow relative">
           <div id="ft-scroller" ref="scroller" class="ft-chat-box p-6 overflow-scroll">
-            <div v-if="is_blocked">
+            <div v-if="actualIsBlocked">
               <EmptyText :text="'You have blocked this user. Unblock he/her to see messages.'" :white="true" />
             </div>
             <div v-else>
@@ -36,17 +33,17 @@
                 </div>
               </div>
             </div>
-            </div>
+          </div>
 
-            <div class="ft-bg-dark-gray flex p-2 absolute w-full bottom-0">
-                <input v-model="message" placeholder="blabla..." class="p-1 mr-4 ft-input" />
-                <a href="#" class="t-btn-pink ft-bg-color-chat"><button @click="handleSubmitNewMessage">Submit</button></a>
-            </div>
+          <div class="ft-bg-dark-gray flex p-2 absolute w-full bottom-0">
+              <input v-model="message" placeholder="blabla..." class="p-1 mr-4 ft-input" />
+              <a href="#" class="t-btn-pink ft-bg-color-chat"><button @click="handleSubmitNewMessage">Submit</button></a>
+          </div>
         </div>
       
         <!-- column 3 with list of recipients -->
-        <div  id="dm-recipientList-col" class="bg-blue-600">
-          <div class="mb-6">
+        <div  id="dm-recipientList-col">
+          <div class="mb-6 max-h-[54vh] overflow-scroll">
             <div v-if="recipients.length === 0">No Dms yet</div>
             <div v-for="recipient in recipients" :key="recipient">
               <div @click="changeActualRecipient(recipient)" :class="actual.id == recipient ? 'ft-actual-recipient' : ''" class="ft-recipient-name">{{ getRecipientName(recipient) }}</div>
@@ -96,7 +93,8 @@
     const { user } = storeToRefs(userStore)
     
     const actual = ref({})
-    const actualInfos = ref({})
+    const actualIsBlocked = ref(false)
+    // const actualInfos = ref({})
     const message = ref("")
     const messages = ref([])
     const scroller = ref(null);
@@ -106,10 +104,6 @@
     
     // Reactive flag for loaded data
     const isAllUsersLoaded = ref(false)
-    const isActualInfosLoaded = ref(false)
-
-    // TO DO: use the real infos from back
-    const is_blocked = false
     
     let dateOptions = {
         weekday: "short",
@@ -168,6 +162,14 @@
         })
     }
 
+    const updateBlockedBool = (newValue) => {
+      actualIsBlocked.value = newValue
+    };
+
+    const updateFriendBool = (newValue) => {
+      actualInfos.value.is_friend = newValue
+    };
+
     const stockHistory = async (payload) => {
       // push recieved message to Messages Array
       pushToMessages(payload)      
@@ -185,32 +187,29 @@
         // check what is the actual recipient
         if (isAllUsersLoaded.value && Object.keys(actual.value).length === 0 && recipients.value.length > 0) {
           actual.value = allUsers.value.find((user) => recipients.value[0] === user.id)
-          getUserInfos(actual.value.username)
         }
     }
 
     // add recipient to the list
     function addRecipient(recipientName) {
         const userFind = allUsers.value.find((user) => recipientName === user.username)
-        // TO DO:
-        //  check if already exist
-        //  replace by search bar
-        //  check if user exist
-        recipients.value.push(userFind.id);
-        actual.value = userFind
+        if (userFind) {
+          if (recipients.value.indexOf(userFind.id) === -1) {
+            recipients.value.push(userFind.id);
+          }
+          actual.value = userFind
+        }
     }
 
     // add recipient by ID to the list
     function addRecipientByID(queryRecipientId) {
         const userFind = allUsers.value.find((user) => queryRecipientId == user.id)
         if (userFind) {
-            recipients.value.push(userFind.id);
+            if (recipients.value.indexOf(userFind.id) === -1) {
+              recipients.value.push(userFind.id);
+            }
             actual.value = userFind
         }
-        // // TO DO:
-        // //  check if already exist
-        // //  replace by search bar
-        // //  check if user exist
     }
 
     function isInRecipients() {
@@ -263,7 +262,7 @@
       try {
         const response = await axios.get("/api/user/all");
         allUsers.value = response.data;
-        isAllUsersLoaded.value = true; // Set the flag to true when data is loaded
+        isAllUsersLoaded.value = true;
         return true;
       } catch (error) {
         if (error.response && error.response.status == 404) {
@@ -274,40 +273,9 @@
         return false;
       }
     }
-
-    async function getUserInfos(username) {
-      await axios({
-        url: `/api/user/profile/${username}`,
-        method: "get",
-        headers: { Authorization: `Bearer ${sessionStore.access_token}` },
-      })
-        .then((response) => {
-          actualInfos.value = response.data
-          isActualInfosLoaded.value = true
-          return true;
-        })
-        .catch((error) => {
-          if (error.response.status == 401) {
-            console.log(
-              `invalid access token: ${error.response.status} ${error.response.statusText}`
-            );
-          } else if (error.response.status == 404) {
-            console.log(
-              `user not found: ${error.response.status} ${error.response.statusText}`
-            );
-          } else {
-            console.error(
-              `unexpected error: ${error.response.status} ${error.response.statusText}`
-            );
-          }
-          return false;
-        });
-    }
     
   loadMyself()
   getAllUsers()
-
-  // Watches
 
   // Watch for changes in the isAllUsersLoaded flag
   watchEffect(() => {
@@ -318,13 +286,6 @@
       } else if (recipients.value.length > 0 && Object.keys(actual.value).length === 0) {
         actual.value = allUsers.value.find((user) => recipients.value[0] === user.id)
       }
-    }
-  })
-
-  // Watch for changes in the isAllUsersLoaded flag
-  watchEffect(() => {
-    if (actual.value.username) {
-      getUserInfos(actual.value.username)
     }
   })
 </script>
