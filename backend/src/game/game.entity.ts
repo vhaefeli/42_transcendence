@@ -77,7 +77,14 @@ export class Game {
     };
   }
 
-  startGame() {
+  playerIsReadyToStart(userId: number) {
+    this.p.find((player) => player.id === userId).isReady = true;
+    if (this.p.filter((player) => player.isReady).length === 2) {
+      this.startGame();
+    }
+  }
+
+  async startGame() {
     // TODO: mark game as started
     this.isActive = true;
   }

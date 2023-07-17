@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Socket } from 'socket.io';
-import { Game, PlayerAction } from './game.entity';
+import { ConnectedPlayers, Game, PlayerAction } from './game.entity';
 import { WsException } from '@nestjs/websockets';
 import { game_status } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
@@ -41,6 +41,12 @@ export class GameService {
       throw new WsException('Game not found or unavailable to connect');
     const game = this.findOrCreateGame(gameId);
     game.connectPlayer(userId, socket);
+  }
+
+  async playerIsReadyToStart(gameId: number, userId: number) {
+    if (ConnectedPlayers.get(userId) !== gameId)
+      throw new WsException("Game id doesn't match the connected game");
+    this.findGame(gameId).playerIsReadyToStart(userId);
   }
 
   async gameLoop() {

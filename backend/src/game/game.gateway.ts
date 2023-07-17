@@ -77,6 +77,19 @@ export class GameGateway
 
   @UsePipes(new ValidationPipe())
   @UseGuards(WsGuard)
+  @SubscribeMessage('ready')
+  async markReadyToStart(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() connectToGameDto: ConnectToGameDto,
+  ) {
+    await this.gameService.playerIsReadyToStart(
+      connectToGameDto.gameId,
+      socket.data.user.sub,
+    );
+  }
+
+  @UsePipes(new ValidationPipe())
+  @UseGuards(WsGuard)
   @SubscribeMessage('action')
   updatePlayerAction(
     @ConnectedSocket() socket: Socket,
