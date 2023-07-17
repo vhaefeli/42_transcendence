@@ -19,13 +19,15 @@
         <!-- <div class="ft-tabContent ft-centralTab" id="buttonsContainer"> -->
         <div class="ft-tab-content ft-bg-color-profile" id="buttons-container">
           <!-- Bouton pour ajouter la personne en ami (profil d'un tiers) -->
-          <a class="t-btn-pink ft-color-add ft-other-profile"><span>[+]</span></a>
+          <a title="send a friend request" class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor ft-other-profile"><img src="../assets/icons/user-plus-solid.svg" alt="send a friend request"></a>
           <!-- Bouton pour bloquer la personne (profil d'un tiers) -->
-          <a class="t-btn-pink ft-color-block ft-other-profile" id="block"><span>[blk]</span></a>
+          <!-- verifier si code TS correct, car supposition -->
+          <a title="block this user" class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor ft-other-profile" @click="blockUser(user.username)"><img src="../assets/icons/person-circle-minus-solid.svg" alt="block them"></a>
+          <!-- <a class="t-btn-pink ft-color-block ft-other-profile" id="block"><span>[blk]</span></a> -->
 
           <!-- Bouton pour editer son profil (SON profil uniquement) -->
           <!-- <a class="t-btn-pink ft-color-edit ft-my-profile" id="edit"><span>[ed.]</span></a> -->
-          <a class="t-btn-pink ft-color-edit ft-my-profile ft-icon-small icon-btn-cursor" id="edit"><img src="../assets/img/icons/user-pen-solid.svg" alt="edit my profile"></a>
+          <a title="edit your profile" class="t-btn-pink ft-color-edit ft-my-profile ft-icon-small icon-btn-cursor" id="edit"><img src="../assets/icons/user-pen-solid.svg" alt="edit my profile"></a>
         </div>
         <!-- <div class="ft-bg-color-profile ft-tabContent ft-centralTab">
         </div> -->
@@ -88,9 +90,9 @@
                     <li class="ft-text ml-2">{{ invitation.username }}</li>
                   </ul>
                   <ul class="flex flex-row">
-                    <li><a class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor" @click="acceptFriend(invitation.username)"><img src="../assets/img/icons/circle-check-solid.svg" alt="accept friend request"></a></li>
-                    <li><a class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="iDontWantToBeFriend(invitation.username)"><img src="../assets/img/icons/circle-xmark-solid.svg" alt="decline friend request"></a></li>
-                    <li><a class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor"  @click="blockUserAndDelInvite(invitation.username)"><img src="../assets/icons/person-circle-minus-solid.svg" alt="block them"></a></li>
+                    <li><a class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor" @click="acceptFriend(invitation.username)"><img src="../assets/icons/circle-check-solid.svg" alt="accept friend request" title="accept friend request"></a></li>
+                    <li><a class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="iDontWantToBeFriend(invitation.username)"><img src="../assets/icons/circle-xmark-solid.svg" alt="decline friend request" title="decline friend request"></a></li>
+                    <li><a class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor"  @click="blockUserAndDelInvite(invitation.username)"><img src="../assets/icons/person-circle-minus-solid.svg" alt="block them" title="block this user"></a></li>
                   </ul>
                 </li>  
               </div>
@@ -128,7 +130,7 @@
                       <div class="flex flex-col">
                         <div class="ft-profile-pic ft-friend-pic">
                           <div class="ft-connection-circle ft-friend-status">
-                            <img src="../assets/img/icons/tennisBallBlack.png" alt="is playing" class="ft-playing">
+                            <img src="../assets/icons/tennisBallBlack.png" alt="is playing" title="your friend is playing" class="ft-playing">
                           </div>
                         </div>
                       </div>
@@ -138,10 +140,10 @@
                       </ul>
                     </div>
                     <ul class="flex flex-row">
-                      <li><a class="t-btn-pink ft-bg-color-game ft-icon-small icon-btn-size icon-btn-cursor"><img src="../assets/icons/table-tennis-paddle-ball-solid.svg" alt="invite to play a game with them"></a></li>
-                      <li><a class="t-btn-pink ft-bg-color-chat ft-icon-small icon-btn-size icon-btn-cursor"><img src="../assets/img/icons/message-solid.svg" alt="send them a message"></a></li>
-                      <li><a class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor" @click="blockUser(friend.username)"><img src="../assets/icons/person-circle-minus-solid.svg" alt="block them"></a></li>
-                      <li><a class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="removeFriend(friend.username)"><img src="../assets/img/icons/user-minus-solid.svg" alt="remove friendship"></a></li>
+                      <li><a class="t-btn-pink ft-bg-color-game ft-icon-small icon-btn-size icon-btn-cursor"><img src="../assets/icons/table-tennis-paddle-ball-solid.svg" alt="invite to play a game with them" title="invite them to play a game"></a></li>
+                      <li><a class="t-btn-pink ft-bg-color-chat ft-icon-small icon-btn-size icon-btn-cursor"><img src="../assets/icons/message-solid.svg" alt="send them a message" title="send them a message"></a></li>
+                      <li><a class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor" @click="blockUser(friend.username)"><img src="../assets/icons/person-circle-minus-solid.svg" alt="block them" title="block this user"></a></li>
+                      <li><a class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="removeFriend(friend.username)"><img src="../assets/icons/user-minus-solid.svg" alt="remove friendship" title="remove this person from your friends"></a></li>
                     </ul>
                   </li>
                 </div>
@@ -155,7 +157,7 @@
         <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left">
             <div class="flex flex-row justify-center">
               <input type="text" placeholder="Search by username">
-              <a class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor"><img src="../assets/img/icons/user-plus-solid.svg" alt="send a friend request"></a>
+              <a class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor"><img src="../assets/icons/user-plus-solid.svg" alt="send a friend request" title="send them a friend request"></a>
             </div>
         </div>
       </div>
@@ -177,7 +179,7 @@
                         </ul>
                       </div>
                       <ul class="flex flex-row">
-                        <li><a class="t-btn-pink ft-color-unblock ft-icon-small icon-btn-size icon-btn-cursor" @click="unblockUser(block.username)"><img src="../assets/icons/person-circle-check-solid.svg" alt="block them"></a></li>
+                        <li><a class="t-btn-pink ft-color-unblock ft-icon-small icon-btn-size icon-btn-cursor" @click="unblockUser(block.username)"><img src="../assets/icons/person-circle-check-solid.svg" alt="unblock them" title="unblock this person"></a></li>
                       </ul>
                     </li>
                 </div>
