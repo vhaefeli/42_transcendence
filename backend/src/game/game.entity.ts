@@ -3,6 +3,7 @@ import { WsException } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { PrismaService } from 'src/prisma.service';
 import { GameGateway } from './game.gateway';
+import { game_status } from '@prisma/client';
 
 export enum GameModeType {
   NORMAL = 'NORMAL',
@@ -32,6 +33,7 @@ type Player = {
   score: number;
   socket: Socket;
   isReady: boolean;
+  abandoned: boolean;
 };
 
 export class Game {
@@ -80,6 +82,7 @@ export class Game {
       score: 0,
       socket: socket,
       isReady: false,
+      abandoned: false,
     };
     socket.join(this.id.toString());
   }
@@ -109,14 +112,15 @@ export class Game {
   }
 
   private handlePlayerDisconnection(): boolean {
-    if (!this.p[0]?.socket.connected || !this.p[1]?.socket.connected)
+    if (!this.p[0]?.socket.connected) {
+      this.p[0].abandoned = true;
       return false;
+    }
+    if (!this.p[1]?.socket.connected) {
+      this.p[1].abandoned = true;
+      return false;
+    }
     return true;
-  }
-
-  private async userDisconnectFromGame(player: Player) {
-    ConnectedPlayers.delete(player.id);
-    player.socket.leave(this.id.toString());
   }
 
   async loop() {
@@ -134,6 +138,13 @@ export class Game {
 
   async startGame() {
     // TODO: mark game as started
+    await this.prisma.player.updateMany({
+      where: {
+        gameId: this.id,
+        gameStatus: game_status.WAITING,
+      },
+      data: { gameStatus: game_status.PLAYING, score4stat: true },
+    });
     this.isActive = true;
     this.sendScoreToPlayers();
   }
@@ -142,9 +153,30 @@ export class Game {
     // TODO: mark game as ended
     this.isActive = false;
     await Promise.all([
-      this.userDisconnectFromGame(this.p[0]),
-      this.userDisconnectFromGame(this.p[1]),
+      this.userEndGame(this.p[0]),
+      this.userEndGame(this.p[1]),
+      new Promise(async (resolve) => {
+        await this.prisma.game.update({
+          where: { id: this.id },
+          data: { completed: true },
+        });
+        resolve;
+      }),
     ]);
+  }
+
+  private async userEndGame(player: Player) {
+    await this.prisma.player.update({
+      where: {
+        gameId_playerId: { gameId: this.id, playerId: player.id },
+      },
+      data: {
+        score: player.score,
+        abandon: player.abandoned,
+      },
+    });
+    ConnectedPlayers.delete(player.id);
+    player.socket.leave(this.id.toString());
   }
 
   printGameInfo() {
@@ -152,11 +184,11 @@ export class Game {
       `\nid: ${this.id}\nmode: ${this.gameModeName}\nisActive: ${this.isActive}` +
         `\nPlayers:\n\t` +
         (this.p[0] !== undefined
-          ? `id: ${this.p[0].id}\n\ty: ${this.p[0].y}\n\taction: ${this.p[0].action}\n\tscore: ${this.p[0].score}\n\tsocket: ${this.p[0].socket?.id}\n\tisReady: ${this.p[0].isReady}`
+          ? `id: ${this.p[0].id}\n\ty: ${this.p[0].y}\n\taction: ${this.p[0].action}\n\tscore: ${this.p[0].score}\n\tsocket: ${this.p[0].socket?.id}\n\tisReady: ${this.p[0].isReady}\n\tabandoned: ${this.p[0].abandoned}`
           : 'not connected') +
         '\n\n\t' +
         (this.p[1] !== undefined
-          ? `id: ${this.p[1].id}\n\ty: ${this.p[1].y}\n\taction: ${this.p[1].action}\n\tscore: ${this.p[1].score}\n\tsocket: ${this.p[1].socket?.id}\n\tisReady: ${this.p[1].isReady}`
+          ? `id: ${this.p[1].id}\n\ty: ${this.p[1].y}\n\taction: ${this.p[1].action}\n\tscore: ${this.p[1].score}\n\tsocket: ${this.p[1].socket?.id}\n\tisReady: ${this.p[1].isReady}\n\tabandoned: ${this.p[1].abandoned}`
           : 'not connected'),
     );
   }
