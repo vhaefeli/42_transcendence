@@ -49,8 +49,7 @@ export class StatusService {
     else id = await this.usersService.getId(user.username);
     const game_id = ConnectedPlayers.get(id);
     if (game_id === undefined) return false;
-    if (this.gameService.getStatusOfGame(game_id) === game_status.PLAYING)
-      return true;
+    if (this.gameService.getStatusOfGame(game_id)) return true;
     return false;
   }
 

@@ -5,11 +5,6 @@ import { WsException } from '@nestjs/websockets';
 import { game_status } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 
-class Player {
-  userId: number;
-  socket: Socket;
-}
-
 @Injectable()
 export class GameService {
   //private readonly frame_time = 10 + 2 / 3;
@@ -17,7 +12,6 @@ export class GameService {
   private games = new Map<number, Game>();
 
   constructor(private prisma: PrismaService) {
-    //this.games.push(new Game({ id: 1, players: [{ id: 3 }, { id: 5 }] }));
     setInterval(this.gameLoop.bind(this), this.frame_time);
   }
 
@@ -66,7 +60,7 @@ export class GameService {
     game.updatePlayerAction(userId, action);
   }
 
-  getStatusOfGame(gameId: number): game_status | undefined {
-    return this.findGame(gameId)?.getStatus();
+  getStatusOfGame(gameId: number): boolean {
+    return this.findGame(gameId)?.getIsActive();
   }
 }
