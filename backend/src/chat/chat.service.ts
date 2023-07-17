@@ -23,6 +23,7 @@ import { ChannelAddMutedDto } from './dto/channel-add-muted.dto';
 import { ChannelRemoveMutedDto } from './dto/channel-remove-muted.dto';
 import { ChannelAddBannedDto } from './dto/channel-add-banned.dto';
 import { ChannelRemoveBannedDto } from './dto/channel-remove-banned.dto';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class ChatService {
@@ -30,6 +31,8 @@ export class ChatService {
     private prisma: PrismaService,
     @Inject(forwardRef(() => ChatGateway))
     private chatGateway: ChatGateway,
+    @Inject(forwardRef(() => AuthService))
+    private authService: AuthService,
   ) {}
 
   async SaveDirectMessage(
@@ -87,6 +90,13 @@ export class ChatService {
     my_id: number,
   ): Promise<{ id: number }> {
     try {
+      // store the hash
+      if (createChannelDto.password !== null) {
+        const createdHash = await this.authService.createHash(
+          createChannelDto.password,
+        );
+        createChannelDto.password = createdHash;
+      }
       return await this.prisma.channel.create({
         data: {
           ...createChannelDto,
@@ -734,39 +744,82 @@ export class ChatService {
     }
   }
 
-  // Channel change -- EN SUSSPEND
-  // async channelchange(channelChangeDto: ChannelChangeDto, my_id: number) {
-  //   try {
-  //     // retrieve the channel info
-  //     const channel = await this.prisma.channel.findFirstOrThrow({
-  //       where: { id: channelChangeDto.channelId },
-  //       select: {
-  //         id: true,
-  //         type: true,
-  //         ownerId: true,
-  //         admins: { select: { id: true } },
-  //       },
-  //     });
-  //     // user must be the admin
-  //     if (channel.ownerId !== my_id) {
-  //       throw new UnauthorizedException(
-  //         "You don't have the necessary privileges to manage the channel",
-  //       );
-  //     }
-  //     //
-  //   } catch (error) {
-  //     if (
-  //       error instanceof UnauthorizedException ||
-  //       error instanceof NotFoundException ||
-  //       error instanceof ConflictException
-  //     )
-  //       throw error;
-  //     if (error?.code === 'P2025') {
-  //       throw new NotFoundException("Channel wasn't found");
-  //     }
-  //     if (error?.code) Logger.error(error.code + ' ' + error.message);
-  //     else Logger.error(error);
-  //     throw error;
-  //   }
-  // }
+  async channelchange(channelChangeDto: ChannelChangeDto, my_id: number) {
+    try {
+      // retrieve the channel info
+      const channel = await this.prisma.channel.findFirstOrThrow({
+        where: { id: channelChangeDto.channelId },
+        select: {
+          id: true,
+          type: true,
+          ownerId: true,
+          admins: { select: { id: true } },
+        },
+      });
+      // user must be the admin
+      if (channel.ownerId !== my_id) {
+        throw new UnauthorizedException(
+          "You don't have the necessary privileges to manage the channel",
+        );
+      }
+      // Check password and type relationship
+      if (channelChangeDto.password === undefined) {
+        channelChangeDto.password = null;
+      }
+
+      if (
+        channelChangeDto.type === 'PROTECTED' &&
+        channelChangeDto.password === null
+      ) {
+        throw new ConflictException('Password mandatory as mode protected');
+      } else if (
+        channelChangeDto.type !== 'PROTECTED' &&
+        channelChangeDto.password !== null
+      ) {
+        throw new ConflictException(
+          'Password must be empty as mode not protected',
+        );
+      }
+      // store the hash
+      if (channelChangeDto.password !== null) {
+        const createdHash = await this.authService.createHash(
+          channelChangeDto.password,
+        );
+        channelChangeDto.password = createdHash;
+      }
+    } catch (error) {
+      if (
+        error instanceof UnauthorizedException ||
+        error instanceof NotFoundException ||
+        error instanceof ConflictException
+      )
+        throw error;
+      if (error?.code === 'P2025') {
+        throw new NotFoundException("Channel wasn't found");
+      }
+      if (error?.code) Logger.error(error.code + ' ' + error.message);
+      else Logger.error(error);
+      throw error;
+    }
+
+    try {
+      await this.prisma.channel.update({
+        where: { id: channelChangeDto.channelId },
+        data: {
+          id: channelChangeDto.channelId,
+          type: channelChangeDto.type,
+          ownerId: channelChangeDto.ownerId,
+          password: channelChangeDto.password,
+          admins: { connect: { id: channelChangeDto.ownerId } },
+        },
+      });
+    } catch (error) {
+      if (error?.code === 'P2025') {
+        throw new NotFoundException("Banned wasn't found");
+      }
+      if (error?.code) Logger.error(error.code + ' ' + error.message);
+      else Logger.error(error);
+      throw error;
+    }
+  }
 }

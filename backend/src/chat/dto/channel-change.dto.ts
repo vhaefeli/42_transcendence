@@ -1,5 +1,13 @@
 import { ChannelTypes } from '@prisma/client';
-import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  MIN_LENGTH,
+  MinLength,
+  ValidateIf,
+} from 'class-validator';
 
 export class ChannelChangeDto {
   @IsNotEmpty()
@@ -10,11 +18,13 @@ export class ChannelChangeDto {
   @IsNotEmpty()
   readonly type: ChannelTypes;
 
-  // Mandatory for PROTECTED otherwise empty
-  @IsString()
-  readonly password: string;
-
   @IsNotEmpty()
   @IsNumber()
   readonly ownerId: number;
+
+  // Mandatory for PROTECTED otherwise empty
+  @ValidateIf((o) => o.type === ChannelTypes.PROTECTED)
+  @IsString()
+  @MinLength(1)
+  password?: string;
 }

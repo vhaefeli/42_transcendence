@@ -9,6 +9,7 @@ import { ChannelAddMutedDto } from './dto/channel-add-muted.dto';
 import { ChannelRemoveMutedDto } from './dto/channel-remove-muted.dto';
 import { ChannelRemoveBannedDto } from './dto/channel-remove-banned.dto';
 import { ChannelAddBannedDto } from './dto/channel-add-banned.dto';
+import { ChannelChangeDto } from './dto/channel-change.dto';
 
 @Controller('chat')
 export class ChatController {
@@ -113,14 +114,11 @@ export class ChatController {
     );
   }
 
-  // @Patch('channel/change')
-  // async channelchange(
-  //   @Request() req: any,
-  //   @Body() channelChangeDto: ChannelChangeDto,
-  // ) {
-  //   await this.chatService.channelchange(
-  //     channelRemoveAdminDto,
-  //     req.user.sub,
-  //   );
-  // }
+  @Patch('channel/change')
+  async channelchange(
+    @Request() req: any,
+    @Body() channelChangeDto: ChannelChangeDto,
+  ) {
+    await this.chatService.channelchange(channelChangeDto, req.user.sub);
+  }
 }
