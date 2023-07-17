@@ -65,7 +65,7 @@
     </div>
 </template>
   
-<script setup>
+<script setup lang='ts'>
     import NavBar from "../components/NavBar.vue";
     import ChatNavBar from "../components/ChatNavBar.vue";
     import OtherUserProfile from "../components/OtherUserProfile.vue";
@@ -139,35 +139,32 @@
     },
     { timeout: 10000 },
     chatService);
-   
 
     const handleSubmitNewMessage = () => {
-        chatService.sendNewMessage(message.value, actual.value.id);
-        messages.value.push({
-            fromId: user.value.id,
-            toId: actual.value.id,
-            message: message.value,
-            username: user.username,
-            date: new Date().toLocaleString("en-US", dateOptions),
-        })
+      chatService.sendNewMessage(message.value, actual.value.id);
+      messages.value.push({
+        fromId: user.value.id,
+        toId: actual.value.id,
+        message: message.value,
+        username: user.username,
+        date: new Date().toLocaleString("en-US", dateOptions),
+      })
     }
 
     function pushToMessages(payload) {
-      messages.value.push({
-            id: payload.id,
-            message: payload.message,
-            fromId: payload.fromId,
-            toId: payload.toId,
-            date: new Date(payload.date).toLocaleString("en-US", dateOptions)
+      if (messages.value.indexOf(payload.id) === -1) {
+        messages.value.push({
+          id: payload.id,
+          message: payload.message,
+          fromId: payload.fromId,
+          toId: payload.toId,
+          date: new Date(payload.date).toLocaleString("en-US", dateOptions)
         })
+      }
     }
 
     const updateBlockedBool = (newValue) => {
       actualIsBlocked.value = newValue
-    };
-
-    const updateFriendBool = (newValue) => {
-      actualInfos.value.is_friend = newValue
     };
 
     const stockHistory = async (payload) => {
