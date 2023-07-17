@@ -19,6 +19,10 @@ export class GameService {
     setInterval(this.gameLoop.bind(this), this.frame_time);
   }
 
+  findGame(gameId: number): Game | undefined {
+    return this.games.get(gameId);
+  }
+
   findOrCreateGame(gameId: number): Game {
     let game = this.games.get(gameId);
     if (game === undefined) {

@@ -22,12 +22,14 @@ export enum PlayerAction {
   DOWN,
 }
 
+export const ConnectedPlayers = new Map<number, number>();
+
 type Player = {
   id: number;
   y: number;
   action: PlayerAction;
   score: number;
-  socket?: Socket;
+  socket: Socket;
 };
 
 export class Game {
@@ -51,16 +53,22 @@ export class Game {
     else throw new TypeError(`Game Mode '${gameInfo.gameMode}' is unknown`);
   }
 
+  getStatus(): game_status {
+    return this.status;
+  }
+
   connectPlayer(id: number, socket: Socket) {
+    if (this.status !== game_status.WAITING)
+      throw new WsException(
+        'Trying to connect to game that has already started or ended',
+      );
     let playerIndex = -1;
     if (this.p[0] === undefined) playerIndex = 0;
     else if (this.p[1] === undefined) playerIndex = 1;
-    else
-      throw new Error(
-        `Trying to add third player to game with id '${this.id}'`,
-      );
-    if (this.p[0]?.id === id || this.p[1]?.id === id)
-      throw new Error('User already connected to game');
+    else return;
+    if (ConnectedPlayers.has(id))
+      throw new WsException('User is already connected to a game');
+    ConnectedPlayers.set(id, this.id);
     this.p[playerIndex] = {
       id: id,
       y: this.gameMode.INITIAL_HEIGHT,
@@ -68,12 +76,17 @@ export class Game {
       score: 0,
       socket: socket,
     };
-    // TODO: if playerIndex = 1, two players are connected and game may start
+    if (playerIndex === 1) this.startGame();
+  }
+
+  startGame() {
+    // TODO: mark game as started
+    this.status = game_status.PLAYING;
   }
 
   updatePlayerAction(userId: number, action: PlayerAction): boolean {
-    // TODO: uncomment
-    // if (!this.status == game_status.PLAYING) throw new WsException('Game hasn\'t started yet');
+    if (!(this.status === game_status.PLAYING))
+      throw new WsException("Game hasn't started yet");
     const player = this.p.find((player) => player.id === userId);
     if (player === undefined)
       throw new WsException("Player isn't connected to game");
@@ -81,13 +94,37 @@ export class Game {
     return true;
   }
 
+  handlePlayerDisconnection(): boolean {
+    let allConnected = true;
+    if (!this.p[0]?.socket.connected) {
+      allConnected = false;
+      ConnectedPlayers.delete(this.p[0].id);
+      this.p[0] = undefined;
+    }
+    if (!this.p[1]?.socket.connected) {
+      allConnected = false;
+      ConnectedPlayers.delete(this.p[1].id);
+      this.p[1] = undefined;
+    }
+    return allConnected;
+  }
+
   async loop() {
     this.printGameInfo();
+    if (this.status === game_status.PLAYING) {
+      if (!this.handlePlayerDisconnection()) {
+        // TODO mark game as ended player abandoned
+        this.status = game_status.ENDED;
+        Logger.log(`A player got disconnected, game is over`);
+        return;
+      }
+      // game is ok
+    }
   }
 
   printGameInfo() {
     Logger.debug(
-      `\nGame id: ${this.id}\nGame mode: ${this.gameModeName}` +
+      `\nid: ${this.id}\nmode: ${this.gameModeName}\nstatus: ${this.status}` +
         `\nPlayers:\n\t` +
         (this.p[0] !== undefined
           ? `id: ${this.p[0].id}\n\ty: ${this.p[0].y}\n\taction: ${this.p[0].action}\n\tscore: ${this.p[0].score}\n\tsocket: ${this.p[0].socket?.id}`
