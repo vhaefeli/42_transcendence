@@ -34,11 +34,7 @@ export class Game {
   readonly gameMode: GameModeConfig;
   p = new Array<Player>(2);
 
-  constructor(gameInfo: {
-    id: number;
-    gameMode?: GameModeType;
-    players: [{ id: number }, { id: number }];
-  }) {
+  constructor(gameInfo: { id: number; gameMode?: GameModeType }) {
     this.id = gameInfo.id;
 
     if (gameInfo.gameMode === undefined) {
@@ -49,18 +45,24 @@ export class Game {
     )
       this.gameModeName = gameInfo.gameMode;
     else throw new TypeError(`Game Mode '${gameInfo.gameMode}' is unknown`);
+  }
 
-    this.p[0] = {
-      id: gameInfo.players[0].id,
+  connectPlayer(id: number, socket: Socket) {
+    let playerIndex = -1;
+    if (this.p[0] === undefined) playerIndex = 0;
+    else if (this.p[1] === undefined) playerIndex = 1;
+    else
+      throw new Error(
+        `Trying to add third player to game with id '${this.id}'`,
+      );
+    if (this.p[0]?.id === id || this.p[1]?.id === id)
+      throw new Error('User already connected to game');
+    this.p[playerIndex] = {
+      id: id,
       y: this.gameMode.INITIAL_HEIGHT,
       action: PlayerAction.IDLE,
       score: 0,
-    };
-    this.p[1] = {
-      id: gameInfo.players[1].id,
-      y: this.gameMode.INITIAL_HEIGHT,
-      action: PlayerAction.IDLE,
-      score: 0,
+      socket: socket,
     };
   }
 
@@ -71,9 +73,14 @@ export class Game {
   printGameInfo() {
     Logger.debug(
       `\nGame id: ${this.id}\nGame mode: ${this.gameModeName}` +
-        `\nPlayers:` +
-        `\n\tid: ${this.p[0].id}\n\ty: ${this.p[0].y}\n\taction: ${this.p[0].action}\n\tscore: ${this.p[0].score}\n\tsocket: ${this.p[0].socket?.id}` +
-        `\n\n\tid: ${this.p[1].id}\n\ty: ${this.p[1].y}\n\taction: ${this.p[1].action}\n\tscore: ${this.p[1].score}\n\tsocket: ${this.p[1].socket?.id}`,
+        `\nPlayers:\n\t` +
+        (this.p[0] !== undefined
+          ? `id: ${this.p[0].id}\n\ty: ${this.p[0].y}\n\taction: ${this.p[0].action}\n\tscore: ${this.p[0].score}\n\tsocket: ${this.p[0].socket?.id}`
+          : 'not connected') +
+        '\n\n\t' +
+        (this.p[1] !== undefined
+          ? `id: ${this.p[1].id}\n\ty: ${this.p[1].y}\n\taction: ${this.p[1].action}\n\tscore: ${this.p[1].score}\n\tsocket: ${this.p[1].socket?.id}`
+          : 'not connected'),
     );
   }
 }

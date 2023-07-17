@@ -39,9 +39,9 @@ export class GameGateway
   @SubscribeMessage('connectToGame')
   connectToGame(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() body: { userId: number },
+    @MessageBody() body: { gameId: number },
   ) {
-    this.gameService.connect(+body.userId, socket);
+    this.gameService.connect(+body.gameId, socket.data.user.sub, socket);
   }
 
   @UseGuards(WsGuard)

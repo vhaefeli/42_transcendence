@@ -11,24 +11,25 @@ class Player {
 export class GameService {
   //private readonly frame_time = 10 + 2 / 3;
   private readonly frame_time = 1000;
-  private connected_players = new Array<Player>();
-  private games = new Array<Game>();
+  private games = new Map<number, Game>();
 
   constructor() {
-    this.games.push(new Game({ id: 1, players: [{ id: 3 }, { id: 5 }] }));
-    Logger.debug(this.connected_players === undefined);
+    //this.games.push(new Game({ id: 1, players: [{ id: 3 }, { id: 5 }] }));
     setInterval(this.gameLoop.bind(this), this.frame_time);
   }
 
-  connect(userId: number, socket: Socket) {
-    if (!this.isConnected(socket.id))
-      this.connected_players.push({ userId: userId, socket: socket });
+  findOrCreateGame(gameId: number): Game {
+    let game = this.games.get(gameId);
+    if (game === undefined) {
+      game = new Game({ id: gameId });
+      this.games.set(gameId, game);
+    }
+    return game;
   }
 
-  isConnected(socket_id: string) {
-    return this.connected_players.find(
-      (player) => player.socket.id === socket_id,
-    );
+  connect(gameId: number, userId: number, socket: Socket) {
+    const game = this.findOrCreateGame(gameId);
+    game.connectPlayer(userId, socket);
   }
 
   async gameLoop() {
@@ -39,12 +40,6 @@ export class GameService {
     });
 
     await Promise.all(running_games);
-
-    if (this.connected_players.length) {
-      this.connected_players.forEach((player) => {
-        Logger.log(`${player.userId}: ${player.socket.id}`);
-      });
-    }
     return;
   }
 }
