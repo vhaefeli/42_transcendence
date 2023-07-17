@@ -3,6 +3,7 @@ import { Socket } from 'socket.io';
 import { Game, PlayerAction } from './game.entity';
 import { WsException } from '@nestjs/websockets';
 import { game_status } from '@prisma/client';
+import { PrismaService } from 'src/prisma.service';
 
 class Player {
   userId: number;
@@ -15,7 +16,7 @@ export class GameService {
   private readonly frame_time = 1000;
   private games = new Map<number, Game>();
 
-  constructor() {
+  constructor(private prisma: PrismaService) {
     //this.games.push(new Game({ id: 1, players: [{ id: 3 }, { id: 5 }] }));
     setInterval(this.gameLoop.bind(this), this.frame_time);
   }
@@ -33,7 +34,17 @@ export class GameService {
     return game;
   }
 
-  connect(gameId: number, userId: number, socket: Socket) {
+  async connectToGame(gameId: number, userId: number, socket: Socket) {
+    const db_game = await this.prisma.player.findFirst({
+      where: {
+        gameId: gameId,
+        playerId: userId,
+        gameStatus: game_status.WAITING,
+      },
+      select: { id: true },
+    });
+    if (!db_game)
+      throw new WsException('Game not found or unavailable to connect');
     const game = this.findOrCreateGame(gameId);
     game.connectPlayer(userId, socket);
   }

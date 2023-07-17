@@ -64,11 +64,11 @@ export class GameGateway
   @UsePipes(new ValidationPipe())
   @UseGuards(WsGuard)
   @SubscribeMessage('connectToGame')
-  connectToGame(
+  async connectToGame(
     @ConnectedSocket() socket: Socket,
     @MessageBody() connectToGameDto: ConnectToGameDto,
   ) {
-    this.gameService.connect(
+    await this.gameService.connectToGame(
       connectToGameDto.gameId,
       socket.data.user.sub,
       socket,
