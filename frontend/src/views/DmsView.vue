@@ -42,7 +42,7 @@
         </div>
       
         <!-- column 3 with list of recipients -->
-        <div  id="dm-recipientList-col">
+        <div  id="dm-recipientList-col" class="w-[16rem] relative">
           <div class="mb-6 max-h-[54vh] overflow-scroll">
             <div v-if="recipients.length === 0">No Dms yet</div>
             <div v-for="recipient in recipients" :key="recipient">
@@ -50,15 +50,8 @@
             </div>
             <div v-if="!isInRecipients()"></div>
           </div>
-          <div class="mb-6">
-            <input v-model="newRecipient" placeholder="name of friend" /><br />
-                <p>you want to add: {{ newRecipient || 'nobody' }} ?</p>
-                <button
-                class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-                @click="addRecipient(newRecipient)"
-                >
-                add a friend
-                </button>
+          <div class="m-6 absolute bottom-6 w-2/3">
+            <UserSearch :recipients="recipients" :userStore="userStore" @addRecipient="addRecipient"/>
           </div>
         </div>
       </section>
@@ -77,6 +70,7 @@
     import { useSessionStore } from "@/stores/SessionStore";
     import { useUserStore } from '../stores/UserStore'
     import { chatService } from "@/services/chat-socket.service";
+    import UserSearch from "@/components/UserSearch.vue";
 
     const route = useRoute()
 
