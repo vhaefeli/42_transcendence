@@ -138,6 +138,7 @@
                       </ul>
                     </div>
                     <ul class="flex flex-row">
+                      <li><a class="t-btn-pink ft-bg-color-game ft-icon-small icon-btn-size icon-btn-cursor"><img src="../assets/icons/table-tennis-paddle-ball-solid.svg" alt="invite to play a game with them"></a></li>
                       <li><a class="t-btn-pink ft-bg-color-chat ft-icon-small icon-btn-size icon-btn-cursor"><img src="../assets/img/icons/message-solid.svg" alt="send them a message"></a></li>
                       <li><a class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor" @click="blockUser(friend.username)"><img src="../assets/icons/person-circle-minus-solid.svg" alt="block them"></a></li>
                       <li><a class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="removeFriend(friend.username)"><img src="../assets/img/icons/user-minus-solid.svg" alt="remove friendship"></a></li>
@@ -362,11 +363,11 @@
   width: fit-content;
   border-bottom-style: solid;
   border-bottom-width: 1.5em;
-    /* border-bottom: 1.5em solid var(--mint); */
+    /* border-bottom: 1.5em solid var(--sunset); */
 }
 
 /* .ft-tab-folder.ft-tab-title {
-  /* border-bottom: 1.5em solid var(--mint);
+  /* border-bottom: 1.5em solid var(--sunset);
   border-bottom: 1.5em solid;
 } */
 
