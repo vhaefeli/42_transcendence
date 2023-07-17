@@ -49,7 +49,7 @@
 
     // TO DO: replace by true value
     const is_blocked = true
-    const is_invitation_pending = false
+    const is_invitation_pending = true
 
     // get list of blocked?
 
