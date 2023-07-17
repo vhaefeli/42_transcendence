@@ -1,8 +1,8 @@
-import { Inject, Logger, forwardRef } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
-import { GameGateway } from './game.gateway';
 import { PrismaService } from 'src/prisma.service';
+import { GameGateway } from './game.gateway';
 
 export enum GameModeType {
   NORMAL = 'NORMAL',
@@ -91,12 +91,6 @@ export class Game {
     }
   }
 
-  async startGame() {
-    // TODO: mark game as started
-    this.isActive = true;
-    this.sendScoreToPlayers();
-  }
-
   async sendScoreToPlayers() {
     const msg = [
       { id: this.p[0].id, score: this.p[0].score },
@@ -114,19 +108,15 @@ export class Game {
     return true;
   }
 
-  handlePlayerDisconnection(): boolean {
-    let allConnected = true;
-    if (!this.p[0]?.socket.connected) {
-      allConnected = false;
-      ConnectedPlayers.delete(this.p[0].id);
-      this.p[0] = undefined;
-    }
-    if (!this.p[1]?.socket.connected) {
-      allConnected = false;
-      ConnectedPlayers.delete(this.p[1].id);
-      this.p[1] = undefined;
-    }
-    return allConnected;
+  private handlePlayerDisconnection(): boolean {
+    if (!this.p[0]?.socket.connected || !this.p[1]?.socket.connected)
+      return false;
+    return true;
+  }
+
+  private async userDisconnectFromGame(player: Player) {
+    ConnectedPlayers.delete(player.id);
+    player.socket.leave(this.id.toString());
   }
 
   async loop() {
@@ -134,12 +124,27 @@ export class Game {
     if (this.isActive) {
       if (!this.handlePlayerDisconnection()) {
         // TODO mark game as ended player abandoned
-        this.isActive = false;
         Logger.log(`A player got disconnected, game is over`);
+        this.endGame();
         return;
       }
       // game is ok
     }
+  }
+
+  async startGame() {
+    // TODO: mark game as started
+    this.isActive = true;
+    this.sendScoreToPlayers();
+  }
+
+  async endGame() {
+    // TODO: mark game as ended
+    this.isActive = false;
+    await Promise.all([
+      this.userDisconnectFromGame(this.p[0]),
+      this.userDisconnectFromGame(this.p[1]),
+    ]);
   }
 
   printGameInfo() {
