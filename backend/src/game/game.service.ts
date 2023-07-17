@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Socket } from 'socket.io';
-import { Game } from './game.entity';
+import { Game, PlayerAction } from './game.entity';
+import { WsException } from '@nestjs/websockets';
 
 class Player {
   userId: number;
@@ -41,5 +42,11 @@ export class GameService {
 
     await Promise.all(running_games);
     return;
+  }
+
+  updateAction(gameId: number, userId: number, action: PlayerAction) {
+    const game = this.games.get(gameId);
+    if (!game) throw new WsException("Game doesn't exist");
+    game.updatePlayerAction(userId, action);
   }
 }

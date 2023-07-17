@@ -1,4 +1,8 @@
-import { SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
+import {
+  BaseWsExceptionFilter,
+  SubscribeMessage,
+  WebSocketGateway,
+} from '@nestjs/websockets';
 import {
   OnGatewayInit,
   OnGatewayConnection,
@@ -8,13 +12,35 @@ import {
   WebSocketServer,
   WsException,
 } from '@nestjs/websockets';
-import { RemoteSocket, Server, Socket } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { WsGuard } from 'src/auth/ws.guard';
 import { AuthService } from 'src/auth/auth.service';
 import { ConfigService } from '@nestjs/config';
-import { Inject, Logger, UseGuards, forwardRef } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  BadRequestException,
+  Catch,
+  Inject,
+  Logger,
+  UseFilters,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+  forwardRef,
+} from '@nestjs/common';
 import { GameService } from './game.service';
+import { ConnectToGameDto } from './dto/connect-to-game.dto';
+import { UpdateActionGameDto } from './dto/update-action-game.dto';
 
+@Catch(BadRequestException)
+export class BadRequestTransformationFilter extends BaseWsExceptionFilter {
+  catch(exception: BadRequestException, host: ArgumentsHost) {
+    const properException = new WsException(exception.getResponse());
+    super.catch(properException, host);
+  }
+}
+
+@UseFilters(BadRequestTransformationFilter)
 @WebSocketGateway({
   namespace: 'game',
   cors: {
@@ -35,13 +61,32 @@ export class GameGateway
   }
   @WebSocketServer() server: Server;
 
+  @UsePipes(new ValidationPipe())
   @UseGuards(WsGuard)
   @SubscribeMessage('connectToGame')
   connectToGame(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() body: { gameId: number },
+    @MessageBody() connectToGameDto: ConnectToGameDto,
   ) {
-    this.gameService.connect(+body.gameId, socket.data.user.sub, socket);
+    this.gameService.connect(
+      connectToGameDto.gameId,
+      socket.data.user.sub,
+      socket,
+    );
+  }
+
+  @UsePipes(new ValidationPipe())
+  @UseGuards(WsGuard)
+  @SubscribeMessage('action')
+  updatePlayerAction(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() updateActionGameDto: UpdateActionGameDto,
+  ) {
+    this.gameService.updateAction(
+      updateActionGameDto.gId,
+      socket.data.user.sub,
+      updateActionGameDto.a,
+    );
   }
 
   @UseGuards(WsGuard)

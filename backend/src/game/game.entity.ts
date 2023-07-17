@@ -1,4 +1,6 @@
 import { Logger } from '@nestjs/common';
+import { WsException } from '@nestjs/websockets';
+import { game_status } from '@prisma/client';
 import { Socket } from 'socket.io';
 
 export enum GameModeType {
@@ -31,11 +33,13 @@ type Player = {
 export class Game {
   readonly id: number;
   readonly gameModeName: GameModeType;
-  readonly gameMode: GameModeConfig;
-  p = new Array<Player>(2);
+  private readonly gameMode: GameModeConfig;
+  private readonly p = new Array<Player>(2);
+  private status: game_status;
 
   constructor(gameInfo: { id: number; gameMode?: GameModeType }) {
     this.id = gameInfo.id;
+    this.status = game_status.WAITING;
 
     if (gameInfo.gameMode === undefined) {
       this.gameModeName = GameModeType.NORMAL;
@@ -64,6 +68,17 @@ export class Game {
       score: 0,
       socket: socket,
     };
+    // TODO: if playerIndex = 1, two players are connected and game may start
+  }
+
+  updatePlayerAction(userId: number, action: PlayerAction): boolean {
+    // TODO: uncomment
+    // if (!this.status == game_status.PLAYING) throw new WsException('Game hasn\'t started yet');
+    const player = this.p.find((player) => player.id === userId);
+    if (player === undefined)
+      throw new WsException("Player isn't connected to game");
+    player.action = action;
+    return true;
   }
 
   async loop() {
