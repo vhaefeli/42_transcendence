@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsNumber } from 'class-validator';
 
-export class ChannelAddMutedDto {
+export class ChannelAddBannedDto {
   @IsNotEmpty()
   @IsNumber()
   channelId: number;

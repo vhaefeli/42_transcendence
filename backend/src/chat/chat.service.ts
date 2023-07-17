@@ -22,6 +22,7 @@ import { MyChannelMembersDto } from './dto/myChannelMembers.dto';
 import { ChannelAddMutedDto } from './dto/channel-add-muted.dto';
 import { ChannelRemoveMutedDto } from './dto/channel-remove-muted.dto';
 import { ChannelAddBannedDto } from './dto/channel-add-banned.dto';
+import { ChannelRemoveBannedDto } from './dto/channel-remove-banned.dto';
 
 @Injectable()
 export class ChatService {
@@ -562,7 +563,7 @@ export class ChatService {
         ) === undefined
       )
         throw new NotFoundException(
-          'User to be unmuted is not in the channel muted user',
+          'User to be unmuted is not in the channel as muted user',
         );
     } catch (error) {
       if (
@@ -615,7 +616,7 @@ export class ChatService {
       // Request to mute must concern a member
       if (
         !channel.members.find(
-          (member) => member.id === channelAddMutedDto.userId,
+          (member) => member.id === channelAddBannedDto.userId,
         )
       ) {
         throw new NotFoundException('User must be a member');
@@ -668,19 +669,19 @@ export class ChatService {
     }
   }
 
-  async ChannelRemoveMuted(
-    channelRemoveMutedDto: ChannelRemoveMutedDto,
+  async ChannelRemoveBanned(
+    channelRemoveBannedDto: ChannelRemoveBannedDto,
     my_id: number,
   ) {
     try {
       const channel = await this.prisma.channel.findFirstOrThrow({
-        where: { id: channelRemoveMutedDto.channelId },
+        where: { id: channelRemoveBannedDto.channelId },
         select: {
           id: true,
           type: true,
           ownerId: true,
           admins: { select: { id: true } },
-          muted: { select: { id: true } },
+          banned: { select: { id: true } },
         },
       });
       // Request user is the owner or an Admin
@@ -689,17 +690,17 @@ export class ChatService {
         channel.admins.find((admin) => admin.id === my_id) === undefined
       )
         throw new UnauthorizedException(
-          "You don't have the necessary privileges to remove a Muted",
+          "You don't have the necessary privileges to remove a Banned status",
         );
 
-      // Ensure User to remove is in the channel as muted
+      // Ensure User to remove is in the channel as banned
       if (
-        channel.muted.find(
-          (muted) => muted.id === channelRemoveMutedDto.userId,
+        channel.banned.find(
+          (banned) => banned.id === channelRemoveBannedDto.userId,
         ) === undefined
       )
         throw new NotFoundException(
-          'User to be unmuted is not in the channel muted user',
+          'User to be unbanned is not in the channel as banned user',
         );
     } catch (error) {
       if (
@@ -718,14 +719,14 @@ export class ChatService {
 
     try {
       await this.prisma.channel.update({
-        where: { id: channelRemoveMutedDto.channelId },
+        where: { id: channelRemoveBannedDto.channelId },
         data: {
-          muted: { disconnect: { id: channelRemoveMutedDto.userId } },
+          banned: { disconnect: { id: channelRemoveBannedDto.userId } },
         },
       });
     } catch (error) {
       if (error?.code === 'P2025') {
-        throw new NotFoundException("Muted wasn't found");
+        throw new NotFoundException("Banned wasn't found");
       }
       if (error?.code) Logger.error(error.code + ' ' + error.message);
       else Logger.error(error);
