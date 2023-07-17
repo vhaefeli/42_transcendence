@@ -66,6 +66,29 @@ export class FriendService {
     }
   }
 
+  async isPendingInvitation(id1: number, id2: number): Promise<boolean> {
+    let result = false;
+    if (
+      await this.prisma.friendshipInvitation.findFirst({
+        where: {
+          AND: [{ fromId: id1, toId: id2 }],
+        },
+      })
+    ) {
+      result = true;
+    }
+    if (
+      await this.prisma.friendshipInvitation.findFirst({
+        where: {
+          AND: [{ fromId: id2, toId: id1 }],
+        },
+      })
+    ) {
+      result = true;
+    }
+    return result;
+  }
+
   async findInvitationsSent(id: number) {
     const invitations = new Array<TokenInfoDto>();
     (
