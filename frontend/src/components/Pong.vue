@@ -41,9 +41,9 @@
 	// let dy = 2;
 
   enum PlayerAction {
+    IDLE,
     UP,
     DOWN,
-    IDLE,
   }
 
 	console.log(dx);

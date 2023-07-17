@@ -15,9 +15,9 @@ GameModeList.set(GameModeType.NORMAL, {
 });
 
 export enum PlayerAction {
+  IDLE,
   UP,
   DOWN,
-  IDLE,
 }
 
 type Player = {
