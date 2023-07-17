@@ -93,7 +93,7 @@ nav#ft-main-nav {
 }
 
 .nav-tab-chat {
-    border-bottom: 1.5em solid var(--dark-pink);
+    border-bottom: 1.5em solid var(--pink);
 }
 
 .nav-tab-game {
