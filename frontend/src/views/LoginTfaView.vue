@@ -2,7 +2,7 @@
   <NavBar :showProfile="false"></NavBar>
   <div class="text-white">
     <div id="tfa-form">
-      <input v-model="tfa_code" placeholder="code" /><br />
+      <input v-model="tfa_code" placeholder="code" class="bg-gray-500" /><br />
       <button
         @click="cancel2FALogin"
         class="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded"
@@ -46,7 +46,6 @@ watch(
 
 function handleQueryParams(params: LocationQuery) {
   tfa_uuid = params?.tfa_request_uuid?.toString();
-  console.log(tfa_uuid);
   if (!tfa_uuid?.length) {
     console.error(
       "No tfa_request_uuid provided in query param, redirecting to login"
@@ -57,7 +56,7 @@ function handleQueryParams(params: LocationQuery) {
 
 async function validate2FALogin() {
   if (tfa_code.value.length == 0) {
-    console.log("please insert code");
+    console.log("Please insert code");
     return;
   }
   await axios({
