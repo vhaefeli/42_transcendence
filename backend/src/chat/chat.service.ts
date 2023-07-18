@@ -24,6 +24,7 @@ import { ChannelRemoveMutedDto } from './dto/channel-remove-muted.dto';
 import { ChannelAddBannedDto } from './dto/channel-add-banned.dto';
 import { ChannelRemoveBannedDto } from './dto/channel-remove-banned.dto';
 import { AuthService } from 'src/auth/auth.service';
+import { ChannelJoinDto } from './dto/channel-join.dto';
 
 @Injectable()
 export class ChatService {
@@ -86,12 +87,12 @@ export class ChatService {
   }
 
   async CreateChannel(
-    createChannelDto: CreateChannelDto,
     my_id: number,
+    createChannelDto: CreateChannelDto,
   ): Promise<{ id: number }> {
     try {
       // store the hash
-      if (createChannelDto.password !== null) {
+      if (createChannelDto.password != null) {
         const createdHash = await this.authService.createHash(
           createChannelDto.password,
         );
@@ -198,15 +199,54 @@ export class ChatService {
     my_id: number,
     myChannelMembersDto: MyChannelMembersDto,
   ) {
-    Logger.log('my_id ' + my_id);
-    Logger.log('channel ' + myChannelMembersDto.channelId);
-
+    const channel = await this.prisma.channel.findFirstOrThrow({
+      where: { id: myChannelMembersDto.channelId },
+      select: {
+        id: true,
+        ownerId: true,
+        admins: { select: { id: true } },
+        members: { select: { id: true } },
+      },
+    });
+    // Request user is not the owner or an admin of the channel
+    if (
+      channel.ownerId !== my_id &&
+      channel.admins.find((admin) => admin.id === my_id) === undefined &&
+      channel.members.find((members) => members.id === my_id) === undefined
+    )
+      throw new UnauthorizedException(
+        "You don't have the necessary privileges to see the memeber list",
+      );
     const channelMembers = await this.prisma.channel.findMany({
       where: { id: myChannelMembersDto.channelId },
       select: { members: { select: { username: true } } },
     });
 
     return channelMembers;
+  }
+
+  async FindMyChannelAdmin(
+    my_id: number,
+    myChannelMembersDto: MyChannelMembersDto,
+  ) {
+    const channelAdmin = await this.prisma.channel.findMany({
+      where: { id: myChannelMembersDto.channelId },
+      select: { admins: { select: { username: true } } },
+    });
+
+    return channelAdmin;
+  }
+
+  async FindMyChannelMutted(
+    my_id: number,
+    myChannelMembersDto: MyChannelMembersDto,
+  ) {
+    const channelMuted = await this.prisma.channel.findMany({
+      where: { id: myChannelMembersDto.channelId },
+      select: { muted: { select: { username: true } } },
+    });
+
+    return channelMuted;
   }
 
   async ChannelAddMember(
@@ -398,7 +438,10 @@ export class ChatService {
     try {
       await this.prisma.channel.update({
         where: { id: channelAddAdminDto.channelId },
-        data: { admins: { connect: { id: channelAddAdminDto.userId } } },
+        data: {
+          admins: { connect: { id: channelAddAdminDto.userId } },
+          members: { connect: { id: channelAddAdminDto.userId } },
+        },
       });
     } catch (error) {
       if (error?.code === 'P2025') {
@@ -432,7 +475,9 @@ export class ChatService {
 
       // Owner can't request to delete himself
       if (my_id === channelRemoveAdminDto.userId)
-        throw new UnauthorizedException("You can't remove yourself as Admin");
+        throw new UnauthorizedException(
+          "You can't remove yourself as Admin, role mandatory for the owner",
+        );
 
       // Ensure User to remove is in the channel as admin
       if (
@@ -810,12 +855,71 @@ export class ChatService {
           type: channelChangeDto.type,
           ownerId: channelChangeDto.ownerId,
           password: channelChangeDto.password,
-          admins: { connect: { id: channelChangeDto.ownerId } },
+          admins: {
+            connect: { id: channelChangeDto.ownerId },
+          },
+          members: { connect: { id: channelChangeDto.ownerId } },
         },
       });
     } catch (error) {
       if (error?.code === 'P2025') {
-        throw new NotFoundException("Banned wasn't found");
+        throw new NotFoundException("Admin wasn't found");
+      }
+      if (error?.code) Logger.error(error.code + ' ' + error.message);
+      else Logger.error(error);
+      throw error;
+    }
+  }
+
+  async channelJoin(channelJoinDto: ChannelJoinDto, my_id: number) {
+    try {
+      const channel = await this.prisma.channel.findFirstOrThrow({
+        where: { id: channelJoinDto.channelId },
+        select: {
+          id: true,
+          type: true,
+          password: true,
+          members: { select: { id: true } },
+        },
+      });
+
+      const memberStatus = channel.members.find(
+        (member) => member.id === my_id,
+      );
+      // if channel is private, the membership is mandatory
+      if (memberStatus === undefined && channel.type === 'PRIVATE')
+        throw new NotFoundException('You are not a member');
+      // if channel is public, the membership is create on the fly
+      if (memberStatus === undefined && channel.type === 'PUBLIC')
+        await this.prisma.channel.update({
+          where: { id: channelJoinDto.channelId },
+          data: { members: { connect: { id: my_id } } },
+        });
+      // if channel is protected, the membership is created if the password is ok
+      if (memberStatus === undefined && channel.type === 'PROTECTED') {
+        if (
+          this.authService.compareHash(
+            channel.password,
+            channelJoinDto.password,
+          )
+        ) {
+          await this.prisma.channel.update({
+            where: { id: channelJoinDto.channelId },
+            data: { members: { connect: { id: my_id } } },
+          });
+        } else {
+          throw new NotFoundException('You are not a member');
+        }
+      }
+    } catch (error) {
+      if (
+        error instanceof UnauthorizedException ||
+        error instanceof NotFoundException ||
+        error instanceof ConflictException
+      )
+        throw error;
+      if (error?.code === 'P2025') {
+        throw new NotFoundException("Channel wasn't found");
       }
       if (error?.code) Logger.error(error.code + ' ' + error.message);
       else Logger.error(error);

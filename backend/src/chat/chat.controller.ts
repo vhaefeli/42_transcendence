@@ -10,6 +10,9 @@ import { ChannelRemoveMutedDto } from './dto/channel-remove-muted.dto';
 import { ChannelRemoveBannedDto } from './dto/channel-remove-banned.dto';
 import { ChannelAddBannedDto } from './dto/channel-add-banned.dto';
 import { ChannelChangeDto } from './dto/channel-change.dto';
+import { ChannelJoinDto } from './dto/channel-join.dto';
+import { MyChannelAdminDto } from './dto/myChannelAdmin.dto';
+import { MyChannelMutedDto } from './dto/myChannelMuted.dto';
 
 @Controller('chat')
 export class ChatController {
@@ -20,7 +23,7 @@ export class ChatController {
     @Request() req: any,
     @Body() createChannelDto: CreateChannelDto,
   ) {
-    return await this.chatService.CreateChannel(createChannelDto, req.user.sub);
+    return await this.chatService.CreateChannel(req.user.sub, createChannelDto);
   }
 
   @Get('channel/all')
@@ -46,6 +49,28 @@ export class ChatController {
     return await this.chatService.FindMyChannelMembers(
       req.user.sub,
       myChannelMembersDto,
+    );
+  }
+
+  @Get('channel/admin')
+  async getMyChannelAdmin(
+    @Request() req: any,
+    @Body() myChannelAdminDto: MyChannelAdminDto,
+  ) {
+    return await this.chatService.FindMyChannelAdmin(
+      req.user.sub,
+      myChannelAdminDto,
+    );
+  }
+
+  @Get('channel/muted')
+  async getMyChannelMuted(
+    @Request() req: any,
+    @Body() myChannelMuttedDto: MyChannelMutedDto,
+  ) {
+    return await this.chatService.FindMyChannelMutted(
+      req.user.sub,
+      myChannelMuttedDto,
     );
   }
 
@@ -120,5 +145,13 @@ export class ChatController {
     @Body() channelChangeDto: ChannelChangeDto,
   ) {
     await this.chatService.channelchange(channelChangeDto, req.user.sub);
+  }
+
+  @Patch('channel/join')
+  async channeljoin(
+    @Request() req: any,
+    @Body() channeljoinDto: ChannelJoinDto,
+  ) {
+    await this.chatService.channelJoin(channeljoinDto, req.user.sub);
   }
 }
