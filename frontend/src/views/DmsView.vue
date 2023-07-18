@@ -143,6 +143,7 @@
         username: user.username,
         date: new Date().toLocaleString("en-US", dateOptions),
       })
+      message.value = ''
     }
 
     function pushToMessages(payload) {
@@ -225,6 +226,7 @@
     // used when click on recipient name
     function changeActualRecipient(recipient) {
         actual.value = allUsers.value.find((user) => recipient === user.id)
+        message.value = ''
     }
 
     // scroll messages container to bottom
