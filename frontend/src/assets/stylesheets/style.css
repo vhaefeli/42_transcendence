@@ -34,3 +34,7 @@ body::-webkit-scrollbar-thumb {
     border-top: .2rem solid var(--light);
     border-left: .2rem solid var(--light);   
 }
+
+.ft-simple-link:hover {
+    text-decoration: underline;
+}

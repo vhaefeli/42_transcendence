@@ -7,6 +7,7 @@
         <!-- column 1 with profile -->
         <div id="dm-profile-col">
             <!-- <OtherUserProfile :key="actual.username" :username="actual.username" :userStore="userStore" :sessionStore="sessionStore" @updateBlocked="updateBlockedBool" /> -->
+            <MemberList :channelName="currentChannel?.name" :userStore="userStore" :sessionStore="sessionStore" />
         </div>
 
         <!-- column 2 with messages -->
@@ -35,24 +36,22 @@
             <!-- </div> -->
           </div>
 
-          <div class="ft-bg-dark-gray flex p-2 absolute w-full bottom-0">
-              <!-- <input v-model="message" placeholder="blabla..." class="p-1 mr-4 ft-input" />
-              <a href="#" class="t-btn-pink ft-bg-color-chat"><button @click="handleSubmitNewMessage">Submit</button></a> -->
+          <div class="ft-bg-dark-gray flex p-2 pl-8 absolute w-full bottom-0">
+              <input v-model="message" placeholder="blabla..." class="p-1 mr-4 ft-input" />
+              <a href="#" class="t-btn-pink ft-bg-color-chat"><button @click="handleSubmitNewMessage">Submit</button></a>
           </div>
         </div>
       
         <!-- column 3 with list of recipients -->
         <div  id="dm-recipientList-col" class="w-[16rem] relative">
           <div class="mb-6 max-h-[54vh] overflow-scroll">
-            <div v-if="isAllChanLoaded">
-              <div v-if="allChannels.length === 0">No Dms yet</div>
-              <div v-for="channel in allChannels" :key="channel">
-                <div class="ft-recipient-name">{{ channel.name }}</div>
+            <div v-if="isAllMyChanLoaded">
+              <div v-if="myChannels.length === 0">No Dms yet</div>
+              <div v-for="channel in myChannels" :key="channel">
+                <div @click="changeCurrentChannel(channel.name)" :class="currentChannel?.channelId == channel.channelId ? 'ft-actual-recipient' : ''" class="ft-channel-name">{{ channel.name }}</div>
               </div>
             </div>
             <div v-else>Loading...</div>
-            <!-- <div @click="changeActualRecipient(recipient)" :class="actual.id == recipient ? 'ft-actual-recipient' : ''" class="ft-recipient-name">{{ getRecipientName(recipient) }}</div> -->
-            <!-- <div v-if="!isInRecipients()"></div> -->
           </div>
           <div class="m-6 absolute bottom-6 w-2/3">
             <!-- <UserSearch :recipients="recipients" :userStore="userStore" @addRecipient="addRecipient"/> -->
@@ -75,11 +74,12 @@
     import { useUserStore } from '../stores/UserStore'
     import { chatService } from "@/services/chat-socket.service";
     import UserSearch from "@/components/UserSearch.vue";
+    import MemberList from "@/components/MemberList.vue";
 
     const route = useRoute()
 
     // retrieve recipient i clicked on on other pages 
-    const queryRecipient = route.query.recipient
+    // const queryRecipient = route.query.recipient
     
     // routes
     const router = useRouter()
@@ -90,7 +90,6 @@
 
     const { user } = storeToRefs(userStore)
     
-    //   const actual = ref({})
     //   const actualIsBlocked = ref(false)
     //   // const actualInfos = ref({})
     //   const message = ref("")
@@ -103,26 +102,75 @@
     //   // Reactive flag for loaded data
     //   const isAllUsersLoaded = ref(false)
 
-    const allMyChannels = ref([])
-    const allChannels = ref([])
+    type MyChannel = {
+      channelId: number;
+      userId: number;
+      name: string;
+      type: string;
+      Admin: null | string;
+    }
+
+    type Channel = {
+      id: number,
+      name: string,
+      type: string,
+      owner: boolean,
+      admin: boolean,
+      member: boolean
+    }
+
+    const myChannels = ref<Array<MyChannel>>([]);
+    const allChannels = ref<Array<Channel>>([])
+
+    // Current
     const currentMembers = ref([])
+    const currentChannel = ref<MyChannel | null>(null)
 
     // Reactive flag for loaded data
-    const isAllMyChanLoaded = ref(false)
+    const isAllMyChanLoaded = ref(true)
     const isAllChanLoaded = ref(false)
     const isCurrentMembersLoaded = ref(false)
 
-    async function getAllMyChannels() {
+    const tmpMyChannels = [{
+      "channelId": 1,
+      "userId": 1,
+      "name": "VeryCoolChannel",
+      "type": "PUBLIC",
+      "Admin": null
+    }, {
+      "channelId": 5,
+      "userId": 1,
+      "name": "IWantIceCream",
+      "type": "PUBLIC",
+      "Admin": "Admin"
+    }, {
+      "channelId": 130,
+      "userId": 1,
+      "name": "myChannel5",
+      "type": "PROTECTED",
+      "Admin": "Admin"
+    }, {
+      "channelId": 105,
+      "userId": 1,
+      "name": "myChannel2",
+      "type": "PROTECTED",
+      "Admin": "Admin"
+    }]
+
+    myChannels.value = tmpMyChannels
+
+
+    async function getMyChannels() {
       await axios({
         url: "/api/chat/channel/myChannels",
         method: "get",
         headers: { Authorization: `Bearer ${sessionStore.access_token}` },
       })
         .then((response) => {
-          allMyChannels.value = response.data;
+          myChannels.value = response.data;
           isAllMyChanLoaded.value = true
           console.log("loaded all my channels");
-          console.log(allMyChannels.value);
+          console.log(myChannels.value);
         })
         .catch((error) => {
           if (error.response.status == 401) {
@@ -309,10 +357,10 @@
   //     }
   //   }
 
-  //   // used when click on recipient name
-  //   function changeActualRecipient(recipient) {
-  //       actual.value = allUsers.value.find((user) => recipient === user.id)
-  //   }
+    // used when click on channel name
+    function changeCurrentChannel(name: string) {
+        currentChannel.value = myChannels.value.find((chan) => name === chan.name) || null
+    }
 
   //   // scroll messages container to bottom
   //   function scrollToBottom() {
@@ -355,7 +403,7 @@
   // getAllUsers()
   
   loadMyself()
-  // getAllMyChannels()
+  // getMyChannels()
   getAllChannels()
   // getAllMembers(1)
 
@@ -374,14 +422,14 @@
     color: white;
   }
 
-  .ft-recipient-name {
+  .ft-channel-name {
     padding: 1rem;
     border-bottom: 1px solid var(--dark-gray);
     transition: padding .5s ease;
     cursor: pointer;
   }
 
-  .ft-recipient-name:hover {
+  .ft-channel-name:hover {
     padding-left: 1.5rem;
   }
 

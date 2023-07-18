@@ -26,8 +26,13 @@
 }
 
 /* BG colors */
-.ft-bg-color-chat {
+/* .ft-bg-color-chat {
   background: var(--pink);
+} */
+
+/* V2 */
+.ft-bg-color-chat {
+  background: var(--dark-pink);
 }
   
 .ft-bg-color-game {
