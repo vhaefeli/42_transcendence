@@ -153,6 +153,10 @@ async function LogIn(createUser = false) {
         console.debug(
           `${error.response.status} ${error.response.statusText}: Invalid credentials, try again`
         );
+      else if (error.response?.status == 503)
+        console.debug(
+          `${error.response.status} ${error.response.statusText}: Couldn't connect to mail server in order to send 2fa code`
+        );
       else if (error.response?.status == 400) {
         const message: string = error.response?.data?.message[0];
         console.debug(
