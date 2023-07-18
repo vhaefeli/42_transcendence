@@ -129,13 +129,60 @@ export class Game {
     if (this.isActive) {
       if (!this.handlePlayerDisconnection()) {
         Logger.log(`A player got disconnected, game is over`);
-        this.endGame();
+        this.endGame(true);
         return;
       }
-      // game is ok
+      // TODO: insert game logic
     } else if (!this.isCompleted && !this.handlePlayerDisconnection()) {
-      this.cancelGame();
+      this.endGame(false);
     }
+  }
+
+  private async startGame() {
+    await this.prisma.player.updateMany({
+      where: {
+        gameId: this.id,
+        gameStatus: game_status.WAITING,
+      },
+      data: { gameStatus: game_status.PLAYING },
+    });
+    this.isActive = true;
+    this.sendScoreToPlayers();
+  }
+
+  async endGame(wasCompleted: boolean) {
+    this.isActive = false;
+    this.isCompleted = true;
+    this.informGameIsOver();
+    const promises = new Array<Promise<any>>();
+    if (wasCompleted) promises.push(this.completeGame());
+    else promises.push(this.cancelGame());
+    this.p.forEach((player) => promises.push(this.userEndGame(player)));
+    await Promise.all(promises);
+  }
+
+  private async completeGame() {
+    await this.prisma.game.update({
+      where: { id: this.id },
+      data: { completed: true },
+    });
+    const promises = new Array<Promise<any>>();
+    this.p.forEach((player) => {
+      promises.push(
+        this.prisma.player.update({
+          where: {
+            gameId_playerId: { gameId: this.id, playerId: player.id },
+          },
+          data: {
+            score: player.score,
+            abandon: player.abandoned,
+            score4stat: true,
+            gameStatus: game_status.ENDED,
+          },
+        }),
+      );
+    });
+    await Promise.all(promises);
   }
 
   private async cancelGame() {
@@ -158,52 +205,14 @@ export class Game {
         completed: true,
       },
     });
-    this.p.forEach((player) => this.userEndGame(player, false));
   }
 
-  private async startGame() {
-    await this.prisma.player.updateMany({
-      where: {
-        gameId: this.id,
-        gameStatus: game_status.WAITING,
-      },
-      data: { gameStatus: game_status.PLAYING },
-    });
-    this.isActive = true;
-    this.sendScoreToPlayers();
+  private async informGameIsOver() {
+    this.gameGateway.server.to(this.id.toString()).emit('gameIsOver');
   }
 
-  private async endGame() {
-    this.isActive = false;
-    this.isCompleted = true;
-    await Promise.all([
-      this.userEndGame(this.p[0]),
-      this.userEndGame(this.p[1]),
-      new Promise(async (resolve) => {
-        await this.prisma.game.update({
-          where: { id: this.id },
-          data: { completed: true },
-        });
-        resolve;
-      }),
-    ]);
-  }
-
-  private async userEndGame(player: Player, wasgameCompleted = true) {
+  private async userEndGame(player: Player) {
     if (player === undefined) return;
-    if (wasgameCompleted) {
-      await this.prisma.player.update({
-        where: {
-          gameId_playerId: { gameId: this.id, playerId: player.id },
-        },
-        data: {
-          score: player.score,
-          abandon: player.abandoned,
-          score4stat: true,
-          gameStatus: game_status.ENDED,
-        },
-      });
-    }
     ConnectedPlayers.delete(player.id);
     player.socket.leave(this.id.toString());
     player.isReady = false;
