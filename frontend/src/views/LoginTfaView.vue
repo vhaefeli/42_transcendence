@@ -72,8 +72,19 @@ async function validate2FALogin() {
     })
     .catch((error: AxiosError) => {
       if (error.response?.status == 401)
-        console.log(`${error.response?.statusText}: tfa verification failed`);
-      else console.log(error);
+        console.debug(
+          `${error.response.status} ${error.response.statusText}: Invalid credentials`
+        );
+      else if (error.response?.status == 400) {
+        const message: string = error.response?.data?.message[0];
+        console.debug(
+          `${error.response.status} ${error.response.statusText}: ${message}`
+        );
+        console.error(`INVALID ${message.includes("uuid") ? "UUID" : "CODE"}`);
+      } else
+        console.debug(
+          `${error.response?.status} ${error.response?.statusText}: Unexpected error`
+        );
     });
 }
 
