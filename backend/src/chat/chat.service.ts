@@ -223,7 +223,7 @@ export class ChatService {
       );
     const channelMembers = await this.prisma.channel.findMany({
       where: { id: myChannelMembersDto.channelId },
-      select: { members: { select: { username: true } } },
+      select: { members: { select: { username: true, avatar_url: true } } },
     });
 
     return channelMembers;
