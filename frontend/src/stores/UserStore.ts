@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import axios, { AxiosError } from "axios";
+import type { Router } from "vue-router";
 
 type State = {};
 
@@ -342,5 +343,11 @@ export const useUserStore = defineStore("userStore", {
               return false;
             });
         },
+
+        // redirect to the profile of the user
+        async redirectToMyProfile(access_token: string, router: Router) {
+          await this.getMe(access_token);
+          router.push(`/user/${this.user.username}`);
+        }
     }
 })
