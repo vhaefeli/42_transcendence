@@ -13,6 +13,8 @@ import { ChannelChangeDto } from './dto/channel-change.dto';
 import { ChannelJoinDto } from './dto/channel-join.dto';
 import { MyChannelAdminDto } from './dto/myChannelAdmin.dto';
 import { MyChannelMutedDto } from './dto/myChannelMuted.dto';
+import { MyChannelBannedDto } from './dto/myChannelBanned.dto';
+import { ChannelRemoveMemberDto } from './dto/channel-remove-member.dto';
 
 @Controller('chat')
 export class ChatController {
@@ -71,6 +73,17 @@ export class ChatController {
     return await this.chatService.FindMyChannelMutted(
       req.user.sub,
       myChannelMuttedDto,
+    );
+  }
+
+  @Get('channel/banned')
+  async getMyChannelBanned(
+    @Request() req: any,
+    @Body() myChannelBannedDto: MyChannelBannedDto,
+  ) {
+    return await this.chatService.FindMyChannelMutted(
+      req.user.sub,
+      myChannelBannedDto,
     );
   }
 
@@ -135,6 +148,17 @@ export class ChatController {
   ) {
     await this.chatService.ChannelRemoveBanned(
       channelRemoveBannedDto,
+      req.user.sub,
+    );
+  }
+
+  @Patch('channel/member/remove')
+  async channelRemoveMember(
+    @Request() req: any,
+    @Body() channelRemoveMemberDto: ChannelRemoveMemberDto,
+  ) {
+    await this.chatService.ChannelRemoveBanned(
+      channelRemoveMemberDto,
       req.user.sub,
     );
   }
