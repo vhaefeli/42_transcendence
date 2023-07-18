@@ -157,7 +157,7 @@ export class ChatController {
     @Request() req: any,
     @Body() channelRemoveMemberDto: ChannelRemoveMemberDto,
   ) {
-    await this.chatService.ChannelRemoveBanned(
+    await this.chatService.ChannelRemoveMember(
       channelRemoveMemberDto,
       req.user.sub,
     );

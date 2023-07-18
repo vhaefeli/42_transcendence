@@ -888,12 +888,16 @@ export class ChatService {
           'User to be remove from members is not in the channel',
         );
       // Ensure User to remove is not and Admin
-      channel.admins.find(
-        (admins) => admins.id === channelRemoveMemberDto.userId,
-      ) !== undefined;
-      throw new NotFoundException(
-        'User to be removed from members could not be an admin',
-      );
+      if (
+        !(
+          channel.admins.find(
+            (admins) => admins.id === channelRemoveMemberDto.userId,
+          ) === undefined
+        )
+      )
+        throw new NotFoundException(
+          'User to be removed from members must not be an admin',
+        );
     } catch (error) {
       if (
         error instanceof UnauthorizedException ||
