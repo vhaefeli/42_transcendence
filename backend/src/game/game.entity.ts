@@ -42,6 +42,7 @@ export class Game {
   private readonly gameMode: GameModeConfig;
   private readonly p = new Array<Player>(2);
   private isActive = false;
+  private isCompleted = false;
 
   constructor(
     gameInfo: { id: number; gameMode?: GameModeType },
@@ -64,7 +65,7 @@ export class Game {
   }
 
   connectPlayer(id: number, socket: Socket) {
-    if (this.isActive)
+    if (this.isActive || this.isCompleted)
       throw new WsException(
         'Trying to connect to game that has already started or ended',
       );
@@ -103,7 +104,7 @@ export class Game {
   }
 
   updatePlayerAction(userId: number, action: PlayerAction): boolean {
-    if (!this.isActive) throw new WsException("Game hasn't started yet");
+    if (!this.isActive) throw new WsException("Game isn't active");
     const player = this.p.find((player) => player.id === userId);
     if (player === undefined)
       throw new WsException("Player isn't connected to game");
@@ -112,11 +113,11 @@ export class Game {
   }
 
   private handlePlayerDisconnection(): boolean {
-    if (!this.p[0]?.socket.connected) {
+    if (this.p[0] && !this.p[0]?.socket.connected) {
       this.p[0].abandoned = true;
       return false;
     }
-    if (!this.p[1]?.socket.connected) {
+    if (this.p[1] && !this.p[1]?.socket.connected) {
       this.p[1].abandoned = true;
       return false;
     }
@@ -127,31 +128,54 @@ export class Game {
     this.printGameInfo();
     if (this.isActive) {
       if (!this.handlePlayerDisconnection()) {
-        // TODO mark game as ended player abandoned
         Logger.log(`A player got disconnected, game is over`);
         this.endGame();
         return;
       }
       // game is ok
+    } else if (!this.isCompleted && !this.handlePlayerDisconnection()) {
+      this.cancelGame();
     }
   }
 
-  async startGame() {
-    // TODO: mark game as started
+  private async cancelGame() {
+    await this.prisma.game.update({
+      where: {
+        id: this.id,
+      },
+      data: {
+        player: {
+          updateMany: {
+            where: { gameId: this.id },
+            data: {
+              gameStatus: game_status.ENDED,
+              score: 0,
+              abandon: false,
+              score4stat: false,
+            },
+          },
+        },
+        completed: true,
+      },
+    });
+    this.p.forEach((player) => this.userEndGame(player, false));
+  }
+
+  private async startGame() {
     await this.prisma.player.updateMany({
       where: {
         gameId: this.id,
         gameStatus: game_status.WAITING,
       },
-      data: { gameStatus: game_status.PLAYING, score4stat: true },
+      data: { gameStatus: game_status.PLAYING },
     });
     this.isActive = true;
     this.sendScoreToPlayers();
   }
 
-  async endGame() {
-    // TODO: mark game as ended
+  private async endGame() {
     this.isActive = false;
+    this.isCompleted = true;
     await Promise.all([
       this.userEndGame(this.p[0]),
       this.userEndGame(this.p[1]),
@@ -165,18 +189,24 @@ export class Game {
     ]);
   }
 
-  private async userEndGame(player: Player) {
-    await this.prisma.player.update({
-      where: {
-        gameId_playerId: { gameId: this.id, playerId: player.id },
-      },
-      data: {
-        score: player.score,
-        abandon: player.abandoned,
-      },
-    });
+  private async userEndGame(player: Player, wasgameCompleted = true) {
+    if (player === undefined) return;
+    if (wasgameCompleted) {
+      await this.prisma.player.update({
+        where: {
+          gameId_playerId: { gameId: this.id, playerId: player.id },
+        },
+        data: {
+          score: player.score,
+          abandon: player.abandoned,
+          score4stat: true,
+          gameStatus: game_status.ENDED,
+        },
+      });
+    }
     ConnectedPlayers.delete(player.id);
     player.socket.leave(this.id.toString());
+    player.isReady = false;
   }
 
   printGameInfo() {
