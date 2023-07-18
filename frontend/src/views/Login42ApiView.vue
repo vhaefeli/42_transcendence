@@ -11,12 +11,14 @@ import axios from "axios";
 import { useRoute, useRouter } from "vue-router";
 import { useSessionStore } from "@/stores/SessionStore";
 import { ref } from "vue";
+import { useUserStore } from "@/stores/UserStore";
 
 const state_fail = ref(false);
 const route = useRoute();
 const router = useRouter();
 
 const sessionStore = useSessionStore();
+const userStore = useUserStore();
 
 getURLCode();
 
@@ -56,9 +58,9 @@ async function backendRegistration(code: string, state: string) {
         console.log("login successful, saved token");
         sessionStore.access_token = response.data.access_token;
         sessionStore.isLoggedIn = true;
-        router.push("/login/");
+        userStore.redirectToMyProfile(sessionStore.access_token, router);
       } else {
-        router.push(`/login?tfa_request_uuid=${response.data.tfa_request_uuid}`);
+        router.push(`/login/tfa?tfa_request_uuid=${response.data.tfa_request_uuid}`);
       }
     })
     .catch((error) => {
