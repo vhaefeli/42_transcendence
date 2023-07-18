@@ -60,14 +60,6 @@ const { isLoggedIn } = storeToRefs(sessionStore);
 const userStore = useUserStore();
 statusService;
 
-let user = ref({
-  id: 0,
-  username: "",
-  avatar_url: "",
-  tfa_enabled: false,
-  status: "OFFLINE",
-});
-
 type Payload = {
   username: string;
   password: string;
@@ -95,10 +87,9 @@ if (sessionStore.isLoggedIn) {
   //userStore.redirectToMyProfile(sessionStore.access_token, router);
 }
 
-async function CreateUser(payload: Payload): Promise<boolean> {
+async function CreateUser(payload: Payload) {
   if (!payload.username.length || !payload.username.length) {
     console.log("Credentials are missing");
-    return false;
   }
 
   await axios({
@@ -107,29 +98,30 @@ async function CreateUser(payload: Payload): Promise<boolean> {
     headers: { "Content-Type": "application/json" },
     data: payload,
   })
-    .then((response) => {
-      // To execute when the request is successful
-      console.log(`${response.status} + ${response.statusText}`);
-      return true;
+    .then(() => {
+      console.debug("Created new user");
     })
-    .catch((error) => {
-      // To execute when the request fails
-      if (error.response.status == 409)
-        console.log(
-          `user already exists: ${error.response.status} ${error.response.statusText}`
+    .catch((error: AxiosError) => {
+      if (error.response?.status == 409)
+        console.debug(
+          `${error.response.status} ${error.response.statusText}: Username is already in use`
         );
-      else
+      else if (error.response?.status == 400) {
+        const message: string = error.response?.data?.message[0];
+        console.debug(
+          `${error.response.status} ${error.response.statusText}: ${message}`
+        );
         console.error(
-          `unexpected error: ${error.response.status} ${error.response.statusText}`
+          `INVALID ${message.includes("username") ? "USERNAME" : "PASSWORD"}`
         );
-      return false;
+      } else
+        console.debug(
+          `${error.response?.status} ${error.response?.statusText}: Unexpected error`
+        );
     });
-
-  //To execute whether the request succeeds or fails
-  return true;
 }
 
-async function LogIn(createUser = false): Promise<boolean> {
+async function LogIn(createUser = false) {
   const payload = {
     username: login_username.value,
     password: login_password.value,
@@ -152,27 +144,28 @@ async function LogIn(createUser = false): Promise<boolean> {
         sessionStore.access_token = response.data.access_token;
         sessionStore.isLoggedIn = true;
         show_login_form.value = false;
-        console.log("successfully logged in");
+        console.debug("Successfully logged in");
         userStore.redirectToMyProfile(sessionStore.access_token, router);
       }
-      return true;
     })
-    .catch((error) => {
-      if (error instanceof AxiosError) {
-        show_login_form.value = true;
-        sessionStore.isLoggedIn = false;
-        if (error.response?.status == 401)
-          console.log(
-            `invalid credentials: ${error.response?.status} ${error.response?.statusText}`
-          );
-        else
-          console.error(
-            `unexpected error: ${error.response?.status} ${error.response?.statusText}`
-          );
-        return false;
-      } else throw error;
+    .catch((error: AxiosError) => {
+      if (error.response?.status == 401)
+        console.debug(
+          `${error.response.status} ${error.response.statusText}: Invalid credentials, try again`
+        );
+      else if (error.response?.status == 400) {
+        const message: string = error.response?.data?.message[0];
+        console.debug(
+          `${error.response.status} ${error.response.statusText}: ${message}`
+        );
+        console.error(
+          `INVALID ${message.includes("username") ? "USERNAME" : "PASSWORD"}`
+        );
+      } else
+        console.debug(
+          `${error.response?.status} ${error.response?.statusText}: Unexpected error`
+        );
     });
-  return true;
 }
 
 function Login42Api() {
