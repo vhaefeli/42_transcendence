@@ -1,7 +1,7 @@
 <template>
     <NavBar :showProfile="true"></NavBar>
     <div class="ft-chat-container">
-      <ChatNavBar></ChatNavBar>
+      <ChatNavBar :whichTab="'dms'"></ChatNavBar>
       <section class="ft-chat-inside-container flex p-6">
 
         <!-- column 1 with profile -->
@@ -307,20 +307,4 @@
   .ft-actual-recipient:hover {
     padding-left: 1rem;
   }
-
-  /* scrollbar */
-
-  #ft-scroller::-webkit-scrollbar {
-      width: 22px;               /* width of the entire scrollbar */
-  }
-
-  #ft-scroller::-webkit-scrollbar-track {
-      background: #383838;        /* color of the tracking area */
-  }
-
-  #ft-scroller::-webkit-scrollbar-thumb {
-      background-color: #212121;    /* color of the scroll thumb */
-      border-radius: .3rem;       /* roundness of the scroll thumb */
-  }
-
 </style>
