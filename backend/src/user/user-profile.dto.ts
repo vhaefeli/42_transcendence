@@ -1,3 +1,4 @@
+import { level_type } from '@prisma/client';
 import { StatusType } from 'src/status/status.service';
 
 export class UserProfileDto {
@@ -5,5 +6,9 @@ export class UserProfileDto {
   username: string;
   avatar_url: string;
   is_friend: boolean;
+  level: level_type;
+  rank: number;
+  nbMatch: number;
+  nbGames: number;
   status?: StatusType;
 }
