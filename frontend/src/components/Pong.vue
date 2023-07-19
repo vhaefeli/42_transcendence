@@ -141,6 +141,15 @@ draw();
 
 
 </script>
+#pong{
+  position: absolute;
+  top:13.6%;
+  width: 50%;
+  height: 72.8%;
+  left: 50%;
+  transform: translateX(-50%);
+  /* background-color: rgba(255, 255, 255, 0.276); */
+  }
 
 .blinking-text {
   animation: blink-animation 1.5s infinite;

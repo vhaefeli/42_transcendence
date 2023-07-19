@@ -4,7 +4,11 @@
   <!-- <router-link class="t-btn-pink" id="retHome" to="/game-settings"><span>X</span></router-link> -->
   <button style="position: fixed; top: 10px; right: 10px;"><a class="t-btn-pink ft-circle-gray ft-icon-small icon-btn-size icon-btn-cursor" @click="quitReally"><img src="../assets/icons/xmark-solid.svg" alt="quit"></a></button>
   <div v-show="isAlertVisible" class="modal">
-        <router-link class="t-btn-pink" id="retHome" to="/game-settings" style="position: fixed; top: 20%; right: 50%; transform: translateX(+50%);"><span>Yes I really want to quit and if the game already started I lose by forfeit</span></router-link>
+      <div class="modal-content">
+        <p>If the game started you will lose by forfeit if you quit.<br> Do you really want to quit</p>
+        <router-link class="t-btn-pink" id="retHome" to="/game-settings"><span>Yes!</span></router-link>
+        <button><a class="t-btn-pink" id="ret" @click="stay"><span>Oh no!</span></a></button>
+      </div>
     </div>
   <img id="arcade" src="../assets/img/arcade.png" alt="arcade">
   <!-- <span :class="{ 'blinking-text': true }" id="ready">press ENTER<br>to set as ready</span> -->
@@ -22,6 +26,10 @@ const isAlertVisible = ref(false);
 function quitReally () {
   console.log("quit");
   isAlertVisible.value = true;
+}
+
+function stay () {
+  isAlertVisible.value = false;
 }
 
 </script>
@@ -42,8 +50,20 @@ transform: translateX(-50%);
 #retHome{
 position: absolute;
 padding: 2px 2px;
-top: -5vh;
-right: -5vh;
+top: 60%; 
+right: 50%;
+transform: translateX(-10%);
+width : 40%;
+background-color: var(--pink);
+}
+
+#ret{
+position: absolute;
+padding: 2px 2px;
+top: 60%; 
+right: 50%;
+transform: translateX(+110%);
+width : 40%;
 background-color: var(--pink);
 }
 
@@ -91,16 +111,30 @@ margin: 5vh;
 }
 
 .modal {
-  /* display: none; */
   position: fixed;
   z-index: 1;
-  right: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 10%;
+  width: 30vw;
+  height: 15vw;
   overflow: auto;
-  background-color: var (--pink);
+  border-top: 0.3vw solid white;
+  border-left: 0.3vw solid white;
+  border-right: 0.3vw solid var(--purple);
+  border-bottom: 0.3vw solid var(--purple);
+  background: var(--gray);
+  font-size: 1vw;
+text-align: center;
   z-index: 5;
 }
 
+.modal-content {
+  margin: 5% auto;
+  padding: 1%;
+  width: 85%;
+  text-align: center;
+  font-size: 1vw;
+  z-index: 6;
+}
 </style>
