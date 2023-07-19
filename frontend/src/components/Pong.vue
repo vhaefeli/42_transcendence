@@ -1,12 +1,16 @@
 <template>
-    <canvas ref="pongScreen" id="pong" width="606" height="498"></canvas>
+  <span v-show="showBlinkingTextReady" :class="{ 'blinking-text': true }" id="ready">press ENTER<br>to set as ready</span>
+  <span v-show="showBlinkingTextOpponent" :class="{ 'blinking-text': true }" id="ready">waiting for<br>opponent</span>
+  <canvas ref="pongScreen" id="pong" width="606" height="498"></canvas>
+
 
 </template>
 
 <script setup lang="ts">
   import { ref, onMounted } from 'vue'
   const pongScreen = ref( null )
-
+  let showBlinkingTextReady = ref(true);
+  let showBlinkingTextOpponent = ref(false);
   // a recuperer du back requete http
 
   const playerName = 'PLAYER 1';
@@ -29,7 +33,6 @@
   let playerScore: number = 0; 
   let opponentScore: number = 0;
 
-	
 
   enum PlayerAction {
   UP,
@@ -51,6 +54,8 @@
     changeKey( keydown: boolean, event: any ) {
 
       if ( event.code == 'Enter') {
+        showBlinkingTextReady.value = false;
+        showBlinkingTextOpponent.value = true;
         this.playing = true;
       }
       if ( event.code == 'KeyW' || event.code == 'ArrowUp' ) {
@@ -59,6 +64,8 @@
       else if ( event.code == 'KeyS' || event.code == 'ArrowDown' ) {
         this.keyDOWN = keydown;
       }
+      console.log(event.code);
+      
     }
 
     getKeyState(): PlayerAction {
@@ -135,5 +142,14 @@ draw();
 
 </script>
 
+.blinking-text {
+  animation: blink-animation 1.5s infinite;
+  }
+  
+  @keyframes blink-animation {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+  }
 
 <style></style>
