@@ -179,6 +179,9 @@ export class Game {
             gameId_playerId: { gameId: this.id, playerId: player.id },
           },
           data: {
+            // if none of the players have abandoned the match, add the game score
+            // else if this player is the on that abandoned the match, add score 0
+            // else add score 3 because the other player has abandoned the match
             score: !onePlayerAbandoned
               ? player.score
               : player.abandoned
