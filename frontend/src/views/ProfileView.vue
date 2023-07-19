@@ -39,19 +39,19 @@
         <div class="ft-tab-content ft-border-color-game ft-tab-border flex flex-row justify-evenly ">
           <!-- <div class="flex flex-col">3</div> -->
             <div class="ft-item-title ft-bb-color-game flex flex-col">
-              <div class="ft-result-drk-text">23</div>
+              <div class="ft-result-drk-text">{{ user.nb_jeux }}</div>
               <div class="ft-text">matches</div>
             </div>
             <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
-              <div class="ft-result-drk-text">12</div>
+              <div class="ft-result-drk-text">{{ user.rank }}</div>
               <div class="ft-text">victories</div>
             </div>
             <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
-              <div class="ft-result-drk-text">2</div>
+              <div class="ft-result-drk-text">{{ user.nb_match }}</div>
               <div class="ft-text">perfect victories</div>
             </div>
             <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
-              <div class="ft-result-drk-text">Pitaya</div>
+              <div class="ft-result-drk-text">{{ user.level }}</div>
               <div class="ft-text">level</div>
             </div>
         </div>
@@ -62,8 +62,8 @@
         <div class="ft-tab-content ft-border-color-game ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left ft-scrollable">
           <ul>
             <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">
-              <p><h2>12.05.2023</h2></p>
-              lost against Thingy (Pitaya level)</li>
+              <p><h2>{{ gameLog.date }}</h2></p>
+              {{ gameLog.Result }}</li>
               <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">
               <p><h2>13.05.2023</h2></p>
               lost against Thingy (Pitaya level)</li>
@@ -253,7 +253,7 @@
     let allUsers: { id: number, username: string }[];
     // let myFriends = ref([]);
 
-    const { user, friends, invites, blocked, invitesSent } = storeToRefs(userStore)
+    const { user, friends, invites, blocked, invitesSent, gameLog } = storeToRefs(userStore)
 
     // onBeforeMount is executed before the component is mounted
     // way of using await because we can't do it in setup
@@ -268,6 +268,7 @@
                 await userStore.getInvites(sessionStore.access_token);
                 await userStore.getBlockedUsers(sessionStore.access_token);
                 await userStore.getInvitesSent(sessionStore.access_token);
+                await userStore.getGameHistory(sessionStore.access_token);
             } else {
                 isLoggedIn.value = false;
                 sessionStore.isLoggedIn = false;
@@ -321,6 +322,10 @@
 
     function unblockUser(username) {
         userStore.unblockUser(username, sessionStore.access_token)
+    }
+
+    function getGameHistory(username) {
+        userStore.getGameHistory(username, sessionStore.access_token);
     }
 </script>
 
