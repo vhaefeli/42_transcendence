@@ -62,6 +62,7 @@
         <div class="ft-tab-content ft-border-color-game ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left ft-scrollable">
           <ul>
             <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">
+              <!-- boucle for pour chaque entree de Result -->
               <p><h2>{{ gameLog.date }}</h2></p>
               {{ gameLog.Result }}</li>
               <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">
@@ -156,8 +157,23 @@
         <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Add a new friend</div>
         <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left">
             <div class="flex flex-row justify-center">
-              <input type="text" placeholder="Search by username">
-              <a class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor"><img src="../assets/icons/user-plus-solid.svg" alt="send a friend request" title="send them a friend request"></a>
+              <ModelListSelect
+                :list="userList"
+                v-model="selectedUser"
+                optionValue="id"
+                optionText="username"
+                placeholder="Search by username"
+              />
+              <div :class="{ 'cursor-not-allowed': !selectedUser }">
+                <a
+                  @click="validateSelection"
+                  class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor"
+                  :class="{ 'opacity-50 searchan-noClick': !selectedUser }">
+                  <img src="../assets/icons/user-plus-solid.svg" alt="send a friend request" title="send them a friend request">
+                </a>
+              </div>
+              <!-- <input type="text" placeholder="Search by username"> -->
+              <!-- <a class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor"><img src="../assets/icons/user-plus-solid.svg" alt="send a friend request" title="send them a friend request"></a> -->
             </div>
         </div>
       </div>
@@ -235,8 +251,53 @@
     import { useUserStore } from '../stores/UserStore'
     import { useSessionStore } from "@/stores/SessionStore";
     import NavBar from "@/components/NavBar.vue";
+    import { ModelListSelect } from "vue-search-select";
 
-    
+    type type_user = {
+      id: number;
+      username: string;
+    };
+
+    const userList = ref<Array<type_user>>([]);
+    const selectedUser = ref<number>();
+
+    loadUserList();
+
+    async function loadUserList() {
+      let users = new Array<type_user>();
+
+      await axios({
+        url: "/api/user/all",
+        method: "get",
+      })
+        .then((response) => {
+          users = response.data;
+        })
+        .catch((error) => {
+          console.error(
+            `unexpected error: ${error.response.status} ${error.response.statusText}`
+          );
+          return;
+        });
+
+      await axios({
+        url: "/api/user/friend/all",
+        method: "get",
+        headers: { Authorization: `Bearer ${sessionStore.access_token}` },
+      })
+        .then((response) => {
+          users = users.filter(
+            (user) => !response.data?.find((friend) => friend.id === user.id)
+          );
+        })
+        .catch((error) => {
+          console.error(
+            `unexpected error: ${error.response.status} ${error.response.statusText}`
+          );
+          return;
+        });
+      userList.value = users.filter((user) => user.id != userStore.user.id);
+    }
     // to have the token we need sessionStore
     const sessionStore = useSessionStore()
     
@@ -291,6 +352,16 @@
         .catch((error) => {
             console.error(`unexpected error: ${error.response.status} ${error.response.statusText}`);
     });
+
+
+    async function validateSelection() {
+      console.log(
+        `selected: ${
+          userList.value.find((element) => element.id === selectedUser.value)
+            ?.username
+        }`
+      );
+    }
 
     // functions to delete because useless
     function addFriend() {
