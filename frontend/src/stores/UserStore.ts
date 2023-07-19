@@ -10,6 +10,7 @@ export const useUserStore = defineStore("userStore", {
       invites: [],
       invitesSent: [],
       blocked: [],
+      gameLog: [],
   }),
   actions: {
     // get user infos
@@ -337,6 +338,30 @@ export const useUserStore = defineStore("userStore", {
                 console.error(
                   `unexpected error: ${error.response.status} ${error.response.statusText}`
                 );
+              }
+              return false;
+            });
+        },
+        // get games history
+        async getGameHistory(access_token) {
+          await axios({
+            url: "/api/player/log",
+            method: "get",
+            headers: { Authorization: `Bearer ${access_token}` },
+          })
+            .then((response) => {
+              this.gameLog = response.data;
+              console.log("loaded game history");
+              return true;
+            })
+            .catch((error) => {
+              if (error.response.status == 401) {
+                console.log(
+                  `invalid access token: ${error.response.status} ${error.response.statusText}`
+                );
+                this.user.isLogged = false
+              } else {
+                console.log(`unexpected error: ${error.response.status} ${error.response.statusText}`)
               }
               return false;
             });
