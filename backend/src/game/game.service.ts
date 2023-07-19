@@ -18,6 +18,28 @@ export class GameService {
     private gameGateway: GameGateway,
   ) {
     setInterval(this.gameLoop.bind(this), this.frame_time);
+    this.onStartEndRunningGames();
+  }
+
+  private async onStartEndRunningGames() {
+    // If any games where ongoing and the server restarted
+    // set those games as completed and canceled
+    await this.prisma.game.updateMany({
+      where: {
+        completed: false,
+        player: { every: { gameStatus: game_status.PLAYING } },
+      },
+      data: {
+        completed: true,
+      },
+    });
+    await this.prisma.player.updateMany({
+      where: { gameStatus: game_status.PLAYING },
+      data: {
+        gameStatus: game_status.ENDED,
+        score4stat: false,
+      },
+    });
   }
 
   findGame(gameId: number): Game | undefined {
@@ -54,7 +76,7 @@ export class GameService {
     this.findGame(gameId).playerIsReadyToStart(userId);
   }
 
-  async gameLoop() {
+  private async gameLoop() {
     const running_games = new Array<Promise<void>>();
 
     this.games.forEach((game) => {
