@@ -12,13 +12,11 @@
 import axios from "axios";
 import { useRoute, useRouter } from "vue-router";
 import { useSessionStore } from "@/stores/SessionStore";
-import { useUserStore } from "@/stores/UserStore";
 
 const route = useRoute();
 const router = useRouter();
 
 const sessionStore = useSessionStore();
-const userStore = useUserStore();
 
 let textError: string | undefined;
 
@@ -63,8 +61,7 @@ async function backendRegistration(code: string, state: string) {
         console.debug("Successfully logged in");
         sessionStore.access_token = response.data.access_token;
         sessionStore.isLoggedIn = true;
-        if (!textError || textError?.length == 0)
-          userStore.redirectToMyProfile(sessionStore.access_token, router);
+        if (!textError || textError?.length == 0) router.push("/directories");
       } else {
         router.push(
           `/login/tfa?tfa_request_uuid=${response.data.tfa_request_uuid}`

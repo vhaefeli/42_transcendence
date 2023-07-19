@@ -84,7 +84,7 @@ function handleQueryParams(params: LocationQuery) {
 if (sessionStore.isLoggedIn) {
   show_login_form.value = false;
   // TODO: uncomment next line
-  //userStore.redirectToMyProfile(sessionStore.access_token, router);
+  // router.push("/directories");
 }
 
 async function CreateUser(payload: Payload) {
@@ -145,7 +145,7 @@ async function LogIn(createUser = false) {
         sessionStore.isLoggedIn = true;
         show_login_form.value = false;
         console.debug("Successfully logged in");
-        userStore.redirectToMyProfile(sessionStore.access_token, router);
+        router.push("/directories");
       }
     })
     .catch((error: AxiosError) => {

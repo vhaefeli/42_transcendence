@@ -68,7 +68,7 @@ async function validate2FALogin() {
     .then((response) => {
       sessionStore.access_token = response.data.access_token;
       sessionStore.isLoggedIn = true;
-      userStore.redirectToMyProfile(sessionStore.access_token, router);
+      router.push("/directories");
     })
     .catch((error: AxiosError) => {
       if (error.response?.status == 401)
