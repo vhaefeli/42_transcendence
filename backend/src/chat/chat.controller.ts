@@ -81,7 +81,7 @@ export class ChatController {
     @Request() req: any,
     @Body() myChannelBannedDto: MyChannelBannedDto,
   ) {
-    return await this.chatService.FindMyChannelMutted(
+    return await this.chatService.FindMyChannelBanned(
       req.user.sub,
       myChannelBannedDto,
     );

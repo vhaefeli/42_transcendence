@@ -203,114 +203,163 @@ export class ChatService {
     my_id: number,
     myChannelMembersDto: MyChannelMembersDto,
   ) {
-    const channel = await this.prisma.channel.findFirstOrThrow({
-      where: { id: myChannelMembersDto.channelId },
-      select: {
-        id: true,
-        ownerId: true,
-        admins: { select: { id: true } },
-        members: { select: { id: true } },
-      },
-    });
-    // Request user is not the owner or an admin of the channel
-    if (
-      channel.ownerId !== my_id &&
-      channel.admins.find((admin) => admin.id === my_id) === undefined &&
-      channel.members.find((members) => members.id === my_id) === undefined
-    )
-      throw new UnauthorizedException(
-        "You don't have the necessary privileges to see the member list",
-      );
-    const channelMembers = await this.prisma.channel.findMany({
-      where: { id: myChannelMembersDto.channelId },
-      select: { members: { select: { username: true, avatar_url: true } } },
-    });
-
-    return channelMembers;
+    try {
+      const channel = await this.prisma.channel.findFirstOrThrow({
+        where: { id: myChannelMembersDto.channelId },
+        select: {
+          id: true,
+          ownerId: true,
+          admins: { select: { id: true } },
+          members: { select: { id: true } },
+        },
+      });
+      // Request user is not the owner or an admin of the channel
+      if (
+        channel.ownerId !== my_id &&
+        channel.admins.find((admin) => admin.id === my_id) === undefined &&
+        channel.members.find((members) => members.id === my_id) === undefined
+      )
+        throw new UnauthorizedException(
+          "You don't have the necessary privileges to see the member list",
+        );
+      const channelMembers = await this.prisma.channel.findMany({
+        where: { id: myChannelMembersDto.channelId },
+        select: {
+          members: { select: { id: true, username: true, avatar_url: true } },
+        },
+      });
+      return channelMembers;
+    } catch (error) {
+      if (error?.code === 'P2025') {
+        throw new NotFoundException("Channel wasn't found");
+      }
+      if (error?.code) Logger.error(error.code + ' ' + error.message);
+      else Logger.error(error);
+      throw error;
+    }
   }
 
   async FindMyChannelAdmin(
     my_id: number,
     myChannelAdminDto: MyChannelAdminDto,
   ) {
-    const channel = await this.prisma.channel.findFirstOrThrow({
-      where: { id: myChannelAdminDto.channelId },
-      select: {
-        id: true,
-        ownerId: true,
-        admins: { select: { id: true } },
-      },
-    });
-    // Request user is not the owner or an admin of the channel
-    if (
-      channel.ownerId !== my_id &&
-      channel.admins.find((admin) => admin.id === my_id) === undefined
-    )
-      throw new UnauthorizedException(
-        "You don't have the necessary privileges to see the admin list",
-      );
-    const channelAdmin = await this.prisma.channel.findMany({
-      where: { id: myChannelAdminDto.channelId },
-      select: { admins: { select: { username: true } } },
-    });
+    try {
+      const channel = await this.prisma.channel.findFirstOrThrow({
+        where: { id: myChannelAdminDto.channelId },
+        select: {
+          id: true,
+          ownerId: true,
+          admins: { select: { id: true } },
+          members: { select: { id: true } },
+        },
+      });
+      // Request user is not the owner or an admin of the channel
+      if (
+        channel.ownerId !== my_id &&
+        channel.admins.find((admin) => admin.id === my_id) === undefined &&
+        channel.members.find((members) => members.id === my_id) === undefined
+      )
+        throw new UnauthorizedException(
+          "You don't have the necessary privileges to see the admin list",
+        );
+      const channelAdmin = await this.prisma.channel.findMany({
+        where: { id: myChannelAdminDto.channelId },
+        select: {
+          admins: { select: { id: true, username: true, avatar_url: true } },
+        },
+      });
 
-    return channelAdmin;
+      return channelAdmin;
+    } catch (error) {
+      if (error?.code === 'P2025') {
+        throw new NotFoundException("Channel wasn't found");
+      }
+      if (error?.code) Logger.error(error.code + ' ' + error.message);
+      else Logger.error(error);
+      throw error;
+    }
   }
 
   async FindMyChannelMutted(
     my_id: number,
     myChannelMutedDto: MyChannelMutedDto,
   ) {
-    const channel = await this.prisma.channel.findFirstOrThrow({
-      where: { id: myChannelMutedDto.channelId },
-      select: {
-        id: true,
-        ownerId: true,
-        admins: { select: { id: true } },
-      },
-    });
-    // Request user is not the owner or an admin of the channel
-    if (
-      channel.ownerId !== my_id &&
-      channel.admins.find((admin) => admin.id === my_id) === undefined
-    )
-      throw new UnauthorizedException(
-        "You don't have the necessary privileges to see the muted member list",
-      );
-    const channelMuted = await this.prisma.channel.findMany({
-      where: { id: myChannelMutedDto.channelId },
-      select: { muted: { select: { username: true } } },
-    });
+    try {
+      const channel = await this.prisma.channel.findFirstOrThrow({
+        where: { id: myChannelMutedDto.channelId },
+        select: {
+          id: true,
+          ownerId: true,
+          admins: { select: { id: true } },
+          members: { select: { id: true } },
+        },
+      });
+      // Request user is not the owner or an admin of the channel
+      if (
+        channel.ownerId !== my_id &&
+        channel.admins.find((admin) => admin.id === my_id) === undefined &&
+        channel.members.find((members) => members.id === my_id) === undefined
+      )
+        throw new UnauthorizedException(
+          "You don't have the necessary privileges to see the muted member list",
+        );
+      const channelMuted = await this.prisma.channel.findMany({
+        where: { id: myChannelMutedDto.channelId },
+        select: {
+          muted: { select: { id: true, username: true, avatar_url: true } },
+        },
+      });
 
-    return channelMuted;
+      return channelMuted;
+    } catch (error) {
+      if (error?.code === 'P2025') {
+        throw new NotFoundException("Channel wasn't found");
+      }
+      if (error?.code) Logger.error(error.code + ' ' + error.message);
+      else Logger.error(error);
+      throw error;
+    }
   }
 
   async FindMyChannelBanned(
     my_id: number,
     myChannelBannedDto: MyChannelBannedDto,
   ) {
-    const channel = await this.prisma.channel.findFirstOrThrow({
-      where: { id: myChannelBannedDto.channelId },
-      select: {
-        id: true,
-        ownerId: true,
-        admins: { select: { id: true } },
-      },
-    });
-    // Request user is not the owner or an admin of the channel
-    if (
-      channel.ownerId !== my_id &&
-      channel.admins.find((admin) => admin.id === my_id) === undefined
-    )
-      throw new UnauthorizedException(
-        "You don't have the necessary privileges to see the banned member list",
-      );
-    const channelBanned = await this.prisma.channel.findMany({
-      where: { id: myChannelBannedDto.channelId },
-      select: { banned: { select: { username: true } } },
-    });
+    try {
+      const channel = await this.prisma.channel.findFirstOrThrow({
+        where: { id: myChannelBannedDto.channelId },
+        select: {
+          id: true,
+          ownerId: true,
+          admins: { select: { id: true } },
+          members: { select: { id: true } },
+        },
+      });
+      // Request user is not the owner or an admin of the channel
+      if (
+        channel.ownerId !== my_id &&
+        channel.admins.find((admin) => admin.id === my_id) === undefined &&
+        channel.members.find((members) => members.id === my_id) === undefined
+      )
+        throw new UnauthorizedException(
+          "You don't have the necessary privileges to see the banned member list",
+        );
+      const channelBanned = await this.prisma.channel.findMany({
+        where: { id: myChannelBannedDto.channelId },
+        select: {
+          banned: { select: { id: true, username: true, avatar_url: true } },
+        },
+      });
 
-    return channelBanned;
+      return channelBanned;
+    } catch (error) {
+      if (error?.code === 'P2025') {
+        throw new NotFoundException("Channel wasn't found");
+      }
+      if (error?.code) Logger.error(error.code + ' ' + error.message);
+      else Logger.error(error);
+      throw error;
+    }
   }
 
   async ChannelAddMember(
