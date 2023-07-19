@@ -8,6 +8,7 @@
       optionValue="id"
       optionText="username"
       placeholder="Select user"
+      class="dropdown"
     >
     </ModelListSelect>
     <button v-if="selectedUser" @click="validateSelection">Add</button>
@@ -81,3 +82,9 @@ async function validateSelection() {
   );
 }
 </script>
+
+<style>
+  .dropdown .menu {
+    max-height: 3rem !important;
+  }
+</style>

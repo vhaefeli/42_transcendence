@@ -1,91 +1,104 @@
 <template>
-    <NavBar></NavBar>
-      <section id="chat-container" class="flex flex-col items-center">
-          <div class="mb-6 text-xl">All my Dms</div>
-          <div class="mb-6">
-            <div v-for="recipient in recipients" :key="recipient">
-              <div @click="changeActualRecipient(recipient)">{{ getRecipientName(recipient) }}</div>
+    <NavBar :showProfile="true"></NavBar>
+    <div class="ft-chat-container">
+      <ChatNavBar></ChatNavBar>
+      <section class="ft-chat-inside-container flex p-6">
+
+        <!-- column 1 with profile -->
+        <div id="dm-profile-col">
+            <OtherUserProfile :key="actual.username" :username="actual.username" :userStore="userStore" :sessionStore="sessionStore" @updateBlocked="updateBlockedBool" />
+        </div>
+
+        <!-- column 2 with messages -->
+        <div id="dm-msg-col" class="grow relative">
+          <div id="ft-scroller" ref="scroller" class="ft-chat-box p-6 overflow-scroll">
+            <div v-if="actualIsBlocked">
+              <EmptyText :text="'You have blocked this user. Unblock he/her to see messages.'" :white="true" />
             </div>
-          </div>
-          <div class="mb-6">
-            <input v-model="newRecipient" placeholder="name of friend" /><br />
-                <p>you want to add: {{ newRecipient || 'nobody' }} ?</p>
-                <button
-                class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-                @click="addRecipient(newRecipient)"
-                >
-                add a friend
-                </button>
-          </div>
-          <div v-if="recipients.length > 0">speaking with {{ actual.username }}</div>
-          <div v-else>No Dms yet</div>
-  
-          <div v-if="isActualInfosLoaded">
-            <h2 class="text-xl">Profile of {{ actualInfos.username }}</h2>
-            <img :src="actualInfos.avatar_url" alt="avatar img" class="mr-9 w-14"/>
-            <div v-if="actualInfos.is_friend">is my friend</div>
-            <div v-else>is not my friend</div>
-          </div>
-          <div v-else>Profile loading...</div>
-  
-          <div ref="scroller" class="w-[60%] bg-slate-950 p-6 mb-6 h-[300px] overflow-scroll">
+            <div v-else>
               <div v-for="message in messages" :key="message.id">
                 <div v-if="actual.id === message.fromId || actual.id === message.toId">
                   <div v-if="message.fromId == user.id" class="grid">
-                      <div class="mb-3 p-3 rounded-xl bg-orange-300 w-[70%] justify-self-end">
-                          <p class="text-base mb-1">{{ message.message }}</p>
-                          <p class="text-xs">from <a class="text-orange-500 font-bold" href="#">{{ user.username }}</a> on {{ message.date }}</p>
+                      <div class="ft-msg-container justify-self-end">
+                        <p class="text-xs ft-chat-date">{{ message.date }}</p>
+                        <p class="ft-chat-my-msg">{{ message.message }}</p>
                       </div>
                   </div>
                   <div v-else>
-                      <div class="mb-3 p-3 rounded-xl bg-orange-100 w-[70%]">
-                          <p class="text-base mb-1">{{ message.message }}</p>
-                          <p class="text-xs">from <a class="text-orange-500 font-bold" href="#">{{ actual.username }}</a> on {{ message.date }}</p>
+                      <div class="ft-msg-container">
+                        <p class="text-xs ft-chat-date">{{ message.date }}</p>
+                        <p class="text-base mb-1 ft-chat-recipient-msg">{{ message.message }}</p>
                       </div>
                   </div>
                 </div>
               </div>
+            </div>
           </div>
+
+          <div class="ft-bg-dark-gray flex p-2 absolute w-full bottom-0">
+              <input v-model="message" placeholder="blabla..." class="p-1 mr-4 ft-input" />
+              <a href="#" class="t-btn-pink ft-bg-color-chat"><button @click="handleSubmitNewMessage">Submit</button></a>
+          </div>
+        </div>
       
-          <div class="flex w-[60%]">
-              <input v-model="message" placeholder="blabla..." class="mr-4" />
-              <button @click="handleSubmitNewMessage">Submit</button>
+        <!-- column 3 with list of recipients -->
+        <div  id="dm-recipientList-col" class="w-[16rem] relative">
+          <div class="mb-6 max-h-[54vh] overflow-scroll">
+            <div v-if="recipients.length === 0">No Dms yet</div>
+            <div v-for="recipient in recipients" :key="recipient">
+              <div @click="changeActualRecipient(recipient)" :class="actual.id == recipient ? 'ft-actual-recipient' : ''" class="ft-recipient-name">{{ getRecipientName(recipient) }}</div>
+            </div>
+            <div v-if="!isInRecipients()"></div>
           </div>
+          <div class="m-6 absolute bottom-6 w-2/3">
+            <UserSearch :recipients="recipients" :userStore="userStore" @addRecipient="addRecipient"/>
+          </div>
+        </div>
       </section>
+    </div>
 </template>
   
-<script setup>
+<script setup lang='ts'>
     import NavBar from "../components/NavBar.vue";
+    import ChatNavBar from "../components/ChatNavBar.vue";
+    import OtherUserProfile from "../components/OtherUserProfile.vue";
+    import EmptyText from "@/components/EmptyText.vue";
     import { ref, onUpdated, watchEffect } from "vue";
     import { storeToRefs } from 'pinia'
     import axios from "axios";
-    import { useRouter } from 'vue-router'
+    import { useRouter, useRoute } from 'vue-router'
     import { useSessionStore } from "@/stores/SessionStore";
     import { useUserStore } from '../stores/UserStore'
     import { chatService } from "@/services/chat-socket.service";
+    import UserSearch from "@/components/UserSearch.vue";
 
+    const route = useRoute()
+
+    // retrieve recipient i clicked on on other pages 
+    const queryRecipient = route.query.recipient
+    
     // routes
     const router = useRouter()
     
     // we need sessionStore and userStore
     const sessionStore = useSessionStore()
     const userStore = useUserStore()
-
+    
     const { user } = storeToRefs(userStore)
-
+    
     const actual = ref({})
-    const actualInfos = ref({})
+    const actualIsBlocked = ref(false)
+    // const actualInfos = ref({})
     const message = ref("")
     const messages = ref([])
     const scroller = ref(null);
     const newRecipient = ref('')
     const allUsers = ref([])
     const recipients = ref([])
-
+    
     // Reactive flag for loaded data
     const isAllUsersLoaded = ref(false)
-    const isActualInfosLoaded = ref(false)
-
+    
     let dateOptions = {
         weekday: "short",
         day: "numeric",
@@ -120,33 +133,38 @@
     },
     { timeout: 10000 },
     chatService);
-   
 
     const handleSubmitNewMessage = () => {
-        chatService.sendNewMessage(message.value, actual.value.id);
-        messages.value.push({
-            fromId: user.value.id,
-            toId: actual.value.id,
-            message: message.value,
-            username: user.username,
-            date: new Date().toLocaleString("en-US", dateOptions),
-        })
+      chatService.sendNewMessage(message.value, actual.value.id);
+      messages.value.push({
+        fromId: user.value.id,
+        toId: actual.value.id,
+        message: message.value,
+        username: user.username,
+        date: new Date().toLocaleString("en-US", dateOptions),
+      })
+      message.value = ''
     }
 
     function pushToMessages(payload) {
-      messages.value.push({
-            id: payload.id,
-            message: payload.message,
-            fromId: payload.fromId,
-            toId: payload.toId,
-            date: new Date(payload.date).toLocaleString("en-US", dateOptions)
+      if (messages.value.indexOf(payload.id) === -1) {
+        messages.value.push({
+          id: payload.id,
+          message: payload.message,
+          fromId: payload.fromId,
+          toId: payload.toId,
+          date: new Date(payload.date).toLocaleString("en-US", dateOptions)
         })
+      }
     }
+
+    const updateBlockedBool = (newValue) => {
+      actualIsBlocked.value = newValue
+    };
 
     const stockHistory = async (payload) => {
       // push recieved message to Messages Array
-      pushToMessages(payload)
-      
+      pushToMessages(payload)      
       // make an Array of all user i'm speaking with
       let id
         if (payload.fromId === user.value.id) {
@@ -161,19 +179,38 @@
         // check what is the actual recipient
         if (isAllUsersLoaded.value && Object.keys(actual.value).length === 0 && recipients.value.length > 0) {
           actual.value = allUsers.value.find((user) => recipients.value[0] === user.id)
-          getUserInfos(actual.value.username)
         }
     }
 
     // add recipient to the list
     function addRecipient(recipientName) {
         const userFind = allUsers.value.find((user) => recipientName === user.username)
-        // TO DO:
-        //  check if already exist
-        //  replace by search bar
-        //  check if user exist
-        recipients.value.push(userFind.id);
-        actual.value = userFind
+        if (userFind) {
+          if (recipients.value.indexOf(userFind.id) === -1) {
+            recipients.value.push(userFind.id);
+          }
+          actual.value = userFind
+        }
+    }
+
+    // add recipient by ID to the list
+    function addRecipientByID(queryRecipientId) {
+        const userFind = allUsers.value.find((user) => queryRecipientId == user.id)
+        if (userFind) {
+            if (recipients.value.indexOf(userFind.id) === -1) {
+              recipients.value.push(userFind.id);
+            }
+            actual.value = userFind
+        }
+    }
+
+    function isInRecipients() {
+      if (recipients.value.find((recipient) => queryRecipient == recipient)) {
+        return true
+      } else {
+        addRecipientByID(queryRecipient)
+        return false
+      }
     }
 
     // return name of recipient
@@ -189,6 +226,7 @@
     // used when click on recipient name
     function changeActualRecipient(recipient) {
         actual.value = allUsers.value.find((user) => recipient === user.id)
+        message.value = ''
     }
 
     // scroll messages container to bottom
@@ -217,7 +255,7 @@
       try {
         const response = await axios.get("/api/user/all");
         allUsers.value = response.data;
-        isAllUsersLoaded.value = true; // Set the flag to true when data is loaded
+        isAllUsersLoaded.value = true;
         return true;
       } catch (error) {
         if (error.response && error.response.status == 404) {
@@ -228,64 +266,63 @@
         return false;
       }
     }
-
-    async function getUserInfos(username) {
-      await axios({
-        url: `/api/user/profile/${username}`,
-        method: "get",
-        headers: { Authorization: `Bearer ${sessionStore.access_token}` },
-      })
-        .then((response) => {
-          actualInfos.value = response.data
-          isActualInfosLoaded.value = true
-          return true;
-        })
-        .catch((error) => {
-          if (error.response.status == 401) {
-            console.log(
-              `invalid access token: ${error.response.status} ${error.response.statusText}`
-            );
-          } else if (error.response.status == 404) {
-            console.log(
-              `user not found: ${error.response.status} ${error.response.statusText}`
-            );
-          } else {
-            console.error(
-              `unexpected error: ${error.response.status} ${error.response.statusText}`
-            );
-          }
-          return false;
-        });
-    }
     
   loadMyself()
   getAllUsers()
-
-  // Watches
 
   // Watch for changes in the isAllUsersLoaded flag
   watchEffect(() => {
     if (isAllUsersLoaded.value) {
       // The allUsers data is loaded, you can use it now
-      if (recipients.value.length > 0 && Object.keys(actual.value).length === 0) {
+      if (queryRecipient) {
+        actual.value = allUsers.value.find((user) => queryRecipient == user.id)
+      } else if (recipients.value.length > 0 && Object.keys(actual.value).length === 0) {
         actual.value = allUsers.value.find((user) => recipients.value[0] === user.id)
       }
-    }
-  })
-
-  // Watch for changes in the isAllUsersLoaded flag
-  watchEffect(() => {
-    if (actual.value.username) {
-      getUserInfos(actual.value.username)
     }
   })
 </script>
 
 <style>
+  #dm-recipientList-col {
+    min-width: 4rem;
+    background-color: var(--dark-pink);
+    color: white;
+  }
 
-#chat-container {
-    background: var(--gray);
-	  border: 4px solid var(--dark-pink);
-}
+  .ft-recipient-name {
+    padding: 1rem;
+    border-bottom: 1px solid var(--dark-gray);
+    transition: padding .5s ease;
+    cursor: pointer;
+  }
+
+  .ft-recipient-name:hover {
+    padding-left: 1.5rem;
+  }
+
+  .ft-actual-recipient {
+    color: var(--dark-pink);
+    background-color: var(--dark-gray);
+  }
+
+  .ft-actual-recipient:hover {
+    padding-left: 1rem;
+  }
+
+  /* scrollbar */
+
+  #ft-scroller::-webkit-scrollbar {
+      width: 22px;               /* width of the entire scrollbar */
+  }
+
+  #ft-scroller::-webkit-scrollbar-track {
+      background: #383838;        /* color of the tracking area */
+  }
+
+  #ft-scroller::-webkit-scrollbar-thumb {
+      background-color: #212121;    /* color of the scroll thumb */
+      border-radius: .3rem;       /* roundness of the scroll thumb */
+  }
 
 </style>

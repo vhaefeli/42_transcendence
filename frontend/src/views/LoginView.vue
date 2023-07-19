@@ -1,5 +1,5 @@
 <template>
-  <NavBar/>
+  <NavBar :showProfile="false"></NavBar>
   <div class="text-white">
     <h1>Login page</h1>
     <div id="login-form" v-if="show_login_form">
