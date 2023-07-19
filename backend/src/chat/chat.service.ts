@@ -401,10 +401,6 @@ export class ChatService {
         ) !== undefined
       )
         throw new ConflictException('User is already in channel');
-      await this.chatGateway.JoinUserToChannel(
-        channelAddMemberDto.channelId,
-        channelAddMemberDto.userId,
-      );
     } catch (error) {
       if (
         error instanceof UnauthorizedException ||
@@ -425,6 +421,10 @@ export class ChatService {
         where: { id: channelAddMemberDto.channelId },
         data: { members: { connect: { id: channelAddMemberDto.userId } } },
       });
+      await this.chatGateway.JoinUserToChannel(
+        channelAddMemberDto.channelId,
+        channelAddMemberDto.userId,
+      );
     } catch (error) {
       if (error?.code === 'P2025') {
         throw new NotFoundException("User wasn't found");
