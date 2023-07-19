@@ -166,6 +166,11 @@ export class Game {
       where: { id: this.id },
       data: { completed: true },
     });
+
+    const onePlayerAbandoned = this.p.filter(
+      (player) => player.abandoned,
+    ).length;
+
     const promises = new Array<Promise<any>>();
     this.p.forEach((player) => {
       promises.push(
@@ -174,7 +179,11 @@ export class Game {
             gameId_playerId: { gameId: this.id, playerId: player.id },
           },
           data: {
-            score: player.score,
+            score: !onePlayerAbandoned
+              ? player.score
+              : player.abandoned
+              ? 0
+              : 3,
             abandon: player.abandoned,
             score4stat: true,
             gameStatus: game_status.ENDED,
