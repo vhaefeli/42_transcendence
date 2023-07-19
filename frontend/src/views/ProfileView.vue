@@ -39,7 +39,7 @@
         <div class="ft-tab-content ft-border-color-game ft-tab-border flex flex-row justify-evenly ">
           <!-- <div class="flex flex-col">3</div> -->
             <div class="ft-item-title ft-bb-color-game flex flex-col">
-              <div class="ft-result-drk-text">{{ user.nb_jeux }}</div>
+              <div class="ft-result-drk-text">{{ user.nbGames }}</div>
               <div class="ft-text">matches</div>
             </div>
             <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
@@ -47,7 +47,7 @@
               <div class="ft-text">victories</div>
             </div>
             <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
-              <div class="ft-result-drk-text">{{ user.nb_match }}</div>
+              <div class="ft-result-drk-text">{{ user.nbMatch }}</div>
               <div class="ft-text">perfect victories</div>
             </div>
             <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
