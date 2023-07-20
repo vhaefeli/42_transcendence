@@ -25,6 +25,12 @@
         >
             chat
         </router-link>
+        <div v-if="showProfile">
+            <div id="ft-nav-profile">
+                <div id="ft-nav-profile-username">{{ userStore.user.username }}</div>
+                <div class="ft-profile-pic" id="ft-nav-profile-img" :style="{ 'background': 'url(' + userStore.user.avatar_url + ')' }"></div>
+            </div>
+        </div>
     </nav>
   </template>
   <script setup>
@@ -35,6 +41,10 @@
     const userStore = useUserStore()
     const activeTab = ref('')
     const pongLottie = ref(null)
+
+    defineProps({
+        showProfile: Boolean
+    })
 
     function playAnimation() {
         pongLottie.value.play()
@@ -50,6 +60,27 @@
 </script>
 
 <style scoped>
+
+#ft-nav-profile-img {
+    background-size: cover !important;
+    width: 4em;
+    height: 4em;
+}
+
+#ft-nav-profile-username {
+    position: relative;
+    top: -0.4rem;
+    padding-right: 0.8rem;
+    color: var(--light-purple);
+}
+
+#ft-nav-profile {
+    position: absolute;
+    right: 2rem;
+    display: flex;
+    align-items: center;
+    top: 1rem;
+}
 
 #ft-lottie {
     position: absolute;

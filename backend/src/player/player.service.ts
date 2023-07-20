@@ -223,7 +223,7 @@ export class PlayerService {
     and p2."playerId" = u2.id
     and "Player".score > p2.score
     union all
-    select "Game".date, ('Lost againtst ' || u2.username || ' (' || (u2."level") || ')') "Result"
+    select "Game".date, ('Lost against ' || u2.username || ' (' || (u2."level") || ')') "Result"
     from  "Player", "Game", "User", "Player" p2, "User" u2
     where 
     "Player"."gameId" = "Game".id
@@ -234,6 +234,7 @@ export class PlayerService {
     and "Player".seq <> p2.seq
     and p2."playerId" = u2.id
     and "Player".score < p2.score
+    order by "Game".date desc
       `;
     return gameslog;
   }

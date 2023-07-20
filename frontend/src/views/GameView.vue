@@ -1,5 +1,5 @@
 <template>
-    <NavBar/>
+    <NavBar :showProfile="true"></NavBar>
     <section id="game-container">
         <div>Play a game</div>
     </section>

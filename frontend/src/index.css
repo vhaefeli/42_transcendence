@@ -7,6 +7,7 @@
 @import "./assets/stylesheets/font.css";
 @import "./assets/stylesheets/tabContent.css";
 @import "./assets/stylesheets/icons.css";
+@import "./assets/stylesheets/chat.css";
 
 @tailwind base;
 @tailwind components;
@@ -19,6 +20,7 @@
     --gray: #CFCDCE;
     --light-gray: #e6e6e6;
     --dark-gray: #323232;
+    --middle-gray: #B7B7B7;
     --yellow: #F2CF00;
 
     --pink: #ED9CDB;
