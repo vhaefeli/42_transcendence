@@ -1,6 +1,16 @@
-import { SocketService } from "./socket.service";
+import { useRouter } from "vue-router";
+import { SocketService, sleep } from "./socket.service";
+import router from "@/router";
+
+export enum PlayerAction {
+  IDLE,
+  UP,
+  DOWN,
+}
 
 export class GameService extends SocketService {
+  private gameId: number | undefined;
+  private router = useRouter();
   constructor() {
     super("game");
   }
@@ -30,6 +40,45 @@ export class GameService extends SocketService {
         console.log(`round trip: ${now - client}`);
       }
     );
+  }
+
+  async connectToGame(gameId: number) {
+    if (!(await this.tryConnection())) return;
+    this.gameId = gameId;
+
+    this.socket?.off('exception');
+    this.socket?.on('exception', (exception) => {
+      const msg = typeof exception.message === 'string' ? exception.message : exception.message[0];
+      this.socket?.off('exception');
+      router.push(`/game?connect_error=${encodeURIComponent(msg)}`);
+      return;
+    });
+    this.socket?.emit('connectToGame', { gameId: gameId });
+  }
+
+  async sendPlayerAction(action: PlayerAction) {
+    this.socket?.emit('action', { gId: this.gameId, a: action });
+    console.log(`sent ${action}`);
+  }
+
+  async sendIsReady() {
+    if (this.gameId === undefined) {
+      console.log('not connected to game');
+      return;
+    }
+    if (!this.connected) {
+      console.log('not connected to socket');
+      return;
+    }
+
+    this.socket?.off('exception');
+    this.socket?.on('exception', (exception) => {
+      const msg = typeof exception.message === 'string' ? exception.message : exception.message[0];
+      this.socket?.off('exception');
+      router.push(`/game?is_ready_error=${encodeURIComponent(msg)}`);
+      return;
+    });
+    this.socket?.emit('ready', { gameId: this.gameId });
   }
 
   async ping() {
