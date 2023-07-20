@@ -1,6 +1,5 @@
 <template>
-
-  <NavBar></NavBar>
+  <NavBar :showProfile="false"></NavBar>
   <div id="profile-container">
     <section class="ft-cover flex flex-col items-end justify-end">
       <a class="ft-bg-color-chat t-btn-pink ft-other-profile"><span>Send message</span></a>
@@ -32,7 +31,7 @@
       </div>
                       
 
-      <div class="flex flex-col text-center ft-left-tab" id="stats">
+      <div class="flex flex-col text-center ft-left-tab" id="stats" :class="{ foreground: foregroundTab === 'stats' }" @click="setForegroundTab('stats')">
         <div class="ft-tab-folder ft-tab-title ft-bb-color-game">Stats</div>
         <div class="ft-tab-content ft-border-color-game ft-tab-border flex flex-row justify-evenly ">
           <!-- <div class="flex flex-col">3</div> -->
@@ -55,9 +54,9 @@
         </div>
       </div>
 
-      <div class="flex flex-col text-center ft-right-tab" id="match-history">
+      <div class="flex flex-col text-center ft-right-tab" id="match-history" :class="{ foreground: foregroundTab === 'matchHistory' }" @click="setForegroundTab('matchHistory')">
         <div class="ft-tab-folder ft-tab-title ft-bb-color-game">Match history</div>
-        <div class="ft-tab-content ft-border-color-game ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left ft-scrollable">
+        <div id="matchScroll" class="ft-tab-content ft-border-color-game ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left ft-scrollable">
           <ul>
             <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">
               <p><h2>12.05.2023</h2></p>
@@ -75,12 +74,12 @@
         </div>
       </div>
 
-      <div class="flex flex-col text-center ft-left-tab ft-my-profile" id="friends-requests">
+      <div class="flex flex-col text-center ft-left-tab ft-my-profile" id="friends-requests" :class="{ foreground: foregroundTab === 'friendsRequest' }" @click="setForegroundTab('friendsRequest')">
         <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Friends requests</div>
-        <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left ft-scrollable">
+        <div id="friendsRequestScroll" class="ft-tab-content ft-border-color-profile ft-tab-border text-left ft-scrollable">
           <ul>
             <div v-if="invites">
-              <div v-if="invites.length === 0">No one wants to be your friend...yet!</div>
+              <div v-if="invites.length === 0"><EmptyText :text="'No one wants to be your friend...yet!'" :white="false" /></div>
               <div v-for="(invitation, index) in invites" :key="index">
                 <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between items-center" :class="index === invites.length - 1 ? '' : 'ft-tab-separator'">
                   <ul class="flex flex-row items-center">
@@ -99,11 +98,12 @@
         </div>
       </div>
 
-      <div class="flex flex-col text-center ft-right-tab ft-my-profile" id="sent-requests">
+      <div class="flex flex-col text-center ft-right-tab ft-my-profile" id="sent-requests" :class="{ foreground: foregroundTab === 'sentRequests' }" @click="setForegroundTab('sentRequests')">
         <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Sent requests</div>
-        <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left ft-scrollable">
+        <div id="sentRequestsScroll" class="ft-tab-content ft-border-color-profile ft-tab-border text-left ft-scrollable">
           <ul>
             <div v-if="invitesSent">
+              <div v-if="invitesSent.length === 0"><EmptyText :text="`No pending request!`" :white="false" /></div>
                 <div v-for="(invitation, index) in invitesSent" :key="index">
                     <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between items-center" :class="index === invitesSent.length - 1 ? '' : 'ft-tab-separator'">
                       <ul class="flex flex-row items-center">
@@ -117,10 +117,11 @@
         </div>
       </div>
 
-      <div class="flex flex-col text-center ft-left-tab ft-my-profile" id="friends-list">
+      <div class="flex flex-col text-center ft-left-tab ft-my-profile" id="friends-list" :class="{ foreground: foregroundTab === 'friends' }" @click="setForegroundTab('friends')">
         <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Friends</div>
-        <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left ft-scrollable">
+        <div id="friendsScroll" class="ft-tab-content ft-border-color-profile ft-tab-border text-left ft-scrollable">
           <ul>
+            <div v-if="friends.length === 0"><EmptyText :text="'You have no friends... Looser!'" :white="false" /></div>
             <div v-for="(friend, index) in friends" :key="index">
                 <div v-if="!friend.is_blocked">
                   <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between" :class="index === friends.length - 1 ? '' : 'ft-tab-separator'">
@@ -138,7 +139,8 @@
                       </ul>
                     </div>
                     <ul class="flex flex-row">
-                      <li><a class="t-btn-pink ft-bg-color-chat ft-icon-small icon-btn-size icon-btn-cursor"><img src="../assets/img/icons/message-solid.svg" alt="send them a message"></a></li>
+                      <router-link :to="{ name: 'dms', query: { recipient: friend.id } }" class="t-btn-pink ft-bg-color-chat ft-icon-small icon-btn-size icon-btn-cursor"><img src="../assets/img/icons/message-solid.svg" alt="send them a message"></router-link>
+                      <!-- <li><a class="t-btn-pink ft-bg-color-chat ft-icon-small icon-btn-size icon-btn-cursor"><img src="../assets/img/icons/message-solid.svg" alt="send them a message"></a></li> -->
                       <li><a class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor" @click="blockUser(friend.username)"><img src="../assets/icons/person-circle-minus-solid.svg" alt="block them"></a></li>
                       <li><a class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="removeFriend(friend.username)"><img src="../assets/img/icons/user-minus-solid.svg" alt="remove friendship"></a></li>
                     </ul>
@@ -149,7 +151,7 @@
         </div>
       </div>
 
-      <div class="flex flex-col text-center ft-left-tab ft-my-profile" id="friends-search">
+      <div class="flex flex-col text-center ft-left-tab ft-my-profile" id="friends-search" :class="{ foreground: foregroundTab === 'search' }" @click="setForegroundTab('search')">
         <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Add a new friend</div>
         <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left">
             <div class="flex flex-row justify-center">
@@ -164,6 +166,7 @@
         <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left ft-scrollable" id="blocked">
           <ul>
             <div v-if="blocked">
+                <div v-if="blocked.length === 0"><EmptyText :text="`You didn't block anybody`" :white="true" /></div>
                 <div v-for="(block, index) in blocked" :key="index">
                   <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between" :class="index === blocked.length - 1 ? '' : 'ft-tab-separator'">
                       <div class="flex flex-row items-center">
@@ -222,6 +225,7 @@
   <!-- CODE DE MICHELE CI-DESSUS -->
     </section>
   </div>
+  <div id="ft-bottom-line"></div>
 </template>
   
 <script setup lang="ts">
@@ -232,6 +236,7 @@
     import { useUserStore } from '../stores/UserStore'
     import { useSessionStore } from "@/stores/SessionStore";
     import NavBar from "@/components/NavBar.vue";
+    import EmptyText from "@/components/EmptyText.vue";
 
     
     // to have the token we need sessionStore
@@ -246,11 +251,15 @@
     const isLoggedIn = ref(false);
 
     // other variables
-    let newFriend = ref('')
+    const foregroundTab = ref('')
+    const newFriend = ref('')
     let allUsers: { id: number, username: string }[];
-    // let myFriends = ref([]);
 
     const { user, friends, invites, blocked, invitesSent } = storeToRefs(userStore)
+
+    function setForegroundTab(tab) {
+      foregroundTab.value = tab
+    }
 
     // onBeforeMount is executed before the component is mounted
     // way of using await because we can't do it in setup
@@ -322,6 +331,18 @@
 </script>
 
 <style scoped>
+
+.foreground {
+  z-index: 999;
+}
+
+#ft-bottom-line {
+  width: 100%;
+  border-bottom: 4px solid var(--light-purple);
+  position: fixed;
+  bottom: 0;
+  z-index: 10000;
+}
 
 .ft-cover {
     background: url(./../assets/img/fond.png);
@@ -503,13 +524,51 @@
   padding: 1.5em;
 }
 
-/* ^^ POUR DEBUG UNIQUEMENT ^^ */
-
 #profile-container {
     background: var(--gray);
     border: 4px solid var(--light-purple);
-    border-radius: 66px;
+    border-radius: 25px 25px 0 0;
     overflow: hidden;
 }
 
+#matchScroll::-webkit-scrollbar, 
+#friendsScroll::-webkit-scrollbar,
+#friendsRequestScroll::-webkit-scrollbar,
+#sentRequestsScroll::-webkit-scrollbar,
+#blocked::-webkit-scrollbar {
+  width: 22px;
+}
+
+#matchScroll::-webkit-scrollbar-track,
+#friendsRequestScroll::-webkit-scrollbar-track,
+#sentRequestsScroll::-webkit-scrollbar-track,
+#blocked::-webkit-scrollbar-track,
+#friendsScroll::-webkit-scrollbar-track {   
+    background: var(--light-purple); 
+    border-bottom: .2rem solid var(--purple);
+    border-right: .2rem solid var(--purple);
+    border-top: .2rem solid var(--mint);
+    border-left: .2rem solid var(--mint);   
+}
+
+#matchScroll::-webkit-scrollbar-thumb {
+    background-color: var(--mint);
+    border-bottom: .2rem solid var(--dark-gray);
+    border-right: .2rem solid var(--dark-gray);
+    border-top: .2rem solid var(--light);
+    border-left: .2rem solid var(--light);   
+}
+
+#friendsScroll::-webkit-scrollbar-thumb,
+#friendsRequestScroll::-webkit-scrollbar-thumb,
+#sentRequestsScroll::-webkit-scrollbar-thumb,
+#blocked::-webkit-scrollbar-thumb {
+    background-color: var(--purple);
+    border-bottom: .2rem solid var(--dark-gray);
+    border-right: .2rem solid var(--dark-gray);
+    border-top: .2rem solid var(--light);
+    border-left: .2rem solid var(--light);   
+}
+
+/* ^^ POUR DEBUG UNIQUEMENT ^^ */
 </style>
