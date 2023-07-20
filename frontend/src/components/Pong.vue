@@ -9,6 +9,7 @@
 
 <script setup lang="ts">
   import { ref, onMounted } from 'vue'
+  import ArrayFont from '../assets/fonts/array/fonts/Array-Regular.woff'
   const pongScreen = ref( null )
   let showBlinkingTextReady = ref(true);
   let showBlinkingTextOpponent = ref(false);
@@ -99,6 +100,10 @@
 
   async function draw() {
 
+      const font = new FontFace('Array-Regular', 'url(' + ArrayFont + ')');
+      await font.load();
+      document.fonts.add(font);
+
       ctx.clearRect( 0, 0, canvasWidth, canvasHeight );
 
       // ball
@@ -135,8 +140,9 @@
       ctx.fillRect( canvasWidth - 10 - 5, opponentPos, 5, paddleSize );
     // }
   }
-// fonction qui recoit les sockets
-draw();
+
+  // fonction qui recoit les sockets
+  draw();
 
   } )
 
