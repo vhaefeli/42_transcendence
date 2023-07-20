@@ -113,6 +113,7 @@ export class Game {
     if (this.isActive) {
       // game loop goes here
       this.p.forEach((player) => player.move());
+      this.ball.move();
       this.sendGameUpdateToPlayers();
     }
   }
@@ -228,7 +229,9 @@ export class Game {
         `\nPlayers:\n` +
         (this.p[0] !== undefined ? this.p[0].toString() : '\tnot connected') +
         '\n\n' +
-        (this.p[1] !== undefined ? this.p[1].toString() : '\tnot connected'),
+        (this.p[1] !== undefined ? this.p[1].toString() : '\tnot connected') +
+        '\n\nBall:\n' +
+        this.ball.toString(),
     );
   }
 }
