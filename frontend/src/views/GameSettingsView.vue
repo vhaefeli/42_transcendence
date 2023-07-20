@@ -11,6 +11,7 @@ import NavBar from "../components/NavBar.vue";
 <style>
 #play{
 position: absolute;
+top: 20vw;
 left: 50%;
 transform: translateX(-50%);
 background-color: var(--pink);
