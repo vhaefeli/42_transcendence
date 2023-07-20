@@ -855,8 +855,13 @@ export class ChatService {
         where: { id: channelAddBannedDto.channelId },
         data: {
           banned: { connect: { id: channelAddBannedDto.userId } },
+          // Kick user out of the gateway
         },
       });
+      await this.chatGateway.KickUserFromChannel(
+        channelAddBannedDto.channelId,
+        my_id,
+      );
     } catch (error) {
       if (error?.code === 'P2025') {
         throw new NotFoundException("User wasn't found");
@@ -959,7 +964,7 @@ export class ChatService {
       });
     } catch (error) {
       if (error?.code === 'P2025') {
-        Logger.log('preventive');
+        //   no error required as expected
         //   throw new NotFoundException("Member wasn't found");
       }
       if (error?.code) Logger.error(error.code + ' ' + error.message);
