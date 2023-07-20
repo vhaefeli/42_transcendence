@@ -108,7 +108,7 @@ export class Game {
   }
 
   async loop() {
-    this.printGameInfo();
+    //this.printGameInfo();
     await this.handlePlayerDisconnection();
     if (this.isActive) {
       // game loop goes here

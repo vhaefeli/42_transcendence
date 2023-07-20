@@ -9,8 +9,7 @@ import { GameGateway } from './game.gateway';
 
 @Injectable()
 export class GameService {
-  //private readonly frame_time = 10 + 2 / 3;
-  private readonly frame_time = 1000;
+  private readonly frame_time = 10 + 2 / 3;
   private games = new Map<number, Game>();
 
   constructor(
