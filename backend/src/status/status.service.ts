@@ -2,7 +2,7 @@ import { Inject, Injectable, forwardRef } from '@nestjs/common';
 
 import { StatusGateway } from './status.gateway';
 import { ConfigService } from '@nestjs/config';
-import { ConnectedPlayers } from 'src/game/game.entity';
+import { ConnectedPlayers } from 'src/game/player.entity';
 import { UsersService } from 'src/user/users.service';
 import { GameService } from 'src/game/game.service';
 import { game_status } from '@prisma/client';

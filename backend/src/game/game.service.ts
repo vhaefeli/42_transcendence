@@ -1,6 +1,7 @@
 import { Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
 import { Socket } from 'socket.io';
-import { ConnectedPlayers, Game, PlayerAction } from './game.entity';
+import { Game } from './game.entity';
+import { ConnectedPlayers, PlayerAction } from './player.entity';
 import { WsException } from '@nestjs/websockets';
 import { game_status } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';

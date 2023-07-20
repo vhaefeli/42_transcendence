@@ -1,5 +1,5 @@
 import { IsEnum, IsNotEmpty, IsNumber } from 'class-validator';
-import { PlayerAction } from '../game.entity';
+import { PlayerAction } from '../player.entity';
 
 export class UpdateActionGameDto {
   @IsNumber()

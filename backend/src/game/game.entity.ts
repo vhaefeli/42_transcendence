@@ -4,37 +4,24 @@ import { Socket } from 'socket.io';
 import { PrismaService } from 'src/prisma.service';
 import { GameGateway } from './game.gateway';
 import { game_status } from '@prisma/client';
+import { PlayerAction, Player, ConnectedPlayers } from './player.entity';
 
 export enum GameModeType {
   NORMAL = 'NORMAL',
 }
 
-type GameModeConfig = {
+export type GameModeConfig = {
   INITIAL_HEIGHT: number;
+  MAX_HEIGHT: number;
+  PADDLE_SPEED: number;
 };
 
 export const GameModeList = new Map<GameModeType, GameModeConfig>();
 GameModeList.set(GameModeType.NORMAL, {
   INITIAL_HEIGHT: 300,
+  MAX_HEIGHT: 768,
+  PADDLE_SPEED: 10,
 });
-
-export enum PlayerAction {
-  IDLE,
-  UP,
-  DOWN,
-}
-
-export const ConnectedPlayers = new Map<number, number>();
-
-type Player = {
-  id: number;
-  y: number;
-  action: PlayerAction;
-  score: number;
-  socket: Socket;
-  isReady: boolean;
-  abandoned: boolean;
-};
 
 export class Game {
   readonly id: number;
@@ -76,29 +63,25 @@ export class Game {
     if (ConnectedPlayers.has(id))
       throw new WsException('User is already connected to a game');
     ConnectedPlayers.set(id, this.id);
-    this.p[playerIndex] = {
-      id: id,
-      y: this.gameMode.INITIAL_HEIGHT,
-      action: PlayerAction.IDLE,
-      score: 0,
+    this.p[playerIndex] = new Player({
+      userId: id,
       socket: socket,
-      isReady: false,
-      abandoned: false,
-    };
+      gameMode: this.gameMode,
+    });
     socket.join(this.id.toString());
   }
 
   playerIsReadyToStart(userId: number) {
-    this.p.find((player) => player.id === userId).isReady = true;
-    if (this.p.filter((player) => player.isReady).length === 2) {
+    this.p.find((player) => player.id === userId).setIsReady(true);
+    if (this.p.filter((player) => player.getIsReady()).length === 2) {
       this.startGame();
     }
   }
 
   async sendScoreToPlayers() {
     const msg = [
-      { id: this.p[0].id, score: this.p[0].score },
-      { id: this.p[1].id, score: this.p[1].score },
+      { id: this.p[0].id, score: this.p[0].getScore() },
+      { id: this.p[1].id, score: this.p[1].getScore() },
     ];
     this.gameGateway.server.to(this.id.toString()).emit('score', msg);
   }
@@ -108,17 +91,17 @@ export class Game {
     const player = this.p.find((player) => player.id === userId);
     if (player === undefined)
       throw new WsException("Player isn't connected to game");
-    player.action = action;
+    player.setAction(action);
     return true;
   }
 
   private detectPlayerDisconnection(): boolean {
     if (this.p[0] && !this.p[0]?.socket.connected) {
-      this.p[0].abandoned = true;
+      this.p[0].setAbandoned(true);
       return false;
     }
     if (this.p[1] && !this.p[1]?.socket.connected) {
-      this.p[1].abandoned = true;
+      this.p[1].setAbandoned(true);
       return false;
     }
     return true;
@@ -137,6 +120,7 @@ export class Game {
     await this.handlePlayerDisconnection();
     if (this.isActive) {
       // game loop goes here
+      this.p.forEach((player) => player.move());
     }
   }
 
@@ -169,8 +153,8 @@ export class Game {
       data: { completed: true },
     });
 
-    const onePlayerAbandoned = this.p.filter(
-      (player) => player.abandoned,
+    const onePlayerAbandoned = this.p.filter((player) =>
+      player.getAbandoned(),
     ).length;
 
     const promises = new Array<Promise<any>>();
@@ -182,14 +166,14 @@ export class Game {
           },
           data: {
             // if none of the players have abandoned the match, add the game score
-            // else if this player is the on that abandoned the match, add score 0
+            // else if this player is the one that abandoned the match, add score 0
             // else add score 3 because the other player has abandoned the match
             score: !onePlayerAbandoned
-              ? player.score
-              : player.abandoned
+              ? player.getScore()
+              : player.getAbandoned()
               ? 0
               : 3,
-            abandon: player.abandoned,
+            abandon: player.getAbandoned(),
             score4stat: true,
             gameStatus: game_status.ENDED,
           },
@@ -229,20 +213,19 @@ export class Game {
     if (player === undefined) return;
     ConnectedPlayers.delete(player.id);
     player.socket.leave(this.id.toString());
-    player.isReady = false;
+    player.endGame();
   }
 
   printGameInfo() {
     Logger.debug(
-      `\nid: ${this.id}\nmode: ${this.gameModeName}\nisActive: ${this.isActive}` +
-        `\nPlayers:\n\t` +
-        (this.p[0] !== undefined
-          ? `id: ${this.p[0].id}\n\ty: ${this.p[0].y}\n\taction: ${this.p[0].action}\n\tscore: ${this.p[0].score}\n\tsocket: ${this.p[0].socket?.id}\n\tisReady: ${this.p[0].isReady}\n\tabandoned: ${this.p[0].abandoned}`
-          : 'not connected') +
-        '\n\n\t' +
-        (this.p[1] !== undefined
-          ? `id: ${this.p[1].id}\n\ty: ${this.p[1].y}\n\taction: ${this.p[1].action}\n\tscore: ${this.p[1].score}\n\tsocket: ${this.p[1].socket?.id}\n\tisReady: ${this.p[1].isReady}\n\tabandoned: ${this.p[1].abandoned}`
-          : 'not connected'),
+      '' +
+        `\nid: ${this.id}` +
+        `\nmode: ${this.gameModeName}` +
+        `\nisActive: ${this.isActive}` +
+        `\nPlayers:\n` +
+        (this.p[0] !== undefined ? this.p[0].toString() : '\tnot connected') +
+        '\n\n' +
+        (this.p[1] !== undefined ? this.p[1].toString() : '\tnot connected'),
     );
   }
 }
