@@ -22,14 +22,15 @@ export class Ball {
   move() {
     // ** TEST **
     // set a random direction vector to ball
-    this.dir.x = Math.random();
-    this.dir.y = Math.random();
+    const v = new Victor(Math.random() - 0.5, Math.random() - 0.5);
+    v.normalize();
+    this.dir.mix(v, 0.2);
     // ** END TEST **
 
     // move the ball
     this.dir.normalize();
-    this.pos.x = this.dir.x * this.gameMode.BALL_SPEED;
-    this.pos.y = this.dir.y * this.gameMode.BALL_SPEED;
+    this.pos.x += Math.floor(this.dir.x * this.gameMode.BALL_SPEED);
+    this.pos.y += Math.floor(this.dir.y * this.gameMode.BALL_SPEED);
     if (this.pos.y < 0) this.pos.y = 0;
     else if (
       this.pos.y >
