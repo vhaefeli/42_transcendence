@@ -7,7 +7,7 @@
         <div class="ft-folder">check your profile</div>
         <button
           @click="
-            userStore.redirectToMyProfile(sessionStore.access_token, router)
+            userStore.redirectToMyProfile(sessionStore.access_token)
           "
           class="ft-titleFolder ft-title"
         >
@@ -39,11 +39,9 @@
 <script setup>
 import { useUserStore } from "@/stores/UserStore";
 import { useSessionStore } from "@/stores/SessionStore";
-import { useRouter } from "vue-router";
 
 const userStore = useUserStore();
 const sessionStore = useSessionStore();
-const router = useRouter();
 </script>
 
 <style scoped>
