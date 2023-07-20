@@ -14,13 +14,15 @@ export type GameModeConfig = {
   INITIAL_HEIGHT: number;
   MAX_HEIGHT: number;
   PADDLE_SPEED: number;
+  PADDLE_SIZE: number;
 };
 
 export const GameModeList = new Map<GameModeType, GameModeConfig>();
 GameModeList.set(GameModeType.NORMAL, {
   INITIAL_HEIGHT: 300,
-  MAX_HEIGHT: 768,
+  MAX_HEIGHT: 498,
   PADDLE_SPEED: 10,
+  PADDLE_SIZE: 60,
 });
 
 export class Game {

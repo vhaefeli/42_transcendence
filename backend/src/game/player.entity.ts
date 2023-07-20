@@ -26,7 +26,8 @@ export class Player {
     gameMode: GameModeConfig;
   }) {
     this.id = player.userId;
-    this.y = player.gameMode.INITIAL_HEIGHT;
+    //this.y = player.gameMode.INITIAL_HEIGHT;
+    this.y = (player.gameMode.MAX_HEIGHT - player.gameMode.PADDLE_SIZE) / 2;
     this.socket = player.socket;
     this.gameMode = player.gameMode;
   }
@@ -68,11 +69,11 @@ export class Player {
       (this.action === PlayerAction.IDLE
         ? 0
         : this.action === PlayerAction.UP
-        ? 1
-        : -1) * this.gameMode.PADDLE_SPEED;
+        ? -1
+        : 1) * this.gameMode.PADDLE_SPEED;
     if (this.y < 0) this.y = 0;
-    else if (this.y > this.gameMode.MAX_HEIGHT)
-      this.y = this.gameMode.MAX_HEIGHT;
+    else if (this.y > this.gameMode.MAX_HEIGHT - this.gameMode.PADDLE_SIZE)
+      this.y = this.gameMode.MAX_HEIGHT - this.gameMode.PADDLE_SIZE;
   }
 
   getY(): number {
