@@ -1,5 +1,4 @@
 <template>
-  <NavBar :showProfile="false"></NavBar>
   <div class="text-white">
     <div id="tfa-form">
       <input v-model="tfa_code" placeholder="code" class="bg-gray-500" /><br />
@@ -20,7 +19,6 @@
 </template>
 
 <script setup lang="ts">
-import NavBar from "../components/NavBar.vue";
 import { ref, watch } from "vue";
 import axios, { AxiosError } from "axios";
 import { useRoute, useRouter, type LocationQuery } from "vue-router";
