@@ -1145,6 +1145,11 @@ export class ChatService {
       const memberStatus = channel.members.find(
         (member) => member.id === my_id,
       );
+      // Exclude members already defined
+      if (channel.members.find((member) => member.id === my_id)) {
+        throw new NotFoundException('User is already a member');
+      }
+
       // Exclude banned user
       if (channel.banned.find((Banned) => Banned.id === my_id))
         throw new ConflictException('You have been banned on that channel');
