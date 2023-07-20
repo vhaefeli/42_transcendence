@@ -112,7 +112,7 @@ export class Game {
     return true;
   }
 
-  private handlePlayerDisconnection(): boolean {
+  private detectPlayerDisconnection(): boolean {
     if (this.p[0] && !this.p[0]?.socket.connected) {
       this.p[0].abandoned = true;
       return false;
@@ -124,17 +124,19 @@ export class Game {
     return true;
   }
 
+  private async handlePlayerDisconnection() {
+    if (!this.detectPlayerDisconnection()) {
+      if (this.isActive || !this.isCompleted) {
+        await this.endGame(this.isActive);
+      }
+    }
+  }
+
   async loop() {
     this.printGameInfo();
+    await this.handlePlayerDisconnection();
     if (this.isActive) {
-      if (!this.handlePlayerDisconnection()) {
-        Logger.log(`A player got disconnected, game is over`);
-        this.endGame(true);
-        return;
-      }
-      // TODO: insert game logic
-    } else if (!this.isCompleted && !this.handlePlayerDisconnection()) {
-      this.endGame(false);
+      // game loop goes here
     }
   }
 
