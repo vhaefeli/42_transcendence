@@ -12,7 +12,9 @@ export enum GameModeType {
 
 export type GameModeConfig = {
   INITIAL_HEIGHT: number;
-  MAX_HEIGHT: number;
+  GAME_HEIGHT: number;
+  GAME_WIDTH: number;
+  BALL_DIAMETER: number;
   PADDLE_SPEED: number;
   PADDLE_SIZE: number;
 };
@@ -20,7 +22,9 @@ export type GameModeConfig = {
 export const GameModeList = new Map<GameModeType, GameModeConfig>();
 GameModeList.set(GameModeType.NORMAL, {
   INITIAL_HEIGHT: 300,
-  MAX_HEIGHT: 498,
+  GAME_HEIGHT: 498,
+  GAME_WIDTH: 756,
+  BALL_DIAMETER: 10,
   PADDLE_SPEED: 10,
   PADDLE_SIZE: 60,
 });
@@ -123,6 +127,8 @@ export class Game {
     if (this.isActive) {
       // game loop goes here
       this.p.forEach((player) => player.move());
+      // TODO send game info to socket
+      // TODO create ball class
     }
   }
 
