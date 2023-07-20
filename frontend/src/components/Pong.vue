@@ -36,9 +36,9 @@
 
 
   enum PlayerAction {
+  IDLE,
   UP,
   DOWN,
-  IDLE,
   }
 
   class KeyHandler {
