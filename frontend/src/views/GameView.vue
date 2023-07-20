@@ -1,7 +1,8 @@
 <template>
-
+  <div ref="parentDiv" class="parent-div">
   <div id="gameApp">
-  <!-- <router-link class="t-btn-pink" id="retHome" to="/game-settings"><span>X</span></router-link> -->
+    <div ref="zoneDiv" class="zone">
+      <PongVue></PongVue>
   <button style="position: fixed; top: 10px; right: 10px;"><a class="t-btn-pink ft-circle-gray ft-icon-small icon-btn-size icon-btn-cursor" @click="quitReally"><img src="../assets/icons/xmark-solid.svg" alt="quit"></a></button>
   <div v-show="isAlertVisible" class="modal">
       <div class="modal-content">
@@ -10,16 +11,22 @@
         <button><a class="t-btn-pink" id="ret" @click="stay"><span>Oh no!</span></a></button>
       </div>
     </div>
+    
+    
   <img id="arcade" src="../assets/img/arcade.png" alt="arcade">
-  <!-- <span :class="{ 'blinking-text': true }" id="ready">press ENTER<br>to set as ready</span> -->
-  <PongVue></PongVue>
-</div>
+
+
+
+</div></div></div>
 </template>
 
-<script setup>
-import { ref, withDirectives } from 'vue';
-import TransButton from '../components/TransButton.vue'
+<script setup lang="ts">
+import { onMounted, onUnmounted, ref } from 'vue';
+
 import PongVue from '@/components/Pong.vue';
+
+const parentDiv = ref<HTMLDivElement | null>(null);
+const zoneDiv = ref<HTMLDivElement | null>(null);
 
 const isAlertVisible = ref(false);
 
@@ -32,20 +39,61 @@ function stay () {
   isAlertVisible.value = false;
 }
 
+const handleWindowResize = (): void => {
+  if (parentDiv.value && zoneDiv.value) {
+    const parentWidth = window.innerWidth;
+    
+    const parentHeight = window.innerHeight;
+    console.log("width ", parentWidth, "height ", parentHeight);
+    const ratio = 505 / 898; // Ratio hauteur/largeur souhaité
+
+    let width, height, windowRatio;
+
+    windowRatio = parentHeight / parentWidth;
+    console.log("ratio ", ratio, "window ratio ", windowRatio);
+    if (windowRatio < ratio) {
+      height = parentHeight * 0.9;
+      width = height / ratio;
+      console.log("1zone> width ", width, "height ", height);
+    } else {
+      console.log("parentwidth ", parentWidth, "height ", parentHeight);
+      width = parentDiv.value.clientWidth * 0.9;
+      console.log("2zone> width ", width);
+      height = width * ratio;
+      console.log("2zone> height ", height);
+    }
+    zoneDiv.value.style.width = `${width}px`;
+    zoneDiv.value.style.height = `${height}px`;
+    const textReady = document.getElementById('ready');
+    const textWait = document.getElementById('wait');
+
+  if (textReady || textWait) {
+    const zoneDivWidth = zoneDiv.value.clientWidth;
+    const zoneDivHeight = zoneDiv.value.clientHeight;
+    const textWidthPercentage = zoneDivWidth * 0.15; // Ajustez le pourcentage selon vos préférences
+    const textHeightPercentage = zoneDivHeight * 0.15; // Ajustez le pourcentage selon vos préférences
+
+    const fontSize = Math.min(textWidthPercentage, textHeightPercentage);
+    textReady.style.fontSize = `${fontSize}px`;
+    textWait.style.fontSize = `${fontSize}px`;
+  }
+  }
+};
+
+onMounted(() => {
+  handleWindowResize();
+  window.addEventListener('resize', handleWindowResize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleWindowResize);
+});
+
 </script>
 
 
 
 <style>
-#pong{
-position: absolute;
-top:13.6%;
-width: 50%;
-height: 72.8%;
-left: 50%;
-transform: translateX(-50%);
-/* background-color: rgba(255, 255, 255, 0.276); */
-}
 
 #retHome{
 position: absolute;
@@ -70,30 +118,10 @@ background-color: var(--pink);
 #arcade{
 width: 100%;
 align-self: center;
-}
-
-#ready{
-color: white;
-width: 100%;
-text-align: center;
-position: absolute;
-font-family: 'Array-Regular';
-font-size: 7vw;
-top: 27%;
-left: 50%;
-transform: translateX(-50%);
-z-index: 4;
-}
-
-
-.blinking-text {
-animation: blink-animation 1.5s infinite;
-}
-
-@keyframes blink-animation {
-0% { opacity: 1; }
-50% { opacity: 0; }
-100% { opacity: 1; }
+border-top: 0.3vw solid white;
+border-left: 0.3vw solid white;
+border-right: 0.3vw solid var(--purple);
+border-bottom: 0.3vw solid var(--purple);
 }
 
 #gameApp {
@@ -101,13 +129,9 @@ position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-border-top: 0.3vw solid white;
-border-left: 0.3vw solid white;
-border-right: 0.3vw solid var(--purple);
-border-bottom: 0.3vw solid var(--purple);
-/* margin-top: 50vh; */
-margin: 5vh;
-/* padding: 2vw; */
+  justify-content: center;
+  /* margin-left: auto; */
+  margin-top: 5vh;
 }
 
 .modal {

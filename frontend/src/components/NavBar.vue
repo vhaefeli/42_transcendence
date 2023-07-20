@@ -20,7 +20,7 @@
         <router-link
             :class="{ active: activeTab === 'game' }"
             class="nav-tab nav-tab-game"
-            to="/game"
+            to="/game-settings"
             @click="setActiveTab('game')"
         >
             game

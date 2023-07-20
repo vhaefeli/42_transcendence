@@ -1,7 +1,8 @@
 <template>
+  
   <span v-show="showBlinkingTextReady" :class="{ 'blinking-text': true }" id="ready">press ENTER<br>to set as ready</span>
-  <span v-show="showBlinkingTextOpponent" :class="{ 'blinking-text': true }" id="ready">waiting for<br>opponent</span>
-  <canvas ref="pongScreen" id="pong" width="606" height="498"></canvas>
+  <span v-show="showBlinkingTextOpponent" :class="{ 'blinking-text': true }" id="wait">waiting for<br>opponent</span>
+  <canvas ref="pongScreen" id="pong" width="756" height="498"></canvas>
 
 
 </template>
@@ -16,7 +17,7 @@
   const playerName = 'PLAYER 1';
   const opponentName = 'PLAYER 2';
 
-  const canvasWidth: number = 606;
+  const canvasWidth: number = 756;
   const canvasHeight: number = 498;
 
   let paddleSize: number = 60;
@@ -109,8 +110,8 @@
       ctx.lineWidth = 5;
       ctx.setLineDash( [ 20, 10 ] );
       ctx.beginPath();
-      ctx.moveTo( 303, 14 );
-      ctx.lineTo( 303, 484 );
+      ctx.moveTo( canvasWidth/2, 14 );
+      ctx.lineTo( canvasWidth/2, 484 );
       ctx.stroke();
 
 
@@ -118,8 +119,8 @@
       ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
       ctx.font = '40px Array-Regular';
       ctx.textAlign = 'center';
-      ctx.fillText( playerName, 151.5, 50 );
-      ctx.fillText( opponentName, 454.5, 50 );
+      ctx.fillText( playerName, canvasWidth/4, 50 );
+      ctx.fillText( opponentName, canvasWidth/4*3, 50 );
 
 
       // score
@@ -141,15 +142,30 @@ draw();
 
 
 </script>
+
+
+<style>
 #pong{
   position: absolute;
   top:13.6%;
-  width: 50%;
   height: 72.8%;
   left: 50%;
   transform: translateX(-50%);
   /* background-color: rgba(255, 255, 255, 0.276); */
   }
+
+  #ready, #wait{
+    color: white;
+    width: 100%;
+    text-align: center;
+    position: absolute;
+    font-family: 'Array-Regular';
+    /* font-size: 8vh; */
+    top: 27%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 4;
+    }
 
 .blinking-text {
   animation: blink-animation 1.5s infinite;
@@ -160,5 +176,4 @@ draw();
   50% { opacity: 0; }
   100% { opacity: 1; }
   }
-
-<style></style>
+</style>
