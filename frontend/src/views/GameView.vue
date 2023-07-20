@@ -31,7 +31,6 @@ const zoneDiv = ref<HTMLDivElement | null>(null);
 const isAlertVisible = ref(false);
 
 function quitReally () {
-  console.log("quit");
   isAlertVisible.value = true;
 }
 
@@ -44,23 +43,17 @@ const handleWindowResize = (): void => {
     const parentWidth = window.innerWidth;
     
     const parentHeight = window.innerHeight;
-    console.log("width ", parentWidth, "height ", parentHeight);
     const ratio = 505 / 898; // Ratio hauteur/largeur souhaité
 
     let width, height, windowRatio;
 
     windowRatio = parentHeight / parentWidth;
-    console.log("ratio ", ratio, "window ratio ", windowRatio);
     if (windowRatio < ratio) {
       height = parentHeight * 0.9;
       width = height / ratio;
-      console.log("1zone> width ", width, "height ", height);
     } else {
-      console.log("parentwidth ", parentWidth, "height ", parentHeight);
       width = parentDiv.value.clientWidth * 0.9;
-      console.log("2zone> width ", width);
       height = width * ratio;
-      console.log("2zone> height ", height);
     }
     zoneDiv.value.style.width = `${width}px`;
     zoneDiv.value.style.height = `${height}px`;
