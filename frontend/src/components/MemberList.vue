@@ -8,7 +8,8 @@
                   <div v-for="member in MemberList" :key="member.id">
                     <div class="flex mb-2 items-center">
                       <div class="ft-profile-pic ft-profile-pic-small mr-3" id="current-profile-pic" :style="{ 'background': 'url(' + member.avatar_url + ')' }"></div>
-                      <router-link class="ft-simple-link" :to= "'/user/' + member.username">{{member.username}}</router-link>
+                      <a href="#" lass="ft-simple-link" @click="$emit('setProfileToShow', member.username)">{{member.username}}</a>
+                      <!-- <router-link class="ft-simple-link" :to= "'/user/' + member.username">{{member.username}}</router-link> -->
                     </div>
                   </div>
                 </div>
@@ -41,7 +42,7 @@
     const fakeMemberList = [
     {
       id: 1,
-      username: "john_doe",
+      username: "TechGuru42",
       status: "ONLINE",
       avatar_url: "http://localhost:3000/avatar/default.jpg"
     },

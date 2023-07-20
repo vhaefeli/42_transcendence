@@ -5,9 +5,14 @@
       <section class="ft-chat-inside-container flex p-6">
 
         <!-- column 1 with profile -->
-        <div id="dm-profile-col">
-            <!-- <OtherUserProfile :key="actual.username" :username="actual.username" :userStore="userStore" :sessionStore="sessionStore" @updateBlocked="updateBlockedBool" /> -->
-            <MemberList :channelName="currentChannel?.name" :userStore="userStore" :sessionStore="sessionStore" />
+        <div id="dm-profile-col" class="w-[18em]">
+            <div class="h-[76vh]" :class=" profileToShow.length === 0 ? 'position-cible' : 'position-origine'">
+              <MemberList :channelName="currentChannel?.name" :userStore="userStore" :sessionStore="sessionStore" @set-profile-to-show="(username) => profileToShow = username"/>
+            </div>
+            <div class="h-[76vh]" :class=" profileToShow.length > 0 ? 'position-cible' : 'position-origine'">
+              <OtherUserProfile :key="profileToShow" :username="profileToShow" :userStore="userStore" :sessionStore="sessionStore" />
+              <button title="Back to member list" id="ft-back-to-list" class="t-btn-pink ft-bg-color-chat" @click="profileToShow = ''">&lt;&lt;&lt;&lt;&lt;</button>
+            </div>
         </div>
 
         <!-- column 2 with messages -->
@@ -16,10 +21,10 @@
             <!-- <div v-if="actualIsBlocked">
               <EmptyText :text="'You have blocked this user. Unblock he/her to see messages.'" :white="true" />
             </div> -->
-            <!-- <div v-else>
+            <!-- <div v-else> -->
               <div v-for="message in messages" :key="message.id">
-                <div v-if="actual.id === message.fromId || actual.id === message.toId">
-                  <div v-if="message.fromId == user.id" class="grid">
+                <div v-if="currentChannel.channelId === message.channelId">
+                  <div v-if="message.senderId == user.id" class="grid">
                       <div class="ft-msg-container justify-self-end">
                         <p class="text-xs ft-chat-date">{{ message.date }}</p>
                         <p class="ft-chat-my-msg">{{ message.message }}</p>
@@ -27,18 +32,27 @@
                   </div>
                   <div v-else>
                       <div class="ft-msg-container">
-                        <p class="text-xs ft-chat-date">{{ message.date }}</p>
-                        <p class="text-base mb-1 ft-chat-recipient-msg">{{ message.message }}</p>
+                        <div class="flex items-center">
+                          <div class="ft-profile-pic ft-profile-pic-small mr-3 ft-chat-profile-pic" :style="{ 'background': 'url(' + getMemberImg(message.senderId) + ')' }"></div>
+                          <div class="mb-3">
+                            <a class="cursor-pointer" @click="profileToShow = getMemberUsername(message.senderId)">{{ getMemberUsername(message.senderId) }}</a>
+                            <p class="text-xs ft-chat-date">{{ message.date }}</p>
+                          </div>
+                        </div>
+                        <div class="ml-[3.8rem]">
+                          <div v-if="checkIfBlocked(message.senderId)" class="opacity-50 flex"><img class="w-9 h-9 mr-3" src="../assets/icons/person-circle-minus-solid.svg" alt="block them"> You blocked this user.<br> Unblock he/her to see this message</div>
+                          <div v-else><p class="text-base mb-1 ft-chat-recipient-msg">{{ message.message }}</p></div>
+                        </div>
                       </div>
                   </div>
                 </div>
-              </div> -->
+              </div>
             <!-- </div> -->
           </div>
 
           <div class="ft-bg-dark-gray flex p-2 pl-8 absolute w-full bottom-0">
               <input v-model="message" placeholder="blabla..." class="p-1 mr-4 ft-input" />
-              <a href="#" class="t-btn-pink ft-bg-color-chat"><button @click="handleSubmitNewMessage">Submit</button></a>
+              <a href="#" class="t-btn-pink ft-bg-color-chat"><button @click="handleSubmitNewMessage">send</button></a>
           </div>
         </div>
       
@@ -66,7 +80,7 @@
     import ChatNavBar from "../components/ChatNavBar.vue";
     import OtherUserProfile from "../components/OtherUserProfile.vue";
     import EmptyText from "@/components/EmptyText.vue";
-    import { ref, onUpdated, watchEffect } from "vue";
+    import { ref, onUpdated, watchEffect, watch } from "vue";
     import { storeToRefs } from 'pinia'
     import axios from "axios";
     import { useRouter, useRoute } from 'vue-router'
@@ -92,9 +106,9 @@
     
     //   const actualIsBlocked = ref(false)
     //   // const actualInfos = ref({})
-    //   const message = ref("")
-    //   const messages = ref([])
-    //   const scroller = ref(null);
+      const message = ref("")
+      const messages = ref([])
+      const scroller = ref(null);
     //   const newRecipient = ref('')
     //   const allUsers = ref([])
     //   const recipients = ref([])
@@ -121,6 +135,8 @@
 
     const myChannels = ref<Array<MyChannel>>([]);
     const allChannels = ref<Array<Channel>>([])
+    
+    const profileToShow = ref('')
 
     // Current
     const currentMembers = ref([])
@@ -130,6 +146,9 @@
     const isAllMyChanLoaded = ref(true)
     const isAllChanLoaded = ref(false)
     const isCurrentMembersLoaded = ref(false)
+    const isBlockedLoaded = ref(false)
+
+    const memberList = ref<Array<ChanMembers>>([])
 
     const tmpMyChannels = [{
       "channelId": 1,
@@ -156,9 +175,95 @@
       "type": "PROTECTED",
       "Admin": "Admin"
     }]
+    
+    const fakeMemberList = [
+    {
+      id: 0,
+      userId: 1,
+      username: "userTest",
+      status: "ONLINE",
+      avatar_url: "http://localhost:3000/avatar/default.jpg"
+    },
+    {
+      id: 1,
+      userId: 2,
+      username: "TechGuru42",
+      status: "ONLINE",
+      avatar_url: "http://localhost:3000/avatar/default.jpg"
+    },
+    {
+      id: 2,
+      userId: 3,
+      username: "sarah_smith",
+      status: "OFFLINE",
+      avatar_url: "http://localhost:3000/avatar/default.jpg"
+    },
+    {
+      id: 3,
+      userId: 4,
+      username: "alex_jones",
+      status: "INGAME",
+      avatar_url: "http://localhost:3000/avatar/default.jpg"
+    },
+    {
+      id: 4,
+      userId: 5,
+      username: "emma_wilson",
+      status: "ONLINE",
+      avatar_url: "http://localhost:3000/avatar/default.jpg"
+    },
+    {
+      id: 5,
+      userId: 6,
+      username: "michael_brown",
+      status: "OFFLINE",
+      avatar_url: "http://localhost:3000/avatar/default.jpg"
+    },
+    {
+      id: 6,
+      userId: 7,
+      username: "olivia_davis",
+      status: "INGAME",
+      avatar_url: "http://localhost:3000/avatar/default.jpg"
+    },
+    {
+      id: 7,
+      userId: 8,
+      username: "william_jackson",
+      status: "ONLINE",
+      avatar_url: "http://localhost:3000/avatar/default.jpg"
+    },
+    {
+      id: 8,
+      userId: 9,
+      username: "ava_clark",
+      status: "OFFLINE",
+      avatar_url: "http://localhost:3000/avatar/default.jpg"
+    },
+    {
+      id: 9,
+      userId: 10,
+      username: "noah_anderson",
+      status: "INGAME",
+      avatar_url: "http://localhost:3000/avatar/default.jpg"
+    },
+    {
+      id: 10,
+      userId: 11,
+      username: "mia_harris",
+      status: "ONLINE",
+      avatar_url: "http://localhost:3000/avatar/default.jpg"
+    }
+  ]
+
+    memberList.value = fakeMemberList
 
     myChannels.value = tmpMyChannels
 
+    // set current channel
+    if (isAllMyChanLoaded.value && myChannels.value.length > 0) {
+      currentChannel.value = myChannels.value[0]
+    }
 
     async function getMyChannels() {
       await axios({
@@ -234,143 +339,105 @@
         });
     }
     
-  //   let dateOptions = {
-  //       weekday: "short",
-  //       day: "numeric",
-  //       month: "short",
-  //       year: "numeric",
-  //       hour: "numeric",
-  //       minute: "numeric",
-  //       timeZone: "Europe/Zurich",
-  //       hour12: false,
-  //   };
+    let dateOptions = {
+        weekday: "short",
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        timeZone: "Europe/Zurich",
+        hour12: false,
+    };
 
-  //   onUpdated(() => {
-  //     // when the DOM is updated I scroll to 
-  //     // bottom of the Div that contains messages
-  //     scrollToBottom();
-  //   })
+    onUpdated(() => {
+      // when the DOM is updated I scroll to 
+      // bottom of the Div that contains messages
+      scrollToBottom();
+    })
 
-  //   // when there is socket going on
-  //   chatService.onConnect((chat) => {
-  //       // demander l'historique des msgs
-  //       chat.socket?.emit('dmHistory');
+    // when there is socket going on
+    chatService.onConnect((chat) => {
+        // demander l'historique des msgs
+        chat.socket?.emit('channelHistory');
 
-  //       // récupérer l'historique des msgs
-  //       chat.socket?.on('dmHistory', (payload) => {
-  //           stockHistory(payload);
-  //       });
+        // récupérer l'historique des msgs
+        chat.socket?.on('channelHistory', (payload) => {
+            stockHistory(payload);
+        });
 
-  //       // récupérer un nouveau msg reçu
-  //       chat.socket?.on('dm', (payload) => {
-  //         pushToMessages(payload);
-  //       });
-  //   },
-  //   { timeout: 10000 },
-  //   chatService);
+        // récupérer un nouveau msg reçu
+        chat.socket?.on('channel', (payload) => {
+          pushToMessages(payload);
+        });
+    },
+    { timeout: 10000 },
+    chatService);
 
-  //   const handleSubmitNewMessage = () => {
-  //     chatService.sendNewMessage(message.value, actual.value.id);
-  //     messages.value.push({
-  //       fromId: user.value.id,
-  //       toId: actual.value.id,
-  //       message: message.value,
-  //       username: user.username,
-  //       date: new Date().toLocaleString("en-US", dateOptions),
-  //     })
-  //   }
+    const handleSubmitNewMessage = () => {
+      chatService.sendNewMessageToChan(message.value, currentChannel.value.channelId);
+      messages.value.push({
+        id: 0,
+        message: message.value,
+        channelId: currentChannel.value.channelId,
+        senderId: user.value.id,
+        date: new Date().toLocaleString("en-US", dateOptions),
+      })
+      message.value = ''
+    }
 
-  //   function pushToMessages(payload) {
-  //     if (messages.value.indexOf(payload.id) === -1) {
-  //       messages.value.push({
-  //         id: payload.id,
-  //         message: payload.message,
-  //         fromId: payload.fromId,
-  //         toId: payload.toId,
-  //         date: new Date(payload.date).toLocaleString("en-US", dateOptions)
-  //       })
-  //     }
-  //   }
+    function pushToMessages(payload) {
+      if (messages.value.indexOf(payload.id) === -1) {
+        messages.value.push({
+          id: payload.id,
+          message: payload.message,
+          channelId: payload.channelId,
+          senderId: payload.senderId,
+          date: new Date(payload.date).toLocaleString("en-US", dateOptions)
+        })
+      }
+    }
 
-  //   const updateBlockedBool = (newValue) => {
-  //     actualIsBlocked.value = newValue
-  //   };
+    // const updateBlockedBool = (newValue) => {
+    //   actualIsBlocked.value = newValue
+    // };
 
-  //   const stockHistory = async (payload) => {
-  //     // push recieved message to Messages Array
-  //     pushToMessages(payload)      
-  //     // make an Array of all user i'm speaking with
-  //     let id
-  //       if (payload.fromId === user.value.id) {
-  //           id = payload.toId
-  //       } else {
-  //           id = payload.fromId
-  //       }
-  //       if (recipients.value.indexOf(id) === -1 && (id != user.value.id)) {
-  //           recipients.value.push(id);
-  //       }
-      
-  //       // check what is the actual recipient
-  //       if (isAllUsersLoaded.value && Object.keys(actual.value).length === 0 && recipients.value.length > 0) {
-  //         actual.value = allUsers.value.find((user) => recipients.value[0] === user.id)
-  //       }
-  //   }
-
-  //   // add recipient to the list
-  //   function addRecipient(recipientName) {
-  //       const userFind = allUsers.value.find((user) => recipientName === user.username)
-  //       if (userFind) {
-  //         if (recipients.value.indexOf(userFind.id) === -1) {
-  //           recipients.value.push(userFind.id);
-  //         }
-  //         actual.value = userFind
-  //       }
-  //   }
-
-  //   // add recipient by ID to the list
-  //   function addRecipientByID(queryRecipientId) {
-  //       const userFind = allUsers.value.find((user) => queryRecipientId == user.id)
-  //       if (userFind) {
-  //           if (recipients.value.indexOf(userFind.id) === -1) {
-  //             recipients.value.push(userFind.id);
-  //           }
-  //           actual.value = userFind
-  //       }
-  //   }
-
-  //   function isInRecipients() {
-  //     if (recipients.value.find((recipient) => queryRecipient == recipient)) {
-  //       return true
-  //     } else {
-  //       addRecipientByID(queryRecipient)
-  //       return false
-  //     }
-  //   }
-
-  //   // return name of recipient
-  //   function getRecipientName(recipient) {
-  //     const userFind = allUsers.value.find((user) => recipient === user.id)
-  //     if (userFind) {
-  //       return userFind.username
-  //     } else {
-  //       return "Loading..."
-  //     }
-  //   }
+    const stockHistory = async (payload) => {
+      // push recieved message to Messages Array
+      pushToMessages(payload)
+      messages.value.sort((a,b) => {
+        return new Date(a.date) - new Date(b.date);
+      })  
+    }
 
     // used when click on channel name
     function changeCurrentChannel(name: string) {
         currentChannel.value = myChannels.value.find((chan) => name === chan.name) || null
     }
 
-  //   // scroll messages container to bottom
-  //   function scrollToBottom() {
-  //       let myScroller = scroller.value
-  //       if (myScroller) {
-  //         myScroller.scrollTop = myScroller.scrollHeight;
-  //       }
-  //   }
+    function checkIfBlocked(senderId) {
+      return userStore.blocked.find(user => user.id === senderId)
+    }
 
-  //   // Async functions 
+    function getMemberImg(userId: number) {
+      const found = memberList.value.find(member => member.userId === userId)
+      return  found.avatar_url
+    }
+
+    function getMemberUsername(userId: number) {
+      const found = memberList.value.find(member => member.userId === userId)
+      return  found.username
+    }
+
+    // scroll messages container to bottom
+    function scrollToBottom() {
+        let myScroller = scroller.value
+        if (myScroller) {
+          myScroller.scrollTop = myScroller.scrollHeight;
+        }
+    }
+
+    // Async functions 
 
     async function loadMyself() {
       if (sessionStore.isLoggedIn) {
@@ -384,35 +451,33 @@
       }
     }
 
-  //   async function getAllUsers() {
-  //     try {
-  //       const response = await axios.get("/api/user/all");
-  //       allUsers.value = response.data;
-  //       isAllUsersLoaded.value = true;
-  //       return true;
-  //     } catch (error) {
-  //       if (error.response && error.response.status == 404) {
-  //         console.log(`not found: ${error.response.status} ${error.response.statusText}`);
-  //       } else {
-  //         console.error(`unexpected error: ${error.response.status} ${error.response.statusText}`);
-  //       }
-  //       return false;
-  //     }
-  //   }
+    async function loadBlocked() {
+      if (sessionStore.isLoggedIn) {
+        // get user infos
+        await userStore.getBlockedUsers(sessionStore.access_token);
+        isBlockedLoaded.value = true
+        if (user.isLogged === false) {
+          sessionStore.isLoggedIn = false;
+          sessionStore.access_token = "";
+          router.push({ name: 'login' })
+        }
+      }
+    }
     
   // getAllUsers()
   
   loadMyself()
   // getMyChannels()
   getAllChannels()
+  loadBlocked()
   // getAllMembers(1)
 
   // Watch for changes
-  // watchEffect(() => {
-  //   if (isAllChanLoaded.value) {
-  //     console.log(allChannels.value)
-  //   }
-  // })
+    // watch(isBlockedLoaded, (NewValue, OldValue) => {
+    //   if (NewValue) {
+    //     console.log(userStore.blocked)
+    //   }
+    // })
 </script>
 
 <style>
@@ -442,6 +507,46 @@
     padding-left: 1rem;
   }
 
-  /* scrollbar */
+  /* animation profile / member list */
+
+  .position-origine {
+    position: absolute;
+    left: -101%;
+    transition: left 0.5s ease; 
+  }
+
+  .position-cible {
+    position: absolute;
+    left: 0;
+    transition: left 0.5s ease; 
+  }
+
+  #ft-back-to-list {
+    position: relative;
+    left: -.5rem;
+    transition: left .5s ease;
+    text-decoration: none;
+    letter-spacing: 0em;
+    text-align: center;
+    display: inline-block;
+    background: var(--dark-pink);
+    padding: 0.5em 0.5em;
+    border-top: solid 0.3em var(--light);
+    border-left: solid 0.3em var(--light);
+    border-right: solid 0.3em var(--purple);
+    border-bottom: solid 0.3em var(--purple);
+  }
+
+  #ft-back-to-list:hover {
+    left: -1rem;
+  }
+
+  /* chat msgs */
+
+  .ft-chat-profile-pic {
+    background-size: cover !important;
+    width: 3rem !important;
+    height: 3rem !important;
+  }
 
 </style>
