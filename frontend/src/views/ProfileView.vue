@@ -241,6 +241,48 @@
             <router-link to="/search-users">Search for users</router-link>
         
   <!-- CODE DE MICHELE CI-DESSUS -->
+  <!-- CODE DE DAVI 2FA DEBUT-->
+      <div v-if="user.tfa_enabled">
+        <p>2FA is enabled</p>
+        <button
+          v-if="!show_tfa_enable_disable_confirmation"
+          @click="tfaDisable"
+          class="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded"
+        >
+          disable
+        </button>
+      </div>
+      <div v-if="!user.tfa_enabled">
+        <p>2FA is disabled</p>
+        <input
+          v-model="tfa_email"
+          placeholder="email"
+          v-if="!show_tfa_enable_disable_confirmation"
+        /><br />
+        <button
+          v-if="!show_tfa_enable_disable_confirmation"
+          @click="tfaEnable"
+          class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+        >
+          enable
+        </button>
+      </div>
+      <div v-if="show_tfa_enable_disable_confirmation">
+        <input v-model="tfa_code" placeholder="code" /><br />
+        <button
+          @click="validate2FARegistration"
+          class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
+        >
+          validate
+        </button>
+        <button
+          @click="cancelTfaEnableDisable"
+          class="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded"
+        >
+          cancel
+        </button>
+      </div>
+  <!-- CODE DE DAVI 2FA FIN-->
     </section>
   </div>
   <div id="ft-bottom-line"></div>
@@ -250,7 +292,7 @@
     import { ref, onBeforeMount } from "vue";
     import { storeToRefs } from 'pinia'
     import { useRoute, useRouter } from 'vue-router'
-    import axios from "axios";
+    import axios, { AxiosError } from "axios";
     import { useUserStore } from '../stores/UserStore'
     import { useSessionStore } from "@/stores/SessionStore";
     import NavBar from "@/components/NavBar.vue";
@@ -406,6 +448,92 @@
     function getGameHistory(username) {
         userStore.getGameHistory(username, sessionStore.access_token);
     }
+    
+    // SCRIPT DAVI 2FA DEBUT ********************************************************************
+
+const tfa_code = ref("");
+const tfa_email = ref("");
+const show_tfa_enable_disable_confirmation = ref(false);
+let tfaRegistrationEnable = true;
+
+async function tfaEnable() {
+  if (!tfa_email.value.length) {
+    console.log("email must not be empty");
+    return;
+  }
+  await axios({
+    url: "/api/auth/2fa/enable",
+    method: "patch",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${sessionStore.access_token}`,
+    },
+    data: { email: tfa_email.value },
+  })
+    .then(() => {
+      console.log("code has been sent");
+      show_tfa_enable_disable_confirmation.value = true;
+      tfaRegistrationEnable = true;
+    })
+    .catch((error) => {
+      if (error.response?.status === 409) {
+        show_tfa_enable_disable_confirmation.value = true;
+        tfaRegistrationEnable = true;
+      }
+      console.error(`${error.response.status} ${error.response.statusText}`);
+    });
+}
+
+async function tfaDisable() {
+  await axios({
+    url: "/api/auth/2fa/disable",
+    method: "patch",
+    headers: {
+      Authorization: `Bearer ${sessionStore.access_token}`,
+    },
+  })
+    .then(() => {
+      console.log("code has been sent");
+      show_tfa_enable_disable_confirmation.value = true;
+      tfaRegistrationEnable = false;
+    })
+    .catch((error) => {
+      if (error.response?.status === 409) {
+        show_tfa_enable_disable_confirmation.value = true;
+        tfaRegistrationEnable = false;
+      }
+      console.error(`${error.response.status} ${error.response.statusText}`);
+    });
+}
+
+async function validate2FARegistration() {
+  if (tfa_code.value.length == 0) {
+    console.log("please insert code");
+    return;
+  }
+  await axios({
+    url: `/api/auth/2fa/${tfaRegistrationEnable ? "enable" : "disable"}/confirm`,
+    method: "patch",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${sessionStore.access_token}`,
+    },
+    data: { code: tfa_code.value.trim() },
+  })
+    .then(() => {
+      userStore.getMe(sessionStore.access_token);
+      tfa_code.value = "";
+      show_tfa_enable_disable_confirmation.value = false;
+    })
+    .catch((error: AxiosError) => {
+      console.error(`${error.response?.status} ${error.response?.statusText}`);
+    });
+}
+
+function cancelTfaEnableDisable() {
+  show_tfa_enable_disable_confirmation.value = false;
+}
+    // SCRIPT DAVI 2FA FIN **********************************************************************
 </script>
 
 <style scoped>

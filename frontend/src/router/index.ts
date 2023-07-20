@@ -8,6 +8,7 @@ import GameView from '../views/GameView.vue'
 import ChatView from '../views/ChatView.vue'
 import DmsView from '../views/DmsView.vue'
 import LoginView from '../views/LoginView.vue'
+import LoginTfaView from '../views/LoginTfaView.vue'
 import Login42ApiView from '../views/Login42ApiView.vue'
 import SearchView from '../views/SearchView.vue'
 import SearchChannelsView from '../views/SearchChannelsView.vue'
@@ -59,6 +60,11 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: LoginView,
+    },
+    {
+      path: '/login/tfa',
+      name: '2fa',
+      component: LoginTfaView,
     },
     {
       path: '/login/42api',

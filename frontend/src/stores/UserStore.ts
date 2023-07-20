@@ -343,6 +343,7 @@ export const useUserStore = defineStore("userStore", {
               return false;
             });
         },
+    
         // get games history
         async getGameHistory(access_token) {
           await axios({
@@ -367,5 +368,11 @@ export const useUserStore = defineStore("userStore", {
               return false;
             });
         },
+
+        // redirect to the profile of the user
+        async redirectToMyProfile(access_token: string) {
+          await this.getMe(access_token);
+          this.router.push(`/user/${this.user.username}`);
+        }
     }
 })

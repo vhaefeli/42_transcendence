@@ -1,15 +1,25 @@
-import { createApp } from "vue";
+import { createApp, markRaw } from "vue";
 import { createPinia } from "pinia";
 import piniaPluginPersistedState from "pinia-plugin-persistedstate";
 
 import App from "./App.vue";
-import Vue3Lottie from 'vue3-lottie'
+import Vue3Lottie from "vue3-lottie";
 import router from "./router";
 import "./index.css";
+import { useRouter, type Router } from "vue-router";
+
+declare module "pinia" {
+  export interface PiniaCustomProperties {
+    router: Router;
+  }
+}
 
 const app = createApp(App);
 const pinia = createPinia();
 
+pinia.use(({ store }) => {
+  store.router = markRaw(useRouter());
+});
 pinia.use(piniaPluginPersistedState);
 
 app.use(pinia);

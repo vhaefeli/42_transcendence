@@ -14,12 +14,13 @@ export class AutoPopulateDbService {
   async AutoPopulateDb() {
     // FOR DEBUG PURPOSES
     Logger.log('AutoPopulating database');
+    let success: boolean;
 
-    await this.CreateUsers();
-    await this.CreateFriendShips();
-    await this.CreateDirectMessages();
-    await this.CreateChannels();
-    await this.CreateGames();
+    success = await this.CreateUsers();
+    success = await this.CreateFriendShips();
+    if (success) success = await this.CreateDirectMessages();
+    success = await this.CreateChannels();
+    if (success) success = await this.CreateGames();
   }
 
   private async CreateUsers() {
@@ -95,7 +96,10 @@ export class AutoPopulateDbService {
           },
         ],
       });
-    } catch {}
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   private async CreateFriendShips() {
@@ -141,7 +145,10 @@ export class AutoPopulateDbService {
           from: { connect: { username: 'userTest' } },
         },
       });
-    } catch {}
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   private async CreateDirectMessages() {
@@ -204,7 +211,10 @@ export class AutoPopulateDbService {
           },
         ],
       });
-    } catch {}
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   private async CreateChannels() {
@@ -332,7 +342,10 @@ export class AutoPopulateDbService {
           members: { connect: [{ id: 2 }] },
         },
       });
-    } catch {}
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   private async CreateGames() {
@@ -342,14 +355,17 @@ export class AutoPopulateDbService {
           {
             initiatedById: 1,
             completed: true,
+            date: new Date(1689697450000),
           },
           {
             initiatedById: 1,
             completed: true,
+            date: new Date(1689696450000),
           },
           {
             initiatedById: 1,
             completed: true,
+            date: new Date(1689697456660),
           },
         ],
       });
@@ -411,6 +427,9 @@ export class AutoPopulateDbService {
           },
         ],
       });
-    } catch {}
+      return true;
+    } catch {
+      return false;
+    }
   }
 }

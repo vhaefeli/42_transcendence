@@ -3,11 +3,16 @@
   <div class="text-white">
     <h1>Login page</h1>
     <div id="login-form" v-if="show_login_form">
-      <input v-model="login_username" placeholder="username" /><br />
+      <input
+        v-model="login_username"
+        placeholder="username"
+        class="bg-gray-500"
+      /><br />
       <input
         type="password"
         v-model="login_password"
         placeholder="password"
+        class="bg-gray-500"
       /><br />
       <button
         class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
@@ -28,92 +33,21 @@
         42 API Login/Registration
       </button>
     </div>
-    <div id="tfa-form" v-if="show_tfa_form">
-      <input v-model="tfa_code" placeholder="code" /><br />
-      <button
-        @click="cancel2FALogin"
-        class="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded"
-      >
-        cancel
-      </button>
-      <button
-        @click="validate2FALogin"
-        class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-      >
-        validate
-      </button>
-    </div>
-    <button v-if="isLoggedIn" @click="LogOut">Logout</button>
-    <div v-if="isLoggedIn">
-      <button @click="LoadProfile">reload</button><br />
-      <router-link :to="'/user/' + user.username">see my profile</router-link>
-      <br />
-      <p>Your Profile:</p>
-      <br />
-      <p>username {{ user.username }}<br />id {{ user.id }}</p>
-      <div v-if="user.tfa_enabled">
-        <p>2FA is enabled</p>
-        <button
-          v-if="!show_tfa_enable_disable_confirmation"
-          @click="tfaDisable"
-          class="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded"
-        >
-          disable
-        </button>
-      </div>
-      <div v-if="!user.tfa_enabled">
-        <p>2FA is disabled</p>
-        <input
-          v-model="tfa_email"
-          placeholder="email"
-          v-if="!show_tfa_enable_disable_confirmation"
-        /><br />
-        <button
-          v-if="!show_tfa_enable_disable_confirmation"
-          @click="tfaEnable"
-          class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-        >
-          enable
-        </button>
-      </div>
-      <div v-if="show_tfa_enable_disable_confirmation">
-        <input v-model="tfa_code" placeholder="code" /><br />
-        <button
-          @click="validate2FARegistration"
-          class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-        >
-          validate
-        </button>
-        <button
-          @click="cancelTfaEnableDisable"
-          class="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded"
-        >
-          cancel
-        </button>
-      </div>
-      <p>Status: {{ user.status }}</p>
-      <img :src="user.avatar_url" alt="avatar img" width="200" height="200" />
-    </div>
-    <div v-if="true">
-      <button
-        class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-        @click="statusService.ping()"
-      >
-        ping socket
-      </button>
-    </div>
-
+    <router-link v-if="isLoggedIn" :to="'/login?logout=true'"
+      >Logout</router-link
+    >
   </div>
 </template>
 
 <script setup lang="ts">
 import NavBar from "../components/NavBar.vue";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import axios, { AxiosError } from "axios";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute, useRouter, type LocationQuery } from "vue-router";
 import { useSessionStore } from "@/stores/SessionStore";
 import { statusService } from "@/services/status-socket.service";
 import { storeToRefs } from "pinia";
+import { useUserStore } from "@/stores/UserStore";
 
 const show_login_form = ref(true);
 const login_username = ref("");
@@ -121,45 +55,41 @@ const login_password = ref("");
 const router = useRouter();
 const route = useRoute();
 
-const show_tfa_form = ref(false);
-const tfa_code = ref("");
-const tfa_email = ref("");
-const show_tfa_enable_disable_confirmation = ref(false);
-
 const sessionStore = useSessionStore();
 const { isLoggedIn } = storeToRefs(sessionStore);
+const userStore = useUserStore();
 statusService;
-
-let tfa_uuid: string | undefined = "";
-
-let user = ref({
-  id: 0,
-  username: "",
-  avatar_url: "",
-  tfa_enabled: false,
-  status: "OFFLINE",
-});
 
 type Payload = {
   username: string;
   password: string;
 };
 
-if (sessionStore.isLoggedIn) {
-  show_login_form.value = false;
-  LoadProfile();
+handleQueryParams(route?.query);
+watch(
+  () => route?.query,
+  (params) => {
+    handleQueryParams(params);
+  }
+);
+
+function handleQueryParams(params: LocationQuery) {
+  if (params?.logout?.toString() === "true") {
+    if (sessionStore.isLoggedIn) sessionStore.logout();
+    show_login_form.value = true;
+    router.push("/login");
+  }
 }
 
-tfa_uuid = route.query?.tfa_request_uuid?.toString();
-if (tfa_uuid) {
+if (sessionStore.isLoggedIn) {
   show_login_form.value = false;
-  show_tfa_form.value = true;
-} else tfa_uuid = "";
+  // TODO: uncomment next line
+  // router.push("/directories");
+}
 
-async function CreateUser(payload: Payload): Promise<boolean> {
+async function CreateUser(payload: Payload) {
   if (!payload.username.length || !payload.username.length) {
     console.log("Credentials are missing");
-    return false;
   }
 
   await axios({
@@ -168,29 +98,30 @@ async function CreateUser(payload: Payload): Promise<boolean> {
     headers: { "Content-Type": "application/json" },
     data: payload,
   })
-    .then((response) => {
-      // To execute when the request is successful
-      console.log(`${response.status} + ${response.statusText}`);
-      return true;
+    .then(() => {
+      console.debug("Created new user");
     })
-    .catch((error) => {
-      // To execute when the request fails
-      if (error.response.status == 409)
-        console.log(
-          `user already exists: ${error.response.status} ${error.response.statusText}`
+    .catch((error: AxiosError) => {
+      if (error.response?.status == 409)
+        console.debug(
+          `${error.response.status} ${error.response.statusText}: Username is already in use`
         );
-      else
+      else if (error.response?.status == 400) {
+        const message: string = error.response?.data?.message[0];
+        console.debug(
+          `${error.response.status} ${error.response.statusText}: ${message}`
+        );
         console.error(
-          `unexpected error: ${error.response.status} ${error.response.statusText}`
+          `INVALID ${message.includes("username") ? "USERNAME" : "PASSWORD"}`
         );
-      return false;
+      } else
+        console.debug(
+          `${error.response?.status} ${error.response?.statusText}: Unexpected error`
+        );
     });
-
-  //To execute whether the request succeeds or fails
-  return true;
 }
 
-async function LogIn(createUser = false): Promise<boolean> {
+async function LogIn(createUser = false) {
   const payload = {
     username: login_username.value,
     password: login_password.value,
@@ -206,76 +137,39 @@ async function LogIn(createUser = false): Promise<boolean> {
     .then((response) => {
       if (response.data.tfa_enabled) {
         show_login_form.value = false;
-        show_tfa_form.value = true;
-        tfa_uuid = response.data.tfa_request_uuid;
+        router.push(
+          `/login/tfa?tfa_request_uuid=${response.data.tfa_request_uuid}`
+        );
       } else {
         sessionStore.access_token = response.data.access_token;
         sessionStore.isLoggedIn = true;
         show_login_form.value = false;
-        console.log("successfully logged in");
-        // TODO redirect to another page (using statusService.onConnect)
-        // router.push({ name: 'profile', params: { username: login_username.value } })
-        LoadProfile();
+        console.debug("Successfully logged in");
+        router.push("/directories");
       }
-      return true;
     })
-    .catch((error) => {
-      if (error instanceof AxiosError) {
-        show_login_form.value = true;
-        sessionStore.isLoggedIn = false;
-        if (error.response?.status == 401)
-          console.log(
-            `invalid credentials: ${error.response?.status} ${error.response?.statusText}`
-          );
-        else
-          console.error(
-            `unexpected error: ${error.response?.status} ${error.response?.statusText}`
-          );
-        return false;
-      } else throw error;
-    });
-  return true;
-}
-
-async function LoadProfile() {
-  // waits until socket is connected (or 1000ms)
-  await statusService.onConnect(
-    () => {
-      return;
-    },
-    { timeout: 1000 }
-  );
-  if (!sessionStore.isLoggedIn) {
-    console.log("user is not logged in");
-    return;
-  }
-
-  await axios({
-    url: "/api/user/me",
-    method: "get",
-    headers: { Authorization: `Bearer ${sessionStore.access_token}` },
-  })
-    .then((response) => {
-      user.value = response.data;
-      console.log("loaded profile");
-      console.log(user.value);
-    })
-    .catch((error) => {
-      if (error.response.status == 401) {
-        console.log(
-          `invalid access token: ${error.response.status} ${error.response.statusText}`
+    .catch((error: AxiosError) => {
+      if (error.response?.status == 401)
+        console.debug(
+          `${error.response.status} ${error.response.statusText}: Invalid credentials, try again`
         );
-        LogOut();
-      } else
+      else if (error.response?.status == 503)
+        console.debug(
+          `${error.response.status} ${error.response.statusText}: Couldn't connect to mail server in order to send 2fa code`
+        );
+      else if (error.response?.status == 400) {
+        const message: string = error.response?.data?.message[0];
+        console.debug(
+          `${error.response.status} ${error.response.statusText}: ${message}`
+        );
         console.error(
-          `unexpected error: ${error.response.status} ${error.response.statusText}`
+          `INVALID ${message.includes("username") ? "USERNAME" : "PASSWORD"}`
+        );
+      } else
+        console.debug(
+          `${error.response?.status} ${error.response?.statusText}: Unexpected error`
         );
     });
-}
-
-function LogOut() {
-  show_login_form.value = true;
-  sessionStore.logout();
 }
 
 function Login42Api() {
@@ -287,116 +181,5 @@ function Login42Api() {
   )}&redirect_uri=${encodeURIComponent(
     redirect_uri
   )}&response_type=code&state=${sessionStore.getUUID()}`;
-}
-
-async function validate2FALogin() {
-  if (tfa_code.value.length == 0) {
-    console.log("please insert code");
-    return;
-  }
-  await axios({
-    url: "/api/auth/2fa/login",
-    method: "post",
-    headers: { "Content-Type": "application/json" },
-    data: { tfa_request_uuid: tfa_uuid, code: tfa_code.value.trim() },
-  })
-    .then((response) => {
-      sessionStore.access_token = response.data.access_token;
-      sessionStore.isLoggedIn = true;
-      show_tfa_form.value = false;
-      LoadProfile();
-      tfa_code.value = "";
-    })
-    .catch((error: AxiosError) => {
-      if (error.response?.status == 401)
-        console.log(`${error.response?.statusText}: tfa verification failed`);
-      else console.log(error);
-    });
-}
-
-function cancel2FALogin() {
-  show_tfa_form.value = false;
-  show_login_form.value = true;
-  tfa_uuid = "";
-}
-
-let tfaRegistrationEnable = true;
-
-async function tfaEnable() {
-  if (!tfa_email.value.length) {
-    console.log("email must not be empty");
-    return;
-  }
-  await axios({
-    url: "/api/auth/2fa/enable",
-    method: "patch",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${sessionStore.access_token}`,
-    },
-    data: { email: tfa_email.value },
-  })
-    .then((_response) => {
-      console.log("code has been sent");
-      show_tfa_enable_disable_confirmation.value = true;
-      tfaRegistrationEnable = true;
-    })
-    .catch((error) => {
-      if (error.response?.status === 409) {
-        show_tfa_enable_disable_confirmation.value = true;
-        tfaRegistrationEnable = true;
-      }
-      console.error(`${error.response.status} ${error.response.statusText}`);
-    });
-}
-
-async function tfaDisable() {
-  await axios({
-    url: "/api/auth/2fa/disable",
-    method: "patch",
-    headers: {
-      Authorization: `Bearer ${sessionStore.access_token}`,
-    },
-  })
-    .then((_response) => {
-      console.log("code has been sent");
-      show_tfa_enable_disable_confirmation.value = true;
-      tfaRegistrationEnable = false;
-    })
-    .catch((error) => {
-      if (error.response?.status === 409) {
-        show_tfa_enable_disable_confirmation.value = true;
-        tfaRegistrationEnable = false;
-      }
-      console.error(`${error.response.status} ${error.response.statusText}`);
-    });
-}
-
-async function validate2FARegistration() {
-  if (tfa_code.value.length == 0) {
-    console.log("please insert code");
-    return;
-  }
-  await axios({
-    url: `/api/auth/2fa/${tfaRegistrationEnable ? "enable" : "disable"}/confirm`,
-    method: "patch",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${sessionStore.access_token}`,
-    },
-    data: { code: tfa_code.value.trim() },
-  })
-    .then((response) => {
-      LoadProfile();
-      tfa_code.value = "";
-      show_tfa_enable_disable_confirmation.value = false;
-    })
-    .catch((error: AxiosError) => {
-      console.error(`${error.response?.status} ${error.response?.statusText}`);
-    });
-}
-
-function cancelTfaEnableDisable() {
-  show_tfa_enable_disable_confirmation.value = false;
 }
 </script>
