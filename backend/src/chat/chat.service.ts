@@ -652,18 +652,24 @@ export class ChatService {
       ) {
         throw new NotFoundException('User must be a member');
       }
-
       // Request user is the owner or an admin of the channel
       if (
         channel.ownerId !== my_id &&
         channel.admins.find((admin) => admin.id === my_id) === undefined
       )
         throw new UnauthorizedException(
-          "You don't have the necessary privileges to muted",
+          "You don't have the necessary privileges to mute",
         );
       // The owner can't be muted
       if (channel.ownerId === channelAddMutedDto.userId)
         throw new UnauthorizedException("The owner can't be muted");
+      // The admins can't be muted
+      if (
+        channel.admins.find(
+          (admin) => admin.id === channelAddMutedDto.userId,
+        ) !== undefined
+      )
+        throw new UnauthorizedException("Admins can't be muted");
       // User to add is already muted
       if (
         channel.muted.find(
@@ -782,13 +788,13 @@ export class ChatService {
         },
       });
       // Request to mute must concern a member
-      if (
-        !channel.members.find(
-          (member) => member.id === channelAddBannedDto.userId,
-        )
-      ) {
-        throw new NotFoundException('User must be a member');
-      }
+      //if (
+      //  !channel.members.find(
+      //    (member) => member.id === channelAddBannedDto.userId,
+      //  )
+      //) {
+      //  throw new NotFoundException('User must be a member');
+      // }
 
       // Request user is the owner or an admin of the channel
       if (
@@ -800,7 +806,14 @@ export class ChatService {
         );
       // The owner can't be banned
       if (channel.ownerId === channelAddBannedDto.userId)
-        throw new UnauthorizedException("The owner can't be banneded");
+        throw new UnauthorizedException("The owner can't be ban");
+      // The Admin can't be banned
+      if (
+        channel.admins.find(
+          (admin) => admin.id === channelAddBannedDto.userId,
+        ) !== undefined
+      )
+        throw new UnauthorizedException("Admins can't be ban");
       // User to add is already banneded
       if (
         channel.banned.find(
@@ -821,11 +834,30 @@ export class ChatService {
       if (error?.code) Logger.error(error.code + ' ' + error.message);
       throw error;
     }
-
     try {
       await this.prisma.channel.update({
         where: { id: channelAddBannedDto.channelId },
-        data: { banned: { connect: { id: channelAddBannedDto.userId } } },
+        data: {
+          banned: { connect: { id: channelAddBannedDto.userId } },
+        },
+      });
+    } catch (error) {
+      if (error?.code === 'P2025') {
+        throw new NotFoundException("User wasn't found");
+      }
+      if (error?.code) Logger.error(error.code + ' ' + error.message);
+      else Logger.error(error);
+      throw error;
+    }
+
+    // this should not show an error especialy because a new banned user can be set without
+    // a member already set
+    try {
+      await this.prisma.channel.update({
+        where: { id: channelAddBannedDto.channelId },
+        data: {
+          members: { disconnect: { id: channelAddBannedDto.userId } },
+        },
       });
     } catch (error) {
       if (error?.code === 'P2025') {
@@ -841,6 +873,7 @@ export class ChatService {
     channelRemoveBannedDto: ChannelRemoveBannedDto,
     my_id: number,
   ) {
+    Logger.log('RemoveBaneed');
     try {
       const channel = await this.prisma.channel.findFirstOrThrow({
         where: { id: channelRemoveBannedDto.channelId },
@@ -900,6 +933,23 @@ export class ChatService {
       else Logger.error(error);
       throw error;
     }
+    // when possible, remove the member
+    try {
+      await this.prisma.channel.update({
+        where: { id: channelRemoveBannedDto.channelId },
+        data: {
+          members: { disconnect: { id: channelRemoveBannedDto.userId } },
+        },
+      });
+    } catch (error) {
+      if (error?.code === 'P2025') {
+        Logger.log('preventive');
+        //   throw new NotFoundException("Member wasn't found");
+      }
+      if (error?.code) Logger.error(error.code + ' ' + error.message);
+      else Logger.error(error);
+      throw error;
+    }
   }
 
   async ChannelRemoveMember(
@@ -918,7 +968,7 @@ export class ChatService {
           muted: { select: { id: true } },
         },
       });
-      // Request user is the themself or an Admin
+      // Request user is himself or an Admin
       if (
         channel.members.find((member) => member.id === my_id) === undefined &&
         channel.admins.find((admin) => admin.id === my_id) === undefined
@@ -1072,35 +1122,54 @@ export class ChatService {
           type: true,
           password: true,
           members: { select: { id: true } },
+          banned: { select: { id: true } },
         },
       });
 
       const memberStatus = channel.members.find(
         (member) => member.id === my_id,
       );
+      // Exclude banned user
+      if (channel.banned.find((Banned) => Banned.id === my_id))
+        throw new ConflictException('You have been banned on that channel');
       // if channel is private, the membership is mandatory
       if (memberStatus === undefined && channel.type === 'PRIVATE')
         throw new NotFoundException('You are not a member');
       // if channel is public, the membership is create on the fly
-      if (memberStatus === undefined && channel.type === 'PUBLIC')
+      if (memberStatus === undefined && channel.type === 'PUBLIC') {
         await this.prisma.channel.update({
           where: { id: channelJoinDto.channelId },
           data: { members: { connect: { id: my_id } } },
         });
+        // joinUserToChannel;
+        await this.chatGateway.JoinUserToChannel(
+          channelJoinDto.channelId,
+          my_id,
+        );
+      }
       // if channel is protected, the membership is created if the password is ok
-      if (memberStatus === undefined && channel.type === 'PROTECTED') {
-        if (
-          this.authService.compareHash(
-            channel.password,
-            channelJoinDto.password,
-          )
-        ) {
-          await this.prisma.channel.update({
-            where: { id: channelJoinDto.channelId },
-            data: { members: { connect: { id: my_id } } },
-          });
+      if (channel.type === 'PROTECTED') {
+        if (channelJoinDto.password === undefined)
+          throw new NotFoundException('Missing Password');
+
+        const passwordMatches = this.authService.compareHash(
+          channel.password,
+          channelJoinDto.password,
+        );
+
+        if (passwordMatches) {
+          if (memberStatus === undefined)
+            await this.prisma.channel.update({
+              where: { id: channelJoinDto.channelId },
+              data: { members: { connect: { id: my_id } } },
+            });
+          // joinUserToChannel;
+          await this.chatGateway.JoinUserToChannel(
+            channelJoinDto.channelId,
+            my_id,
+          );
         } else {
-          throw new NotFoundException('You are not a member');
+          throw new NotFoundException('Bad Password');
         }
       }
     } catch (error) {
