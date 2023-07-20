@@ -1,4 +1,4 @@
-import { GameModeConfig } from './game.entity';
+import { GameModeConfig } from './game-modes.entity';
 
 export class Ball {
   private readonly gameMode: GameModeConfig;

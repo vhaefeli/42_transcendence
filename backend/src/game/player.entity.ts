@@ -1,5 +1,5 @@
 import { Socket } from 'socket.io';
-import { GameModeConfig } from './game.entity';
+import { GameModeConfig } from './game-modes.entity';
 
 export enum PlayerAction {
   IDLE,
