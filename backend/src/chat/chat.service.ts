@@ -855,13 +855,8 @@ export class ChatService {
         where: { id: channelAddBannedDto.channelId },
         data: {
           banned: { connect: { id: channelAddBannedDto.userId } },
-          // Kick user out of the gateway
         },
       });
-      await this.chatGateway.KickUserFromChannel(
-        channelAddBannedDto.channelId,
-        my_id,
-      );
     } catch (error) {
       if (error?.code === 'P2025') {
         throw new NotFoundException("User wasn't found");
@@ -880,6 +875,11 @@ export class ChatService {
           members: { disconnect: { id: channelAddBannedDto.userId } },
         },
       });
+      // Kick user out of the gateway
+      await this.chatGateway.KickUserFromChannel(
+        channelAddBannedDto.channelId,
+        my_id,
+      );
     } catch (error) {
       if (error?.code === 'P2025') {
         throw new NotFoundException("User wasn't found");
@@ -1042,6 +1042,11 @@ export class ChatService {
           muted: { disconnect: { id: channelRemoveMemberDto.userId } },
         },
       });
+      // Kick user out of the gateway
+      await this.chatGateway.KickUserFromChannel(
+        channelAddBannedDto.channelId,
+        my_id,
+      );
     } catch (error) {
       if (error?.code === 'P2025') {
         throw new NotFoundException("Member wasn't found");
