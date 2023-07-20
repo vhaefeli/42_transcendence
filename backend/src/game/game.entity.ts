@@ -10,12 +10,15 @@ import {
   GameModeList,
   GameModeType,
 } from './game-modes.entity';
+import { Ball } from './ball.entity';
+import { GameUpdateDto } from './dto/game-update.dto';
 
 export class Game {
   readonly id: number;
   readonly gameModeName: GameModeType;
   private readonly gameMode: GameModeConfig;
   private readonly p = new Array<Player>(2);
+  private ball: Ball;
   private isActive = false;
   private isCompleted = false;
 
@@ -33,6 +36,7 @@ export class Game {
     )
       this.gameModeName = gameInfo.gameMode;
     else throw new TypeError(`Game Mode '${gameInfo.gameMode}' is unknown`);
+    this.ball = new Ball(this.gameMode);
   }
 
   getIsActive() {
@@ -109,9 +113,18 @@ export class Game {
     if (this.isActive) {
       // game loop goes here
       this.p.forEach((player) => player.move());
-      // TODO send game info to socket
-      // TODO create ball class
+      this.sendGameUpdateToPlayers();
     }
+  }
+
+  private async sendGameUpdateToPlayers() {
+    const msg: GameUpdateDto = {
+      id: this.id,
+      p: [this.p[0].getInfoToSend(), this.p[1].getInfoToSend()],
+      b: this.ball.getPos(),
+    };
+
+    this.gameGateway.server.to(this.id.toString()).emit('game', msg);
   }
 
   private async startGame() {

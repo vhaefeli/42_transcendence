@@ -80,6 +80,13 @@ export class Player {
     return this.y;
   }
 
+  getInfoToSend() {
+    return {
+      id: this.id,
+      y: this.y,
+    };
+  }
+
   endGame() {
     this.isReady = false;
     this.gameEnded = true;

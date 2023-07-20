@@ -6,8 +6,10 @@ export class Ball {
 
   constructor(gameMode: GameModeConfig) {
     this.gameMode = gameMode;
-    this.pos.x = (gameMode.GAME_WIDTH - gameMode.BALL_DIAMETER) / 2;
-    this.pos.y = (gameMode.GAME_HEIGHT - gameMode.BALL_DIAMETER) / 2;
+    this.pos = {
+      x: (gameMode.GAME_WIDTH - gameMode.BALL_DIAMETER) / 2,
+      y: (gameMode.GAME_HEIGHT - gameMode.BALL_DIAMETER) / 2,
+    };
   }
 
   getPos() {
