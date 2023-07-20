@@ -8,7 +8,7 @@ import {
   forwardRef,
 } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
-import { ChannelTypes, PrismaClient } from '@prisma/client';
+import { ChannelTypes } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 
 import { ChannelAddMemberDto } from './dto/channel-add-member.dto';
@@ -401,10 +401,6 @@ export class ChatService {
         ) !== undefined
       )
         throw new ConflictException('User is already in channel');
-      await this.chatGateway.JoinUserToChannel(
-        channelAddMemberDto.channelId,
-        channelAddMemberDto.userId,
-      );
     } catch (error) {
       if (
         error instanceof UnauthorizedException ||
@@ -425,6 +421,10 @@ export class ChatService {
         where: { id: channelAddMemberDto.channelId },
         data: { members: { connect: { id: channelAddMemberDto.userId } } },
       });
+      await this.chatGateway.JoinUserToChannel(
+        channelAddMemberDto.channelId,
+        channelAddMemberDto.userId,
+      );
     } catch (error) {
       if (error?.code === 'P2025') {
         throw new NotFoundException("User wasn't found");
@@ -490,6 +490,22 @@ export class ChatService {
       });
       return true;
     } catch {
+      return false;
+    }
+  }
+
+  async IsUserMutedInChannel(
+    userId: number,
+    channelId: number,
+  ): Promise<boolean> {
+    try {
+      await this.prisma.channel.findFirstOrThrow({
+        where: {
+          AND: [{ id: channelId }, { muted: { some: { id: userId } } }],
+        },
+      });
+      return true;
+    } catch (error) {
       return false;
     }
   }
