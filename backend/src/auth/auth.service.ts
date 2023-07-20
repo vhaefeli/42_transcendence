@@ -73,6 +73,7 @@ export class AuthService {
       )
         throw new UnauthorizedException();
     } catch (error) {
+      if (error instanceof UnauthorizedException) throw error;
       if (error instanceof TypeError)
         throw new UnauthorizedException('error with the hash');
     }

@@ -21,7 +21,7 @@ import { Profile42Api } from './profile-42api.dto';
 import { TokenInfoDto } from './token-info.dto';
 import { StatusService } from 'src/status/status.service';
 import { AutoPopulateDbService } from 'src/auto-populate-db/auto-populate-db.service';
-import { isBoolean } from 'class-validator';
+import { level_type } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -131,6 +131,10 @@ export class UsersService {
       id: number;
       username: string;
       avatar_url: string;
+      level: level_type;
+      rank: number;
+      nbMatch: number;
+      nbGames: number;
     },
     my_id: number,
   ): Promise<UserProfileDto> {
@@ -169,6 +173,10 @@ export class UsersService {
           id: true,
           username: true,
           avatar_url: true,
+          level: true,
+          rank: true,
+          nbMatch: true,
+          nbGames: true,
         },
       });
       return await this.getProfile(user, my_id);
@@ -188,6 +196,10 @@ export class UsersService {
           id: true,
           username: true,
           avatar_url: true,
+          level: true,
+          rank: true,
+          nbMatch: true,
+          nbGames: true,
         },
       });
       return await this.getProfile(user, my_id);
@@ -208,6 +220,10 @@ export class UsersService {
           username: true,
           avatar_url: true,
           tfa_enabled: true,
+          level: true,
+          rank: true,
+          nbMatch: true,
+          nbGames: true,
         },
       });
       return {

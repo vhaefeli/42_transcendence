@@ -34,12 +34,14 @@
     padding: .5rem;
     margin-bottom: 1rem;
     color: white;
+    max-width: 42vw;
+    overflow-wrap: break-word;
 }
 
 .ft-chat-recipient-msg {
     padding: 1rem;
     background: var(--light-purple);
-    border-radius: 0 5rem 5rem 5rem;
+    border-radius: 0 2rem 2rem 2rem;
     padding-left: 2rem;
     box-shadow: 15px 10px 10px #232323;
 }
@@ -47,7 +49,7 @@
 .ft-chat-my-msg {
     padding: 1rem;
     background: var(--dark-pink);
-    border-radius: 5rem 5rem 0 5rem;
+    border-radius: 2rem 2rem 0 2rem;
     padding-left: 2rem;
     box-shadow: 15px 10px 10px #232323;
 }
