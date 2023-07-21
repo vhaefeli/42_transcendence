@@ -86,7 +86,13 @@ function handleQueryParams(params: LocationQuery) {
   }
   const gameId = params?.gameId;
   if (gameId != undefined) gameIdToConnect = +gameId;
-  else if (gameIdToConnect === undefined) textError.value = "No gameId provided";
+  else if (gameIdToConnect === undefined)
+    textError.value = "No gameId provided";
+  const disconnect = params?.disconnect;
+  if (disconnect === "true") {
+    gameSocket.socket?.emit("forceDisconnect");
+    router.push('/game-settings');
+  }
   router.push("/game");
 }
 
