@@ -287,7 +287,8 @@
     }
 
     async function getAllMembers(channelId :number) {
-      console.log(channelId)
+      // console.log("channel id: ", channelId)
+      // console.log("type of: ", typeof channelId)
       await axios({
         url: "/api/chat/channel/members",
         method: "get",
@@ -303,6 +304,7 @@
           console.log(`Members of channel with id ${channelId} loaded`);
         })
         .catch((error) => {
+          console.log(error.response)
           if (error.response.status == 401) {
             console.log(
               `invalid access token: ${error.response.status} ${error.response.statusText}`
