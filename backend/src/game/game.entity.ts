@@ -115,6 +115,7 @@ export class Game {
       this.p.forEach((player) => player.move());
       this.ball.move();
       this.sendGameUpdateToPlayers();
+      // TODO: detect change in score and send to players and/or complete game
     }
   }
 

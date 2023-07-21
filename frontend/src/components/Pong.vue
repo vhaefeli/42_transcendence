@@ -149,6 +149,8 @@ document.addEventListener("keydown", (event) => {
 
 onMounted(() => {
   gameSocket.socket?.on("connect", () => {
+	// TODO: detect gameIsOver and inform user
+
     // connect to game
     if (gameIdToConnect === undefined) return;
     gameSocket.connectToGame(gameIdToConnect);
