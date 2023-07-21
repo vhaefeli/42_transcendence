@@ -19,7 +19,7 @@
       <div class="ft-folderContainer" id="game">
         <div class="ft-tab-folder"></div>
         <div class="ft-folder">play a game</div>
-        <router-link class="ft-titleFolder ft-title" to="/game"
+        <router-link class="ft-titleFolder ft-title" to="/game-settings"
           >game</router-link
         >
       </div>
