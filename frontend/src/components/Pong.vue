@@ -88,13 +88,12 @@ function handleQueryParams(params: LocationQuery) {
   if (gameId != undefined) gameIdToConnect = +gameId;
   else if (gameIdToConnect === undefined)
     textError.value = "No gameId provided";
-  const quit = params?.quit;
-  if (quit === "true") {
+  if (params?.quit === "true") {
     gameSocket.socket?.emit("forceDisconnect");
-    router.push('/game-settings');
-    console.log('wtf');
+    router.push("/game-settings");
+  } else {
+    //router.push("/game");
   }
-  router.push("/game");
 }
 
 class KeyHandler {
