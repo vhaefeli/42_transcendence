@@ -7,7 +7,7 @@
   <div v-show="isAlertVisible" class="modal">
       <div class="modal-content">
         <p>If the game started you will lose by forfeit if you quit.<br> Do you really want to quit</p>
-        <router-link class="t-btn-pink" id="retHome" to="/game-settings"><span>Yes!</span></router-link>
+        <router-link class="t-btn-pink" id="retHome" to="/game?quit=true"><span>Yes!</span></router-link>
         <button><a class="t-btn-pink" id="ret" @click="stay"><span>Oh no!</span></a></button>
       </div>
     </div>
