@@ -234,7 +234,6 @@ export class PlayerService {
     and "Player".seq <> p2.seq
     and p2."playerId" = u2.id
     and "Player".score < p2.score
-    order by "Game".date desc
       `;
     return gameslog;
   }
