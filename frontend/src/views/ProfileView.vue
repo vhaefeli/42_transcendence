@@ -60,11 +60,18 @@
         <div class="ft-tab-folder ft-tab-title ft-bb-color-game">Match history</div>
         <div id="matchScroll" class="ft-tab-content ft-border-color-game ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left ft-scrollable">
           <ul>
-            <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">
-              <!-- boucle for pour chaque entree de Result -->
-              <p><h2>{{ gameLog.date }}</h2></p>
-              {{ gameLog.Result }}</li>
-              <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">
+            <div v-if="gameLog">
+              <div v-if="gameLog.length === 0"><EmptyText :text="'No game to show here'" :white="false" /></div>
+              <div v-for="(game, index) in gameLog" :key="index">
+                <li class="ft-item-title ft-text ft-bb-color-game flex flex-row justify-between items-center" :class="index === gameLog.length - 1 ? '' : 'ft-tab-separator'">
+                <li class="ft-text ml-2">{{ gameLog.date }}</li>
+                <li class="ft-level-text ml-2">{{ gameLog.Result }}</li>
+                  {{ index + 1 }} of {{ gameLog.length }}
+                </li>
+              </div>
+            </div>
+
+              <!-- <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">
               <p><h2>13.05.2023</h2></p>
               lost against Thingy (Pitaya level)</li>
             <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">
@@ -72,7 +79,7 @@
               lost against Thingy (Pitaya level)</li>
             <li class="ft-item-title ft-text ft-bb-color-game">
               <p><h2>22.05.2023</h2></p>
-              lost against everyone (Kumquat level)</li>
+              lost against everyone (Kumquat level)</li> -->
           </ul>
         </div>
       </div>
