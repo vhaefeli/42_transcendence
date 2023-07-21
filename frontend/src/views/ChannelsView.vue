@@ -7,7 +7,7 @@
         <!-- column 1 with profile -->
         <div id="dm-profile-col" class="w-[18em]">
             <div class="h-[76vh]" :class=" profileToShow.length === 0 ? 'position-cible' : 'position-origine'">
-              <MemberList :channelName="currentChannel?.name" :channelType="currentChannel?.type" :isAdmin="currentChannel?.Admin != null" :userStore="userStore" :sessionStore="sessionStore" @set-profile-to-show="(username) => profileToShow = username" @show-admin-panel="showAdmin = !showAdmin"/>
+              <MemberList :channelName="currentChannel?.name" :channelType="currentChannel?.type" :isAdmin="currentChannel?.Admin != null" :MemberList="currentMembers" :userStore="userStore" :sessionStore="sessionStore" @set-profile-to-show="(username) => profileToShow = username" @show-admin-panel="showAdmin = !showAdmin"/>
             </div>
             <div class="h-[76vh]" :class="profileToShow.length > 0 ? 'position-cible' : 'position-origine'">
               <OtherUserProfile :key="profileToShow" :username="profileToShow" :userStore="userStore" :sessionStore="sessionStore" />
@@ -154,122 +154,89 @@
     const isCurrentMembersLoaded = ref(false)
     const isBlockedLoaded = ref(false)
 
-    const memberList = ref<Array<ChanMembers>>([])
-
-    const tmpMyChannels = [{
-      "channelId": 1,
-      "userId": 1,
-      "name": "VeryCoolChannel",
-      "type": "PUBLIC",
-      "Admin": null
-    }, {
-      "channelId": 5,
-      "userId": 1,
-      "name": "IWantIceCream",
-      "type": "PUBLIC",
-      "Admin": "Admin"
-    }, {
-      "channelId": 130,
-      "userId": 1,
-      "name": "myChannel5",
-      "type": "PROTECTED",
-      "Admin": "Admin"
-    }, {
-      "channelId": 105,
-      "userId": 1,
-      "name": "myChannel2",
-      "type": "PROTECTED",
-      "Admin": "Admin"
-    }]
+    // const memberList = ref<Array<ChanMembers>>([])
     
-    const fakeMemberList = [
-    {
-      id: 0,
-      userId: 1,
-      username: "userTest",
-      status: "ONLINE",
-      avatar_url: "http://localhost:3000/avatar/default.jpg"
-    },
-    {
-      id: 1,
-      userId: 2,
-      username: "TechGuru42",
-      status: "ONLINE",
-      avatar_url: "http://localhost:3000/avatar/default.jpg"
-    },
-    {
-      id: 2,
-      userId: 3,
-      username: "sarah_smith",
-      status: "OFFLINE",
-      avatar_url: "http://localhost:3000/avatar/default.jpg"
-    },
-    {
-      id: 3,
-      userId: 4,
-      username: "alex_jones",
-      status: "INGAME",
-      avatar_url: "http://localhost:3000/avatar/default.jpg"
-    },
-    {
-      id: 4,
-      userId: 5,
-      username: "emma_wilson",
-      status: "ONLINE",
-      avatar_url: "http://localhost:3000/avatar/default.jpg"
-    },
-    {
-      id: 5,
-      userId: 6,
-      username: "michael_brown",
-      status: "OFFLINE",
-      avatar_url: "http://localhost:3000/avatar/default.jpg"
-    },
-    {
-      id: 6,
-      userId: 7,
-      username: "olivia_davis",
-      status: "INGAME",
-      avatar_url: "http://localhost:3000/avatar/default.jpg"
-    },
-    {
-      id: 7,
-      userId: 8,
-      username: "william_jackson",
-      status: "ONLINE",
-      avatar_url: "http://localhost:3000/avatar/default.jpg"
-    },
-    {
-      id: 8,
-      userId: 9,
-      username: "ava_clark",
-      status: "OFFLINE",
-      avatar_url: "http://localhost:3000/avatar/default.jpg"
-    },
-    {
-      id: 9,
-      userId: 10,
-      username: "noah_anderson",
-      status: "INGAME",
-      avatar_url: "http://localhost:3000/avatar/default.jpg"
-    },
-    {
-      id: 10,
-      userId: 11,
-      username: "mia_harris",
-      status: "ONLINE",
-      avatar_url: "http://localhost:3000/avatar/default.jpg"
-    }
-  ]
+  //   const fakeMemberList = [
+  //   {
+  //     id: 0,
+  //     userId: 1,
+  //     username: "userTest",
+  //     status: "ONLINE",
+  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
+  //   },
+  //   {
+  //     id: 1,
+  //     userId: 2,
+  //     username: "TechGuru42",
+  //     status: "ONLINE",
+  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
+  //   },
+  //   {
+  //     id: 2,
+  //     userId: 3,
+  //     username: "sarah_smith",
+  //     status: "OFFLINE",
+  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
+  //   },
+  //   {
+  //     id: 3,
+  //     userId: 4,
+  //     username: "alex_jones",
+  //     status: "INGAME",
+  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
+  //   },
+  //   {
+  //     id: 4,
+  //     userId: 5,
+  //     username: "emma_wilson",
+  //     status: "ONLINE",
+  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
+  //   },
+  //   {
+  //     id: 5,
+  //     userId: 6,
+  //     username: "michael_brown",
+  //     status: "OFFLINE",
+  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
+  //   },
+  //   {
+  //     id: 6,
+  //     userId: 7,
+  //     username: "olivia_davis",
+  //     status: "INGAME",
+  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
+  //   },
+  //   {
+  //     id: 7,
+  //     userId: 8,
+  //     username: "william_jackson",
+  //     status: "ONLINE",
+  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
+  //   },
+  //   {
+  //     id: 8,
+  //     userId: 9,
+  //     username: "ava_clark",
+  //     status: "OFFLINE",
+  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
+  //   },
+  //   {
+  //     id: 9,
+  //     userId: 10,
+  //     username: "noah_anderson",
+  //     status: "INGAME",
+  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
+  //   },
+  //   {
+  //     id: 10,
+  //     userId: 11,
+  //     username: "mia_harris",
+  //     status: "ONLINE",
+  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
+  //   }
+  // ]
 
-    memberList.value = fakeMemberList
-
-    myChannels.value = tmpMyChannels
-
-    // set current channel
-    if (isAllMyChanLoaded.value && myChannels.value.length > 0) {
-      currentChannel.value = myChannels.value[0]
-    }
+    // memberList.value = fakeMemberList
 
     async function getMyChannels() {
       await axios({
@@ -278,10 +245,9 @@
         headers: { Authorization: `Bearer ${sessionStore.access_token}` },
       })
         .then((response) => {
-          // myChannels.value = response.data;
+          myChannels.value = response.data;
           isAllMyChanLoaded.value = true
           console.log("loaded all my channels");
-          console.log(myChannels.value);
         })
         .catch((error) => {
           if (error.response.status == 401) {
@@ -320,15 +286,19 @@
         });
     }
 
-    async function getAllMembers(channelId) {
+    async function getAllMembers(channelId :number) {
+      console.log(channelId)
       await axios({
         url: "/api/chat/channel/members",
         method: "get",
-        headers: { Authorization: `Bearer ${sessionStore.access_token}` },
-        data: { "channelId": channelId }
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionStore.access_token}`
+        },
+        data: { channelId: channelId },
       })
         .then((response) => {
-          allChannels.value = response.data;
+          currentMembers.value = response.data;
           isCurrentMembersLoaded.value = true
           console.log(`Members of channel with id ${channelId} loaded`);
         })
@@ -469,20 +439,32 @@
       }
     }
     
-  // getAllUsers()
-  
-  loadMyself()
-  getMyChannels()
-  getAllChannels()
-  loadBlocked()
-  // getAllMembers(1)
+    
+    
+    // getAllUsers()
+    
+    loadMyself()
+    getMyChannels()
+    getAllChannels()
+    loadBlocked()
+    // getAllMembers(currentChannel.value?.channelId)
+    
+    // set current channel
+    // if (isAllMyChanLoaded.value && myChannels.value.length > 0) {
+      //   currentChannel.value = myChannels.value[0]
+      // }
+      
+    // Watch for changes
+    watchEffect(() => {
+      if (isAllMyChanLoaded.value && myChannels.value.length > 0) {
+        currentChannel.value = myChannels.value[0]
+      }
+    })
 
-  // Watch for changes
-    // watch(isBlockedLoaded, (NewValue, OldValue) => {
-    //   if (NewValue) {
-    //     console.log(userStore.blocked)
-    //   }
-    // })
+    watch(currentChannel, (NewValue, OldValue) => {
+      getAllMembers(NewValue?.channelId)
+    })
+
 </script>
 
 <style>

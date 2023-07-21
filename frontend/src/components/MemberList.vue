@@ -28,87 +28,89 @@
 
     // // const emits = defineEmits(['updateBlocked'])
 
-    const props = defineProps({
-        channelName: String,
-        sessionStore: Object,
-        userStore: Object,
-        channelType: String,
-        isAdmin: Boolean
-    })
-
     type ChanMembers = {
         id: number,
         username: string,
         status: string,
         avatar_url: string
     }
-
-    const MemberList = ref<Array<ChanMembers>>([])
     
-    const fakeMemberList = [
-    {
-      id: 1,
-      username: "TechGuru42",
-      status: "ONLINE",
-      avatar_url: "http://localhost:3000/avatar/default.jpg"
-    },
-    {
-      id: 2,
-      username: "sarah_smith",
-      status: "OFFLINE",
-      avatar_url: "http://localhost:3000/avatar/default.jpg"
-    },
-    {
-      id: 3,
-      username: "alex_jones",
-      status: "INGAME",
-      avatar_url: "http://localhost:3000/avatar/default.jpg"
-    },
-    {
-      id: 4,
-      username: "emma_wilson",
-      status: "ONLINE",
-      avatar_url: "http://localhost:3000/avatar/default.jpg"
-    },
-    {
-      id: 5,
-      username: "michael_brown",
-      status: "OFFLINE",
-      avatar_url: "http://localhost:3000/avatar/default.jpg"
-    },
-    {
-      id: 6,
-      username: "olivia_davis",
-      status: "INGAME",
-      avatar_url: "http://localhost:3000/avatar/default.jpg"
-    },
-    {
-      id: 7,
-      username: "william_jackson",
-      status: "ONLINE",
-      avatar_url: "http://localhost:3000/avatar/default.jpg"
-    },
-    {
-      id: 8,
-      username: "ava_clark",
-      status: "OFFLINE",
-      avatar_url: "http://localhost:3000/avatar/default.jpg"
-    },
-    {
-      id: 9,
-      username: "noah_anderson",
-      status: "INGAME",
-      avatar_url: "http://localhost:3000/avatar/default.jpg"
-    },
-    {
-      id: 10,
-      username: "mia_harris",
-      status: "ONLINE",
-      avatar_url: "http://localhost:3000/avatar/default.jpg"
-    }
-  ]
+    const props = defineProps({
+        channelName: String,
+        sessionStore: Object,
+        userStore: Object,
+        channelType: String,
+        isAdmin: Boolean,
+        MemberList: Object
+    })
 
-    MemberList.value = fakeMemberList
+
+  //   const MemberList = ref<Array<ChanMembers>>([])
+    
+  //   const fakeMemberList = [
+  //   {
+  //     id: 1,
+  //     username: "TechGuru42",
+  //     status: "ONLINE",
+  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
+  //   },
+  //   {
+  //     id: 2,
+  //     username: "sarah_smith",
+  //     status: "OFFLINE",
+  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
+  //   },
+  //   {
+  //     id: 3,
+  //     username: "alex_jones",
+  //     status: "INGAME",
+  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
+  //   },
+  //   {
+  //     id: 4,
+  //     username: "emma_wilson",
+  //     status: "ONLINE",
+  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
+  //   },
+  //   {
+  //     id: 5,
+  //     username: "michael_brown",
+  //     status: "OFFLINE",
+  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
+  //   },
+  //   {
+  //     id: 6,
+  //     username: "olivia_davis",
+  //     status: "INGAME",
+  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
+  //   },
+  //   {
+  //     id: 7,
+  //     username: "william_jackson",
+  //     status: "ONLINE",
+  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
+  //   },
+  //   {
+  //     id: 8,
+  //     username: "ava_clark",
+  //     status: "OFFLINE",
+  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
+  //   },
+  //   {
+  //     id: 9,
+  //     username: "noah_anderson",
+  //     status: "INGAME",
+  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
+  //   },
+  //   {
+  //     id: 10,
+  //     username: "mia_harris",
+  //     status: "ONLINE",
+  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
+  //   }
+  // ]
+
+  //   MemberList.value = fakeMemberList
 
 </script>
 
