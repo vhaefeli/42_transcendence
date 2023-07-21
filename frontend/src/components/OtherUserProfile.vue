@@ -12,7 +12,7 @@
               <div v-else class="ft-tab-content ft-bg-color-profile ft-title" id="username"></div>
               <div class="ft-tab-content ft-bg-color-profile flex flex-col items-center p-6">
                   <div v-if="actualInfos.is_friend" class="mb-3">
-                      <a title="remove friendship" class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="removeFriend(username)"><img src="../assets/img/icons/user-minus-solid.svg" alt="remove friendship"></a>
+                      <a title="remove friendship" class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="removeFriend(username)"><img src="../assets/icons/user-minus-solid.svg" alt="remove friendship"></a>
                   </div>
                   <div v-else class="mb-6">
                       <div v-if="actualInfos.is_pendingInvitation" class="max-w-[16rem;]">
@@ -25,7 +25,7 @@
                         </div>
                       </div>
                       <div v-else>
-                          <a title="Request friendship" class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor" @click="addFriend()"><img src="../assets/img/icons/user-plus-solid.svg" alt="send a friend request"></a>
+                          <a title="Request friendship" class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor" @click="addFriend()"><img src="../assets/icons/user-plus-solid.svg" alt="send a friend request"></a>
                       </div>
                   </div>
                   <div v-if="actualInfos.is_blocked">

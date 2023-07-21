@@ -7,7 +7,7 @@
         <!-- column 1 with profile -->
         <div id="dm-profile-col" class="w-[18em]">
             <div class="h-[76vh]" :class=" profileToShow.length === 0 ? 'position-cible' : 'position-origine'">
-              <MemberList :channelName="currentChannel?.name" :userStore="userStore" :sessionStore="sessionStore" @set-profile-to-show="(username) => profileToShow = username"/>
+              <MemberList :channelName="currentChannel?.name" :channelType="currentChannel?.type" :isAdmin="currentChannel?.Admin" :userStore="userStore" :sessionStore="sessionStore" @set-profile-to-show="(username) => profileToShow = username" @show-admin-panel="showAdmin = !showAdmin"/>
             </div>
             <div class="h-[76vh]" :class=" profileToShow.length > 0 ? 'position-cible' : 'position-origine'">
               <OtherUserProfile :key="profileToShow" :username="profileToShow" :userStore="userStore" :sessionStore="sessionStore" />
@@ -16,59 +16,62 @@
         </div>
 
         <!-- column 2 with messages -->
-        <div id="dm-msg-col" class="grow relative">
-          <div id="ft-scroller" ref="scroller" class="ft-chat-box p-6 overflow-scroll">
-            <!-- <div v-if="actualIsBlocked">
-              <EmptyText :text="'You have blocked this user. Unblock he/her to see messages.'" :white="true" />
-            </div> -->
-            <!-- <div v-else> -->
-              <div v-for="message in messages" :key="message.id">
-                <div v-if="currentChannel.channelId === message.channelId">
-                  <div v-if="message.senderId == user.id" class="grid">
-                      <div class="ft-msg-container justify-self-end">
-                        <p class="text-xs ft-chat-date">{{ message.date }}</p>
-                        <p class="ft-chat-my-msg">{{ message.message }}</p>
-                      </div>
-                  </div>
-                  <div v-else>
-                      <div class="ft-msg-container">
-                        <div class="flex items-center">
-                          <div class="ft-profile-pic ft-profile-pic-small mr-3 ft-chat-profile-pic" :style="{ 'background': 'url(' + getMemberImg(message.senderId) + ')' }"></div>
-                          <div class="mb-3">
-                            <a class="cursor-pointer" @click="profileToShow = getMemberUsername(message.senderId)">{{ getMemberUsername(message.senderId) }}</a>
-                            <p class="text-xs ft-chat-date">{{ message.date }}</p>
-                          </div>
-                        </div>
-                        <div class="ml-[3.8rem]">
-                          <div v-if="checkIfBlocked(message.senderId)" class="opacity-50 flex"><img class="w-9 h-9 mr-3" src="../assets/icons/person-circle-minus-solid.svg" alt="block them"> You blocked this user.<br> Unblock he/her to see this message</div>
-                          <div v-else><p class="text-base mb-1 ft-chat-recipient-msg">{{ message.message }}</p></div>
-                        </div>
-                      </div>
-                  </div>
-                </div>
-              </div>
-            <!-- </div> -->
-          </div>
-
-          <div class="ft-bg-dark-gray flex p-2 pl-8 absolute w-full bottom-0">
-              <input v-model="message" placeholder="blabla..." class="p-1 mr-4 ft-input" />
-              <a href="#" class="t-btn-pink ft-bg-color-chat"><button @click="handleSubmitNewMessage">send</button></a>
+        <div v-if="currentChannel?.Admin && showAdmin" class="flex grow">
+          <div id="ft-admin-panel" class="w-full h-full relative">
+            <button class="absolute right-0"><a class="t-btn-pink ft-circle-gray ft-icon-small icon-btn-size icon-btn-cursor" @click="showAdmin = false"><img src="../assets/icons/xmark-solid.svg" alt="quit"></a></button>
+            coucou
           </div>
         </div>
-      
-        <!-- column 3 with list of recipients -->
-        <div  id="dm-recipientList-col" class="w-[16rem] relative">
-          <div class="mb-6 max-h-[54vh] overflow-scroll">
-            <div v-if="isAllMyChanLoaded">
-              <div v-if="myChannels.length === 0">No Dms yet</div>
-              <div v-for="channel in myChannels" :key="channel">
-                <div @click="changeCurrentChannel(channel.name)" :class="currentChannel?.channelId == channel.channelId ? 'ft-actual-recipient' : ''" class="ft-channel-name">{{ channel.name }}</div>
-              </div>
+        <div v-else class="flex grow">
+          <div id="dm-msg-col" class="grow relative">
+            <div id="ft-scroller" ref="scroller" class="ft-chat-box p-6 overflow-scroll">
+                <div v-for="message in messages" :key="message.id">
+                  <div v-if="currentChannel.channelId === message.channelId">
+                    <div v-if="message.senderId == user.id" class="grid">
+                        <div class="ft-msg-container justify-self-end">
+                          <p class="text-xs ft-chat-date">{{ message.date }}</p>
+                          <p class="ft-chat-my-msg">{{ message.message }}</p>
+                        </div>
+                    </div>
+                    <div v-else>
+                        <div class="ft-msg-container">
+                          <div class="flex items-center">
+                            <div class="ft-profile-pic ft-profile-pic-small mr-3 ft-chat-profile-pic" :style="{ 'background': 'url(' + getMemberImg(message.senderId) + ')' }"></div>
+                            <div class="mb-3">
+                              <a class="cursor-pointer" @click="profileToShow = getMemberUsername(message.senderId)">{{ getMemberUsername(message.senderId) }}</a>
+                              <p class="text-xs ft-chat-date">{{ message.date }}</p>
+                            </div>
+                          </div>
+                          <div class="ml-[3.8rem]">
+                            <div v-if="checkIfBlocked(message.senderId)" class="opacity-50 flex"><img class="w-9 h-9 mr-3" src="../assets/icons/person-circle-minus-solid.svg" alt="block them"> You blocked this user.<br> Unblock he/her to see this message</div>
+                            <div v-else><p class="text-base mb-1 ft-chat-recipient-msg">{{ message.message }}</p></div>
+                          </div>
+                        </div>
+                    </div>
+                  </div>
+                </div>
             </div>
-            <div v-else>Loading...</div>
+  
+            <div class="ft-bg-dark-gray flex p-2 pl-8 absolute w-full bottom-0">
+                <input v-model="message" placeholder="blabla..." class="p-1 mr-4 ft-input" />
+                <a href="#" class="t-btn-pink ft-bg-color-chat"><button @click="handleSubmitNewMessage">send</button></a>
+            </div>
           </div>
-          <div class="m-6 absolute bottom-6 w-2/3">
-            <!-- <UserSearch :recipients="recipients" :userStore="userStore" @addRecipient="addRecipient"/> -->
+        
+          <!-- column 3 with list of recipients -->
+          <div  id="dm-recipientList-col" class="w-[16rem] relative">
+            <div class="mb-6 max-h-[54vh] overflow-scroll">
+              <div v-if="isAllMyChanLoaded">
+                <div v-if="myChannels.length === 0">No Dms yet</div>
+                <div v-for="channel in myChannels" :key="channel">
+                  <div @click="changeCurrentChannel(channel.name)" :class="currentChannel?.channelId == channel.channelId ? 'ft-actual-recipient' : ''" class="ft-channel-name">{{ channel.name }}</div>
+                </div>
+              </div>
+              <div v-else>Loading...</div>
+            </div>
+            <div class="m-6 absolute bottom-6 w-2/3">
+              <!-- <UserSearch :recipients="recipients" :userStore="userStore" @addRecipient="addRecipient"/> -->
+            </div>
           </div>
         </div>
       </section>
@@ -137,6 +140,7 @@
     const allChannels = ref<Array<Channel>>([])
     
     const profileToShow = ref('')
+    const showAdmin = ref(false)
 
     // Current
     const currentMembers = ref([])
@@ -431,14 +435,13 @@
 
     // scroll messages container to bottom
     function scrollToBottom() {
-        let myScroller = scroller.value
-        if (myScroller) {
-          myScroller.scrollTop = myScroller.scrollHeight;
-        }
+      let myScroller = scroller.value
+      if (myScroller) {
+        myScroller.scrollTop = myScroller.scrollHeight;
+      }
     }
 
     // Async functions 
-
     async function loadMyself() {
       if (sessionStore.isLoggedIn) {
         // get user infos
@@ -547,6 +550,11 @@
     background-size: cover !important;
     width: 3rem !important;
     height: 3rem !important;
+  }
+
+  /* Admin panel */
+  #ft-admin-panel {
+    background-color: var(--middle-gray);
   }
 
 </style>
