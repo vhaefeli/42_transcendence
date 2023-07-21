@@ -58,7 +58,6 @@ export class GameService extends SocketService {
 
   async sendPlayerAction(action: PlayerAction) {
     this.socket?.emit('action', { gId: this.gameId, a: action });
-    console.log(`sent ${action}`);
   }
 
   async sendIsReady() {
