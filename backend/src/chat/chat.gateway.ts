@@ -1,4 +1,4 @@
-import { Logger, UseGuards } from '@nestjs/common';
+import { Inject, Logger, UseGuards, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   ConnectedSocket,
@@ -37,6 +37,7 @@ export class ChatGateway
   constructor(
     configService: ConfigService,
     private authService: AuthService,
+    @Inject(forwardRef(() => ChatService))
     private chatService: ChatService,
   ) {
     this.debug = configService.get<string>('SOCKET_DEBUG') === 'true';
@@ -79,11 +80,12 @@ export class ChatGateway
 
     await Promise.all([destination, save_message]);
 
-    Logger.log(
-      `${new Date(payload.date)}: ${client.data?.user.sub} -> ${
-        payload.toId
-      } "${payload.message}"`,
-    );
+    if (this.debug)
+      Logger.log(
+        `${new Date(payload.date)}: ${client.data?.user.sub} -> ${
+          payload.toId
+        } "${payload.message}"`,
+      );
 
     const sending_msg: SendingDmDto = {
       id: (await save_message).id,
@@ -124,13 +126,20 @@ export class ChatGateway
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: ReceivingChannelMessageDto,
   ) {
-    if (
-      !(await this.chatService.IsUserInChannel(
-        client.data.user.sub,
-        payload.channelId,
-      ))
-    )
+    const isUserInChannel = this.chatService.IsUserInChannel(
+      client.data.user.sub,
+      payload.channelId,
+    );
+    const isUserMuted = this.chatService.IsUserMutedInChannel(
+      client.data.user.sub,
+      payload.channelId,
+    );
+    await Promise.all([isUserInChannel, isUserMuted]);
+
+    if (!(await isUserInChannel))
       throw new WsException('User is not in channel');
+    if (await isUserMuted) return { id: -1 };
+
     const save_message = await this.chatService.SaveChannelMessage(
       client.data.user.sub,
       payload.channelId,
