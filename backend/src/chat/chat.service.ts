@@ -29,6 +29,7 @@ import { MyChannelBannedDto } from './dto/myChannelBanned.dto';
 import { MyChannelAdminDto } from './dto/myChannelAdmin.dto';
 import { MyChannelMutedDto } from './dto/myChannelMuted.dto';
 import { ChannelRemoveMemberDto } from './dto/channel-remove-member.dto';
+import { log } from 'console';
 
 @Injectable()
 export class ChatService {
@@ -572,6 +573,10 @@ export class ChatService {
           members: { connect: { id: channelAddAdminDto.userId } },
         },
       });
+      await this.chatGateway.JoinUserToChannel(
+        channelAddAdminDto.channelId,
+        channelAddAdminDto.userId,
+      );
     } catch (error) {
       if (error?.code === 'P2025') {
         throw new NotFoundException("User wasn't found");
@@ -894,7 +899,6 @@ export class ChatService {
     channelRemoveBannedDto: ChannelRemoveBannedDto,
     my_id: number,
   ) {
-    Logger.log('RemoveBaneed');
     try {
       const channel = await this.prisma.channel.findFirstOrThrow({
         where: { id: channelRemoveBannedDto.channelId },
@@ -989,13 +993,25 @@ export class ChatService {
           muted: { select: { id: true } },
         },
       });
-      // Request user is himself or an Admin
+
+      let suppressOK: boolean = false;
+      // Request user is himself asking for suppression --> ok except if owner
+      if (my_id === channelRemoveMemberDto.userId) suppressOK = true;
+
+      // Request user is an admin --> ok
       if (
-        channel.members.find((member) => member.id === my_id) === undefined &&
-        channel.admins.find((admin) => admin.id === my_id) === undefined
+        channel.admins.find(
+          (admin) =>
+            admin.id === my_id &&
+            channelRemoveMemberDto.userId !== channel.ownerId,
+        )
       )
+        suppressOK = true;
+
+      // remove unautorized
+      if (suppressOK === false)
         throw new UnauthorizedException(
-          "You don't have the necessary privileges to remove a Member",
+          "You don't have the necessary privileges to remove that Member",
         );
 
       // Ensure User to remove is in the channel
@@ -1007,17 +1023,16 @@ export class ChatService {
         throw new NotFoundException(
           'User to be remove from members is not in the channel',
         );
-      // Ensure User to remove is not and Admin
-      if (
-        !(
-          channel.admins.find(
-            (admins) => admins.id === channelRemoveMemberDto.userId,
-          ) === undefined
-        )
-      )
-        throw new NotFoundException(
-          'User to be removed from members must not be an admin',
-        );
+
+      // Extract number of members
+      const memberWithCount = await this.prisma.channel.findFirst({
+        where: { id: channelRemoveMemberDto.channelId },
+        include: {
+          _count: {
+            select: { members: true },
+          },
+        },
+      });
     } catch (error) {
       if (
         error instanceof UnauthorizedException ||
@@ -1044,9 +1059,27 @@ export class ChatService {
       });
       // Kick user out of the gateway
       await this.chatGateway.KickUserFromChannel(
-        channelAddBannedDto.channelId,
-        my_id,
+        channelRemoveMemberDto.channelId,
+        channelRemoveMemberDto.userId,
       );
+      // Extract number of members to be sure we are at 0
+      const memberWithCount = await this.prisma.channel.findFirst({
+        where: { id: channelRemoveMemberDto.channelId },
+        include: {
+          _count: {
+            select: { members: true },
+          },
+        },
+      });
+      // suppress the channel when no more memebers
+      if (memberWithCount._count.members === 0) {
+        await this.chatGateway.KickAllFromChannel(
+          channelRemoveMemberDto.channelId,
+        );
+        await this.prisma.channel.delete({
+          where: { id: channelRemoveMemberDto.channelId },
+        });
+      }
     } catch (error) {
       if (error?.code === 'P2025') {
         throw new NotFoundException("Member wasn't found");
@@ -1056,6 +1089,7 @@ export class ChatService {
       throw error;
     }
   }
+  // -------------------------------------------------------------------------------------------
 
   async channelchange(channelChangeDto: ChannelChangeDto, my_id: number) {
     try {
