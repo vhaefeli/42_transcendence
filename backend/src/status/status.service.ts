@@ -23,8 +23,8 @@ export class StatusService {
   async isOnline(user: { id?: number; username?: string }): Promise<boolean> {
     for (const socket of await this.statusGateway.server.fetchSockets()) {
       if (
-        user?.id === socket.data?.user.sub ||
-        user?.username === socket.data?.user.username
+        (user?.id && user?.id === socket.data?.user?.sub) ||
+        (user?.username && user?.username === socket.data?.user?.username)
       ) {
         const time_elapsed = new Date(
           new Date().getTime() - socket.data.last_online?.getTime(),
