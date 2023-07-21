@@ -52,6 +52,7 @@ model User {
   channels_admin   Channel[]        @relation(name: "channel_admins")
   channels_member  Channel[]        @relation(name: "channel_members")
   channels_muted   Channel[]        @relation(name: "channel_muted")
+  channels_banned  Channel[]        @relation(name: "channel_banned")
   channel_messages ChannelMessage[] @relation(name: "channel_message")
 }
 
@@ -153,6 +154,7 @@ model Channel {
   admins   User[]           @relation(name: "channel_admins")
   members  User[]           @relation(name: "channel_members")
   muted    User[]           @relation(name: "channel_muted")
+  banned   User[]           @relation(name: "channel_banned")
   messages ChannelMessage[]
 }
 

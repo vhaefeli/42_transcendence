@@ -7,7 +7,7 @@
         <!-- column 1 with profile -->
         <div id="dm-profile-col" class="w-[18em]">
             <div class="h-[76vh]" :class=" profileToShow.length === 0 ? 'position-cible' : 'position-origine'">
-              <MemberList :channelName="currentChannel?.name" :channelType="currentChannel?.type" :isAdmin="currentChannel?.Admin" :userStore="userStore" :sessionStore="sessionStore" @set-profile-to-show="(username) => profileToShow = username" @show-admin-panel="showAdmin = !showAdmin"/>
+              <MemberList :channelName="currentChannel?.name" :channelType="currentChannel?.type" :isAdmin="currentChannel?.Admin != null" :userStore="userStore" :sessionStore="sessionStore" @set-profile-to-show="(username) => profileToShow = username" @show-admin-panel="showAdmin = !showAdmin"/>
             </div>
             <div class="h-[76vh]" :class="profileToShow.length > 0 ? 'position-cible' : 'position-origine'">
               <OtherUserProfile :key="profileToShow" :username="profileToShow" :userStore="userStore" :sessionStore="sessionStore" />
@@ -18,9 +18,9 @@
         <!-- column 2 with messages -->
         <div v-if="currentChannel?.Admin && showAdmin" class="flex grow">
           <!-- admin panel -->
-          <div id="ft-admin-panel" class="w-full h-full relative">
-            <button class="absolute right-0"><a class="t-btn-pink ft-circle-gray ft-icon-small icon-btn-size icon-btn-cursor" @click="showAdmin = false"><img src="../assets/icons/xmark-solid.svg" alt="quit"></a></button>
-            <AdminPanel></AdminPanel>
+          <div id="ft-admin-panel" class="w-full h-full relative p-11">
+            <button class="absolute top-0 right-0"><a class="t-btn-pink ft-circle-gray ft-icon-small icon-btn-size icon-btn-cursor" @click="showAdmin = false"><img src="../assets/icons/xmark-solid.svg" alt="quit"></a></button>
+            <AdminPanel :currentName="currentChannel.name" :currentType="currentChannel.type"></AdminPanel>
           </div>
         </div>
         <div v-else class="flex grow">
@@ -93,6 +93,7 @@
     import { chatService } from "@/services/chat-socket.service";
     import UserSearch from "@/components/UserSearch.vue";
     import MemberList from "@/components/MemberList.vue";
+    import AdminPanel from "@/components/AdminPanel.vue";
 
     const route = useRoute()
 
@@ -277,7 +278,7 @@
         headers: { Authorization: `Bearer ${sessionStore.access_token}` },
       })
         .then((response) => {
-          myChannels.value = response.data;
+          // myChannels.value = response.data;
           isAllMyChanLoaded.value = true
           console.log("loaded all my channels");
           console.log(myChannels.value);
@@ -471,7 +472,7 @@
   // getAllUsers()
   
   loadMyself()
-  // getMyChannels()
+  getMyChannels()
   getAllChannels()
   loadBlocked()
   // getAllMembers(1)

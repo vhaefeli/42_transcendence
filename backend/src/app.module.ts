@@ -18,6 +18,7 @@ import { TfaModule } from './tfa/tfa.module';
 import { AuthModule } from './auth/auth.module';
 import { PlayerModule } from './player/player.module';
 import { AutoPopulateDbModule } from './auto-populate-db/auto-populate-db.module';
+import { GameModule } from './game/game.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { AutoPopulateDbModule } from './auto-populate-db/auto-populate-db.module
     AuthModule,
     PlayerModule,
     AutoPopulateDbModule,
+    GameModule,
   ],
   controllers: [AppController, TfaController],
   providers: [
