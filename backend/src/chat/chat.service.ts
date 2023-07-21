@@ -376,6 +376,7 @@ export class ChatService {
           ownerId: true,
           admins: { select: { id: true } },
           members: { select: { id: true } },
+          banned: { select: { id: true } },
         },
       });
 
@@ -402,6 +403,13 @@ export class ChatService {
         ) !== undefined
       )
         throw new ConflictException('User is already in channel');
+      // User is banned in the channel
+      if (
+        channel.banned.find(
+          (banned) => banned.id === channelAddMemberDto.userId,
+        ) !== undefined
+      )
+        throw new ConflictException('User is banned in channel');
     } catch (error) {
       if (
         error instanceof UnauthorizedException ||
@@ -808,15 +816,6 @@ export class ChatService {
           members: { select: { id: true } },
         },
       });
-      // Request to mute must concern a member
-      //if (
-      //  !channel.members.find(
-      //    (member) => member.id === channelAddBannedDto.userId,
-      //  )
-      //) {
-      //  throw new NotFoundException('User must be a member');
-      // }
-
       // Request user is the owner or an admin of the channel
       if (
         channel.ownerId !== my_id &&
@@ -1089,7 +1088,6 @@ export class ChatService {
       throw error;
     }
   }
-  // -------------------------------------------------------------------------------------------
 
   async channelchange(channelChangeDto: ChannelChangeDto, my_id: number) {
     try {
