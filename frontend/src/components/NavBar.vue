@@ -10,20 +10,20 @@
             my profile
         </router-link>
         <router-link
-            :class="{ active: activeTab === 'chat' }"
-            class="nav-tab nav-tab-chat"
-            to="/dms"
-            @click="setActiveTab('chat')"
-        >
-            chat
-        </router-link>
-        <router-link
             :class="{ active: activeTab === 'game' }"
             class="nav-tab nav-tab-game"
             to="/game-settings"
             @click="setActiveTab('game')"
         >
             game
+        </router-link>
+        <router-link
+            :class="{ active: activeTab === 'chat' }"
+            class="nav-tab nav-tab-chat"
+            to="/dms"
+            @click="setActiveTab('chat')"
+        >
+            chat
         </router-link>
         <div v-if="showProfile">
             <div id="ft-nav-profile">
@@ -124,11 +124,11 @@ nav#ft-main-nav {
 }
 
 .nav-tab-chat {
-    border-bottom: 1.5em solid var(--dark-pink);
+    border-bottom: 1.5em solid var(--pink);
 }
 
 .nav-tab-game {
-    border-bottom: 1.5em solid var(--mint);
+    border-bottom: 1.5em solid var(--sunset);
 }
 
 </style>

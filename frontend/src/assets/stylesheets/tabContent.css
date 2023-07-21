@@ -31,7 +31,7 @@
 }
   
 .ft-bg-color-game {
-  background: var(--mint);
+  background: var(--sunset);
 }
 
 .ft-bg-color-profile, a.t-btn-pink:active.ft-bg-color-profile {
@@ -40,7 +40,7 @@
 
 /* Border-bottom colors */
 .ft-bb-color-game {
-  border-bottom-color: var(--mint);
+  border-bottom-color: var(--sunset);
 }
 
 .ft-bb-color-profile {
@@ -53,7 +53,7 @@
 
 /* All four borders colors */
 .ft-border-color-game {
-  border-color: var(--mint);
+  border-color: var(--sunset);
 }
 
 .ft-border-color-profile {
@@ -69,7 +69,7 @@
 }
 
 /* a.t-btn-pink:active.ft-color-game {
-  border: 0.2em dotted var(--mint);
+  border: 0.2em dotted var(--sunset);
 } */
 
 .ft-tab-folder {
