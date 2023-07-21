@@ -1,5 +1,6 @@
 import { Socket } from 'socket.io';
 import { GameModeConfig } from './game-modes.entity';
+import { PrismaClientInitializationError } from '@prisma/client/runtime';
 
 export enum PlayerAction {
   IDLE,
@@ -12,6 +13,7 @@ export const ConnectedPlayers = new Map<number, number>();
 export class Player {
   readonly id: number;
   readonly socket: Socket;
+  readonly pIndex: number;
   private y: number;
   private action: PlayerAction = PlayerAction.IDLE;
   private score = 0;
@@ -24,12 +26,14 @@ export class Player {
     userId: number;
     socket: Socket;
     gameMode: GameModeConfig;
+    pIndex: number;
   }) {
     this.id = player.userId;
     //this.y = player.gameMode.INITIAL_HEIGHT;
     this.y = (player.gameMode.GAME_HEIGHT - player.gameMode.PADDLE_SIZE) / 2;
     this.socket = player.socket;
     this.gameMode = player.gameMode;
+    this.pIndex = player.pIndex;
   }
 
   setIsReady(isReady: boolean) {

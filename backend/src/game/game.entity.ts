@@ -17,7 +17,7 @@ export class Game {
   readonly id: number;
   readonly gameModeName: GameModeType;
   private readonly gameMode: GameModeConfig;
-  private readonly p = new Array<Player>(2);
+  readonly p = new Array<Player>(2);
   private ball: Ball;
   private isActive = false;
   private isCompleted = false;
@@ -36,7 +36,7 @@ export class Game {
     )
       this.gameModeName = gameInfo.gameMode;
     else throw new TypeError(`Game Mode '${gameInfo.gameMode}' is unknown`);
-    this.ball = new Ball(this.gameMode);
+    this.ball = new Ball(this.gameMode, this);
   }
 
   getIsActive() {
@@ -59,6 +59,7 @@ export class Game {
       userId: id,
       socket: socket,
       gameMode: this.gameMode,
+      pIndex: playerIndex,
     });
     socket.join(this.id.toString());
   }
@@ -113,9 +114,17 @@ export class Game {
     if (this.isActive) {
       // game loop goes here
       this.p.forEach((player) => player.move());
-      this.ball.move();
+      if (this.ball.move())
+      {
+        if (this.ball.getPos().x < 15)
+          this.p[1].incrementScore();
+        else
+          this.p[0].incrementScore();
+        this.ball.newBall();
+        this.sendScoreToPlayers();
+      }
       this.sendGameUpdateToPlayers();
-      // TODO: detect change in score and send to players and/or complete game
+      // TODO: check end of game
     }
   }
 
