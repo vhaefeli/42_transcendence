@@ -9,7 +9,7 @@
             <div class="h-[76vh]" :class=" profileToShow.length === 0 ? 'position-cible' : 'position-origine'">
               <MemberList :channelName="currentChannel?.name" :channelType="currentChannel?.type" :isAdmin="currentChannel?.Admin" :userStore="userStore" :sessionStore="sessionStore" @set-profile-to-show="(username) => profileToShow = username" @show-admin-panel="showAdmin = !showAdmin"/>
             </div>
-            <div class="h-[76vh]" :class=" profileToShow.length > 0 ? 'position-cible' : 'position-origine'">
+            <div class="h-[76vh]" :class="profileToShow.length > 0 ? 'position-cible' : 'position-origine'">
               <OtherUserProfile :key="profileToShow" :username="profileToShow" :userStore="userStore" :sessionStore="sessionStore" />
               <button title="Back to member list" id="ft-back-to-list" class="t-btn-pink ft-bg-color-chat" @click="profileToShow = ''">&lt;&lt;&lt;&lt;&lt;</button>
             </div>
@@ -17,9 +17,10 @@
 
         <!-- column 2 with messages -->
         <div v-if="currentChannel?.Admin && showAdmin" class="flex grow">
+          <!-- admin panel -->
           <div id="ft-admin-panel" class="w-full h-full relative">
             <button class="absolute right-0"><a class="t-btn-pink ft-circle-gray ft-icon-small icon-btn-size icon-btn-cursor" @click="showAdmin = false"><img src="../assets/icons/xmark-solid.svg" alt="quit"></a></button>
-            coucou
+            <AdminPanel></AdminPanel>
           </div>
         </div>
         <div v-else class="flex grow">
