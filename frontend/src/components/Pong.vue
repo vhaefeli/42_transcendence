@@ -1,17 +1,9 @@
 <template>
-  <p v-if="textError?.length" class="text-white">{{ textError }}</p>
-  <div v-if="!connectedToGame" class="text-white">
-    <input
-      v-model="gameIdToConnect"
-      placeholder="game id"
-      class="bg-gray-500"
-    /><br />
-    <button
-      class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-      @click="connectToGame"
+  <div v-if="textError?.length">
+    <p class="text-white">{{ textError }}</p>
+    <router-link class="t-btn-pink text-white" to="/game-settings"
+      >Go Back</router-link
     >
-      Connect
-    </button>
   </div>
   <span
     v-show="connectedToGame && !isReadyToPlay"
@@ -64,14 +56,7 @@ const isReadyToPlay = ref(false);
 const isGameActive = ref(false);
 const gameSocket = new GameService();
 
-// Test for connectToGame
-const gameIdToConnect = ref<number>();
-
-async function connectToGame() {
-  if (!gameIdToConnect.value) return;
-  gameSocket.connectToGame(+gameIdToConnect.value);
-  connectedToGame.value = true;
-}
+let gameIdToConnect: number | undefined;
 
 // error handling
 const textError = ref<string>();
@@ -94,12 +79,14 @@ function handleQueryParams(params: LocationQuery) {
     connectedToGame.value = false;
   }
   const is_ready_error = params?.is_ready_error;
-  console.log(is_ready_error);
   if (is_ready_error?.length) {
     const msg = `isReady error: ${is_ready_error}`;
     textError.value = msg;
     isReadyToPlay.value = false;
   }
+  const gameId = params?.gameId;
+  if (gameId != undefined) gameIdToConnect = +gameId;
+  else if (gameIdToConnect === undefined) textError.value = "No gameId provided";
   router.push("/game");
 }
 
@@ -141,7 +128,6 @@ class KeyHandler {
 const keyHandler = new KeyHandler();
 
 function sendIsReady() {
-  // TODO check if already connected to game
   if (!connectedToGame.value) return;
   gameSocket.sendIsReady();
   isReadyToPlay.value = true;
@@ -156,8 +142,13 @@ document.addEventListener("keydown", (event) => {
 });
 
 onMounted(() => {
-  // receive score modification from socket
   gameSocket.socket?.on("connect", () => {
+    // connect to game
+    if (gameIdToConnect === undefined) return;
+    gameSocket.connectToGame(gameIdToConnect);
+    connectedToGame.value = true;
+
+    // receive score modification from socket
     gameSocket.socket?.on("score", (response) => {
       if (response[0].id === userStore.user.id) {
         playerScore = response[0].score;
