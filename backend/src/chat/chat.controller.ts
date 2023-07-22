@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Patch, Post, Request } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Request,
+} from '@nestjs/common';
 import { CreateChannelDto } from './dto/create-channel.dto';
 import { ChatService } from './chat.service';
 import { ChannelAddMemberDto } from './dto/channel-add-member.dto';
@@ -43,15 +51,13 @@ export class ChatController {
     return await this.chatService.FindMyChannels(req.user.sub);
   }
 
-  @Get('channel/members')
+  // --------------------------------------------------------------------
+  @Get('channel/members/:channelId')
   async getMyChannelMembers(
+    @Param('channelId') channelId: number,
     @Request() req: any,
-    @Body() myChannelMembersDto: MyChannelMembersDto,
-  ) {
-    return await this.chatService.FindMyChannelMembers(
-      req.user.sub,
-      myChannelMembersDto,
-    );
+  ) {;
+    return await this.chatService.FindMyChannelMembers(req.user.sub, channelId);
   }
 
   @Get('channel/admin')

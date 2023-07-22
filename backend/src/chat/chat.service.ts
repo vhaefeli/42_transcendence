@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ConsoleLogger,
   Inject,
   Injectable,
   Logger,
@@ -200,13 +201,12 @@ export class ChatService {
     return MyChannels;
   }
 
-  async FindMyChannelMembers(
-    my_id: number,
-    myChannelMembersDto: MyChannelMembersDto,
-  ) {
+  // ------------------------------------------------------------------------
+  async FindMyChannelMembers(my_id: number, channelId: number) {
+    Logger.log(channelId);
     try {
       const channel = await this.prisma.channel.findFirstOrThrow({
-        where: { id: myChannelMembersDto.channelId },
+        where: { id: channelId },
         select: {
           id: true,
           ownerId: true,
@@ -214,6 +214,7 @@ export class ChatService {
           members: { select: { id: true } },
         },
       });
+      Logger.log(channel);
       // Request user is not the owner or an admin of the channel
       if (
         channel.ownerId !== my_id &&
@@ -223,12 +224,20 @@ export class ChatService {
         throw new UnauthorizedException(
           "You don't have the necessary privileges to see the member list",
         );
-      const channelMembers = await this.prisma.channel.findMany({
-        where: { id: myChannelMembersDto.channelId },
+      const channelMembers = await this.prisma.channel.findFirst({
+        where: { id: channelId },
         select: {
-          members: { select: { id: true, username: true, avatar_url: true } },
+          // id: true,
+          members: {
+            select: {
+              id: true,
+              username: true,
+              avatar_url: true,
+            },
+          },
         },
       });
+      Logger.log(channelMembers);
       return channelMembers;
     } catch (error) {
       if (error?.code === 'P2025') {
