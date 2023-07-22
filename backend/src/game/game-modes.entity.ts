@@ -8,6 +8,7 @@ export type GameModeConfig = {
   GAME_WIDTH: number;
   BALL_SPEED: number;
   BALL_DIAMETER: number;
+  BALL_START_ROUND_WAIT: number;
   PADDLE_SPEED: number;
   PADDLE_SIZE: number;
   PADDLE_COLLISION_EXTENSION: number;
@@ -22,6 +23,7 @@ GameModeList.set(GameModeType.NORMAL, {
   GAME_WIDTH: 756,
   BALL_SPEED: 2,
   BALL_DIAMETER: 10,
+  BALL_START_ROUND_WAIT: 1,
   PADDLE_SPEED: 10,
   PADDLE_SIZE: 60,
   PADDLE_COLLISION_EXTENSION: 20,
