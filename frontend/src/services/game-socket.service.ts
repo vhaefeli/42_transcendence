@@ -10,6 +10,7 @@ export enum PlayerAction {
 export class GameService extends SocketService {
   private gameId: number | undefined;
   private router = useRouter();
+  private readonly pingTimes = new Array<number>();
   constructor() {
     super("game");
   }
@@ -17,11 +18,19 @@ export class GameService extends SocketService {
   async OnInit(): Promise<void> {
     this.onConnect(
       () => {
-        this.CalculateDelay();
+        setInterval(() => {
+          this.CalculateDelay();
+        }, 500);
       },
       { timeout: 1000 }
     );
     return;
+  }
+
+  getAveragePing() {
+    let sum = 0;
+    this.pingTimes.forEach((ping) => (sum += ping));
+    return (sum / this.pingTimes.length).toFixed(2);
   }
 
   async CalculateDelay() {
@@ -31,12 +40,9 @@ export class GameService extends SocketService {
       { client: new Date().getTime() },
       (response) => {
         const client = response.client;
-        const server = response.server;
         const now = new Date().getTime();
-        console.log("Client server communication delay in ms");
-        console.log(`client -> server: ${server - client}`);
-        console.log(`server -> client: ${now - server}`);
-        console.log(`round trip: ${now - client}`);
+        this.pingTimes.push(now - client);
+        if (this.pingTimes.length > 30) this.pingTimes.shift();
       }
     );
   }

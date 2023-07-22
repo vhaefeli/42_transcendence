@@ -1,15 +1,19 @@
 <template>
-  <span v-if="textError?.length">
-    <p class="text-white" id="gameError">{{ textError }}</p>
-    <router-link class="t-btn-pink text-white" to="/game-settings" id="goBack"
-      >Go Back</router-link
-    >
-  </span>
-  <span v-show="textResult?.length" class="blinking-text" id="gameResult">{{ textResult }}</span>
-
-   <span v-if="textResult?.length"><router-link class="t-btn-pink text-white" to="/game-settings" id="goBack"
-      >Go Back</router-link>
-  </span>
+  <div class="flex flex-row text-white">
+    <!--<p class="w-6 text-white">{{ averagePing }} ms</p>-->
+    <span v-if="textError?.length">
+      <p id="gameError">{{ textError }}</p>
+      <router-link class="t-btn-pink" to="/game-settings" id="goBack"
+        >Go Back</router-link
+      >
+    </span>
+    <span v-if="textResult?.length">
+      <p id="gameResult" class="blinking-text">{{ textResult }}</p>
+      <router-link class="t-btn-pink" to="/game-settings" id="goBack"
+        >Go Back</router-link
+      >
+    </span>
+  </div>
   <span
     v-show="connectedToGame && !isReadyToPlay"
     class="blinking-text"
@@ -26,9 +30,10 @@
 import { GameService, PlayerAction } from "@/services/game-socket.service";
 import { useSessionStore } from "@/stores/SessionStore";
 import { useUserStore } from "@/stores/UserStore";
+import axios, { AxiosError } from "axios";
 import { ref, onMounted, watch } from "vue";
 import { useRoute, type LocationQuery, useRouter } from "vue-router";
-import ArrayFont from '../assets/fonts/array/fonts/Array-Regular.woff'
+import ArrayFont from "../assets/fonts/array/fonts/Array-Regular.woff";
 
 const userStore = useUserStore();
 const sessionStore = useSessionStore();
@@ -37,8 +42,7 @@ userStore.getMe(sessionStore.access_token);
 const pongScreen = ref(null);
 // a recuperer du back requete http
 
-const playerName = "PLAYER 1";
-const opponentName = "PLAYER 2";
+let opponentName: string | undefined;
 
 const canvasWidth = 756;
 const canvasHeight = 498;
@@ -65,6 +69,7 @@ const gameSocket = new GameService();
 let gameIdToConnect: number | undefined;
 
 // error handling
+let averagePing = ref<number>();
 const textError = ref<string>();
 const textResult = ref<string>();
 const route = useRoute();
@@ -181,21 +186,30 @@ onMounted(() => {
         playerPos = response.p[0].y;
         opponentPos = response.p[1].y;
         ballX = response.b.x;
+        if (opponentName === undefined) saveOpponentUsername(response.p[1].id);
       } else {
         playerPos = response.p[1].y;
         opponentPos = response.p[0].y;
-        ballX = canvasWidth - response.b.x;
+        ballX = canvasWidth - response.b.x - ballSize;
+        if (opponentName === undefined) saveOpponentUsername(response.p[0].id);
       }
       ballY = response.b.y;
       draw();
     });
 
+    // print result when game is over
     gameSocket.socket?.on("gameIsOver", () => {
       if (!isGameActive.value) textResult.value = "Game was canceled";
       else if (playerScore > opponentScore) textResult.value = "You won";
       else if (playerScore < opponentScore) textResult.value = "You lost";
       else if (playerScore === opponentScore) textResult.value = "Draw";
     });
+
+    // get ping updates from game socket
+    setInterval(() => {
+      if (!connectedToGame.value) return;
+      averagePing.value = gameSocket.getAveragePing();
+    }, 100);
   });
 
   console.log("pong screen: ", pongScreen.value);
@@ -206,19 +220,17 @@ onMounted(() => {
   console.log(ctx);
 
   // ==> envoie size du canevas au back
-  
+
   let chargNum = 0;
   async function draw() {
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-    
-    if (chargNum == 0)
-    {
-      const font = new FontFace('Array-Regular', 'url(' + ArrayFont + ')');
-        await font.load();
-        document.fonts.add(font);
+
+    if (chargNum == 0) {
+      const font = new FontFace("Array-Regular", "url(" + ArrayFont + ")");
+      await font.load();
+      document.fonts.add(font);
       chargNum = 1;
     }
-  
 
     // ball
     ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
@@ -234,11 +246,14 @@ onMounted(() => {
     ctx.stroke();
 
     // names
+    let opponentUsername: string | undefined = "Player 2";
+
     ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
     ctx.font = "40px Array-Regular";
     ctx.textAlign = "center";
-    ctx.fillText(playerName, canvasWidth / 4, 50);
-    ctx.fillText(opponentName, (canvasWidth / 4) * 3, 50);
+    ctx.fillText(userStore.user.username, canvasWidth / 4, 50);
+    if (opponentName !== undefined) opponentUsername = opponentName;
+    ctx.fillText(opponentUsername, (canvasWidth / 4) * 3, 50);
 
     // score
     ctx.fillStyle = "rgba(237, 156, 219, 0.5)";
@@ -253,7 +268,36 @@ onMounted(() => {
     // }
   }
   // fonction qui recoit les sockets
-  draw();
+  async function start() {
+    await userStore.getMe(sessionStore.access_token);
+    draw();
+  }
+
+  start();
+
+  async function saveOpponentUsername(userId: number) {
+    await axios({
+      url: `/api/user/profile/id/${userId}`,
+      method: "get",
+      headers: { Authorization: `Bearer ${sessionStore.access_token}` },
+    })
+      .then((response) => {
+        opponentName = response.data.username;
+      })
+      .catch((error: AxiosError) => {
+        if (error.response?.status == 401) {
+          console.log(
+            `invalid access token: ${error.response?.status} ${error.response?.statusText}`
+          );
+          router.push("/login?logout=true");
+        } else {
+          console.log(
+            `unexpected error: ${error.response?.status} ${error.response?.statusText}`
+          );
+        }
+        return false;
+      });
+  }
 });
 </script>
 
@@ -268,7 +312,8 @@ onMounted(() => {
 }
 
 #ready,
-#wait, #gameResult {
+#wait,
+#gameResult {
   color: white;
   width: 100%;
   text-align: center;
@@ -296,8 +341,8 @@ onMounted(() => {
   background-color: var(--pink);
 }
 
-#gameError{
-  font-size:x-large;
+#gameError {
+  font-size: x-large;
   color: white;
   width: 100%;
   text-align: center;

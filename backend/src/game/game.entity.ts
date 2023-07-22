@@ -147,6 +147,7 @@ export class Game {
     });
     this.isActive = true;
     this.sendScoreToPlayers();
+    this.ball.newBall();
   }
 
   async endGame(wasCompleted: boolean) {

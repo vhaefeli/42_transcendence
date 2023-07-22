@@ -11,11 +11,11 @@ export class Ball {
   private players: Array<Player>;
   private pos = { x: 0, y: 0 };
   private dir = new Victor(0, 0);
+  private roundStart = new Date();
 
   constructor(gameMode: GameModeConfig, players: Array<Player>) {
     this.gameMode = gameMode;
     this.players = players;
-    this.newBall();
   }
 
   getPos() {
@@ -23,6 +23,7 @@ export class Ball {
   }
 
   newBall() {
+    this.roundStart = new Date();
     this.pos.x = this.gameMode.GAME_WIDTH / 2 - this.gameMode.BALL_DIAMETER / 2;
     this.pos.y =
       this.gameMode.GAME_HEIGHT / 2 - this.gameMode.BALL_DIAMETER / 2;
@@ -98,6 +99,11 @@ export class Ball {
   }
 
   move() {
+    if (
+      new Date().getTime() - this.gameMode.BALL_START_ROUND_WAIT * 1000 <
+      this.roundStart.getTime()
+    )
+      return;
     this.pos.x += Math.round(this.dir.x * this.gameMode.BALL_SPEED);
     this.pos.y += Math.round(this.dir.y * this.gameMode.BALL_SPEED);
     if (this.pos.y < 0) {
