@@ -1,15 +1,18 @@
 <template>
-  <div v-if="textError?.length">
-    <p class="text-white">{{ textError }}</p>
-    <router-link class="t-btn-pink text-white" to="/game-settings"
-      >Go Back</router-link
-    >
-  </div>
-  <div v-if="textResult?.length">
-    <p class="text-white">Game is over, result: {{ textResult }}</p>
-    <router-link class="t-btn-pink text-white" to="/game-settings"
-      >Go Back</router-link
-    >
+  <div class="flex flex-row">
+    <!--<p class="w-6 text-white">{{ averagePing }} ms</p>-->
+    <div v-if="textError?.length">
+      <p class="text-white">{{ textError }}</p>
+      <router-link class="t-btn-pink text-white" to="/game-settings"
+        >Go Back</router-link
+      >
+    </div>
+    <div v-if="textResult?.length">
+      <p class="text-white">Game is over, result: {{ textResult }}</p>
+      <router-link class="t-btn-pink text-white" to="/game-settings"
+        >Go Back</router-link
+      >
+    </div>
   </div>
   <span
     v-show="connectedToGame && !isReadyToPlay"
@@ -65,6 +68,7 @@ const gameSocket = new GameService();
 let gameIdToConnect: number | undefined;
 
 // error handling
+let averagePing = ref<number>();
 const textError = ref<string>();
 const textResult = ref<string>();
 const route = useRoute();
@@ -197,6 +201,12 @@ onMounted(() => {
       else if (playerScore === opponentScore) textResult.value = "Draw";
     });
   });
+
+  // get ping updates from game socket
+  setInterval(() => {
+    if (!connectedToGame.value) return;
+    averagePing.value = gameSocket.getAveragePing();
+  }, 100);
 
   console.log("pong screen: ", pongScreen.value);
   if (!pongScreen.value.getContext) {
