@@ -17,7 +17,7 @@ export class Game {
   readonly id: number;
   readonly gameModeName: GameModeType;
   private readonly gameMode: GameModeConfig;
-  readonly p = new Array<Player>(2);
+  private readonly p = new Array<Player>(2);
   private ball: Ball;
   private isActive = false;
   private isCompleted = false;
@@ -36,7 +36,7 @@ export class Game {
     )
       this.gameModeName = gameInfo.gameMode;
     else throw new TypeError(`Game Mode '${gameInfo.gameMode}' is unknown`);
-    this.ball = new Ball(this.gameMode, this);
+    this.ball = new Ball(this.gameMode, this.p);
   }
 
   getIsActive() {
