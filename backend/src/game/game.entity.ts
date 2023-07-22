@@ -21,6 +21,7 @@ export class Game {
   private ball: Ball;
   private isActive = false;
   private isCompleted = false;
+  private hasEnded = false;
 
   constructor(
     gameInfo: { id: number; gameMode?: GameModeType },
@@ -160,6 +161,7 @@ export class Game {
     await this.informGameIsOver();
     this.p.forEach((player) => promises.push(this.userEndGame(player)));
     await Promise.all(promises);
+    this.hasEnded = true;
   }
 
   private async completeGame() {
@@ -247,5 +249,9 @@ export class Game {
         '\n\nBall:\n' +
         this.ball.toString(),
     );
+  }
+
+  getHasEnded() {
+    return this.hasEnded;
   }
 }
