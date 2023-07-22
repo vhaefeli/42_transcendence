@@ -152,10 +152,11 @@ export class Game {
   async endGame(wasCompleted: boolean) {
     this.isActive = false;
     this.isCompleted = true;
-    this.informGameIsOver();
     const promises = new Array<Promise<any>>();
     if (wasCompleted) promises.push(this.completeGame());
     else promises.push(this.cancelGame());
+    if (wasCompleted) await this.sendScoreToPlayers();
+    await this.informGameIsOver();
     this.p.forEach((player) => promises.push(this.userEndGame(player)));
     await Promise.all(promises);
   }
@@ -172,20 +173,23 @@ export class Game {
 
     const promises = new Array<Promise<any>>();
     this.p.forEach((player) => {
+      // if none of the players have abandoned the match, add the game score
+      // else if this player is the one that abandoned the match, add score 0
+      // else add score 3 because the other player has abandoned the match
+      player.setScore(
+        !onePlayerAbandoned
+          ? player.getScore()
+          : player.getAbandoned()
+          ? 0
+          : this.gameMode.NUMBER_OF_ROUNDS,
+      );
       promises.push(
         this.prisma.player.update({
           where: {
             gameId_playerId: { gameId: this.id, playerId: player.id },
           },
           data: {
-            // if none of the players have abandoned the match, add the game score
-            // else if this player is the one that abandoned the match, add score 0
-            // else add score 3 because the other player has abandoned the match
-            score: !onePlayerAbandoned
-              ? player.getScore()
-              : player.getAbandoned()
-              ? 0
-              : 3,
+            score: player.getScore(),
             abandon: player.getAbandoned(),
             score4stat: true,
             gameStatus: game_status.ENDED,

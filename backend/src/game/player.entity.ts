@@ -48,6 +48,10 @@ export class Player {
     return this.score;
   }
 
+  setScore(newScore: number) {
+    this.score = newScore;
+  }
+
   incrementScore(): number {
     return ++this.score;
   }
