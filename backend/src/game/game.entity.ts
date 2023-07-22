@@ -114,17 +114,16 @@ export class Game {
     if (this.isActive) {
       // game loop goes here
       this.p.forEach((player) => player.move());
-      if (this.ball.move())
-      {
-        if (this.ball.getPos().x < 15)
-          this.p[1].incrementScore();
-        else
-          this.p[0].incrementScore();
+      if (this.ball.move()) {
+        if (this.ball.getPos().x < 15) this.p[1].incrementScore();
+        else this.p[0].incrementScore();
         this.ball.newBall();
         this.sendScoreToPlayers();
+        let scoreSum = 0;
+        this.p.forEach((player) => (scoreSum += player.getScore()));
+        if (scoreSum >= this.gameMode.NUMBER_OF_ROUNDS) this.endGame(true);
       }
       this.sendGameUpdateToPlayers();
-      // TODO: check end of game
     }
   }
 
