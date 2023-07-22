@@ -20,7 +20,7 @@ export class AutoPopulateDbService {
     success = await this.CreateFriendShips();
     if (success) success = await this.CreateDirectMessages();
     success = await this.CreateChannels();
-    if (success) success = await this.CreateGames();
+    success = await this.CreateGames();
   }
 
   private async CreateUsers() {

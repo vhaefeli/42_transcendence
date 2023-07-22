@@ -56,41 +56,32 @@ export class ChatController {
   async getMyChannelMembers(
     @Param('channelId') channelId: number,
     @Request() req: any,
-  ) {;
+  ) {
     return await this.chatService.FindMyChannelMembers(req.user.sub, channelId);
   }
 
-  @Get('channel/admin')
+  @Get('channel/admin/:channelId')
   async getMyChannelAdmin(
+    @Param('channelId') channelId: number,
     @Request() req: any,
-    @Body() myChannelAdminDto: MyChannelAdminDto,
   ) {
-    return await this.chatService.FindMyChannelAdmin(
-      req.user.sub,
-      myChannelAdminDto,
-    );
+    return await this.chatService.FindMyChannelAdmin(req.user.sub, channelId);
   }
 
-  @Get('channel/muted')
+  @Get('channel/muted/:channelId')
   async getMyChannelMuted(
+    @Param('channelId') channelId: number,
     @Request() req: any,
-    @Body() myChannelMuttedDto: MyChannelMutedDto,
   ) {
-    return await this.chatService.FindMyChannelMutted(
-      req.user.sub,
-      myChannelMuttedDto,
-    );
+    return await this.chatService.FindMyChannelMutted(req.user.sub, channelId);
   }
 
-  @Get('channel/banned')
+  @Get('channel/banned/:channelId')
   async getMyChannelBanned(
+    @Param('channelId') channelId: number,
     @Request() req: any,
-    @Body() myChannelBannedDto: MyChannelBannedDto,
   ) {
-    return await this.chatService.FindMyChannelBanned(
-      req.user.sub,
-      myChannelBannedDto,
-    );
+    return await this.chatService.FindMyChannelBanned(req.user.sub, channelId);
   }
 
   @Patch('channel/member/add')

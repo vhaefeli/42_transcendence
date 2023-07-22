@@ -237,7 +237,6 @@ export class ChatService {
           },
         },
       });
-      Logger.log(channelMembers);
       return channelMembers;
     } catch (error) {
       if (error?.code === 'P2025') {
@@ -249,13 +248,10 @@ export class ChatService {
     }
   }
 
-  async FindMyChannelAdmin(
-    my_id: number,
-    myChannelAdminDto: MyChannelAdminDto,
-  ) {
+  async FindMyChannelAdmin(my_id: number, channelId: number) {
     try {
       const channel = await this.prisma.channel.findFirstOrThrow({
-        where: { id: myChannelAdminDto.channelId },
+        where: { id: channelId },
         select: {
           id: true,
           ownerId: true,
@@ -273,7 +269,7 @@ export class ChatService {
           "You don't have the necessary privileges to see the admin list",
         );
       const channelAdmin = await this.prisma.channel.findMany({
-        where: { id: myChannelAdminDto.channelId },
+        where: { id: channelId },
         select: {
           admins: { select: { id: true, username: true, avatar_url: true } },
         },
@@ -290,13 +286,10 @@ export class ChatService {
     }
   }
 
-  async FindMyChannelMutted(
-    my_id: number,
-    myChannelMutedDto: MyChannelMutedDto,
-  ) {
+  async FindMyChannelMutted(my_id: number, channelId: number) {
     try {
       const channel = await this.prisma.channel.findFirstOrThrow({
-        where: { id: myChannelMutedDto.channelId },
+        where: { id: channelId },
         select: {
           id: true,
           ownerId: true,
@@ -314,7 +307,7 @@ export class ChatService {
           "You don't have the necessary privileges to see the muted member list",
         );
       const channelMuted = await this.prisma.channel.findMany({
-        where: { id: myChannelMutedDto.channelId },
+        where: { id: channelId },
         select: {
           muted: { select: { id: true, username: true, avatar_url: true } },
         },
@@ -331,13 +324,10 @@ export class ChatService {
     }
   }
 
-  async FindMyChannelBanned(
-    my_id: number,
-    myChannelBannedDto: MyChannelBannedDto,
-  ) {
+  async FindMyChannelBanned(my_id: number, channelId: number) {
     try {
       const channel = await this.prisma.channel.findFirstOrThrow({
-        where: { id: myChannelBannedDto.channelId },
+        where: { id: channelId },
         select: {
           id: true,
           ownerId: true,
@@ -355,7 +345,7 @@ export class ChatService {
           "You don't have the necessary privileges to see the banned member list",
         );
       const channelBanned = await this.prisma.channel.findMany({
-        where: { id: myChannelBannedDto.channelId },
+        where: { id: channelId },
         select: {
           banned: { select: { id: true, username: true, avatar_url: true } },
         },
