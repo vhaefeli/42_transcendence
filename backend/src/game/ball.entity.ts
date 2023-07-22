@@ -49,14 +49,17 @@ export class Ball {
 
   checkpaddle() {
     let paddlePos: number;
-    const collisionBox: number = this.gameMode.PADDLE_SIZE + 10;
+    const collisionBox: number =
+      this.gameMode.PADDLE_SIZE + this.gameMode.PADDLE_COLLISION_EXTENSION;
 
-    if (this.pos.x < 15) {
+    if (this.pos.x < this.gameMode.PADDLE_DISTANCE_FROM_BORDER) {
       paddlePos = this.players[0].getY();
     } else paddlePos = this.players[1].getY();
 
-    if (this.pos.y >= paddlePos + collisionBox || this.pos.y <= paddlePos - 10)
-      // 10 = size of the ball
+    if (
+      this.pos.y >= paddlePos + collisionBox ||
+      this.pos.y <= paddlePos - this.gameMode.BALL_DIAMETER
+    )
       return -this.gameMode.BALL_SPEED;
     else if (
       this.pos.y > paddlePos + collisionBox / 3 &&
@@ -83,8 +86,8 @@ export class Ball {
       this.pos.y < paddlePos + (collisionBox * 5) / 6
     )
       return Math.sin(Math.PI / 3) * this.gameMode.BALL_SPEED; // 60deg = pi/3
+    //TODO: check d'ou vient la valeur 20
     else if (this.pos.y >= paddlePos - 20 && this.pos.y < paddlePos)
-      // 10 = size of the ball
       return -Math.sin(Math.PI / 2.3) * this.gameMode.BALL_SPEED; //~86deg
     else if (
       this.pos.y >= paddlePos + (collisionBox * 5) / 6 &&
@@ -95,32 +98,8 @@ export class Ball {
   }
 
   move() {
-    // // ** TEST **
-    // // set a random direction vector to ball
-    // const v = new Victor(Math.random() - 0.5, Math.random() - 0.5);
-    // v.normalize();
-    // this.dir.mix(v, 0.2);
-    // // ** END TEST **
-
-    // // move the ball
-    // this.dir.normalize();
-    // this.pos.x += Math.floor(this.dir.x * this.gameMode.BALL_SPEED);
-    // this.pos.y += Math.floor(this.dir.y * this.gameMode.BALL_SPEED);
-    // if (this.pos.y < 0) this.pos.y = 0;
-    // else if (
-    //   this.pos.y >
-    //   this.gameMode.GAME_HEIGHT - this.gameMode.BALL_DIAMETER
-    // )
-    //   this.pos.y = this.gameMode.GAME_HEIGHT - this.gameMode.BALL_DIAMETER;
-    // if (this.pos.x < 0) this.pos.x = 0;
-    // else if (
-    //   this.pos.x >
-    //   this.gameMode.GAME_WIDTH - this.gameMode.BALL_DIAMETER
-    // )
-    //   this.pos.x = this.gameMode.GAME_WIDTH - this.gameMode.BALL_DIAMETER;
-
-    this.pos.x += this.dir.x * this.gameMode.BALL_SPEED;
-    this.pos.y += this.dir.y * this.gameMode.BALL_SPEED;
+    this.pos.x += Math.round(this.dir.x * this.gameMode.BALL_SPEED);
+    this.pos.y += Math.round(this.dir.y * this.gameMode.BALL_SPEED);
     if (this.pos.y < 0) {
       this.pos.y = 0;
       this.dir.y *= -1;
@@ -132,8 +111,11 @@ export class Ball {
       this.dir.y *= -1;
     }
     if (
-      this.pos.x < 15 ||
-      this.pos.x > this.gameMode.GAME_WIDTH - this.gameMode.BALL_DIAMETER - 15
+      this.pos.x < this.gameMode.PADDLE_DISTANCE_FROM_BORDER ||
+      this.pos.x >
+        this.gameMode.GAME_WIDTH -
+          this.gameMode.BALL_DIAMETER -
+          this.gameMode.PADDLE_DISTANCE_FROM_BORDER
     ) {
       const tmp = this.checkpaddle();
       if (tmp != -this.gameMode.BALL_SPEED) {
@@ -148,13 +130,18 @@ export class Ball {
             this.gameMode.BALL_SPEED * this.gameMode.BALL_SPEED -
               this.dir.y * this.dir.y,
           );
-        if (this.pos.x < 15) this.pos.x = 15;
+        if (this.pos.x < this.gameMode.PADDLE_DISTANCE_FROM_BORDER)
+          this.pos.x = this.gameMode.PADDLE_DISTANCE_FROM_BORDER;
         if (
           this.pos.x >
-          this.gameMode.GAME_WIDTH - this.gameMode.BALL_DIAMETER - 15
+          this.gameMode.GAME_WIDTH -
+            this.gameMode.BALL_DIAMETER -
+            this.gameMode.PADDLE_DISTANCE_FROM_BORDER
         )
           this.pos.x =
-            this.gameMode.GAME_WIDTH - this.gameMode.BALL_DIAMETER - 15;
+            this.gameMode.GAME_WIDTH -
+            this.gameMode.BALL_DIAMETER -
+            this.gameMode.PADDLE_DISTANCE_FROM_BORDER;
         return 0;
       } else {
         return 1;
