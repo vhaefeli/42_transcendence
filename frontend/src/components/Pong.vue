@@ -1,6 +1,8 @@
 <template>
   <div class="flex flex-row text-white">
-    <!--<p class="w-6 text-white">{{ averagePing }} ms</p>-->
+    <p v-if="true" class="w-6 text-white" id="ft-ping-info">
+      ping: {{ averagePing }} ms
+    </p>
     <span v-if="textError?.length">
       <p id="gameError">{{ textError }}</p>
       <router-link class="t-btn-pink" to="/game-settings" id="goBack"
@@ -199,8 +201,12 @@ onMounted(() => {
 
     // print result when game is over
     gameSocket.socket?.on("gameIsOver", () => {
-      if (!isGameActive.value) textResult.value = "Game was canceled";
-      else if (playerScore > opponentScore) textResult.value = "You won";
+      if (!isGameActive.value) {
+        textResult.value = "Game Canceled";
+        connectedToGame.value = true;
+        isReadyToPlay.value = true;
+        isGameActive.value = true;
+      } else if (playerScore > opponentScore) textResult.value = "You won";
       else if (playerScore < opponentScore) textResult.value = "You lost";
       else if (playerScore === opponentScore) textResult.value = "Draw";
     });
@@ -309,6 +315,16 @@ onMounted(() => {
   left: 50%;
   transform: translateX(-50%);
   /* background-color: greenyellow; */
+}
+
+#ft-ping-info {
+  font-size: small;
+  color: white;
+  width: 10%;
+  text-align: left;
+  position: absolute;
+  top: 107%;
+  left: 1%;
 }
 
 #ready,
