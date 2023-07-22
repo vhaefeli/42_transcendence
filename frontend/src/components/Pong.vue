@@ -5,6 +5,12 @@
       >Go Back</router-link
     >
   </div>
+  <div v-if="textResult?.length">
+    <p class="text-white">Game is over, result: {{ textResult }}</p>
+    <router-link class="t-btn-pink text-white" to="/game-settings"
+      >Go Back</router-link
+    >
+  </div>
   <span
     v-show="connectedToGame && !isReadyToPlay"
     class="blinking-text"
@@ -60,6 +66,7 @@ let gameIdToConnect: number | undefined;
 
 // error handling
 const textError = ref<string>();
+const textResult = ref<string>();
 const route = useRoute();
 const router = useRouter();
 
@@ -134,7 +141,7 @@ class KeyHandler {
 const keyHandler = new KeyHandler();
 
 function sendIsReady() {
-  if (!connectedToGame.value) return;
+  if (!connectedToGame.value || isGameActive.value) return;
   gameSocket.sendIsReady();
   isReadyToPlay.value = true;
 }
@@ -149,8 +156,6 @@ document.addEventListener("keydown", (event) => {
 
 onMounted(() => {
   gameSocket.socket?.on("connect", () => {
-	// TODO: detect gameIsOver and inform user
-
     // connect to game
     if (gameIdToConnect === undefined) return;
     gameSocket.connectToGame(gameIdToConnect);
@@ -166,7 +171,6 @@ onMounted(() => {
         opponentScore = response[0].score;
       }
       isGameActive.value = true;
-      console.log(userStore.user.id);
       console.log(`new score: ${playerScore} x ${opponentScore}`);
     });
 
@@ -184,6 +188,13 @@ onMounted(() => {
       }
       ballY = response.b.y;
       draw();
+    });
+
+    gameSocket.socket?.on("gameIsOver", () => {
+      if (!isGameActive.value) textResult.value = "Game was canceled";
+      else if (playerScore > opponentScore) textResult.value = "You won";
+      else if (playerScore < opponentScore) textResult.value = "You lost";
+      else if (playerScore === opponentScore) textResult.value = "Draw";
     });
   });
 

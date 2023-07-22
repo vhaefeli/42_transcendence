@@ -1,6 +1,5 @@
 import { useRouter } from "vue-router";
-import { SocketService, sleep } from "./socket.service";
-import router from "@/router";
+import { SocketService } from "./socket.service";
 
 export enum PlayerAction {
   IDLE,
@@ -46,38 +45,45 @@ export class GameService extends SocketService {
     if (!(await this.tryConnection())) return;
     this.gameId = gameId;
 
-    this.socket?.off('exception');
-    this.socket?.on('exception', (exception) => {
-      const msg = typeof exception.message === 'string' ? exception.message : exception.message[0];
-      this.socket?.off('exception');
-      router.push(`/game?connect_error=${encodeURIComponent(msg)}`);
+    this.socket?.off("exception");
+    this.socket?.on("exception", (exception) => {
+      const msg =
+        typeof exception.message === "string"
+          ? exception.message
+          : exception.message[0];
+      this.socket?.off("exception");
+      this.router.push(`/game?connect_error=${encodeURIComponent(msg)}`);
       return;
     });
-    this.socket?.emit('connectToGame', { gameId: gameId });
+    this.socket?.emit("connectToGame", { gameId: gameId });
   }
 
   async sendPlayerAction(action: PlayerAction) {
-    this.socket?.emit('action', { gId: this.gameId, a: action });
+    this.socket?.off("exception");
+    this.socket?.emit("action", { gId: this.gameId, a: action });
   }
 
   async sendIsReady() {
     if (this.gameId === undefined) {
-      console.log('not connected to game');
+      console.log("not connected to game");
       return;
     }
     if (!this.connected) {
-      console.log('not connected to socket');
+      console.log("not connected to socket");
       return;
     }
 
-    this.socket?.off('exception');
-    this.socket?.on('exception', (exception) => {
-      const msg = typeof exception.message === 'string' ? exception.message : exception.message[0];
-      this.socket?.off('exception');
-      router.push(`/game?is_ready_error=${encodeURIComponent(msg)}`);
+    this.socket?.off("exception");
+    this.socket?.on("exception", (exception) => {
+      const msg =
+        typeof exception.message === "string"
+          ? exception.message
+          : exception.message[0];
+      this.socket?.off("exception");
+      this.router.push(`/game?is_ready_error=${encodeURIComponent(msg)}`);
       return;
     });
-    this.socket?.emit('ready', { gameId: this.gameId });
+    this.socket?.emit("ready", { gameId: this.gameId });
   }
 
   async ping() {
