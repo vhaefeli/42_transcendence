@@ -10,7 +10,7 @@ import { CreateBothPlayerDto } from './dto/createBothPlayer.dto';
 import { PlayingGameDto } from './dto/playingGame.dto';
 import { UpdateCompletionDto } from './dto/updateCompletion.dto';
 import { CancelGameDto } from './dto/cancelGame.dto';
-import { level_type } from '@prisma/client';
+import { game_status, level_type } from '@prisma/client';
 
 @Injectable()
 export class PlayerService {
@@ -321,77 +321,75 @@ export class PlayerService {
   // ------------------------------------------------------------------------------------------------------
   // manage the play against a random opponent
   async random(playerId: number) {
-    // identify if there is already a random player waiting for playing
-    const Candidate = await this.prisma.player.findMany({
-      where: { gameStatus: 'WAITING', randomAssignation: true },
-    });
-    // determine if player1+game or player2 must be created
-    if (Candidate[0] == null) {
-      // Case : Create Game & Player 1-----------------------------------------
-      // create the game with initiatedBy = sub
-      const game = await this.prisma.game.create({
-        data: {
-          initiatedById: playerId,
-        },
-        select: {
-          id: true,
-        },
-      });
-      // create the player 1
-      const player1 = await this.prisma.player.create({
-        data: {
-          gameId: game.id,
-          seq: 1,
-          playerId: playerId,
-          // mode: 'INTERMEDIATE',
-          randomAssignation: true,
-        },
-        select: {
-          id: true,
-          gameId: true,
-        },
-      });
-      const gameId = player1.gameId;
-      return { gameId };
-    } else {
-      // Case : Create Player 2 -----------------------------------------------
-      // update player1 to avoid re-attribution to random
-      try {
-        // create the player 2
-        const player2 = await this.prisma.player.create({
+    try {
+      // identify if there is already a random player waiting for playing
+      let game: any = (
+        await this.prisma.game.findMany({
+          where: {
+            player: {
+              every: {
+                randomAssignation: true,
+                gameStatus: game_status.WAITING,
+              },
+            },
+          },
+          select: {
+            id: true,
+            _count: { select: { player: true } },
+          },
+        })
+      ).find((game) => game._count.player === 1);
+      // determine if player1+game or player2 must be created
+      if (game == null) {
+        // Case : Create Game & Player 1-----------------------------------------
+        // create the game with initiatedBy = sub
+        game = await this.prisma.game.create({
           data: {
-            gameId: Candidate[0].gameId,
-            seq: 2,
+            initiatedById: playerId,
+          },
+          select: {
+            id: true,
+          },
+        });
+        // create the player 1
+        await this.prisma.player.create({
+          data: {
+            gameId: game.id,
+            seq: 1,
             playerId: playerId,
             // mode: 'INTERMEDIATE',
-            gameStatus: 'PLAYING',
-            randomAssignation: false,
+            randomAssignation: true,
           },
           select: {
             id: true,
             gameId: true,
           },
         });
-        const player1U = await this.prisma.player.updateMany({
-          where: {
-            gameId: Candidate[0].gameId,
-            seq: 1,
+      } else {
+        // Case : Create Player 2 -----------------------------------------------
+        // update player1 to avoid re-attribution to random
+        // create the player 2
+        await this.prisma.player.create({
+          data: {
+            gameId: game.id,
+            seq: 2,
+            playerId: playerId,
             // mode: 'INTERMEDIATE',
+            gameStatus: game_status.WAITING,
             randomAssignation: true,
           },
-          data: {
-            gameStatus: 'PLAYING',
-            randomAssignation: false,
+          select: {
+            id: true,
+            gameId: true,
           },
         });
-        const gameId = player2.gameId;
-        return { gameId };
-      } catch (e) {
-        // record not created as gameId & playerId are not unique.
-        if (e.code == 'P2002') throw new NotFoundException();
-        if (e?.code) Logger.error(e.code + ' ' + e.msg);
-        else Logger.error(e);
       }
+      return { gameId: game.id };
+    } catch (e) {
+      // record not created as gameId & playerId are not unique.
+      if (e.code == 'P2002') throw new NotFoundException();
+      if (e?.code) Logger.error(e.code + ' ' + e.msg);
+      else Logger.error(e);
     }
   }
 }
