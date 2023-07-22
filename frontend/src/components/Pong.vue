@@ -1,16 +1,15 @@
 <template>
-  <div v-if="textError?.length">
-    <p class="text-white">{{ textError }}</p>
-    <router-link class="t-btn-pink text-white" to="/game-settings"
+  <span v-if="textError?.length">
+    <p class="text-white" id="gameError">{{ textError }}</p>
+    <router-link class="t-btn-pink text-white" to="/game-settings" id="goBack"
       >Go Back</router-link
     >
-  </div>
-  <div v-if="textResult?.length">
-    <p class="text-white">Game is over, result: {{ textResult }}</p>
-    <router-link class="t-btn-pink text-white" to="/game-settings"
-      >Go Back</router-link
-    >
-  </div>
+  </span>
+  <span v-show="textResult?.length" class="blinking-text" id="gameResult">{{ textResult }}</span>
+
+   <span v-if="textResult?.length"><router-link class="t-btn-pink text-white" to="/game-settings" id="goBack"
+      >Go Back</router-link>
+  </span>
   <span
     v-show="connectedToGame && !isReadyToPlay"
     class="blinking-text"
@@ -29,6 +28,7 @@ import { useSessionStore } from "@/stores/SessionStore";
 import { useUserStore } from "@/stores/UserStore";
 import { ref, onMounted, watch } from "vue";
 import { useRoute, type LocationQuery, useRouter } from "vue-router";
+import ArrayFont from '../assets/fonts/array/fonts/Array-Regular.woff'
 
 const userStore = useUserStore();
 const sessionStore = useSessionStore();
@@ -206,9 +206,19 @@ onMounted(() => {
   console.log(ctx);
 
   // ==> envoie size du canevas au back
-
+  
+  let chargNum = 0;
   async function draw() {
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+    
+    if (chargNum == 0)
+    {
+      const font = new FontFace('Array-Regular', 'url(' + ArrayFont + ')');
+        await font.load();
+        document.fonts.add(font);
+      chargNum = 1;
+    }
+  
 
     // ball
     ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
@@ -250,22 +260,50 @@ onMounted(() => {
 <style>
 #pong {
   position: absolute;
-  top: 13.6%;
-  height: 72.8%;
+  top: 14.5%;
+  height: 71.7%;
   left: 50%;
   transform: translateX(-50%);
-  /* background-color: rgba(255, 255, 255, 0.276); */
+  /* background-color: greenyellow; */
 }
 
 #ready,
-#wait {
+#wait, #gameResult {
   color: white;
   width: 100%;
   text-align: center;
   position: absolute;
   font-family: "Array-Regular";
-  /* font-size: 8vh; */
+  font-size: 10vw;
   top: 27%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+}
+
+#gameResult {
+  /* font-size: medium; */
+}
+
+#goBack {
+  position: absolute;
+  align-items: center;
+  justify-content: center;
+  top: 60%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  background-color: var(--pink);
+}
+
+#gameError{
+  font-size:x-large;
+  color: white;
+  width: 100%;
+  text-align: center;
+  position: absolute;
+  /* font-size: 8vh; */
+  top: 107%;
   left: 50%;
   transform: translateX(-50%);
   z-index: 4;
