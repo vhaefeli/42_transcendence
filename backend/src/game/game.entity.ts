@@ -154,8 +154,8 @@ export class Game {
     this.isActive = false;
     this.isCompleted = true;
     const promises = new Array<Promise<any>>();
-    if (wasCompleted) promises.push(this.completeGame());
-    else promises.push(this.cancelGame());
+    if (wasCompleted) await this.completeGame();
+    else await this.cancelGame();
     if (wasCompleted) await this.sendScoreToPlayers();
     await this.informGameIsOver();
     this.p.forEach((player) => promises.push(this.userEndGame(player)));
