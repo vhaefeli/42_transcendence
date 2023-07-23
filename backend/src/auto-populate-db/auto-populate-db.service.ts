@@ -379,6 +379,7 @@ export class AutoPopulateDbService {
             gameStatus: 'ENDED',
             score: 3,
             score4stat: true,
+            levelAtPlay: 'INITIATION',
           },
           {
             gameId: 1,
@@ -388,6 +389,7 @@ export class AutoPopulateDbService {
             gameStatus: 'ENDED',
             score: 0,
             score4stat: true,
+            levelAtPlay: 'INITIATION',
           },
           {
             gameId: 2,
@@ -397,6 +399,7 @@ export class AutoPopulateDbService {
             gameStatus: 'ENDED',
             score: 2,
             score4stat: true,
+            levelAtPlay: 'INITIATION',
           },
           {
             gameId: 2,
@@ -406,6 +409,7 @@ export class AutoPopulateDbService {
             gameStatus: 'ENDED',
             score: 1,
             score4stat: true,
+            levelAtPlay: 'INITIATION',
           },
           {
             gameId: 3,
@@ -415,6 +419,7 @@ export class AutoPopulateDbService {
             gameStatus: 'ENDED',
             score: 2,
             score4stat: true,
+            levelAtPlay: 'BEGINNER',
           },
           {
             gameId: 3,
@@ -424,6 +429,7 @@ export class AutoPopulateDbService {
             gameStatus: 'ENDED',
             score: 1,
             score4stat: true,
+            levelAtPlay: 'INITIATION',
           },
         ],
       });

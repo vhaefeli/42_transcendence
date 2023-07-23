@@ -113,6 +113,28 @@ export class PlayerService {
       throw new UnauthorizedException('Max score is 3');
     }
     try {
+      // read the user for grapping level for EXTERNAL LEVEL
+      const CurrentUserlevel = await this.prisma.user.findFirst({
+        where: {
+          id: playerId,
+        },
+      });
+      let newLevelAtPlay: string;
+      // switch (CurrentUserlevel.level) {
+      //   case 'INITIATION':
+      //     newLevelAtPlay = 'Potato';
+      //     break;
+      //   case 'BEGINNER':
+      //     newLevelAtPlay = 'Pickle';
+      //     break;
+      //   case 'INTERMEDIATE':
+      //     newLevelAtPlay = 'Pineapple';
+      //     break;
+      //   case 'EXPERT':
+      //     newLevelAtPlay = 'Pitaya';
+      //     break;
+      // }
+      newLevelAtPlay = CurrentUserlevel.level;
       const playerUpdate = await this.prisma.player.updateMany({
         where: {
           gameId: updateCompletionDto.gameId,
@@ -123,6 +145,7 @@ export class PlayerService {
         data: {
           score: updateCompletionDto.score,
           gameStatus: 'ENDED',
+          levelAtPlay: newLevelAtPlay,
         },
       });
       const gameUpdate = await this.prisma.game.update({
@@ -211,7 +234,24 @@ export class PlayerService {
   // list all games played by the connected user
   async gameLog(playerId: number) {
     const gameslog = await this.prisma.$queryRaw`
-    select "Game".date, ('won against ' || u2.username || ' (' || (u2."level") || ')')  "Result"
+    select "Game".date , 
+    CASE 
+    WHEN "Player".score > p2.score THEN 'Won against '
+    WHEN "Player".score < p2.score THEN  'Lost against ' 
+    END 
+    ||
+    u2.username
+    ||
+    ' ('
+    ||
+    CASE 
+    WHEN p2."levelAtPlay" = 'INITIATION' THEN 'Potato'
+    WHEN p2."levelAtPlay" = 'BEGINNER' THEN  'Pickle' 
+    WHEN p2."levelAtPlay" = 'INTERMEDIATE' THEN  'Pineapple' 
+    WHEN p2."levelAtPlay" = 'EXPERT' THEN  'Pitaya' 
+    END
+    ||
+    ')' "result"
     from  "Player", "Game", "User", "Player" p2, "User" u2
     where 
     "Player"."gameId" = "Game".id
@@ -221,19 +261,7 @@ export class PlayerService {
     and "Player"."gameId" = p2."gameId"
     and "Player".seq <> p2.seq
     and p2."playerId" = u2.id
-    and "Player".score > p2.score
-    union all
-    select "Game".date, ('Lost against ' || u2.username || ' (' || (u2."level") || ')') "Result"
-    from  "Player", "Game", "User", "Player" p2, "User" u2
-    where 
-    "Player"."gameId" = "Game".id
-    and "Player"."playerId" = "User".id
-    and "Player"."playerId" =  ${playerId}
-    and "Player".score4stat = true
-    and "Player"."gameId" = p2."gameId"
-    and "Player".seq <> p2.seq
-    and p2."playerId" = u2.id
-    and "Player".score < p2.score
+    order by "Game".date desc
       `;
     return gameslog;
   }
