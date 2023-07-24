@@ -161,13 +161,10 @@ export class Game {
     try {
       if (wasCompleted) await this.completeGame();
       else await this.cancelGame();
-      Logger.log(`where t f2`);
     } catch (error) {
       console.error(`game.entity endGame() error: ${error}`);
     }
-    Logger.log(`where t f0`);
     if (wasCompleted) await this.sendScoreToPlayers();
-    Logger.log(`where t f`);
     await this.informGameIsOver();
     this.p.forEach((player) => promises.push(this.userEndGame(player)));
     await Promise.all(promises);
@@ -197,7 +194,7 @@ export class Game {
           : this.gameMode.POINTS_TO_WIN,
       );
       promises.push(
-        new Promise(async (resolve) => {
+        new Promise<void>(async (resolve) => {
           const opponent = this.p.find((pl) => pl.id !== player.id);
           const stats = await this.prisma.user.findUnique({
             where: { id: player.id },
@@ -240,14 +237,11 @@ export class Game {
               },
             },
           });
-          resolve;
+          resolve();
         }),
       );
     });
-    Logger.log(`where t f3`);
-    // TODO fix never ending await
     await Promise.all(promises);
-    Logger.log(`where t f1`);
   }
 
   private async cancelGame() {
@@ -274,7 +268,6 @@ export class Game {
 
   private async informGameIsOver() {
     this.gameGateway.server.to(this.id.toString()).emit('gameIsOver');
-    Logger.log(`gameIsOver`);
   }
 
   private async userEndGame(player: Player) {
