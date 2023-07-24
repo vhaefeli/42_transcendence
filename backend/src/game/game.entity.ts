@@ -21,6 +21,7 @@ export class Game {
   private ball: Ball;
   private isActive = false;
   private isCompleted = false;
+  private hasEnded = false;
 
   constructor(
     gameInfo: { id: number; gameMode?: GameModeType },
@@ -36,7 +37,7 @@ export class Game {
     )
       this.gameModeName = gameInfo.gameMode;
     else throw new TypeError(`Game Mode '${gameInfo.gameMode}' is unknown`);
-    this.ball = new Ball(this.gameMode);
+    this.ball = new Ball(this.gameMode, this.p);
   }
 
   getIsActive() {
@@ -59,6 +60,7 @@ export class Game {
       userId: id,
       socket: socket,
       gameMode: this.gameMode,
+      pIndex: playerIndex,
     });
     socket.join(this.id.toString());
   }
@@ -113,9 +115,16 @@ export class Game {
     if (this.isActive) {
       // game loop goes here
       this.p.forEach((player) => player.move());
-      this.ball.move();
+      if (this.ball.move()) {
+        if (this.ball.getPos().x < 15) this.p[1].incrementScore();
+        else this.p[0].incrementScore();
+        this.ball.newBall();
+        this.sendScoreToPlayers();
+        let scoreSum = 0;
+        this.p.forEach((player) => (scoreSum += player.getScore()));
+        if (scoreSum >= this.gameMode.NUMBER_OF_ROUNDS) this.endGame(true);
+      }
       this.sendGameUpdateToPlayers();
-      // TODO: detect change in score and send to players and/or complete game
     }
   }
 
@@ -139,17 +148,20 @@ export class Game {
     });
     this.isActive = true;
     this.sendScoreToPlayers();
+    this.ball.newBall();
   }
 
   async endGame(wasCompleted: boolean) {
     this.isActive = false;
     this.isCompleted = true;
-    this.informGameIsOver();
     const promises = new Array<Promise<any>>();
-    if (wasCompleted) promises.push(this.completeGame());
-    else promises.push(this.cancelGame());
+    if (wasCompleted) await this.completeGame();
+    else await this.cancelGame();
+    if (wasCompleted) await this.sendScoreToPlayers();
+    await this.informGameIsOver();
     this.p.forEach((player) => promises.push(this.userEndGame(player)));
     await Promise.all(promises);
+    this.hasEnded = true;
   }
 
   private async completeGame() {
@@ -164,20 +176,23 @@ export class Game {
 
     const promises = new Array<Promise<any>>();
     this.p.forEach((player) => {
+      // if none of the players have abandoned the match, add the game score
+      // else if this player is the one that abandoned the match, add score 0
+      // else add score 3 because the other player has abandoned the match
+      player.setScore(
+        !onePlayerAbandoned
+          ? player.getScore()
+          : player.getAbandoned()
+          ? 0
+          : this.gameMode.NUMBER_OF_ROUNDS,
+      );
       promises.push(
         this.prisma.player.update({
           where: {
             gameId_playerId: { gameId: this.id, playerId: player.id },
           },
           data: {
-            // if none of the players have abandoned the match, add the game score
-            // else if this player is the one that abandoned the match, add score 0
-            // else add score 3 because the other player has abandoned the match
-            score: !onePlayerAbandoned
-              ? player.getScore()
-              : player.getAbandoned()
-              ? 0
-              : 3,
+            score: player.getScore(),
             abandon: player.getAbandoned(),
             score4stat: true,
             gameStatus: game_status.ENDED,
@@ -234,5 +249,9 @@ export class Game {
         '\n\nBall:\n' +
         this.ball.toString(),
     );
+  }
+
+  getHasEnded() {
+    return this.hasEnded;
   }
 }
