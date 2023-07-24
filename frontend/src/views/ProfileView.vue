@@ -9,8 +9,7 @@
     <section class="ft-container">
       <div class="flex flex-col items-center text-center max-w-max ft-central-tab-container">
         <div class="ft-profile-pic" id="current-profile-pic" :style="{ 'background': 'url(' + user.avatar_url + ')' }"></div>
-        <!-- ajouter la valeur ft-circle-green ou ft-circle-gray selon le statut de connexion de la personne -->
-        <div class="ft-connection-circle" id="current-profile-pic"></div>
+        <div class="ft-connection-circle" id="current-profile-pic"><StatusBubble :status="user.status"></StatusBubble></div>
         <div class="ft-tab-folder" id="title-profile"></div>
         <!-- Par defaut en ligne -->
         <div class="ft-tab-content ft-bg-color-profile">{{ user.status }}</div>
@@ -297,6 +296,7 @@
     import NavBar from "@/components/NavBar.vue";
     import { ModelListSelect } from "vue-search-select";
     import EmptyText from "@/components/EmptyText.vue";
+    import StatusBubble from "@/components/StatusBubble.vue";
 
     type type_user = {
       id: number;
