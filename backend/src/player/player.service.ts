@@ -251,7 +251,7 @@ export class PlayerService {
     WHEN p2."levelAtPlay" = 'EXPERT' THEN  'Pitaya' 
     END
     ||
-    ')' "result"
+    ')' "Result"
     from  "Player", "Game", "User", "Player" p2, "User" u2
     where 
     "Player"."gameId" = "Game".id
