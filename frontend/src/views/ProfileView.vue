@@ -114,15 +114,15 @@
         <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Friends</div>
         <div id="friendsScroll" class="ft-tab-content ft-border-color-profile ft-tab-border text-left ft-scrollable">
           <ul>
-            <div v-if="friends.length === 0"><EmptyText :text="'You have no friends... Looser!'" :white="false" /></div>
+            <div v-if="friends.length === 0"><EmptyText :text="'You have no friends... Too bad!'" :white="false" /></div>
             <div v-for="(friend, index) in friends" :key="index">
                 <div v-if="!friend.is_blocked">
                   <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between" :class="index === friends.length - 1 ? '' : 'ft-tab-separator'">
                     <div class="flex flex-row items-center">
                       <div class="flex flex-col">
                         <div class="ft-profile-pic ft-friend-pic">
-                          <div class="ft-connection-circle ft-friend-status">
-                            <img src="../assets/icons/tennisBallBlack.png" alt="is playing" title="your friend is playing" class="ft-playing">
+                          <div class="ft-connection-circle ft-friend-status"><StatusBubble :status="friend.status"></StatusBubble>
+                            <!-- <img src="../assets/icons/tennisBallBlack.png" alt="is playing" title="your friend is playing" class="ft-playing"> -->
                           </div>
                         </div>
                       </div>
