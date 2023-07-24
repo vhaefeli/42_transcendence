@@ -54,6 +54,7 @@
         return !props.recipients.find((recipient) => recipient === user.id);
       });
   }
+  loadUserList();
 
   watch(props.recipients, () => {
     loadUserList()
