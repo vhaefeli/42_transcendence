@@ -65,7 +65,7 @@
               <div v-for="(game, index) in gameLog" :key="index">
                 <li class="ft-item-title ft-text ft-bb-color-game flex flex-row justify-between items-center" :class="index === gameLog.length - 1 ? '' : 'ft-tab-separator'">
                   <div class="flex flex-col justify-start">
-                    <li class="ft-level-text ml-2">{{ game.date }}</li>
+                    <li class="ft-level-text ml-2">{{ formatDate(game.date) }}</li>
                     <li class="ft-text ml-2">{{ game.Result }}</li>
                   </div>
                 </li>
@@ -416,6 +416,15 @@
         if (newFriend.value) {
             userStore.addFriend(newFriend.value, sessionStore.access_token);
         }
+    }
+
+    function formatDate(dateString: string) {
+      const dateObj = new Date(dateString);
+      return dateObj.toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      })
     }
 
     function acceptFriend(friendname) {
