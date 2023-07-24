@@ -58,16 +58,16 @@
 
       <div class="flex flex-col text-center ft-right-tab" id="match-history" :class="{ foreground: foregroundTab === 'matchHistory' }" @click="setForegroundTab('matchHistory')">
         <div class="ft-tab-folder ft-tab-title ft-bb-color-game">Match history</div>
-        <div id="matchScroll" class="ft-tab-content ft-border-color-game ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left ft-scrollable">
+        <div id="matchScroll" class="ft-tab-content ft-border-color-game ft-tab-border flex flex-col text-left ft-scrollable">
           <ul>
             <div v-if="gameLog">
               <div v-if="gameLog.length === 0"><EmptyText :text="'No game to show here'" :white="false" /></div>
               <div v-for="(game, index) in gameLog" :key="index">
                 <li class="ft-item-title ft-text ft-bb-color-game flex flex-row justify-between items-center" :class="index === gameLog.length - 1 ? '' : 'ft-tab-separator'">
-                <li class="ft-text ml-2">{{ gameLog.date }}</li>
-                <li class="ft-level-text ml-2">{{ gameLog.Result }}</li>
-                <!-- numbers for debug only -->
-                  {{ index + 1 }} of {{ gameLog.length }} 
+                  <div class="flex flex-col justify-start">
+                    <li class="ft-level-text ml-2">{{ game.date }}</li>
+                    <li class="ft-text ml-2">{{ game.Result }}</li>
+                  </div>
                 </li>
               </div>
             </div>
