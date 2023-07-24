@@ -120,9 +120,12 @@ export class Game {
         else this.p[0].incrementScore();
         this.ball.newBall();
         this.sendScoreToPlayers();
-        let scoreSum = 0;
-        this.p.forEach((player) => (scoreSum += player.getScore()));
-        if (scoreSum >= this.gameMode.NUMBER_OF_ROUNDS) this.endGame(true);
+        if (
+          this.p.find(
+            (player) => player.getScore() === this.gameMode.POINTS_TO_WIN,
+          )
+        )
+          this.endGame(true);
       }
       this.sendGameUpdateToPlayers();
     }
@@ -184,7 +187,7 @@ export class Game {
           ? player.getScore()
           : player.getAbandoned()
           ? 0
-          : this.gameMode.NUMBER_OF_ROUNDS,
+          : this.gameMode.POINTS_TO_WIN,
       );
       promises.push(
         this.prisma.player.update({
