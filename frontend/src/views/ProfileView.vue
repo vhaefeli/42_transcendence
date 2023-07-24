@@ -62,6 +62,7 @@
           <ul>
             <div v-if="gameLog">
               <div v-if="gameLog.length === 0"><EmptyText :text="'No game to show here'" :white="false" /></div>
+              <!-- <div v-for="(game, index) in gameLog" :key="gameLog.length - index"> -->
               <div v-for="(game, index) in gameLog" :key="index">
                 <li class="ft-item-title ft-text ft-bb-color-game flex flex-row justify-between items-center" :class="index === gameLog.length - 1 ? '' : 'ft-tab-separator'">
                   <div class="flex flex-col justify-start">
