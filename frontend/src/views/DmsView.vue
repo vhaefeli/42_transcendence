@@ -312,7 +312,7 @@
       // The allUsers data is loaded, you can use it now
       if (queryRecipient) {
         actual.value = allUsers.value.find((user) => queryRecipient == user.id)
-      } else if (recipients.value.length > 0 && Object.keys(actual.value).length === 0) {
+      } else if (recipients.value.length > 0 && !isActualLoaded.value) {
         actual.value = allUsers.value.find((user) => recipients.value[0] === user.id)
       }
     }
