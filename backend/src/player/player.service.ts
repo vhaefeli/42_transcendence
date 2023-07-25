@@ -80,6 +80,28 @@ export class PlayerService {
   async updateStart(playerId: number, updatePlayerDto: UpdatePlayerDto) {
     let nbUpdate: number = 0;
     try {
+      // read the user for grapping level for EXTERNAL LEVEL
+      const CurrentUserlevel = await this.prisma.user.findFirst({
+        where: {
+          id: playerId,
+        },
+      });
+      // la translation se fait dans player/log mais je laisse ceci pour info
+      // switch (CurrentUserlevel.level) {
+      //   case 'INITIATION':
+      //     newLevelAtPlay = 'Potato';
+      //     break;
+      //   case 'BEGINNER':
+      //     newLevelAtPlay = 'Pickle';
+      //     break;
+      //   case 'INTERMEDIATE':
+      //     newLevelAtPlay = 'Pineapple';
+      //     break;
+      //   case 'EXPERT':
+      //     newLevelAtPlay = 'Pitaya';
+      //     break;
+      // }
+      const newLevelAtPlay = CurrentUserlevel.level;
       const playerUpdate = await this.prisma.player.updateMany({
         where: {
           gameId: updatePlayerDto.gameId,
@@ -88,6 +110,7 @@ export class PlayerService {
         },
         data: {
           score4stat: true,
+          levelAtPlay: newLevelAtPlay,
         },
       });
       if (playerUpdate.count !== 1) {
@@ -113,28 +136,6 @@ export class PlayerService {
       throw new UnauthorizedException('Max score is 3');
     }
     try {
-      // read the user for grapping level for EXTERNAL LEVEL
-      const CurrentUserlevel = await this.prisma.user.findFirst({
-        where: {
-          id: playerId,
-        },
-      });
-      let newLevelAtPlay: string;
-      // switch (CurrentUserlevel.level) {
-      //   case 'INITIATION':
-      //     newLevelAtPlay = 'Potato';
-      //     break;
-      //   case 'BEGINNER':
-      //     newLevelAtPlay = 'Pickle';
-      //     break;
-      //   case 'INTERMEDIATE':
-      //     newLevelAtPlay = 'Pineapple';
-      //     break;
-      //   case 'EXPERT':
-      //     newLevelAtPlay = 'Pitaya';
-      //     break;
-      // }
-      newLevelAtPlay = CurrentUserlevel.level;
       const playerUpdate = await this.prisma.player.updateMany({
         where: {
           gameId: updateCompletionDto.gameId,
@@ -145,7 +146,6 @@ export class PlayerService {
         data: {
           score: updateCompletionDto.score,
           gameStatus: 'ENDED',
-          levelAtPlay: newLevelAtPlay,
         },
       });
       const gameUpdate = await this.prisma.game.update({
