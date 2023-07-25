@@ -1,6 +1,6 @@
 <template>
   <NavBar :showProfile="true"></NavBar>
-  <div class="text-white profile-container">
+  <div class="text-white profile-container w-full">
     <section class="flex flex-col items-center">
       <p>
         {{ `2fa is ${userStore.user.tfa_enabled ? "enabled" : "disabled"}` }}
@@ -34,13 +34,50 @@
           cancel
         </button>
       </div>
+      <div
+        class="drop-area w-2/3"
+        :data-active="active"
+        @dragenter.prevent="setActive"
+        @dragover.prevent="setActive"
+        @dragleave.prevent="setInactive"
+        @drop.prevent="onDrop"
+      >
+        <p>Drop your image here</p>
+        <label for="file-input">or select a file:</label>
+        <input
+          type="file"
+          id="selectedFile"
+          style="display: none"
+          name="file-input"
+          v-on:change="fileInputOnChange"
+        />
+        <input
+          class="ft-browse-button"
+          type="button"
+          value="Browse..."
+          onclick="document.getElementById('selectedFile').click();"
+        />
+        <p v-if="selectedAvatar == undefined">no image selected</p>
+        <p v-if="selectedAvatar" class="truncate">{{ selectedAvatar.name }}</p>
+        <slot :dropZoneActive="active"></slot>
+        <div :class="{ 'cursor-not-allowed': selectedAvatar == undefined }"
+          class="w-fit">
+          <button
+            class="ft-edit-button"
+            @click="uploadNewAvatar"
+            :class="{ 'opacity-50 ft-noClick': selectedAvatar == undefined }"
+          >
+            Upload
+          </button>
+        </div>
+      </div>
     </section>
   </div>
   <div id="ft-bottom-line"></div>
 </template>
 
 <script setup lang="ts">
-import { ref, onBeforeMount, onMounted } from "vue";
+import { ref, onBeforeMount, onMounted, onUnmounted } from "vue";
 import { storeToRefs } from "pinia";
 import { useRoute, useRouter } from "vue-router";
 import axios, { AxiosError } from "axios";
@@ -48,11 +85,7 @@ import { useUserStore } from "../stores/UserStore";
 import { useSessionStore } from "@/stores/SessionStore";
 import NavBar from "@/components/NavBar.vue";
 
-const tfa_code = ref("");
-const tfa_email = ref("");
 const errorText = ref("");
-const show_tfa_enable_disable_confirmation = ref(false);
-let tfaRegistrationEnable = true;
 
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
@@ -71,6 +104,12 @@ onMounted(async () => {
 function logout() {
   router.push("/login?logout=true");
 }
+
+// Enable or Disable 2FA ******************************************************
+const tfa_code = ref("");
+const tfa_email = ref("");
+const show_tfa_enable_disable_confirmation = ref(false);
+let tfaRegistrationEnable = true;
 
 async function tfaEnable() {
   if (!tfa_email.value.length) {
@@ -186,6 +225,76 @@ function tfaValidateHandleError(error: AxiosError) {
 function cancelTfaEnableDisable() {
   show_tfa_enable_disable_confirmation.value = false;
 }
+
+// Upload new avatar **********************************************************
+// drag and drop reference:
+// https://www.smashingmagazine.com/2022/03/drag-drop-file-uploader-vuejs-3/
+const active = ref(false);
+let inActiveTimeout: any = null;
+const selectedAvatar = ref<File | null>();
+let avatarInfo: ServerAvatarInfo;
+
+type ServerAvatarInfo = {
+  max_size: number;
+  file_types: Array<string>;
+};
+
+function selectNewAvatar(file: File | null) {
+  if (file == null) return;
+  if (!avatarInfo.file_types.includes(file.type)) {
+    errorText.value = `filetype ${file.type} is not accepted`;
+    return;
+  }
+  if (file.size > avatarInfo.max_size) {
+    errorText.value = `file is too big, max size: ${avatarInfo.max_size}b`;
+    return;
+  }
+  errorText.value = "";
+  selectedAvatar.value = file;
+}
+
+function fileInputOnChange(e) {
+  selectNewAvatar(document.getElementById("selectedFile").files[0]);
+}
+
+function setActive() {
+  active.value = true;
+  clearTimeout(inActiveTimeout);
+}
+function setInactive() {
+  inActiveTimeout = setTimeout(() => {
+    active.value = false;
+  }, 50);
+}
+
+function onDrop(e) {
+  setInactive();
+  selectNewAvatar(e.dataTransfer.files[0]);
+}
+
+function preventDefaults(e) {
+  e.preventDefault();
+}
+
+const events = ["dragenter", "dragover", "dragleave", "drop"];
+
+onMounted(() => {
+  events.forEach((eventName) => {
+    document.body.addEventListener(eventName, preventDefaults);
+  });
+  axios({
+    url: "/api/user/avatar/info",
+    method: "get",
+  }).then((response) => {
+    avatarInfo = response.data;
+  });
+});
+
+onUnmounted(() => {
+  events.forEach((eventName) => {
+    document.body.removeEventListener(eventName, preventDefaults);
+  });
+});
 </script>
 
 <style scoped>
@@ -201,6 +310,29 @@ function cancelTfaEnableDisable() {
 .ft-edit-button-red {
   @apply ft-edit-button;
   @apply hover:bg-red-500 text-red-700 border-red-500;
+}
+
+.ft-browse-button {
+  @apply ft-edit-button;
+  @apply text-gray-400 hover:bg-gray-800 py-1 px-2 border-gray-800 bg-gray-800 hover:cursor-pointer;
+}
+.ft-noClick {
+  pointer-events: none;
+}
+
+.drop-area {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 50px;
+  background: #ffffff55;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  transition: 0.2s ease;
+
+  &[data-active="true"] {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    background: #ffffffcc;
+  }
 }
 /* fin davi stylé */
 
