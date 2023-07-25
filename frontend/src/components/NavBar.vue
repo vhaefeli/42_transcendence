@@ -2,7 +2,10 @@
     <nav id="ft-main-nav" class="w-full flex justify-center items-end">
         <Vue3Lottie id="ft-lottie" ref="pongLottie" @mouseover="playAnimation" @mouseleave="stopAnimation" :animationData="pongJSON" :height="`42px`" :width="`42px`" />
         <router-link
-            :class="{ active: activeTab === 'profile' }"
+            :class="{ 
+                active: activeTab === 'profile',
+                'other-profile-color': isOtherProfile === true 
+            }"
             class="nav-tab nav-tab-profile"
             :to="'/user/' + userStore.user.username"
             @click="setActiveTab('profile')"
@@ -43,7 +46,8 @@
     const pongLottie = ref(null)
 
     defineProps({
-        showProfile: Boolean
+        showProfile: Boolean,
+        isOtherProfile: Boolean
     })
 
     function playAnimation() {
@@ -60,6 +64,10 @@
 </script>
 
 <style scoped>
+
+.other-profile-color {
+    border-bottom-color: var(--gray) !important;
+}
 
 #ft-nav-profile-img {
     background-size: cover !important;
