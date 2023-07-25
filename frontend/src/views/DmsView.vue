@@ -113,10 +113,11 @@
     const scroller = ref(null);
     const newRecipient = ref('')
     const allUsers = ref<Array<Recipient>>([])
-    const recipients = ref([])
+    const recipients = ref<number[]>([])
     
     // Reactive flag for loaded data
     const isAllUsersLoaded = ref(false)
+    const isActualLoaded = ref(false)
     
     let dateOptions = {
         weekday: "short",
@@ -206,8 +207,12 @@
         }
       
         // check what is the actual recipient
-        if (isAllUsersLoaded.value && Object.keys(actual.value).length === 0 && recipients.value.length > 0) {
-          actual.value = allUsers.value.find((user) => recipients.value[0] === user.id)
+        if (isAllUsersLoaded.value && !isActualLoaded.value && recipients.value.length > 0) {
+          const userFind = allUsers.value.find((user) => recipients.value[0] === user.id);
+          if (userFind) {
+            actual.value = userFind;
+            isActualLoaded.value = true;
+          }
         }
     }
 
