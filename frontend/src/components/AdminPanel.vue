@@ -3,13 +3,13 @@
     <!-- <button class="absolute top-0 right-0"><a class="t-btn-pink ft-circle-gray ft-icon-small icon-btn-size icon-btn-cursor" @click="showAdmin = false"><img src="../assets/icons/xmark-solid.svg" alt="quit"></a></button> -->
     <div class="flex">
         <div class="w-1/2 p-3 mr-9">
-            <div class="mb-6">
+            <!-- <div class="mb-6">
                 <h3 class="ft-admin-title">Name of channel</h3>
                 <div class="flex">
                     <input v-model="channelName" :placeholder="props.currentChannel?.name" class="p-1 mr-3 grow" />
                     <a href="#" class="t-btn-pink ft-bg-color-chat ft-btn-admin"><button @click="saveName">save</button></a>
                 </div>
-            </div>
+            </div> -->
             <div class="mb-6">
                 <h3 class="ft-admin-title">Type of channel</h3>
                 <div class="flex">
@@ -31,9 +31,8 @@
             </div>
             <div class="mb-6">
                 <h3 class="ft-admin-title">Manage administrators</h3>
-                <!-- {{ allAdmins }} -->
-                <div v-for="admin in allAdmins" :key="index">
-                    <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between items-center" :class="index === allAdmins.length - 1 ? '' : 'ft-tab-separator'">
+                <div v-for="admin in allAdmins" :key="admin.id">
+                    <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between items-center">
                     <ul class="flex flex-row items-center">
                         <li class="ft-text ml-2">{{ admin.username }}</li>
                     </ul>
@@ -53,8 +52,8 @@
             <div class="mb-6">
                 <h3 class="ft-admin-title">People banned</h3>
                 <div v-if="allBanned?.length === 0">No user banned</div>
-                <div v-for="banned in allBanned" :key="index">
-                    <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between items-center" :class="index === allBanned.length - 1 ? '' : 'ft-tab-separator'">
+                <div v-for="banned in allBanned" :key="banned.id">
+                    <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between items-center">
                     <ul class="flex flex-row items-center">
                         <li class="ft-text ml-2">{{ banned.username }}</li>
                     </ul>
@@ -69,8 +68,8 @@
             <div class="mb-6">
                 <h3 class="ft-admin-title">People muted</h3>
                 <div v-if="allMuted?.length === 0">No user muted</div>
-                <div v-for="muted in allMuted" :key="index">
-                    <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between items-center" :class="index === allMuted.length - 1 ? '' : 'ft-tab-separator'">
+                <div v-for="muted in allMuted" :key="muted.id">
+                    <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between items-center">
                     <ul class="flex flex-row items-center">
                         <li class="ft-text ml-2">{{ muted.username }}</li>
                     </ul>
@@ -103,10 +102,16 @@
         channelName: string
     }
 
+    type UpdateChanInfos = {
+      channelId: number
+      type: string
+      password: string | null
+    }
+
     type UserInList = {
         id: number
-		username: string
-		avatar_url: string
+      username: string
+      avatar_url: string
     }
 
     const ChannelInfos = ref<ChanInfos>({
@@ -117,7 +122,6 @@
         channelName: props.currentChannel.name
     })
 
-    const channelName = ref('')
     const typeOfChannel = ref(props.currentChannel.type)
     
     const allAdmins = ref<Array<UserInList>>()
@@ -139,12 +143,19 @@
         active.value = !active.value
     }
 
-    function saveName() {
-        ChannelInfos.value.channelName = channelName.value
-    }
-
     function saveType() {
-        // api to change type of channel
+      let password
+      if (ChannelInfos.value.password.length > 0) {
+        password = ChannelInfos.value.password
+      } else {
+        password = null
+      }
+      const newInfos: UpdateChanInfos = {
+        channelId: props.currentChannel.channelId,
+        type: typeOfChannel.value,
+        password: password
+      }
+      updateChannelType(newInfos)
     }
 
     async function getAdmins() {
@@ -157,6 +168,39 @@
           allAdmins.value = response.data[0].admins;
           isAllAdminsLoaded.value = true
           console.log("loaded all admins");
+        })
+        .catch((error) => {
+          if (error.response.status == 401) {
+            console.log(
+              `invalid access token: ${error.response.status} ${error.response.statusText}`
+            );
+            // LogOut();
+          } else
+            console.error(
+              `unexpected error: ${error.response.status} ${error.response.statusText}`
+            );
+        });
+    }
+
+    async function updateChannelType(newInfos: UpdateChanInfos) {
+      let chanDatas
+      if (newInfos.type === 'PROTECTED') {
+        chanDatas = newInfos
+      } else {
+        chanDatas = {
+          channelId: newInfos.channelId,
+          type: newInfos.type
+        }
+      }
+      console.log(chanDatas)
+      await axios({
+        url: "/api/chat/channel/change",
+        method: "patch",
+        headers: { Authorization: `Bearer ${props.sessionStore.access_token}` },
+        data: chanDatas
+      })
+        .then((response) => {
+          console.log("Channel sucessfully loaded");
         })
         .catch((error) => {
           if (error.response.status == 401) {

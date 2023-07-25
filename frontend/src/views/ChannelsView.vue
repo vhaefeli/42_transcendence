@@ -36,9 +36,9 @@
                     <div v-else>
                         <div class="ft-msg-container">
                           <div class="flex items-center">
-                            <div class="ft-profile-pic ft-profile-pic-small mr-3 ft-chat-profile-pic" :style="{ 'background': 'url(' + getMemberImg(message.senderId) + ')' }"></div>
+                            <div v-if="isCurrentMembersLoaded" class="ft-profile-pic ft-profile-pic-small mr-3 ft-chat-profile-pic" :style="{ 'background': 'url(' + getMemberImg(message.senderId) + ')' }"></div>
                             <div class="mb-3">
-                              <a class="cursor-pointer" @click="profileToShow = getMemberUsername(message.senderId)">{{ getMemberUsername(message.senderId) }}</a>
+                              <a v-if="isCurrentMembersLoaded" class="cursor-pointer" @click="profileToShow = getMemberUsername(message.senderId)">{{ getMemberUsername(message.senderId) }}</a>
                               <p class="text-xs ft-chat-date">{{ message.date }}</p>
                             </div>
                           </div>
@@ -245,12 +245,12 @@
 
     function getMemberImg(userId: number) {
       const found = currentMembers.value.find(member => member.id === userId)
-      return  found.avatar_url
+      return found.avatar_url
     }
 
     function getMemberUsername(userId: number) {
       const found = currentMembers.value.find(member => member.id === userId)
-      return  found.username
+      return found.username
     }
 
     // scroll messages container to bottom

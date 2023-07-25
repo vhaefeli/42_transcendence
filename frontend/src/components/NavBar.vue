@@ -4,7 +4,7 @@
         <router-link
             :class="{ active: activeTab === 'profile' }"
             class="nav-tab nav-tab-profile"
-            :to="'/user/' + userStore.user.username"
+            :to=userPath
             @click="setActiveTab('profile')"
         >
             my profile
@@ -35,12 +35,20 @@
   </template>
   <script setup>
     import { useUserStore } from '../stores/UserStore'
+    import { useSessionStore } from "@/stores/SessionStore";
     import { ref } from 'vue'
+    import { useRouter } from 'vue-router'
     import pongJSON from '@/assets/json/pong.json'
     
     const userStore = useUserStore()
+    const sessionStore = useSessionStore()
+
     const activeTab = ref('')
     const pongLottie = ref(null)
+    const userPath = ref('')
+
+    // routes
+    const router = useRouter()
 
     defineProps({
         showProfile: Boolean
@@ -57,6 +65,21 @@
     function setActiveTab(tab) {
         activeTab.value = tab
     }
+
+    async function loadMyself() {
+      if (sessionStore.isLoggedIn) {
+        // get user infos
+        await userStore.getMe(sessionStore.access_token);
+        if (userStore.user.isLogged === false) {
+          sessionStore.isLoggedIn = false;
+          sessionStore.access_token = "";
+          router.push({ name: 'login' })
+        }
+        userPath.value = '/user/' + userStore.user.username
+      }
+    }
+
+    loadMyself()
 </script>
 
 <style scoped>
