@@ -60,8 +60,10 @@
         <p v-if="selectedAvatar == undefined">no image selected</p>
         <p v-if="selectedAvatar" class="truncate">{{ selectedAvatar.name }}</p>
         <slot :dropZoneActive="active"></slot>
-        <div :class="{ 'cursor-not-allowed': selectedAvatar == undefined }"
-          class="w-fit">
+        <div
+          :class="{ 'cursor-not-allowed': selectedAvatar == undefined }"
+          class="w-fit"
+        >
           <button
             class="ft-edit-button"
             @click="uploadNewAvatar"
@@ -238,6 +240,32 @@ type ServerAvatarInfo = {
   max_size: number;
   file_types: Array<string>;
 };
+
+async function uploadNewAvatar() {
+  const formData = new FormData();
+  formData.append("avatar", selectedAvatar.value);
+  await axios({
+    url: "/api/user/avatar/upload",
+    method: "post",
+    data: formData,
+    headers: {
+      "Content-Type": "multipart/form-data",
+      Authorization: `Bearer ${sessionStore.access_token}`,
+    },
+  })
+    .then(() => {
+      console.log("success");
+      userStore.getMe(sessionStore.access_token);
+    })
+    .catch((error: AxiosError) => {
+      const msg: string | undefined =
+        typeof error.response?.data?.message === "string"
+          ? error.response?.data?.message
+          : error.response?.data?.message[0];
+      console.log(`${error.response?.status}: ${msg}`);
+      if (error.response?.status === 400) errorText.value = msg;
+    });
+}
 
 function selectNewAvatar(file: File | null) {
   if (file == null) return;
