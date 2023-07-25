@@ -58,21 +58,20 @@
 
       <div class="flex flex-col text-center ft-right-tab" id="match-history" :class="{ foreground: foregroundTab === 'matchHistory' }" @click="setForegroundTab('matchHistory')">
         <div class="ft-tab-folder ft-tab-title ft-bb-color-game">Match history</div>
-        <div id="matchScroll" class="ft-tab-content ft-border-color-game ft-tab-border grid-cols-2 grid-rows-4 grid-flow-row text-left ft-scrollable">
+        <div id="matchScroll" class="ft-tab-content ft-border-color-game ft-tab-border flex flex-col text-left ft-scrollable">
           <ul>
-            <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">
-              <!-- boucle for pour chaque entree de Result -->
-              <p><h2>{{ gameLog.date }}</h2></p>
-              {{ gameLog.Result }}</li>
-              <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">
-              <p><h2>13.05.2023</h2></p>
-              lost against Thingy (Pitaya level)</li>
-            <li class="ft-item-title ft-text ft-tab-separator ft-bb-color-game">
-              <p><h2>14.05.2023</h2></p>
-              lost against Thingy (Pitaya level)</li>
-            <li class="ft-item-title ft-text ft-bb-color-game">
-              <p><h2>22.05.2023</h2></p>
-              lost against everyone (Kumquat level)</li>
+            <div v-if="gameLog">
+              <div v-if="gameLog.length === 0"><EmptyText :text="'No game to show here'" :white="false" /></div>
+              <!-- <div v-for="(game, index) in gameLog" :key="gameLog.length - index"> -->
+              <div v-for="(game, index) in gameLog" :key="index">
+                <li class="ft-item-title ft-text ft-bb-color-game flex flex-row justify-between items-center" :class="index === gameLog.length - 1 ? '' : 'ft-tab-separator'">
+                  <div class="flex flex-col justify-start">
+                    <li class="ft-level-text ml-2">{{ formatDate(game.date) }}</li>
+                    <li class="ft-text ml-2">{{ game.Result }}</li>
+                  </div>
+                </li>
+              </div>
+            </div>
           </ul>
         </div>
       </div>
@@ -418,6 +417,15 @@
         if (newFriend.value) {
             userStore.addFriend(newFriend.value, sessionStore.access_token);
         }
+    }
+
+    function formatDate(dateString: string) {
+      const dateObj = new Date(dateString);
+      return dateObj.toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      })
     }
 
     function acceptFriend(friendname) {
