@@ -97,7 +97,6 @@
     type ChanInfos = {
         channelId: number
         type: string
-        ownerId: number
         password: string
         channelName: string
     }
@@ -110,14 +109,13 @@
 
     type UserInList = {
         id: number
-      username: string
-      avatar_url: string
+        username: string
+        avatar_url: string
     }
 
     const ChannelInfos = ref<ChanInfos>({
         channelId: props.currentChannel.channelId,
         type: props.currentChannel.type,
-        ownerId: 1,
         password: '',
         channelName: props.currentChannel.name
     })
