@@ -68,8 +68,9 @@
     }
 
     function removeFriend(friendname) {
-        props.userStore.delFriend(friendname,  props.sessionStore.access_token)
+        props.userStore.delFriend(friendname, props.sessionStore.access_token)
         actualInfos.value.is_friend = false
+        FromFriendToNotFriend.value = true
     }
 
     function unblockUser(username) {

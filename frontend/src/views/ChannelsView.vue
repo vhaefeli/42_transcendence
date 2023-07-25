@@ -287,24 +287,20 @@
     }
 
     async function getAllMembers(channelId :number) {
-      // console.log("channel id: ", channelId)
-      // console.log("type of: ", typeof channelId)
       await axios({
-        url: "/api/chat/channel/members",
+        url: `/api/chat/channel/members/${channelId}`,
         method: "get",
         headers: { 
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${sessionStore.access_token}`
         },
-        data: { channelId: channelId },
       })
         .then((response) => {
           currentMembers.value = response.data;
+          console.log(currentMembers.value)
           isCurrentMembersLoaded.value = true
           console.log(`Members of channel with id ${channelId} loaded`);
         })
         .catch((error) => {
-          console.log(error.response)
           if (error.response.status == 401) {
             console.log(
               `invalid access token: ${error.response.status} ${error.response.statusText}`
