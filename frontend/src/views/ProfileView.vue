@@ -2,16 +2,16 @@
   <!-- <NavBar :showProfile="false" :isOtherProfile="true"></NavBar>
   <div id="profile-container"> -->
     <div v-if="route.params.username === userStore.user.username">
-    <MyProfilePage/>
+      <MyProfilePage/>
+    </div>
+    <div v-else-if="userExist">
+      <OtherProfilePage/>
+    </div>
+    <div v-else>
+      <div class="text-white">
+        Something went wrong
       </div>
-      <div v-else-if="userExist">
-        <OtherProfilePage/>
-      </div>
-      <div v-else>
-        <div class="text-white">
-          Something went wrong
-        </div>
-      </div>
+    </div>
   <!-- </div> -->
   <div id="ft-bottom-line"></div>
 </template>
