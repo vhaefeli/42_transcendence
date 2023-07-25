@@ -72,28 +72,47 @@
     import { chatService } from "@/services/chat-socket.service";
     import UserSearch from "@/components/UserSearch.vue";
 
-    const route = useRoute()
-
-    // retrieve recipient i clicked on on other pages 
-    const queryRecipient = route.query.recipient
+    // ********************************** ROUTES & STORES
     
     // routes
     const router = useRouter()
-    
-    // we need sessionStore and userStore
+    const route = useRoute()
+
+    // sessionStore and userStore
     const sessionStore = useSessionStore()
     const userStore = useUserStore()
     
     const { user } = storeToRefs(userStore)
+
+    // ********************************** TYPES
+
+    type Recipient = {
+      id: number,
+      username: string
+    }
+
+    type Message = {
+      id: number,
+      fromId: number,
+      toId: number,
+      date: string,
+      message: string,
+      username: string,
+    }
+
+    // ********************************** REFS & VARIABLES
+
+    // retrieve recipient i clicked on on other pages 
+    const queryRecipient = route.query.recipient
     
-    const actual = ref({})
+    const actual = ref<Recipient>({id: 0, username: ''})
     const actualIsBlocked = ref(false)
     // const actualInfos = ref({})
-    const message = ref("")
-    const messages = ref([])
+    const message = ref<string>("")
+    const messages = ref<Array<Message>>([])
     const scroller = ref(null);
     const newRecipient = ref('')
-    const allUsers = ref([])
+    const allUsers = ref<Array<Recipient>>([])
     const recipients = ref([])
     
     // Reactive flag for loaded data
@@ -109,6 +128,8 @@
         timeZone: "Europe/Zurich",
         hour12: false,
     };
+
+    // ********************************** FUNCTIONS
 
     onUpdated(() => {
       // when the DOM is updated I scroll to 
@@ -135,12 +156,19 @@
     chatService);
 
     const handleSubmitNewMessage = () => {
+      let newId = 0
       chatService.sendNewMessage(message.value, actual.value.id);
+      if (message.value.length === 0) {
+        newId = 0
+      } else {
+        newId = messages.value[messages.value.length - 1].id + 1
+      }
       messages.value.push({
+        id: newId,
         fromId: user.value.id,
         toId: actual.value.id,
         message: message.value,
-        username: user.username,
+        username: user.value.username,
         date: new Date().toLocaleString("en-US", dateOptions),
       })
       message.value = ''
@@ -150,6 +178,7 @@
       if (messages.value.indexOf(payload.id) === -1) {
         messages.value.push({
           id: payload.id,
+          username: getRecipientName(payload.id),
           message: payload.message,
           fromId: payload.fromId,
           toId: payload.toId,
@@ -158,7 +187,7 @@
       }
     }
 
-    const updateBlockedBool = (newValue) => {
+    const updateBlockedBool = (newValue: boolean) => {
       actualIsBlocked.value = newValue
     };
 
@@ -183,7 +212,7 @@
     }
 
     // add recipient to the list
-    function addRecipient(recipientName) {
+    function addRecipient(recipientName: string) {
         const userFind = allUsers.value.find((user) => recipientName === user.username)
         if (userFind) {
           if (recipients.value.indexOf(userFind.id) === -1) {
@@ -194,7 +223,7 @@
     }
 
     // add recipient by ID to the list
-    function addRecipientByID(queryRecipientId) {
+    function addRecipientByID(queryRecipientId: number) {
         const userFind = allUsers.value.find((user) => queryRecipientId == user.id)
         if (userFind) {
             if (recipients.value.indexOf(userFind.id) === -1) {
@@ -214,8 +243,8 @@
     }
 
     // return name of recipient
-    function getRecipientName(recipient) {
-      const userFind = allUsers.value.find((user) => recipient === user.id)
+    function getRecipientName(recipientId: number) {
+      const userFind = allUsers.value.find((user) => recipientId === user.id)
       if (userFind) {
         return userFind.username
       } else {
@@ -224,8 +253,8 @@
     }
 
     // used when click on recipient name
-    function changeActualRecipient(recipient) {
-        actual.value = allUsers.value.find((user) => recipient === user.id)
+    function changeActualRecipient(recipientId: number) {
+        actual.value = allUsers.value.find((user) => recipientId === user.id)
         message.value = ''
     }
 
@@ -237,7 +266,7 @@
         }
     }
 
-    // Async functions 
+    // ********************************** ASYNC FUNCTIONS
 
     async function loadMyself() {
       if (sessionStore.isLoggedIn) {
@@ -269,6 +298,8 @@
     
   loadMyself()
   getAllUsers()
+
+  // ********************************** WATCHES
 
   // Watch for changes in the isAllUsersLoaded flag
   watchEffect(() => {

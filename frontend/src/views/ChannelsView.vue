@@ -7,7 +7,7 @@
         <!-- column 1 with profile -->
         <div id="dm-profile-col" class="w-[18em]">
             <div class="h-[76vh]" :class=" profileToShow.length === 0 ? 'position-cible' : 'position-origine'">
-              <MemberList :channelName="currentChannel?.name" :channelType="currentChannel?.type" :isAdmin="currentChannel?.Admin != null" :MemberList="currentMembers" :userStore="userStore" :sessionStore="sessionStore" @set-profile-to-show="(username) => profileToShow = username" @show-admin-panel="showAdmin = !showAdmin"/>
+              <MemberList :channelName="currentChannel?.name" :username="user.username" :channelType="currentChannel?.type" :isAdmin="currentChannel?.Admin != null" :MemberList="currentMembers" :userStore="userStore" :sessionStore="sessionStore" @set-profile-to-show="(username) => profileToShow = username" @show-admin-panel="showAdmin = !showAdmin"/>
             </div>
             <div class="h-[76vh]" :class="profileToShow.length > 0 ? 'position-cible' : 'position-origine'">
               <OtherUserProfile :key="profileToShow" :username="profileToShow" :userStore="userStore" :sessionStore="sessionStore" />
@@ -19,15 +19,14 @@
         <div v-if="currentChannel?.Admin && showAdmin" class="flex grow">
           <!-- admin panel -->
           <div id="ft-admin-panel" class="w-full h-full relative p-11">
-            <button class="absolute top-0 right-0"><a class="t-btn-pink ft-circle-gray ft-icon-small icon-btn-size icon-btn-cursor" @click="showAdmin = false"><img src="../assets/icons/xmark-solid.svg" alt="quit"></a></button>
-            <AdminPanel :currentName="currentChannel.name" :currentType="currentChannel.type"></AdminPanel>
+            <AdminPanel :currentChannel="currentChannel" :sessionStore="sessionStore"></AdminPanel>
           </div>
         </div>
         <div v-else class="flex grow">
           <div id="dm-msg-col" class="grow relative">
             <div id="ft-scroller" ref="scroller" class="ft-chat-box p-6 overflow-scroll">
                 <div v-for="message in messages" :key="message.id">
-                  <div v-if="currentChannel.channelId === message.channelId">
+                  <div v-if="currentChannel?.channelId === message.channelId">
                     <div v-if="message.senderId == user.id" class="grid">
                         <div class="ft-msg-container justify-self-end">
                           <p class="text-xs ft-chat-date">{{ message.date }}</p>
@@ -63,7 +62,7 @@
           <div  id="dm-recipientList-col" class="w-[16rem] relative">
             <div class="mb-6 max-h-[54vh] overflow-scroll">
               <div v-if="isAllMyChanLoaded">
-                <div v-if="myChannels.length === 0">No Dms yet</div>
+                <div v-if="myChannels.length === 0">No channels yet</div>
                 <div v-for="channel in myChannels" :key="channel">
                   <div @click="changeCurrentChannel(channel.name)" :class="currentChannel?.channelId == channel.channelId ? 'ft-actual-recipient' : ''" class="ft-channel-name">{{ channel.name }}</div>
                 </div>
@@ -83,7 +82,6 @@
     import NavBar from "../components/NavBar.vue";
     import ChatNavBar from "../components/ChatNavBar.vue";
     import OtherUserProfile from "../components/OtherUserProfile.vue";
-    import EmptyText from "@/components/EmptyText.vue";
     import { ref, onUpdated, watchEffect, watch } from "vue";
     import { storeToRefs } from 'pinia'
     import axios from "axios";
@@ -94,6 +92,8 @@
     import UserSearch from "@/components/UserSearch.vue";
     import MemberList from "@/components/MemberList.vue";
     import AdminPanel from "@/components/AdminPanel.vue";
+
+    // ********************************** ROUTES & STORES
 
     const route = useRoute()
 
@@ -108,18 +108,8 @@
     const userStore = useUserStore()
 
     const { user } = storeToRefs(userStore)
-    
-    //   const actualIsBlocked = ref(false)
-    //   // const actualInfos = ref({})
-      const message = ref("")
-      const messages = ref([])
-      const scroller = ref(null);
-    //   const newRecipient = ref('')
-    //   const allUsers = ref([])
-    //   const recipients = ref([])
-      
-    //   // Reactive flag for loaded data
-    //   const isAllUsersLoaded = ref(false)
+
+    // ********************************** TYPES
 
     type MyChannel = {
       channelId: number;
@@ -138,6 +128,21 @@
       member: boolean
     }
 
+    type Message = {
+      id: number,
+      channelId: number,
+      senderId: number,
+      date: string,
+      message: string
+    }
+
+    // ********************************** REFS
+
+    const message = ref("")
+    const messages = ref<Array<Message>>([])
+    const scroller = ref(null);
+    //   const allUsers = ref([])
+
     const myChannels = ref<Array<MyChannel>>([]);
     const allChannels = ref<Array<Channel>>([])
     
@@ -148,170 +153,15 @@
     const currentMembers = ref([])
     const currentChannel = ref<MyChannel | null>(null)
 
+    const mutedUsers = ref([])
+    const bannedUsers = ref([])
+
     // Reactive flag for loaded data
     const isAllMyChanLoaded = ref(true)
     const isAllChanLoaded = ref(false)
     const isCurrentMembersLoaded = ref(false)
     const isBlockedLoaded = ref(false)
-
-    // const memberList = ref<Array<ChanMembers>>([])
-    
-  //   const fakeMemberList = [
-  //   {
-  //     id: 0,
-  //     userId: 1,
-  //     username: "userTest",
-  //     status: "ONLINE",
-  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
-  //   },
-  //   {
-  //     id: 1,
-  //     userId: 2,
-  //     username: "TechGuru42",
-  //     status: "ONLINE",
-  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
-  //   },
-  //   {
-  //     id: 2,
-  //     userId: 3,
-  //     username: "sarah_smith",
-  //     status: "OFFLINE",
-  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
-  //   },
-  //   {
-  //     id: 3,
-  //     userId: 4,
-  //     username: "alex_jones",
-  //     status: "INGAME",
-  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
-  //   },
-  //   {
-  //     id: 4,
-  //     userId: 5,
-  //     username: "emma_wilson",
-  //     status: "ONLINE",
-  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
-  //   },
-  //   {
-  //     id: 5,
-  //     userId: 6,
-  //     username: "michael_brown",
-  //     status: "OFFLINE",
-  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
-  //   },
-  //   {
-  //     id: 6,
-  //     userId: 7,
-  //     username: "olivia_davis",
-  //     status: "INGAME",
-  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
-  //   },
-  //   {
-  //     id: 7,
-  //     userId: 8,
-  //     username: "william_jackson",
-  //     status: "ONLINE",
-  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
-  //   },
-  //   {
-  //     id: 8,
-  //     userId: 9,
-  //     username: "ava_clark",
-  //     status: "OFFLINE",
-  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
-  //   },
-  //   {
-  //     id: 9,
-  //     userId: 10,
-  //     username: "noah_anderson",
-  //     status: "INGAME",
-  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
-  //   },
-  //   {
-  //     id: 10,
-  //     userId: 11,
-  //     username: "mia_harris",
-  //     status: "ONLINE",
-  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
-  //   }
-  // ]
-
-    // memberList.value = fakeMemberList
-
-    async function getMyChannels() {
-      await axios({
-        url: "/api/chat/channel/myChannels",
-        method: "get",
-        headers: { Authorization: `Bearer ${sessionStore.access_token}` },
-      })
-        .then((response) => {
-          myChannels.value = response.data;
-          isAllMyChanLoaded.value = true
-          console.log("loaded all my channels");
-        })
-        .catch((error) => {
-          if (error.response.status == 401) {
-            console.log(
-              `invalid access token: ${error.response.status} ${error.response.statusText}`
-            );
-            // LogOut();
-          } else
-            console.error(
-              `unexpected error: ${error.response.status} ${error.response.statusText}`
-            );
-        });
-    }
-
-    async function getAllChannels() {
-      await axios({
-        url: "/api/chat/channel/all",
-        method: "get",
-        headers: { Authorization: `Bearer ${sessionStore.access_token}` },
-      })
-        .then((response) => {
-          allChannels.value = response.data;
-          isAllChanLoaded.value = true
-          console.log("loaded all channels");
-        })
-        .catch((error) => {
-          if (error.response.status == 401) {
-            console.log(
-              `invalid access token: ${error.response.status} ${error.response.statusText}`
-            );
-            // LogOut();
-          } else
-            console.error(
-              `unexpected error: ${error.response.status} ${error.response.statusText}`
-            );
-        });
-    }
-
-    async function getAllMembers(channelId :number) {
-      await axios({
-        url: `/api/chat/channel/members/${channelId}`,
-        method: "get",
-        headers: { 
-          'Authorization': `Bearer ${sessionStore.access_token}`
-        },
-      })
-        .then((response) => {
-          currentMembers.value = response.data;
-          console.log(currentMembers.value)
-          isCurrentMembersLoaded.value = true
-          console.log(`Members of channel with id ${channelId} loaded`);
-        })
-        .catch((error) => {
-          if (error.response.status == 401) {
-            console.log(
-              `invalid access token: ${error.response.status} ${error.response.statusText}`
-            );
-            // LogOut();
-          } else
-            console.error(
-              `unexpected error: ${error.response.status} ${error.response.statusText}`
-            );
-        });
-    }
+    //   const isAllUsersLoaded = ref(false)
     
     let dateOptions = {
         weekday: "short",
@@ -394,12 +244,12 @@
     }
 
     function getMemberImg(userId: number) {
-      const found = memberList.value.find(member => member.userId === userId)
+      const found = currentMembers.value.find(member => member.id === userId)
       return  found.avatar_url
     }
 
     function getMemberUsername(userId: number) {
-      const found = memberList.value.find(member => member.userId === userId)
+      const found = currentMembers.value.find(member => member.id === userId)
       return  found.username
     }
 
@@ -436,21 +286,86 @@
         }
       }
     }
-    
-    
+
+    async function getMyChannels() {
+      await axios({
+        url: "/api/chat/channel/myChannels",
+        method: "get",
+        headers: { Authorization: `Bearer ${sessionStore.access_token}` },
+      })
+        .then((response) => {
+          myChannels.value = response.data;
+          isAllMyChanLoaded.value = true
+          console.log("loaded all my channels");
+        })
+        .catch((error) => {
+          if (error.response.status == 401) {
+            console.log(
+              `invalid access token: ${error.response.status} ${error.response.statusText}`
+            );
+            // LogOut();
+          } else
+            console.error(
+              `unexpected error: ${error.response.status} ${error.response.statusText}`
+            );
+        });
+    }
+
+    async function getAllChannels() {
+      await axios({
+        url: "/api/chat/channel/all",
+        method: "get",
+        headers: { Authorization: `Bearer ${sessionStore.access_token}` },
+      })
+        .then((response) => {
+          allChannels.value = response.data;
+          isAllChanLoaded.value = true
+          console.log("loaded all channels");
+        })
+        .catch((error) => {
+          if (error.response.status == 401) {
+            console.log(
+              `invalid access token: ${error.response.status} ${error.response.statusText}`
+            );
+            // LogOut();
+          } else
+            console.error(
+              `unexpected error: ${error.response.status} ${error.response.statusText}`
+            );
+        });
+    }
+
+    async function getAllMembers(channelId :number) {
+      await axios({
+        url: `/api/chat/channel/members/${channelId}`,
+        method: "get",
+        headers: { 
+          'Authorization': `Bearer ${sessionStore.access_token}`
+        },
+      })
+        .then((response) => {
+          currentMembers.value = response.data.members;
+          isCurrentMembersLoaded.value = true
+          console.log(`Members of channel with id ${channelId} loaded`);
+        })
+        .catch((error) => {
+          if (error.response.status == 401) {
+            console.log(
+              `invalid access token: ${error.response.status} ${error.response.statusText}`
+            );
+            // LogOut();
+          } else
+            console.error(
+              `unexpected error: ${error.response.status} ${error.response.statusText}`
+            );
+        });
+    }
     
     // getAllUsers()
-    
     loadMyself()
     getMyChannels()
     getAllChannels()
     loadBlocked()
-    // getAllMembers(currentChannel.value?.channelId)
-    
-    // set current channel
-    // if (isAllMyChanLoaded.value && myChannels.value.length > 0) {
-      //   currentChannel.value = myChannels.value[0]
-      // }
       
     // Watch for changes
     watchEffect(() => {

@@ -5,15 +5,14 @@
               <div id="channel-title" class="ft-tab-content ft-title">{{ props.channelName }}</div>
               <div class="ft-bg-color-chat w-full pt-2">
                 <p>{{ props.channelType }} CHANNEL</p>
-                <div v-if="props.isAdmin"><button class="ft-simple-link" @click="$emit('showAdminPanel', true)">paramters</button></div>
+                <div v-if="props.isAdmin"><button class="ft-simple-link" @click="toggleAdmin">{{ adminText }}</button></div>
               </div>
               <div id="ft-member-list-container" class="ft-bg-color-chat h-[78%] w-full p-6">
                 <div id="inside-member-list" class="flex flex-col h-[82%] bg-white/[.2] overflow-scroll max-h-[58vh] p-3">
                   <div v-for="member in MemberList" :key="member.id">
-                    <div class="flex mb-2 items-center">
+                    <div v-if="member.username != props.username" class="flex mb-2 items-center">
                       <div class="ft-profile-pic ft-profile-pic-small mr-3" id="current-profile-pic" :style="{ 'background': 'url(' + member.avatar_url + ')' }"></div>
                       <a href="#" class="ft-simple-link" @click="$emit('setProfileToShow', member.username)">{{member.username}}</a>
-                      <!-- <router-link class="ft-simple-link" :to= "'/user/' + member.username">{{member.username}}</router-link> -->
                     </div>
                   </div>
                 </div>
@@ -26,7 +25,9 @@
     import { ref } from 'vue'
     import axios from "axios";
 
-    // // const emits = defineEmits(['updateBlocked'])
+    const adminText = ref<string>("parameters")
+
+    const emits = defineEmits(['showAdminPanel', 'setProfileToShow'])
 
     type ChanMembers = {
         id: number,
@@ -36,6 +37,7 @@
     }
     
     const props = defineProps({
+        username: String,
         channelName: String,
         sessionStore: Object,
         userStore: Object,
@@ -44,73 +46,14 @@
         MemberList: Object
     })
 
-
-  //   const MemberList = ref<Array<ChanMembers>>([])
-    
-  //   const fakeMemberList = [
-  //   {
-  //     id: 1,
-  //     username: "TechGuru42",
-  //     status: "ONLINE",
-  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
-  //   },
-  //   {
-  //     id: 2,
-  //     username: "sarah_smith",
-  //     status: "OFFLINE",
-  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
-  //   },
-  //   {
-  //     id: 3,
-  //     username: "alex_jones",
-  //     status: "INGAME",
-  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
-  //   },
-  //   {
-  //     id: 4,
-  //     username: "emma_wilson",
-  //     status: "ONLINE",
-  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
-  //   },
-  //   {
-  //     id: 5,
-  //     username: "michael_brown",
-  //     status: "OFFLINE",
-  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
-  //   },
-  //   {
-  //     id: 6,
-  //     username: "olivia_davis",
-  //     status: "INGAME",
-  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
-  //   },
-  //   {
-  //     id: 7,
-  //     username: "william_jackson",
-  //     status: "ONLINE",
-  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
-  //   },
-  //   {
-  //     id: 8,
-  //     username: "ava_clark",
-  //     status: "OFFLINE",
-  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
-  //   },
-  //   {
-  //     id: 9,
-  //     username: "noah_anderson",
-  //     status: "INGAME",
-  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
-  //   },
-  //   {
-  //     id: 10,
-  //     username: "mia_harris",
-  //     status: "ONLINE",
-  //     avatar_url: "http://localhost:3000/avatar/default.jpg"
-  //   }
-  // ]
-
-  //   MemberList.value = fakeMemberList
+    function toggleAdmin() {
+      if (adminText.value === "parameters") {
+        adminText.value = "close parameters"
+      } else {
+        adminText.value = "parameters"
+      }
+      emits('showAdminPanel', true)
+    }
 
 </script>
 
