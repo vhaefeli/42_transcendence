@@ -1,6 +1,7 @@
 import { Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
 import { ChannelTypes } from '@prisma/client';
 import { AuthService } from 'src/auth/auth.service';
+import { AvatarService } from 'src/avatar/avatar.service';
 import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
@@ -9,6 +10,7 @@ export class AutoPopulateDbService {
     private prisma: PrismaService,
     @Inject(forwardRef(() => AuthService))
     private authService: AuthService,
+    private avatarService: AvatarService,
   ) {}
 
   async AutoPopulateDb() {
@@ -30,7 +32,7 @@ export class AutoPopulateDbService {
           {
             username: 'userTest',
             password: await this.authService.createHash('f'),
-            avatar_url: 'http://localhost:3000/avatar/default.jpg',
+            avatar_url: this.avatarService.avatarUrl('default.jpg'),
             level: 'BEGINNER',
             rank: 2,
             nbMatch: 1,
@@ -39,7 +41,7 @@ export class AutoPopulateDbService {
           {
             username: 'TechGuru42',
             password: await this.authService.createHash('f'),
-            avatar_url: 'http://localhost:3000/avatar/default.jpg',
+            avatar_url: this.avatarService.avatarUrl('default.jpg'),
             level: 'INITIATION',
             rank: 1,
             nbMatch: 0,
@@ -48,7 +50,7 @@ export class AutoPopulateDbService {
           {
             username: 'MusicLover88',
             password: await this.authService.createHash('f'),
-            avatar_url: 'http://localhost:3000/avatar/default.jpg',
+            avatar_url: this.avatarService.avatarUrl('default.jpg'),
             level: 'INITIATION',
             rank: 0,
             nbMatch: 0,
@@ -57,42 +59,42 @@ export class AutoPopulateDbService {
           {
             username: 'TravelBug123',
             password: await this.authService.createHash('f'),
-            avatar_url: 'http://localhost:3000/avatar/default.jpg',
+            avatar_url: this.avatarService.avatarUrl('default.jpg'),
           },
           {
             username: 'FitnessFanatic22',
             password: await this.authService.createHash('f'),
-            avatar_url: 'http://localhost:3000/avatar/default.jpg',
+            avatar_url: this.avatarService.avatarUrl('default.jpg'),
           },
           {
             username: 'FoodieExplorer',
             password: await this.authService.createHash('f'),
-            avatar_url: 'http://localhost:3000/avatar/default.jpg',
+            avatar_url: this.avatarService.avatarUrl('default.jpg'),
           },
           {
             username: 'GamingNinja99',
             password: await this.authService.createHash('f'),
-            avatar_url: 'http://localhost:3000/avatar/default.jpg',
+            avatar_url: this.avatarService.avatarUrl('default.jpg'),
           },
           {
             username: 'Bookworm2000',
             password: await this.authService.createHash('f'),
-            avatar_url: 'http://localhost:3000/avatar/default.jpg',
+            avatar_url: this.avatarService.avatarUrl('default.jpg'),
           },
           {
             username: 'FashionistaQueen',
             password: await this.authService.createHash('f'),
-            avatar_url: 'http://localhost:3000/avatar/default.jpg',
+            avatar_url: this.avatarService.avatarUrl('default.jpg'),
           },
           {
             username: 'SportsFan4Life',
             password: await this.authService.createHash('f'),
-            avatar_url: 'http://localhost:3000/avatar/default.jpg',
+            avatar_url: this.avatarService.avatarUrl('default.jpg'),
           },
           {
             username: 'MovieBuff777',
             password: await this.authService.createHash('f'),
-            avatar_url: 'http://localhost:3000/avatar/default.jpg',
+            avatar_url: this.avatarService.avatarUrl('default.jpg'),
           },
         ],
       });
