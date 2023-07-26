@@ -2,7 +2,7 @@
   <div ref="parentDiv" class="parent-div">
   <div id="gameApp">
     <div ref="zoneDiv" class="zone">
-      <PongVue :@noCross="onPongFinished"></PongVue>
+      <PongVue @noCross="onPongFinished"></PongVue>
       <button v-if="buttonQuit" style="position: fixed; top: 10px; right: 10px;"><a class="t-btn-pink ft-circle-gray ft-icon-small icon-btn-size icon-btn-cursor" @click="quitReally"><img src="../assets/icons/xmark-solid.svg" alt="quit"></a></button>
       <div v-show="isAlertVisible" class="modal">
       <div class="modal-content">
@@ -14,8 +14,6 @@
     
     
   <img id="arcade" src="../assets/img/arcade.png" alt="arcade">
-
-
 
 </div></div></div>
 </template>
@@ -30,8 +28,6 @@ const zoneDiv = ref<HTMLDivElement | null>(null);
 
 const isAlertVisible = ref(false);
 const buttonQuit = ref(true);
-
-// const emits = defineEmits(['noCross']);
 
 function quitReally () {
   isAlertVisible.value = true;
