@@ -157,21 +157,19 @@
         <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Add a new friend</div>
         <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left">
             <div class="flex flex-row justify-center">
-              <ModelListSelect
-                :list="userList"
-                v-model="selectedUser"
-                optionValue="id"
-                optionText="username"
-                placeholder="Search by username"
+              <input
+                v-model="newFriend"
+                placeholder="Add a friend by username"
               />
-              <div :class="{ 'cursor-not-allowed': !selectedUser }">
+              <div :class="{ 'cursor-not-allowed': !newFriend }">
                 <a
-                  @click="validateSelection"
+                  @click="addFriend"
                   class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor"
-                  :class="{ 'opacity-50 searchan-noClick': !selectedUser }">
+                  :class="{ 'opacity-50 searchan-noClick': !newFriend }">
                   <img src="../assets/icons/user-plus-solid.svg" alt="send a friend request" title="send them a friend request">
                 </a>
               </div>
+
               <!-- <input type="text" placeholder="Search by username"> -->
               <!-- <a class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor"><img src="../assets/icons/user-plus-solid.svg" alt="send a friend request" title="send them a friend request"></a> -->
             </div>
@@ -230,8 +228,8 @@
                     <div>
                         <h2 class="text-2xl mb-4">All users</h2>
                         <div v-if="allUsers">
-                            <div v-for="oderUser in allUsers" :key="oderUser.id">
-                                <p>{{ oderUser.username }}</p>
+                            <div v-for="otherUser in allUsers" :key="otherUser.id">
+                                <p>{{ otherUser.username }}</p>
                             </div>
                         </div>
                     </div>   
@@ -288,7 +286,7 @@
 </template>
   
 <script setup lang="ts">
-    import { ref, onBeforeMount } from "vue";
+    import { ref, onBeforeMount, watch } from "vue";
     import { storeToRefs } from 'pinia'
     import { useRoute, useRouter } from 'vue-router'
     import axios, { AxiosError } from "axios";
@@ -303,14 +301,20 @@
       username: string;
     };
 
+    const emits = defineEmits(['addRecipient'])
+
+    const props = defineProps({
+      recipients: Array<number>,
+      userStore: Object,
+    })
+    
     const userList = ref<Array<type_user>>([]);
     const selectedUser = ref<number>();
-
-    loadUserList();
-
+    
+    
     async function loadUserList() {
       let users = new Array<type_user>();
-
+    
       await axios({
         url: "/api/user/all",
         method: "get",
@@ -324,24 +328,20 @@
           );
           return;
         });
-
-      await axios({
-        url: "/api/user/friend/all",
-        method: "get",
-        headers: { Authorization: `Bearer ${sessionStore.access_token}` },
-      })
-        .then((response) => {
-          users = users.filter(
-            (user) => !response.data?.find((friend) => friend.id === user.id)
-          );
-        })
-        .catch((error) => {
-          console.error(
-            `unexpected error: ${error.response.status} ${error.response.statusText}`
-          );
-          return;
+        userList.value = users.filter((user) => user.id != props.userStore.user.id);
+        userList.value = userList.value.filter((user) => {
+          return !props.recipients.find((recipient) => recipient === user.id);
         });
-      userList.value = users.filter((user) => user.id != userStore.user.id);
+    }
+    loadUserList();
+
+    watch(props.recipients, () => {
+      loadUserList()
+    })
+    
+    async function validateSelection() {
+      emits('addRecipient', userList.value.find((element) => element.id === selectedUser.value)
+            ?.username)
     }
     // to have the token we need sessionStore
     const sessionStore = useSessionStore()
@@ -403,14 +403,15 @@
     });
 
 
-    async function validateSelection() {
-      console.log(
-        `selected: ${
-          userList.value.find((element) => element.id === selectedUser.value)
-            ?.username
-        }`
-      );
-    }
+    // async function validateSelection() {
+    //   // console.log(
+    //   //   `selected: ${
+    //   //     userList.value.find((element) => element.username === selectedUser.value)
+    //   //       ?.username
+    //   //   }`
+    //   // );
+    //   console.log("Selected user: ", selectedUser.value.username);
+    // }
 
     // functions to delete because useless
     function addFriend() {
