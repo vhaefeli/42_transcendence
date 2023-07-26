@@ -34,8 +34,6 @@
     })
     
     const activeTab = ref(props.whichTab)
-
-    console.log(props.whichTab)
     
     function setActiveTab(tab) {
         activeTab.value = tab

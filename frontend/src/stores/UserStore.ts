@@ -152,7 +152,6 @@ export const useUserStore = defineStore("userStore", {
       },
       // get list of friends
       async getInvitesSent(access_token: string) {
-        console.log("yep")
         await axios({
           url: "/api/user/friend/invite/sent",
           method: "get",
