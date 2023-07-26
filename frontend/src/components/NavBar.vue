@@ -36,6 +36,9 @@
                 <div class="ft-profile-pic" id="ft-nav-profile-img" :style="{ 'background': 'url(' + userStore.user.avatar_url + ')' }"></div>
             </div>
         </div>
+        <div v-else>
+            <div id="ft-logout-btn" class="w-fit absolute top-1 right-1 p-1 w-full flex items-center justify-center"><router-link :to="'/login?logout=true'">Logout</router-link></div>
+        </div>
     </nav>
   </template>
   <script setup>
