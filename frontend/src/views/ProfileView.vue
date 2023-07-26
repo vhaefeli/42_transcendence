@@ -26,7 +26,7 @@
 
           <!-- Bouton pour editer son profil (SON profil uniquement) -->
           <!-- <a class="t-btn-pink ft-color-edit ft-my-profile" id="edit"><span>[ed.]</span></a> -->
-          <a title="edit your profile" class="t-btn-pink ft-color-edit ft-my-profile ft-icon-small icon-btn-cursor" id="edit"><img src="../assets/icons/user-pen-solid.svg" alt="edit my profile"></a>
+          <a @click="router.push('/user/edit')" title="edit your profile" class="t-btn-pink ft-color-edit ft-my-profile ft-icon-small icon-btn-cursor" id="edit" ><img src="../assets/icons/user-pen-solid.svg" alt="edit my profile"></a>
         </div>
         <!-- <div class="ft-bg-color-profile ft-tabContent ft-centralTab">
         </div> -->
@@ -240,7 +240,6 @@
             <router-link to="/search-users">Search for users</router-link>
         
   <!-- CODE DE MICHELE CI-DESSUS -->
-  <br><router-link to="/user/edit" class="t-btn-pink">Edit Profile</router-link>
     </section>
   </div>
   <div id="ft-bottom-line"></div>
