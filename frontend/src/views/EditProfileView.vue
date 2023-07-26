@@ -2,11 +2,16 @@
   <NavBar :showProfile="true"></NavBar>
   <div class="text-white profile-container w-full">
     <section class="flex flex-col items-center">
-      <button class="t-btn-pink" @click="userStore.redirectToMyProfile(sessionStore.access_token)">Go Back</button>
+      <button
+        class="t-btn-pink"
+        @click="userStore.redirectToMyProfile(sessionStore.access_token)"
+      >
+        Go Back
+      </button>
+      <p v-if="errorText.length">{{ errorText }}</p>
       <p>
         {{ `2fa is ${userStore.user.tfa_enabled ? "enabled" : "disabled"}` }}
       </p>
-      <p v-if="errorText.length">{{ errorText }}</p>
       <div v-if="!show_tfa_enable_disable_confirmation">
         <div id="ft-enabled-tfa" v-if="!user.tfa_enabled">
           <input
@@ -35,6 +40,7 @@
           cancel
         </button>
       </div>
+      <p class="text-white">Upload a new avatar for your profile</p>
       <div
         class="drop-area w-2/3"
         :data-active="active"
@@ -72,6 +78,32 @@
           >
             Upload
           </button>
+        </div>
+      </div>
+      <div class="text-white" id="ft-edit-username">
+        <div v-if="!usernameChanged">
+          <p>Modify your username:</p>
+          <input
+            class="min-w-10 ft-text-input"
+            v-model="username"
+            placeholder="new username"
+          />
+          <div
+            :class="{ 'cursor-not-allowed': username.length == 0 }"
+            class="w-fit"
+          >
+            <button
+              class="ft-edit-button"
+              @click="submitNewUsername"
+              :class="{ 'opacity-50 ft-noClick': username.length == 0 }"
+            >
+              Submit
+            </button>
+          </div>
+        </div>
+        <div v-if="usernameChanged">
+          <p>Username successfully changed, please login again</p>
+          <button class="t-btn-pink" @click="logout">Go to Login</button>
         </div>
       </div>
     </section>
@@ -324,6 +356,37 @@ onUnmounted(() => {
     document.body.removeEventListener(eventName, preventDefaults);
   });
 });
+
+// Modify your username *******************************************************
+const username = ref<string>("");
+const usernameChanged = ref(false);
+
+function submitNewUsername() {
+  if (username.value.length === 0) return;
+  axios({
+    url: "/api/user/update-username",
+    method: "post",
+    data: { new_username: username.value },
+    headers: {
+      Authorization: `Bearer ${sessionStore.access_token}`,
+      "Content-Type": "application/json",
+    },
+  })
+    .then(() => {
+      usernameChanged.value = true;
+    })
+    .catch((error) => {
+      const msg: string | undefined =
+        typeof error.response?.data?.message === "string"
+          ? error.response?.data?.message
+          : error.response?.data?.message[0];
+      console.log(`${error.response?.status}: ${msg}`);
+      if (error.response?.status === 400) errorText.value = msg;
+      else if (error.response?.status === 409)
+        errorText.value = "username is already in use";
+      else if (error.response?.status === 401) logout();
+    });
+}
 </script>
 
 <style scoped>
