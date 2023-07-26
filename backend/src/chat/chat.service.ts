@@ -197,8 +197,8 @@ export class ChatService {
         LEFT JOIN
           "_channel_admins" ca ON cm."A" = ca."A" AND ca."B" = cm."B"
         WHERE
-          cm."B" = ${my_id};
-        ORDER BY c."name";
+          cm."B" = ${my_id}
+        ORDER BY c."name"
         `;
     return MyChannels;
   }
