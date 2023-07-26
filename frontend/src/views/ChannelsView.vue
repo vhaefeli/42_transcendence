@@ -1,5 +1,5 @@
 <template>
-    <NavBar :showProfile="true"></NavBar>
+    <NavBar :showProfile="true" :userStore="userStore"></NavBar>
     <div class="ft-chat-container">
       <ChatNavBar :whichTab="'channels'"></ChatNavBar>
       <section class="ft-chat-inside-container flex p-6">
@@ -19,7 +19,7 @@
         <div v-if="currentChannel?.Admin && showAdmin" class="flex grow">
           <!-- admin panel -->
           <div id="ft-admin-panel" class="w-full h-full relative p-11">
-            <AdminPanel :currentChannel="currentChannel" :sessionStore="sessionStore"></AdminPanel>
+            <AdminPanel :currentChannel="currentChannel" :sessionStore="sessionStore" @updateTypeOfChan="(type) => currentChannel.type = type"></AdminPanel>
           </div>
         </div>
         <div v-else class="flex grow">
@@ -108,6 +108,8 @@
     const userStore = useUserStore()
 
     const { user } = storeToRefs(userStore)
+
+    chatService.connect();
 
     // ********************************** TYPES
 

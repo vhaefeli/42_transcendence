@@ -434,6 +434,30 @@ export const useUserStore = defineStore("userStore", {
         async redirectToMyProfile(access_token: string) {
           await this.getMe(access_token);
           this.router.push(`/user/${this.user.username}`);
-        }
+        },
+
+        // flush datas 
+        flush() {
+          console.log("cleaning user datas...")
+          this.user = {
+            id: 0,
+            isLogged: false,
+            username: "",
+            avatar_url: "",
+            friends: [],
+            invites: [],
+            twoFA_enabled: false,
+            status: "",
+            level: "",
+            rank: 0,
+            nb_match: 0,
+            nb_jeux: 0,
+          }
+          this.friends = []
+          this.invites = []
+          this.invitesSent = []
+          this.blocked = []
+          this.gameLog = []
+        },
     }
 })

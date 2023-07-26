@@ -25,48 +25,44 @@
         >
             chat
         </router-link>
-        <div v-if="showProfile">
+        <div v-if="props.showProfile">
             <div id="ft-nav-profile">
                 <div id="ft-nav-profile-username">
                     <div class="cursor-pointer" @click="toggle">
-                        <p>{{ userStore.user.username }}</p>
+                        <p>{{ props.userStore.user.username }}</p>
                         <div v-if="activeLogout" id="ft-logout-btn" class="bg-white p-1 w-full flex items-center justify-center"><router-link :to="'/login?logout=true'">Logout</router-link></div>
                     </div>
                 </div>
-                <div class="ft-profile-pic" id="ft-nav-profile-img" :style="{ 'background': 'url(' + userStore.user.avatar_url + ')' }"></div>
+                <div class="ft-profile-pic" id="ft-nav-profile-img" :style="{ 'background': 'url(' + props.userStore.user.avatar_url + ')' }"></div>
             </div>
         </div>
         <div v-else>
-            <div id="ft-logout-btn" class="w-fit absolute top-1 right-1 p-1 w-full flex items-center justify-center"><router-link :to="'/login?logout=true'">Logout</router-link></div>
+            <div id="ft-logout-btn" class="w-fit absolute top-4 right-4 p-1 flex items-center justify-center"><router-link :to="'/login?logout=true'">Logout</router-link></div>
         </div>
     </nav>
   </template>
   <script setup>
-    import { useUserStore } from '../stores/UserStore'
-    import { useSessionStore } from "@/stores/SessionStore";
-    import { ref } from 'vue'
+    import { ref, watchEffect } from 'vue'
     import { useRouter } from 'vue-router'
     import pongJSON from '@/assets/json/pong.json'
-    
-    const userStore = useUserStore()
-    const sessionStore = useSessionStore()
 
     const activeTab = ref('')
     const pongLottie = ref(null)
-    const userPath = ref('')
     const activeLogout = ref(false)
-
+    const userPath = ref('')
+    
     // routes
     const router = useRouter()
-
-    defineProps({
-        showProfile: Boolean
+    
+    const props = defineProps({
+        showProfile: Boolean,
+        userStore: Object
     })
-
+    
     function playAnimation() {
         pongLottie.value.play()
     }
-
+    
     function stopAnimation() {
         pongLottie.value.stop()
     }
@@ -74,25 +70,17 @@
     function setActiveTab(tab) {
         activeTab.value = tab
     }
-
+    
     function toggle() {
         activeLogout.value = !activeLogout.value
     }
 
-    async function loadMyself() {
-      if (sessionStore.isLoggedIn) {
-        // get user infos
-        await userStore.getMe(sessionStore.access_token);
-        if (userStore.user.isLogged === false) {
-          sessionStore.isLoggedIn = false;
-          sessionStore.access_token = "";
-          router.push({ name: 'login' })
+    watchEffect(() => {
+        if (props.userStore.user.username) {
+            userPath.value = '/user/' + props.userStore.user.username
         }
-        userPath.value = '/user/' + userStore.user.username
-      }
-    }
+    })
 
-    loadMyself()
 </script>
 
 <style scoped>

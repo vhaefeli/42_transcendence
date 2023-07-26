@@ -1,5 +1,5 @@
 <template>
-    <NavBar :showProfile="true"></NavBar>
+    <NavBar :showProfile="true" :userStore="userStore"></NavBar>
     <div class="ft-chat-container">
       <ChatNavBar :whichTab="'dms'"></ChatNavBar>
       <section class="ft-chat-inside-container flex p-6">
@@ -83,6 +83,8 @@
     const userStore = useUserStore()
     
     const { user } = storeToRefs(userStore)
+
+    chatService.connect();
 
     // ********************************** TYPES
 

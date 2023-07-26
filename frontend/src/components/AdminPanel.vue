@@ -2,14 +2,7 @@
     <!-- TO DO: croix qui met à jour le texte dans memberlist -->
     <!-- <button class="absolute top-0 right-0"><a class="t-btn-pink ft-circle-gray ft-icon-small icon-btn-size icon-btn-cursor" @click="showAdmin = false"><img src="../assets/icons/xmark-solid.svg" alt="quit"></a></button> -->
     <div class="flex">
-        <div class="w-1/2 p-3 mr-9">
-            <!-- <div class="mb-6">
-                <h3 class="ft-admin-title">Name of channel</h3>
-                <div class="flex">
-                    <input v-model="channelName" :placeholder="props.currentChannel?.name" class="p-1 mr-3 grow" />
-                    <a href="#" class="t-btn-pink ft-bg-color-chat ft-btn-admin"><button @click="saveName">save</button></a>
-                </div>
-            </div> -->
+        <div v-if="currentChannel?.ownerId === currentChannel?.userId" class="w-1/2 p-3 mr-9">
             <div class="mb-6">
                 <h3 class="ft-admin-title">Type of channel</h3>
                 <div class="flex">
@@ -28,6 +21,7 @@
                     </div>
                     <a href="#" class="t-btn-pink ft-bg-color-chat ft-btn-admin h-fit"><button @click="saveType">save</button></a>
                 </div>
+                <div v-if="sucessMsg.length > 0" class="opacity-40">{{ sucessMsg }}</div>
             </div>
             <div class="mb-6">
                 <h3 class="ft-admin-title">Manage administrators</h3>
@@ -94,6 +88,8 @@
         sessionStore: Object
     })
 
+    const emits = defineEmits(['updateTypeOfChan'])
+
     type ChanInfos = {
         channelId: number
         type: string
@@ -102,6 +98,7 @@
     }
 
     type UpdateChanInfos = {
+      ownerId: number
       channelId: number
       type: string
       password: string | null
@@ -126,11 +123,14 @@
     const allBanned = ref<Array<UserInList>>()
     const allMuted = ref<Array<UserInList>>()
 
+    const sucessMsg = ref('')
+
     const active = ref(false)
 
     const isAllAdminsLoaded = ref<boolean>(false)
     const isAllBannedLoaded = ref<boolean>(false)
     const isAllMutedLoaded = ref<boolean>(false)
+
 
     function toggle() {
         active.value = !active.value
@@ -149,6 +149,7 @@
         password = null
       }
       const newInfos: UpdateChanInfos = {
+        ownerId: props.currentChannel.ownerId,
         channelId: props.currentChannel.channelId,
         type: typeOfChannel.value,
         password: password
@@ -186,11 +187,11 @@
         chanDatas = newInfos
       } else {
         chanDatas = {
+          ownerId: props.currentChannel.ownerId,
           channelId: newInfos.channelId,
           type: newInfos.type
         }
       }
-      console.log(chanDatas)
       await axios({
         url: "/api/chat/channel/change",
         method: "patch",
@@ -199,8 +200,11 @@
       })
         .then((response) => {
           console.log("Channel sucessfully loaded");
+          sucessMsg.value = 'sucessfully changed type of channel to ' + chanDatas.type
+          emits('updateTypeOfChan', chanDatas.type)
         })
         .catch((error) => {
+          sucessMsg.value = 'something went wrong'
           if (error.response.status == 401) {
             console.log(
               `invalid access token: ${error.response.status} ${error.response.statusText}`
