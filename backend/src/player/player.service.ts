@@ -217,8 +217,9 @@ export class PlayerService {
     const gameslog = await this.prisma.$queryRaw`
     select "Game".date , 
     CASE 
-    WHEN "Player".score > p2.score THEN 'Won against '
-    WHEN "Player".score < p2.score THEN  'Lost against ' 
+    WHEN "Player".score = 5 THEN 'Won against '
+	  ELSE
+    'Lost against ' 
     END 
     ||
     u2.username
