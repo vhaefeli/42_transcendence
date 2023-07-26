@@ -148,7 +148,7 @@ class KeyHandler {
 const keyHandler = new KeyHandler();
 
 function sendIsReady() {
-  if (!connectedToGame.value || isGameActive.value) return;
+  if (!connectedToGame.value || isGameActive.value || isReadyToPlay.value) return;
   gameSocket.sendIsReady();
   isReadyToPlay.value = true;
 }
