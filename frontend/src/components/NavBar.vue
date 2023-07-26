@@ -27,7 +27,12 @@
         </router-link>
         <div v-if="showProfile">
             <div id="ft-nav-profile">
-                <div id="ft-nav-profile-username">{{ userStore.user.username }}</div>
+                <div id="ft-nav-profile-username">
+                    <div class="cursor-pointer" @click="toggle">
+                        <p>{{ userStore.user.username }}</p>
+                        <div v-if="activeLogout" id="ft-logout-btn" class="bg-white p-1 w-full flex items-center justify-center"><router-link :to="'/login?logout=true'">Logout</router-link></div>
+                    </div>
+                </div>
                 <div class="ft-profile-pic" id="ft-nav-profile-img" :style="{ 'background': 'url(' + userStore.user.avatar_url + ')' }"></div>
             </div>
         </div>
@@ -46,6 +51,7 @@
     const activeTab = ref('')
     const pongLottie = ref(null)
     const userPath = ref('')
+    const activeLogout = ref(false)
 
     // routes
     const router = useRouter()
@@ -64,6 +70,10 @@
     
     function setActiveTab(tab) {
         activeTab.value = tab
+    }
+
+    function toggle() {
+        activeLogout.value = !activeLogout.value
     }
 
     async function loadMyself() {
@@ -92,7 +102,7 @@
 
 #ft-nav-profile-username {
     position: relative;
-    top: -0.4rem;
+    top: 0.8rem;
     padding-right: 0.8rem;
     color: var(--light-purple);
 }
@@ -101,8 +111,22 @@
     position: absolute;
     right: 2rem;
     display: flex;
-    align-items: center;
     top: 1rem;
+}
+
+#ft-logout-btn {
+    height: 0;
+    overflow: hidden;
+    animation: appearDown .5s forwards;
+}
+
+@keyframes appearDown {
+    from {
+        height: 0;
+    }
+    to {
+        height: 2rem;
+    }
 }
 
 #ft-lottie {
