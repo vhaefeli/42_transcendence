@@ -188,7 +188,8 @@ export class ChatService {
           CASE
               WHEN ca."B" IS NOT NULL THEN 'Admin'
               ELSE NULL
-          END AS "Admin"
+          END AS "Admin",
+          c."ownerId"  
         FROM
           "_channel_members" cm
         JOIN
@@ -197,6 +198,7 @@ export class ChatService {
           "_channel_admins" ca ON cm."A" = ca."A" AND ca."B" = cm."B"
         WHERE
           cm."B" = ${my_id};
+        ORDER BY c."name";
         `;
     return MyChannels;
   }
