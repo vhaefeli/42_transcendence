@@ -51,6 +51,7 @@ export class PlayerService {
           seq: 1,
           playerId: playerId,
           mode: createBothPlayerDto.mode,
+          levelAtPlay: (await this.getLevelAtPlay(playerId)).newLevelAtPlay,
         },
         select: {
           id: true,
@@ -62,6 +63,9 @@ export class PlayerService {
           seq: 2,
           playerId: createBothPlayerDto.opponentId,
           mode: createBothPlayerDto.mode,
+          levelAtPlay: (
+            await this.getLevelAtPlay(createBothPlayerDto.opponentId)
+          ).newLevelAtPlay,
         },
         select: {
           id: true,
@@ -80,28 +84,6 @@ export class PlayerService {
   async updateStart(playerId: number, updatePlayerDto: UpdatePlayerDto) {
     let nbUpdate: number = 0;
     try {
-      // read the user for grapping level for EXTERNAL LEVEL
-      const CurrentUserlevel = await this.prisma.user.findFirst({
-        where: {
-          id: playerId,
-        },
-      });
-      // la translation se fait dans player/log mais je laisse ceci pour info
-      // switch (CurrentUserlevel.level) {
-      //   case 'INITIATION':
-      //     newLevelAtPlay = 'Potato';
-      //     break;
-      //   case 'BEGINNER':
-      //     newLevelAtPlay = 'Pickle';
-      //     break;
-      //   case 'INTERMEDIATE':
-      //     newLevelAtPlay = 'Pineapple';
-      //     break;
-      //   case 'EXPERT':
-      //     newLevelAtPlay = 'Pitaya';
-      //     break;
-      // }
-      const newLevelAtPlay = CurrentUserlevel.level;
       const playerUpdate = await this.prisma.player.updateMany({
         where: {
           gameId: updatePlayerDto.gameId,
@@ -110,7 +92,6 @@ export class PlayerService {
         },
         data: {
           score4stat: true,
-          levelAtPlay: newLevelAtPlay,
         },
       });
       if (playerUpdate.count !== 1) {
@@ -387,6 +368,7 @@ export class PlayerService {
             playerId: playerId,
             // mode: 'INTERMEDIATE',
             randomAssignation: true,
+            levelAtPlay: (await this.getLevelAtPlay(playerId)).newLevelAtPlay,
           },
           select: {
             id: true,
@@ -405,6 +387,7 @@ export class PlayerService {
             // mode: 'INTERMEDIATE',
             gameStatus: game_status.WAITING,
             randomAssignation: true,
+            levelAtPlay: (await this.getLevelAtPlay(playerId)).newLevelAtPlay,
           },
           select: {
             id: true,
@@ -415,6 +398,22 @@ export class PlayerService {
       return { gameId: game.id };
     } catch (e) {
       // record not created as gameId & playerId are not unique.
+      if (e.code == 'P2002') throw new NotFoundException();
+      if (e?.code) Logger.error(e.code + ' ' + e.msg);
+      else Logger.error(e);
+    }
+  }
+
+  async getLevelAtPlay(playerId: number): Promise<{ newLevelAtPlay: string }> {
+    try {
+      const CurrentUserlevel = await this.prisma.user.findUnique({
+        where: {
+          id: playerId,
+        },
+      });
+      const newLevelAtPlay: string = CurrentUserlevel.level;
+      return { newLevelAtPlay };
+    } catch (e) {
       if (e.code == 'P2002') throw new NotFoundException();
       if (e?.code) Logger.error(e.code + ' ' + e.msg);
       else Logger.error(e);
