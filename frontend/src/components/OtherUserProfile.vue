@@ -1,6 +1,6 @@
 <template>
       <div id="ft-user-profile-container">
-          <div class="flex flex-col items-center text-center max-w-max ft-central-tab-container mb-6">
+          <div class="flex flex-col items-center text-center max-w-max ft-central-tab-container mb-3">
               <div v-if="isActualInfosLoaded" class="ft-profile-pic" id="current-profile-pic" :style="{ 'background': 'url(' + actualInfos.avatar_url + ')' }"></div>
               <div v-else class="ft-profile-pic" id="current-profile-pic"></div>
   
@@ -36,6 +36,16 @@
                   </div>
               </div>
           </div>
+          <div v-if="props.adminTab" class="flex flex-col items-center text-center ft-central-tab-container mb-3">
+            <div class="ft-tab-content ft-bg-color-profile flex flex-col items-center">
+              <h3 class="py-1">manage acess to channel</h3>
+              <div>
+                  <a title="Request friendship" class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor" @click="bann()">[bann]</a>
+                  <a title="Request friendship" class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor" @click="mute()">[mute]</a>
+                  <a title="Request friendship" class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor" @click="kick()">[kick]</a>
+              </div>
+            </div>
+          </div>
           <div class="flex flex-col pr-9">
               <router-link class="ft-bg-color-profile t-btn-pink ft-other-profile mb-3" :to= "'/user/' + actualInfos.username">See profile</router-link>
               <!-- TO DO: link to game setting + send username of the person you want to play with -->
@@ -58,6 +68,7 @@
 
     const props = defineProps({
         username: String,
+        adminTab: Boolean,
         sessionStore: Object,
         userStore: Object,
     })
@@ -83,6 +94,18 @@
         props.userStore.blockUser(username, props.sessionStore.access_token)
         actualInfos.value.is_blocked = true
         emits('updateBlocked', actualInfos.value.is_blocked)
+    }
+
+    function bann(username) {
+        // do something to bann this user
+    }
+
+    function mute(username) {
+        // do something to bann this user
+    }
+
+    function kick(username) {
+        // do something to bann this user
     }
 
     async function getUserInfos(username) {

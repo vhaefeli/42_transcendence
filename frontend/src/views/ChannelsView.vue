@@ -10,7 +10,7 @@
               <MemberList :channelName="currentChannel?.name" :username="user.username" :channelType="currentChannel?.type" :isAdmin="currentChannel?.Admin != null" :MemberList="currentMembers" :userStore="userStore" :sessionStore="sessionStore" @set-profile-to-show="(username) => profileToShow = username" @show-admin-panel="showAdmin = !showAdmin"/>
             </div>
             <div class="h-[76vh]" :class="profileToShow.length > 0 ? 'position-cible' : 'position-origine'">
-              <OtherUserProfile :key="profileToShow" :username="profileToShow" :userStore="userStore" :sessionStore="sessionStore" />
+              <OtherUserProfile :key="profileToShow" :adminTab="currentChannel?.Admin != null" :username="profileToShow" :userStore="userStore" :sessionStore="sessionStore" />
               <button title="Back to member list" id="ft-back-to-list" class="t-btn-pink ft-bg-color-chat" @click="profileToShow = ''">&lt;&lt;&lt;&lt;&lt;</button>
             </div>
         </div>
@@ -236,6 +236,7 @@
 
     // used when click on channel name
     function changeCurrentChannel(name: string) {
+        profileToShow.value = ''
         currentChannel.value = myChannels.value.find((chan) => name === chan.name) || null
     }
 
@@ -375,6 +376,7 @@
     })
 
     watch(currentChannel, (NewValue, OldValue) => {
+      isCurrentMembersLoaded.value = false
       getAllMembers(NewValue?.channelId)
     })
 
