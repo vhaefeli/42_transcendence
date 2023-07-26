@@ -2,9 +2,9 @@
   <div ref="parentDiv" class="parent-div">
   <div id="gameApp">
     <div ref="zoneDiv" class="zone">
-      <PongVue></PongVue>
-  <button style="position: fixed; top: 10px; right: 10px;"><a class="t-btn-pink ft-circle-gray ft-icon-small icon-btn-size icon-btn-cursor" @click="quitReally"><img src="../assets/icons/xmark-solid.svg" alt="quit"></a></button>
-  <div v-show="isAlertVisible" class="modal">
+      <PongVue :@noCross="onPongFinished"></PongVue>
+      <button v-if="buttonQuit" style="position: fixed; top: 10px; right: 10px;"><a class="t-btn-pink ft-circle-gray ft-icon-small icon-btn-size icon-btn-cursor" @click="quitReally"><img src="../assets/icons/xmark-solid.svg" alt="quit"></a></button>
+      <div v-show="isAlertVisible" class="modal">
       <div class="modal-content">
         <p>If the game started you will lose by forfeit if you quit.<br> Do you really want to quit</p>
         <router-link class="t-btn-pink" id="retHome" to="/game?quit=true"><span>Yes!</span></router-link>
@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref} from 'vue';
 
 import PongVue from '@/components/Pong.vue';
 
@@ -29,6 +29,9 @@ const parentDiv = ref<HTMLDivElement | null>(null);
 const zoneDiv = ref<HTMLDivElement | null>(null);
 
 const isAlertVisible = ref(false);
+const buttonQuit = ref(true);
+
+// const emits = defineEmits(['noCross']);
 
 function quitReally () {
   isAlertVisible.value = true;
@@ -36,6 +39,13 @@ function quitReally () {
 
 function stay () {
   isAlertVisible.value = false;
+}
+
+function onPongFinished(data)
+{
+  console.log("onPongFinished", data);
+  
+  buttonQuit.value = data;
 }
 
 const handleWindowResize = (): void => {
