@@ -33,7 +33,7 @@ import { GameService, PlayerAction } from "@/services/game-socket.service";
 import { useSessionStore } from "@/stores/SessionStore";
 import { useUserStore } from "@/stores/UserStore";
 import axios, { AxiosError } from "axios";
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, onBeforeUnmount } from "vue";
 import { useRoute, type LocationQuery, useRouter } from "vue-router";
 import ArrayFont from "../assets/fonts/array/fonts/Array-Regular.woff";
 
@@ -110,6 +110,10 @@ function handleQueryParams(params: LocationQuery) {
   }
 }
 
+onBeforeUnmount(() => {
+  gameSocket.socket?.emit("forceDisconnect");
+})
+
 class KeyHandler {
   private keyUP: boolean;
   private keyDOWN: boolean;
@@ -179,6 +183,7 @@ onMounted(() => {
       }
       isGameActive.value = true;
       console.log(`new score: ${playerScore} x ${opponentScore}`);
+      draw();
     });
 
     // receive game update and draw
