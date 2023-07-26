@@ -43,15 +43,15 @@
       
         <!-- column 3 with list of recipients -->
         <div  id="dm-recipientList-col" class="w-[16rem] relative">
+          <div class="m-6 w-2/3">
+            <UserSearch :recipients="recipients" :userStore="userStore" @addRecipient="addRecipient"/>
+          </div>
           <div class="mb-6 max-h-[54vh] overflow-scroll">
             <div v-if="recipients.length === 0">No Dms yet</div>
             <div v-for="recipient in recipients" :key="recipient">
               <div @click="changeActualRecipient(recipient)" :class="actual.id == recipient ? 'ft-actual-recipient' : ''" class="ft-recipient-name">{{ getRecipientName(recipient) }}</div>
             </div>
             <div v-if="!isInRecipients()"></div>
-          </div>
-          <div class="m-6 absolute bottom-6 w-2/3">
-            <UserSearch :recipients="recipients" :userStore="userStore" @addRecipient="addRecipient"/>
           </div>
         </div>
       </section>
