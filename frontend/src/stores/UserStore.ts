@@ -11,6 +11,7 @@ export const useUserStore = defineStore("userStore", {
       invitesSent: [],
       blocked: [],
       gameLog: [],
+      // otheOne: [],
   }),
   actions: {
     // get user infos
@@ -373,6 +374,6 @@ export const useUserStore = defineStore("userStore", {
         async redirectToMyProfile(access_token: string) {
           await this.getMe(access_token);
           this.router.push(`/user/${this.user.username}`);
-        }
+        },
     }
 })
