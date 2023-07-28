@@ -13,7 +13,7 @@
         <div id="dm-msg-col" class="grow relative">
           <div id="ft-scroller" ref="scroller" class="ft-chat-box p-6 overflow-scroll">
             <div v-if="actualIsBlocked">
-              <EmptyText :text="'You have blocked this user. Unblock he/her to see messages.'" :white="true" />
+              <EmptyText :text="'You have blocked this user. Unblock them to see their messages.'" :white="true" />
             </div>
             <div v-else>
               <div v-for="message in messages" :key="message.id">

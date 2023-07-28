@@ -1,24 +1,26 @@
 <template>
-      <div id="ft-members-container" class="h-full">
-          <div class="flex flex-col items-center text-center max-w-max ft-central-tab-container mb-6 h-full relative">
-              <div class="ft-tab-folder" id="title-chat"></div>
-              <div id="channel-title" class="ft-tab-content ft-title">{{ props.channelName }}</div>
-              <div class="ft-bg-color-chat w-full pt-2">
-                <p>{{ props.channelType }} CHANNEL</p>
-                <div v-if="props.isAdmin"><button class="ft-simple-link" @click="toggleAdmin">{{ adminText }}</button></div>
-              </div>
-              <div id="ft-member-list-container" class="ft-bg-color-chat h-[78%] w-full p-6">
-                <div id="inside-member-list" class="flex flex-col h-[82%] bg-white/[.2] overflow-scroll max-h-[58vh] p-3">
-                  <div v-for="member in MemberList" :key="member.id">
-                    <div v-if="member.username != props.username" class="flex mb-2 items-center">
-                      <div class="ft-profile-pic ft-profile-pic-small mr-3" id="current-profile-pic" :style="{ 'background': 'url(' + member.avatar_url + ')' }"></div>
-                      <a href="#" class="ft-simple-link" @click="$emit('setProfileToShow', member.username)">{{member.username}}</a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-          </div>
+  <div id="ft-members-container" class="h-full">
+    <div class="flex flex-col items-center text-center max-w-max ft-central-tab-container mb-6 h-full relative">
+      <div class="ft-tab-folder" id="title-chat"></div>
+      <div id="channel-title" class="ft-tab-content ft-title">{{ props.channelName }}</div>
+      <div class="ft-bg-color-chat w-full pt-2">
+        <p>{{ props.channelType }} CHANNEL</p>
+        <div v-if="props.isAdmin"><button class="ft-simple-link" @click="toggleAdmin">{{ adminText }}</button></div>
       </div>
+      <div id="ft-member-list-container" class="ft-bg-color-chat h-[78%] w-full p-6">
+        <div id="inside-member-list" class="flex flex-col h-[82%] bg-white/[.2] overflow-scroll max-h-[58vh] p-3">
+          <div v-for="member in MemberList" :key="member.id">
+            <div v-if="member.username != props.username">
+              <a href="#" @click="$emit('setProfileToShow', member.username)" class="flex mb-2 items-center ft-member-profile-container">
+                <div class="ft-profile-pic ft-profile-pic-small mr-3" id="current-profile-pic" :style="{ 'background': 'url(' + member.avatar_url + ')' }"></div>
+                <p>{{member.username}}</p>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -67,6 +69,10 @@
 
     #ft-member-list-container {
         box-shadow: 5px 5px 4px rgba(0, 0, 0, 0.4);
+    }
+
+    .ft-member-profile-container:hover {
+      background: var(--dark-pink);
     }
 
     #title-chat {

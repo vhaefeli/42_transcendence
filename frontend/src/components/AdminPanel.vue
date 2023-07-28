@@ -6,20 +6,20 @@
             <div class="mb-6">
                 <h3 class="ft-admin-title">Type of channel</h3>
                 <div class="flex">
-                    <div class="grow mr-3">
-                        <div class=" mb-3">
-                            <button id="ft-channel-type" class="w-full flex justify-between items-center p-3" @click="toggle">{{ typeOfChannel }}</button>
-                            <div id="ft-channel-type-select" class="cursor-pointer mb-3" v-if="active">
-                                <div @click="changeType">Public</div>
-                                <div @click="changeType">Protected</div>
-                                <div @click="changeType">Private</div>
-                            </div>
-                        </div>
-                        <div v-if="typeOfChannel === 'PROTECTED'">
-                            <input v-model="ChannelInfos.password" :placeholder="ChannelInfos.password.length > 0 ? ChannelInfos.password : 'new password'" class="p-1 mr-3 w-full" />
-                        </div>
+                  <div class="grow mr-3">
+                    <div class=" mb-3">
+                      <button id="ft-channel-type" class="w-full flex justify-between items-center p-3" @click="toggle">{{ typeOfChannel }}</button>
+                      <div id="ft-channel-type-select" class="cursor-pointer mb-3" v-if="active">
+                        <div @click="changeType">Public</div>
+                        <div @click="changeType">Protected</div>
+                        <div @click="changeType">Private</div>
+                      </div>
                     </div>
-                    <a href="#" class="t-btn-pink ft-bg-color-chat ft-btn-admin h-fit"><button @click="saveType">save</button></a>
+                    <div v-if="typeOfChannel === 'PROTECTED'">
+                        <input v-model="ChannelInfos.password" :placeholder="ChannelInfos.password.length > 0 ? ChannelInfos.password : 'new password'" class="p-1 mr-3 w-full" />
+                    </div>
+                  </div>
+                  <a href="#" class="t-btn-pink ft-bg-color-chat ft-btn-admin h-fit"><button @click="saveType">save</button></a>
                 </div>
                 <div v-if="sucessMsg.length > 0" class="opacity-40">{{ sucessMsg }}</div>
             </div>
