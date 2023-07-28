@@ -1,30 +1,89 @@
 <template>
   <NavBar :showProfile="true"></NavBar>
-  <div id="gamesetting-container">
-    <section>
-      <div class="text-white">
-        <input
-          v-model="gameIdToConnect"
-          placeholder="game id"
-          class="bg-gray-500"
-        /><br />
+  <div>
+    <section></section>
+    <section class="ft-game-container">
+      <!-- direct play -->
+      <div
+        class="flex flex-col text-center ft-left-tab"
+        id="directPlay"
+        :class="{ foreground: foregroundTab === 'playDirect' }"
+        @click="setForegroundTab('playDirect')"
+      >
+        <div class="ft-tab-folder ft-tab-title ft-bb-color-game">
+          Direct play
+        </div>
+        <div
+          class="ft-tab-content ft-border-color-game ft-tab-border text-left"
+        >
+          <div class="flex flex-row justify-center">
+            <div>
+              <div class="text-white">
+                <input
+                  v-model="gameIdToConnect"
+                  placeholder="game id"
+                  class="bg-gray-500"
+                /><br />
+              </div>
+              <a
+                class="t-btn-pink ft-bg-color-game ft-other-profile mb-3"
+                @click="connectToGame"
+                ><span>Play!!!</span></a
+              >
+            </div>
+          </div>
+        </div>
       </div>
-      <button class="t-btn-pink ft-color-game" id="play" @click="connectToGame">
-        <span>Play Game</span>
-      </button>
-    </section>
-    <section class="ft-container">
+      <!-- game settings -->
+      <div
+        class="flex flex-col text-center ft-right-tab"
+        id="setGame"
+        :class="{ foreground: foregroundTab === 'gameSetting' }"
+        @click="setForegroundTab('gameSetting')"
+      >
+        <div class="ft-tab-folder ft-tab-title ft-bb-color-game">
+          Set a game
+        </div>
+        <div
+          class="flex flex-col justify-center ft-tab-content ft-border-color-game ft-tab-border text-left"
+          id="setGameContent"
+        >
+          <div class="flex flex-row items-center my-4">
+            <p>mode de jeu:</p>
+            <select v-model="mode">
+              <option value="facile">Facile</option>
+              <option value="normal">Normal</option>
+              <option value="expert">Expert</option>
+            </select>
+          </div>
+          <div class="flex flex-row items-center my-4">
+            <input v-model="newFriend" placeholder="Add a friend by username" />
+          </div>
+          <div class="flex flex-row items-center my-4">
+            <div :class="{ 'cursor-not-allowed': !newFriend }">
+              <a
+                @click="addFriend"
+                class="t-btn-pink ft-bg-color-game icon-btn-cursor"
+                :class="{ 'opacity-50 searchan-noClick': !newFriend }"
+              >
+                <span>Invite my friend to play!!!</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- invitation recieved -->
       <div
         class="flex flex-col text-center ft-left-tab ft-my-profile"
-        id="friends-requests"
+        id="gameInvitation"
         :class="{ foreground: foregroundTab === 'friendsRequest' }"
         @click="setForegroundTab('friendsRequest')"
       >
         <div class="ft-tab-folder ft-tab-title ft-bb-color-game">
-          Friends requests
+          Invitation to play
         </div>
         <div
-          id="friendsRequestScroll"
+          id="gameInvitationScroll"
           class="ft-tab-content ft-border-color-game ft-tab-border text-left ft-scrollable"
         >
           <ul>
@@ -67,17 +126,74 @@
                           title="decline friend request"
                       /></a>
                     </li>
-                    <li>
-                      <a
-                        class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor"
-                        @click="blockUserAndDelInvite(invitation.username)"
-                        ><img
-                          src="../assets/icons/person-circle-minus-solid.svg"
-                          alt="block them"
-                          title="block this user"
-                      /></a>
-                    </li>
                   </ul>
+                </li>
+              </div>
+            </div>
+          </ul>
+        </div>
+      </div>
+      <!-- stats -->
+      <div
+        class="flex flex-col text-center ft-left-tab"
+        id="stats"
+        :class="{ foreground: foregroundTab === 'stats' }"
+        @click="setForegroundTab('stats')"
+      >
+        <div class="ft-tab-folder ft-tab-title ft-bb-color-game">Stats</div>
+        <div
+          class="ft-tab-content ft-border-color-game ft-tab-border flex flex-row justify-evenly"
+        >
+          <div class="ft-item-title ft-bb-color-game flex flex-col">
+            <div class="ft-result-drk-text">{{ user.nbGames }}</div>
+            <div class="ft-text">matches</div>
+          </div>
+          <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
+            <div class="ft-result-drk-text">{{ user.rank }}</div>
+            <div class="ft-text">victories</div>
+          </div>
+          <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
+            <div class="ft-result-drk-text">{{ user.nbMatch }}</div>
+            <div class="ft-text">perfect victories</div>
+          </div>
+          <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
+            <div class="ft-result-drk-text">{{ user.level }}</div>
+            <div class="ft-text">level</div>
+          </div>
+        </div>
+      </div>
+      <!-- match History -->
+      <div
+        class="flex flex-col text-center ft-right-tab"
+        id="match-history"
+        :class="{ foreground: foregroundTab === 'matchHistory' }"
+        @click="setForegroundTab('matchHistory')"
+      >
+        <div class="ft-tab-folder ft-tab-title ft-bb-color-game">
+          Match history
+        </div>
+        <div
+          id="matchScroll"
+          class="flex flex-col justify-center ft-tab-content ft-border-color-game ft-tab-border text-left ft-scrollable"
+        >
+          <ul>
+            <div v-if="gameLog">
+              <div v-if="gameLog.length === 0">
+                <EmptyText :text="'No game to show here'" :white="false" />
+              </div>
+              <div v-for="(game, index) in gameLog" :key="index">
+                <li
+                  class="ft-item-title ft-text ft-bb-color-game flex flex-row justify-between items-center"
+                  :class="
+                    index === gameLog.length - 1 ? '' : 'ft-tab-separator'
+                  "
+                >
+                  <div class="flex flex-col justify-start">
+                    <li class="ft-level-text ml-2">
+                      {{ formatDate(game.date) }}
+                    </li>
+                    <li class="ft-text ml-2">{{ game.Result }}</li>
+                  </div>
                 </li>
               </div>
             </div>
@@ -103,6 +219,8 @@
     id: number;
     username: string;
   };
+
+  const mode = ref("normal");
 
   const userList = ref<Array<type_user>>([]);
   const selectedUser = ref<number>();
@@ -269,51 +387,201 @@
 </script>
 
 <style scoped>
-  .ft-tab-content {
-    min-width: 100%;
-    /* width: 100%; */
-    box-shadow: 5px 5px 4px rgba(0, 0, 0, 0.4);
+  .ft-game-container {
+    background: var(--gray);
+    border: 4px solid var(--sunset);
+    padding-top: 5vw;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-radius: 25px 25px 0 0;
+    overflow: hidden;
+    height: 90vh;
   }
-  .ft-left-tab#stats {
-    position: relative;
-    /* top:-28rem; */
-    left: 10vw;
-    width: 30em;
+  .foreground {
+    z-index: 999;
+  }
 
+  #directPlay {
+    right: -25vw;
+    transform: translateX(-50%);
+  }
+
+  #setGame {
+    position: relative;
+    top: -7em;
+    right: 10vw;
+  }
+
+  #setGameContent {
+    width: fit-content;
+  }
+
+  #gameInvitation {
+    top: -14em;
+    right: -20vw;
+  }
+
+  #stats {
+    position: relative;
+    top: -12rem;
+    left: 5vw;
+    width: max-content;
     z-index: 1;
   }
 
-  .ft-item-title {
-    padding: 1.5em;
+  #match-history {
+    position: relative;
+    top: -30em;
+    right: -51vw;
+    width: 40rem;
   }
+
+  .ft-left-tab {
+    position: relative;
+    width: 30em;
+    z-index: 2;
+  }
+  .ft-right-tab {
+    position: relative;
+    /* top: 43em; */
+    /* left: 33vw; */
+    /* width: 41em; */
+  }
+
+  .ft-profile-pic#current-profile-pic {
+    position: relative;
+    top: 3em;
+    z-index: 1;
+    background-size: cover !important;
+  }
+
+  .ft-central-tab-container {
+    position: relative;
+    top: -16em;
+    left: 50vw;
+    transform: translateX(-50%);
+  }
+
+  .ft-tab-content {
+    /* min-width: 100%; */
+    /* width: 100%; */
+    box-shadow: 5px 5px 4px rgba(0, 0, 0, 0.4);
+  }
+
+  .ft-central-tab-container.ft-tab-content {
+    background: var(--light-purple);
+  }
+
   .ft-tab-folder {
     width: fit-content;
     border-bottom-style: solid;
     border-bottom-width: 1.5em;
-    /* border-bottom: 1.5em solid var(--sunset); */
+    border-bottom: 1.5em solid var(--sunset);
+  }
+
+  .ft-tab-content#buttons-container {
+    padding: 2em 0 12em 0;
+    height: 17rem;
+  }
+
+  .ft-tab-separator {
+    padding: 1em;
   }
 
   .ft-tab-border {
-    /* width: 30em; */
     border-style: solid;
     border-width: 0.3em;
     padding: 1em 4em 1em 4em;
   }
 
-  #gamesetting-container {
-    background: var(--gray);
-    border: 4px solid var(--sunset);
-    padding: 5vw;
-
-    border-radius: 25px 25px 0 0;
-    overflow: hidden;
+  .ft-tab-separator {
+    border-bottom-width: 0.3em;
+    border-bottom-style: solid;
   }
 
-  #play {
-    /* position: absolute; */
-    /* top: 20vw; */
-    /* left: 50%;
-  transform: translateX(-50%); */
-    background-color: var(--pink);
+  /* Piste : pour perso des barres de défilement, utiliser "PerfectScrollbar" ou "Custom Scrollbar" (JS). */
+  .ft-scrollable {
+    max-height: 20rem;
+    min-height: 12rem;
+    overflow: auto;
+  }
+
+  #friendsInvitation {
+    position: relative;
+    top: 40em;
+    left: 15vw;
+    width: 39em;
+    z-index: 1;
+  }
+
+  /* Pour DEBUG seulement, doit s-afficher ou non selon en jeu */
+  .ft-playing {
+    display: none;
+  }
+
+  /* -------------------- */
+
+  #sent-requests {
+    position: relative;
+    /* top: -45em; */
+    left: 49vw;
+    width: 25em;
+  }
+
+  .ft-profile-pic.ft-friend-pic {
+    width: 3em;
+    height: 3em;
+    position: relative;
+    background: url(./../assets/img/ben-neale-zpxKdH_xNSI-unsplash.jpg);
+    background-size: cover;
+  }
+
+  .ft-left-tab {
+    position: relative;
+    z-index: 2;
+  }
+
+  .ft-item-title {
+    padding: 1.5em;
+  }
+
+  #matchScroll::-webkit-scrollbar,
+  #friendsScroll::-webkit-scrollbar,
+  #gameInvitationScroll::-webkit-scrollbar,
+  #sentRequestsScroll::-webkit-scrollbar,
+  #blocked::-webkit-scrollbar {
+    width: 22px;
+  }
+
+  #matchScroll::-webkit-scrollbar-track,
+  #gameInvitationScroll::-webkit-scrollbar-track,
+  #sentRequestsScroll::-webkit-scrollbar-track,
+  #blocked::-webkit-scrollbar-track,
+  #friendsScroll::-webkit-scrollbar-track {
+    background: var(--light-purple);
+    border-bottom: 0.2rem solid var(--purple);
+    border-right: 0.2rem solid var(--purple);
+    border-top: 0.2rem solid var(--mint);
+    border-left: 0.2rem solid var(--mint);
+  }
+
+  #matchScroll::-webkit-scrollbar-thumb {
+    background-color: var(--mint);
+    border-bottom: 0.2rem solid var(--dark-gray);
+    border-right: 0.2rem solid var(--dark-gray);
+    border-top: 0.2rem solid var(--light);
+    border-left: 0.2rem solid var(--light);
+  }
+
+  #friendsScroll::-webkit-scrollbar-thumb,
+  #gameInvitationScroll::-webkit-scrollbar-thumb,
+  #sentRequestsScroll::-webkit-scrollbar-thumb,
+  #blocked::-webkit-scrollbar-thumb {
+    background-color: var(--purple);
+    border-bottom: 0.2rem solid var(--dark-gray);
+    border-right: 0.2rem solid var(--dark-gray);
+    border-top: 0.2rem solid var(--light);
+    border-left: 0.2rem solid var(--light);
   }
 </style>
