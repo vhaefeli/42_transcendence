@@ -6,6 +6,7 @@ import {
   Patch,
   Post,
   NotFoundException,
+  Param,
 } from '@nestjs/common';
 import { PlayerService } from './player.service';
 import { UpdatePlayerDto } from './dto/updatePlayer.dto';
@@ -52,9 +53,9 @@ export class PlayerController {
     return this.playerService.invitedBy(req.user.sub);
   }
 
-  @Get('log')
-  async log(@Request() req: any) {
-    return this.playerService.gameLog(req.user.sub);
+  @Get('log/:playerId')
+  async log(@Param('playerId') playerId: number, @Request() req: any) {
+    return this.playerService.gameLog(playerId);
   }
 
   @Patch('playing')

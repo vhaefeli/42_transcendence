@@ -212,7 +212,7 @@ export class PlayerService {
   }
 
   // ------------------------------------------------------------------------------------------------------
-  // list all games played by the connected user
+  // list all games played by the selected user
   async gameLog(playerId: number) {
     const gameslog = await this.prisma.$queryRaw`
     select "Game".date , 
