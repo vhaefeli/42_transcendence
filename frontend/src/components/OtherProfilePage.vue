@@ -100,6 +100,7 @@
     import EmptyText from "@/components/EmptyText.vue";
 
         const user = ref({})
+        const gameLog = ref([])
         const route = useRoute()
         
         const isUserLoaded = ref<boolean>(false)
@@ -111,6 +112,24 @@
         async function loadUserList() {
             await axios({
             url: `/api/user/profile/${route.params.username}`,
+            method: "get",
+            headers: { Authorization: `Bearer ${sessionStore.access_token}` },
+            })
+            .then((response) => {
+                user.value = response.data;
+                isUserLoaded.value = true;
+            })
+            .catch((error) => {
+                console.error(
+                `unexpected error: ${error.response.status} ${error.response.statusText}`
+                );
+                return;
+            });
+        }
+
+        async function loadGameHistor() {
+            await axios({
+            url: `/api/player/log/${user.value.id}`,
             method: "get",
             headers: { Authorization: `Bearer ${sessionStore.access_token}` },
             })
