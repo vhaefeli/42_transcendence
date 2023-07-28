@@ -1,11 +1,9 @@
 <template>
   <NavBar :showProfile="false" :isOtherProfile="false" :userStore="userStore"></NavBar>
     <div id="profile-container">
-      <section class="ft-cover flex flex-col items-end justify-end">
-        <a class="ft-bg-color-chat t-btn-pink ft-other-profile"><span>Send message</span></a>
-        <a class="ft-bg-color-game t-btn-pink ft-other-profile"><span>Invite to play</span></a>
-      </section>
 
+      <section class="ft-cover flex flex-col items-end justify-end">
+      </section>
       <section class="ft-container">
         <div class="flex flex-col items-center text-center max-w-max ft-central-tab-container">
           <div class="ft-profile-pic" id="current-profile-pic" :style="{ 'background': 'url(' + user.avatar_url + ')' }"></div>
@@ -14,17 +12,9 @@
           <div class="ft-tab-content ft-bg-color-profile">{{ user.status }}</div>
           <div class="ft-tab-content ft-bg-color-profile ft-title" id="username">{{ user.username }}</div>
           <div class="ft-tab-content ft-bg-color-profile" id="buttons-container">
-            <!-- Bouton pour ajouter la personne en ami (profil d'un tiers) -->
-            <a title="send a friend request" class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor ft-other-profile"><img src="../assets/icons/user-plus-solid.svg" alt="send a friend request"></a>
-            <!-- Bouton pour bloquer la personne (profil d'un tiers) -->
-            <!-- verifier si code TS correct, car supposition -->
-            <a title="block this user" class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor ft-other-profile" @click="blockUser(user.username)"><img src="../assets/icons/person-circle-minus-solid.svg" alt="block them"></a>
-
-            <!-- Bouton pour editer son profil (SON profil uniquement) -->
             <a @click="router.push('/user/edit')" title="edit your profile" class="t-btn-pink ft-color-edit ft-my-profile ft-icon-small icon-btn-cursor" id="edit" ><img src="../assets/icons/user-pen-solid.svg" alt="edit my profile"></a>
           </div>
         </div>
-                        
 
         <div class="flex flex-col text-center ft-left-tab" id="stats" :class="{ foreground: foregroundTab === 'stats' }" @click="setForegroundTab('stats')">
           <div class="ft-tab-folder ft-tab-title ft-bb-color-game">Stats</div>
@@ -160,9 +150,6 @@
                     <img src="../assets/icons/user-plus-solid.svg" alt="send a friend request" title="send them a friend request">
                   </a>
                 </div>
-
-                <!-- <input type="text" placeholder="Search by username"> -->
-                <!-- <a class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor"><img src="../assets/icons/user-plus-solid.svg" alt="send a friend request" title="send them a friend request"></a> -->
               </div>
           </div>
         </div>
@@ -193,45 +180,11 @@
             </ul>
           </div>
         </div>
-
-          <!-- CODE DE MICHELE -->
-          <!-- <div id="profile-container"> -->
-        
-              <!-- check si on est sur son propre profile -->
-              <!-- <div v-if="user && user.isLogged && user.username == route.params.username" class="flex flex-col items-center"> -->
-                  <div class="flex mb-9 w-[60%]">
-                      <img :src="user.avatar_url" alt="avatar img" class="mr-9"/>
-                      <div class="mr-9">
-                          <p v-if="user.twoFA_enabled">2FA is enabled</p>
-                          <p v-if="!user.twoFA_enabled">2FA is disabled</p>
-                          <p class="mb-6">Status: {{ user.status }}</p>
-                          <div class="flex flex-col">
-                              <input v-model="newFriend" placeholder="name of friend" /><br />
-                              <p>you want to add: {{ newFriend || 'nobody' }} ?</p>
-                              <button
-                              class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-                              @click="addFriend"
-                              >
-                              add a friend
-                              </button>
-                          </div>
-                      </div>
-                      <div>
-                          <h2 class="text-2xl mb-4">All users</h2>
-                          <div v-if="allUsers">
-                              <div v-for="otherUser in allUsers" :key="otherUser.id">
-                                  <p>{{ otherUser.username }}</p>
-                              </div>
-                          </div>
-                      </div>   
-                  </div>
-                <!-- </div> -->
-              <router-link to="/search-users">Search for users</router-link>
-          
-    <!-- CODE DE MICHELE CI-DESSUS -->
       </section>
     </div>
+    
     <div id="ft-bottom-line"></div>
+
 </template>
   
 <script setup lang="ts">
@@ -264,40 +217,6 @@
     const actualInfos = ref({});
     const FromFriendToNotFriend = ref(false)
     const isActualInfosLoaded = ref(false)
-
-    // loadUserList();
-
-    // async function loadUserList() {
-    //   let users = new Array<type_user>();
-    
-    //   await axios({
-    //     url: "/api/user/all",
-    //     method: "get",
-    //   })
-    //     .then((response) => {
-    //       users = response.data;
-    //     })
-    //     .catch((error) => {
-    //       console.error(
-    //         `unexpected error: ${error.response.status} ${error.response.statusText}`
-    //       );
-    //       return;
-    //     });
-    //     userList.value = users.filter((user) => user.id != props.userStore.user.id);
-    //     userList.value = userList.value.filter((user) => {
-    //       return !props.recipients.find((recipient) => recipient === user.id);
-    //     });
-    // }
-    // loadUserList();
-
-    // watch(props.recipients, () => {
-    //   loadUserList()
-    // })
-    
-    // async function validateSelection() {
-    //   emits('addRecipient', userList.value.find((element) => element.id === selectedUser.value)
-    //         ?.username)
-    // }
     
     // to have the token we need sessionStore
     const sessionStore = useSessionStore()
@@ -316,7 +235,6 @@
     let allUsers: { id: number, username: string }[];
 
     const { user, friends, invites, blocked, invitesSent, gameLog } = storeToRefs(userStore)
-    // const { user, friends, invites, blocked, invitesSent, gameLog, otherOne } = storeToRefs(userStore)
 
     function setForegroundTab(tab) {
       foregroundTab.value = tab
@@ -351,72 +269,14 @@
         url: "/api/user/all",
         method: "get",
         headers: { },
-    })
-        .then((response) => {
+      })
+      .then((response) => {
         allUsers = response.data;
         console.log("all users loaded");
-        })
-        .catch((error) => {
-            console.error(`unexpected error: ${error.response.status} ${error.response.statusText}`);
-    });
-
-
-    // async function validateSelection() {
-    //   // console.log(
-    //   //   `selected: ${
-    //   //     userList.value.find((element) => element.username === selectedUser.value)
-    //   //       ?.username
-    //   //   }`
-    //   // );
-    //   console.log("Selected user: ", selectedUser.value.username);
-    // }
-
-
-    // code identique a OtherUserProfiles.vue de Michele
-    async function getUserInfos(username) {
-      await axios({
-        url: `/api/user/profile/${username}`,
-        method: "get",
-        headers: { Authorization: `Bearer ${props.sessionStore.access_token}` },
       })
-        .then((response) => {
-          actualInfos.value = response.data
-          isActualInfosLoaded.value = true
-          return true;
-        })
-        .catch((error) => {
-          if (error.response.status == 401) {
-            console.log(
-              `invalid access token: ${error.response.status} ${error.response.statusText}`
-            );
-          } else if (error.response.status == 404) {
-            console.log(
-              `user not found: ${error.response.status} ${error.response.statusText}`
-            );
-          } else {
-            console.error(
-              `unexpected error: ${error.response.status} ${error.response.statusText}`
-            );
-          }
-          return false;
-        });
-    } // fin du code identique
-
-    
-    function myProfile(user) {
-      const currentUrl = window.location.href;
-      console.log('currentUrl =' + currentUrl);
-      console.log('user =' + user.url);
-      // if (currentUrl === user.url) {
-      //   console.log('my profile is loaded');
-      //   return true;
-      // }
-      console.log('profile of another user is loaded');
-      return false;
-    }
-    
-    let isMe: boolean = myProfile(user);
-
+      .catch((error) => {
+        console.error(`unexpected error: ${error.response.status} ${error.response.statusText}`);
+    });
 
     // functions to delete because useless // maybe not so useless
     function addFriend() {
@@ -482,7 +342,6 @@
 
 .ft-cover {
     background: url(./../assets/img/fond.png);
-    /* background: url(./../assets/img/jr-korpa-9XngoIpxcEo-unsplash.jpg); */
 }
 
 .ft-profile-pic#current-profile-pic {
@@ -527,8 +386,6 @@
   border-bottom: 1.5em solid;
 } */
 
-
-
 /* .ft-tabContent#title-profile {
   text-overflow: ellipsis;
 } */
@@ -566,7 +423,6 @@
 }
 
 .ft-tab-border {
-  /* width: 30em; */
   border-style: solid;
   border-width: 0.3em;
   padding: 1em 4em 1em 4em;
@@ -646,16 +502,6 @@
   background: var(--dark-gray);
 }
 
-/* POUR DEBUG UNIQUEMENT */
-
-.ft-other-profile {
-  display: none;
-}
-
-/* .ft-my-profile {
-  display: none;
-} */
-
 .ft-item-title {
   padding: 1.5em;
 }
@@ -706,5 +552,4 @@
     border-left: .2rem solid var(--light);   
 }
 
-/* ^^ POUR DEBUG UNIQUEMENT ^^ */
 </style>
