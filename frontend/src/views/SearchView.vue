@@ -82,9 +82,3 @@ async function validateSelection() {
   );
 }
 </script>
-
-<style>
-  .dropdown .menu {
-    max-height: 3rem !important;
-  }
-</style>

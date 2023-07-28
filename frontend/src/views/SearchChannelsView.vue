@@ -1,5 +1,5 @@
 <template>
-  <NavBar />
+  <NavBar :showProfile="true" :userStore="userStore"></NavBar>
   <section class="flex flex-col items-center w-full mt-10">
     <div class="flex flex-row w-full">
       <div class="w-1/3" />

@@ -42,7 +42,7 @@ import { useSessionStore } from "@/stores/SessionStore";
 
 const userStore = useUserStore();
 const sessionStore = useSessionStore();
-userStore.getMe();
+userStore.getMe(sessionStore.access_token);
 </script>
 
 <style scoped>
