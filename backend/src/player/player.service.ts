@@ -51,6 +51,7 @@ export class PlayerService {
           seq: 1,
           playerId: playerId,
           mode: createBothPlayerDto.mode,
+          levelAtPlay: (await this.getLevelAtPlay(playerId)).newLevelAtPlay,
         },
         select: {
           id: true,
@@ -62,6 +63,9 @@ export class PlayerService {
           seq: 2,
           playerId: createBothPlayerDto.opponentId,
           mode: createBothPlayerDto.mode,
+          levelAtPlay: (
+            await this.getLevelAtPlay(createBothPlayerDto.opponentId)
+          ).newLevelAtPlay,
         },
         select: {
           id: true,
@@ -208,10 +212,28 @@ export class PlayerService {
   }
 
   // ------------------------------------------------------------------------------------------------------
-  // list all games played by the connected user
+  // list all games played by the selected user
   async gameLog(playerId: number) {
     const gameslog = await this.prisma.$queryRaw`
-    select "Game".date, ('won against ' || u2.username || ' (' || (u2."level") || ')')  "Result"
+    select "Game".date , 
+    CASE 
+    WHEN "Player".score = 5 THEN 'Won against '
+	  ELSE
+    'Lost against ' 
+    END 
+    ||
+    u2.username
+    ||
+    ' ('
+    ||
+    CASE 
+    WHEN p2."levelAtPlay" = 'INITIATION' THEN 'Potato'
+    WHEN p2."levelAtPlay" = 'BEGINNER' THEN  'Pickle' 
+    WHEN p2."levelAtPlay" = 'INTERMEDIATE' THEN  'Pineapple' 
+    WHEN p2."levelAtPlay" = 'EXPERT' THEN  'Pitaya' 
+    END
+    ||
+    ')' "Result"
     from  "Player", "Game", "User", "Player" p2, "User" u2
     where 
     "Player"."gameId" = "Game".id
@@ -221,19 +243,7 @@ export class PlayerService {
     and "Player"."gameId" = p2."gameId"
     and "Player".seq <> p2.seq
     and p2."playerId" = u2.id
-    and "Player".score > p2.score
-    union all
-    select "Game".date, ('Lost against ' || u2.username || ' (' || (u2."level") || ')') "Result"
-    from  "Player", "Game", "User", "Player" p2, "User" u2
-    where 
-    "Player"."gameId" = "Game".id
-    and "Player"."playerId" = "User".id
-    and "Player"."playerId" =  ${playerId}
-    and "Player".score4stat = true
-    and "Player"."gameId" = p2."gameId"
-    and "Player".seq <> p2.seq
-    and p2."playerId" = u2.id
-    and "Player".score < p2.score
+    order by "Game".date desc
       `;
     return gameslog;
   }
@@ -359,6 +369,7 @@ export class PlayerService {
             playerId: playerId,
             // mode: 'INTERMEDIATE',
             randomAssignation: true,
+            levelAtPlay: (await this.getLevelAtPlay(playerId)).newLevelAtPlay,
           },
           select: {
             id: true,
@@ -377,6 +388,7 @@ export class PlayerService {
             // mode: 'INTERMEDIATE',
             gameStatus: game_status.WAITING,
             randomAssignation: true,
+            levelAtPlay: (await this.getLevelAtPlay(playerId)).newLevelAtPlay,
           },
           select: {
             id: true,
@@ -387,6 +399,22 @@ export class PlayerService {
       return { gameId: game.id };
     } catch (e) {
       // record not created as gameId & playerId are not unique.
+      if (e.code == 'P2002') throw new NotFoundException();
+      if (e?.code) Logger.error(e.code + ' ' + e.msg);
+      else Logger.error(e);
+    }
+  }
+
+  async getLevelAtPlay(playerId: number): Promise<{ newLevelAtPlay: string }> {
+    try {
+      const CurrentUserlevel = await this.prisma.user.findUnique({
+        where: {
+          id: playerId,
+        },
+      });
+      const newLevelAtPlay: string = CurrentUserlevel.level;
+      return { newLevelAtPlay };
+    } catch (e) {
       if (e.code == 'P2002') throw new NotFoundException();
       if (e?.code) Logger.error(e.code + ' ' + e.msg);
       else Logger.error(e);

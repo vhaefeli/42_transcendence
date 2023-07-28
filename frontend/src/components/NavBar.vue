@@ -7,7 +7,7 @@
                 'other-profile-color': isOtherProfile === true 
             }"
             class="nav-tab nav-tab-profile"
-            :to="'/user/' + userStore.user.username"
+            :to=userPath
             @click="setActiveTab('profile')"
         >
             my profile
@@ -28,32 +28,44 @@
         >
             chat
         </router-link>
-        <div v-if="showProfile">
+        <div v-if="props.showProfile">
             <div id="ft-nav-profile">
-                <div id="ft-nav-profile-username">{{ userStore.user.username }}</div>
-                <div class="ft-profile-pic" id="ft-nav-profile-img" :style="{ 'background': 'url(' + userStore.user.avatar_url + ')' }"></div>
+                <div id="ft-nav-profile-username">
+                    <div class="cursor-pointer" @click="toggle">
+                        <p>{{ props.userStore.user.username }}</p>
+                        <div v-if="activeLogout" id="ft-logout-btn" class="bg-white p-1 w-full flex items-center justify-center"><router-link :to="'/login?logout=true'">Logout</router-link></div>
+                    </div>
+                </div>
+                <div class="ft-profile-pic" id="ft-nav-profile-img" :style="{ 'background': 'url(' + props.userStore.user.avatar_url + ')' }"></div>
             </div>
+        </div>
+        <div v-else>
+            <div id="ft-logout-btn" class="w-fit absolute top-4 right-4 p-1 flex items-center justify-center"><router-link :to="'/login?logout=true'">Logout</router-link></div>
         </div>
     </nav>
   </template>
   <script setup>
-    import { useUserStore } from '../stores/UserStore'
-    import { ref } from 'vue'
+    import { ref, watchEffect } from 'vue'
+    import { useRouter } from 'vue-router'
     import pongJSON from '@/assets/json/pong.json'
-    
-    const userStore = useUserStore()
+
     const activeTab = ref('')
     const pongLottie = ref(null)
-
-    defineProps({
+    const activeLogout = ref(false)
+    const userPath = ref('')
+    
+    // routes
+    const router = useRouter()
+    
+    const props = defineProps({
         showProfile: Boolean,
-        isOtherProfile: Boolean
+        userStore: Object
     })
-
+    
     function playAnimation() {
         pongLottie.value.play()
     }
-
+    
     function stopAnimation() {
         pongLottie.value.stop()
     }
@@ -61,6 +73,17 @@
     function setActiveTab(tab) {
         activeTab.value = tab
     }
+    
+    function toggle() {
+        activeLogout.value = !activeLogout.value
+    }
+
+    watchEffect(() => {
+        if (props.userStore.user.username) {
+            userPath.value = '/user/' + props.userStore.user.username
+        }
+    })
+
 </script>
 
 <style scoped>
@@ -77,7 +100,7 @@
 
 #ft-nav-profile-username {
     position: relative;
-    top: -0.4rem;
+    top: 0.8rem;
     padding-right: 0.8rem;
     color: var(--light-purple);
 }
@@ -86,8 +109,22 @@
     position: absolute;
     right: 2rem;
     display: flex;
-    align-items: center;
     top: 1rem;
+}
+
+#ft-logout-btn {
+    height: 0;
+    overflow: hidden;
+    animation: appearDown .5s forwards;
+}
+
+@keyframes appearDown {
+    from {
+        height: 0;
+    }
+    to {
+        height: 2rem;
+    }
 }
 
 #ft-lottie {

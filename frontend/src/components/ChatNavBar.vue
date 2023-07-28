@@ -11,7 +11,7 @@
         <router-link
             :class="{ active: activeTab === 'channels' }"
             class="chat-nav-tab"
-            to="#"
+            to="/channels"
             @click="setActiveTab('channels')"
         >
             My channels
@@ -27,11 +27,13 @@
     </nav>
   </template>
   <script setup>
-    import { useUserStore } from '../stores/UserStore'
     import { ref } from 'vue'
+
+    const props = defineProps({
+        whichTab: String
+    })
     
-    const userStore = useUserStore()
-    const activeTab = ref('dms')
+    const activeTab = ref(props.whichTab)
     
     function setActiveTab(tab) {
         activeTab.value = tab

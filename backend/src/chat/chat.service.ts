@@ -188,7 +188,8 @@ export class ChatService {
           CASE
               WHEN ca."B" IS NOT NULL THEN 'Admin'
               ELSE NULL
-          END AS "Admin"
+          END AS "Admin",
+          c."ownerId"  
         FROM
           "_channel_members" cm
         JOIN
@@ -196,14 +197,14 @@ export class ChatService {
         LEFT JOIN
           "_channel_admins" ca ON cm."A" = ca."A" AND ca."B" = cm."B"
         WHERE
-          cm."B" = ${my_id};
+          cm."B" = ${my_id}
+        ORDER BY c."name"
         `;
     return MyChannels;
   }
 
   // ------------------------------------------------------------------------
   async FindMyChannelMembers(my_id: number, channelId: number) {
-    Logger.log(channelId);
     try {
       const channel = await this.prisma.channel.findFirstOrThrow({
         where: { id: channelId },
@@ -214,7 +215,6 @@ export class ChatService {
           members: { select: { id: true } },
         },
       });
-      Logger.log(channel);
       // Request user is not the owner or an admin of the channel
       if (
         channel.ownerId !== my_id &&

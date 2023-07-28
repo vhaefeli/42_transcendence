@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Request, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Request,
+  Patch,
+  Post,
+  NotFoundException,
+  Param,
+} from '@nestjs/common';
 import { PlayerService } from './player.service';
 import { UpdatePlayerDto } from './dto/updatePlayer.dto';
 import { CreateBothPlayerDto } from './dto/createBothPlayer.dto';
@@ -32,6 +41,7 @@ export class PlayerController {
     @Request() req: any,
     @Body() updateCompletionDto: UpdateCompletionDto,
   ) {
+    throw new NotFoundException('/player/completion: Request Disabled');
     return await this.playerService.updateCompletion(
       req.user.sub,
       updateCompletionDto,
@@ -43,9 +53,9 @@ export class PlayerController {
     return this.playerService.invitedBy(req.user.sub);
   }
 
-  @Get('log')
-  async log(@Request() req: any) {
-    return this.playerService.gameLog(req.user.sub);
+  @Get('log/:playerId')
+  async log(@Param('playerId') playerId: number, @Request() req: any) {
+    return this.playerService.gameLog(playerId);
   }
 
   @Patch('playing')
@@ -53,6 +63,7 @@ export class PlayerController {
     @Request() req: any,
     @Body() playingGameDto: PlayingGameDto,
   ) {
+    throw new NotFoundException('/player/playing: Request Disabled');
     // console.log(req.user.sub);
     return await this.playerService.playingGame(req.user.sub, playingGameDto);
   }

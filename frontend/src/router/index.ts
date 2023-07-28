@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import DirectoriesView from '../views/DirectoriesView.vue'
 import ProfileView from '../views/ProfileView.vue'
+import EditProfileView from '../views/EditProfileView.vue'
 import AboutView from '../views/AboutView.vue'
 import GameSettingsView from '../views/GameSettingsView.vue'
 import GameView from '../views/GameView.vue'
@@ -12,6 +13,7 @@ import LoginTfaView from '../views/LoginTfaView.vue'
 import Login42ApiView from '../views/Login42ApiView.vue'
 import SearchView from '../views/SearchView.vue'
 import SearchChannelsView from '../views/SearchChannelsView.vue'
+import ChannelsView from '../views/ChannelsView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -30,6 +32,11 @@ const router = createRouter({
       path: '/user/:username',
       name: 'profile',
       component: ProfileView
+    },
+    {
+      path: '/user/edit',
+      name: 'edit profile',
+      component: EditProfileView
     },
     {
       path: '/about',
@@ -80,6 +87,11 @@ const router = createRouter({
       path: '/search-channels',
       name: 'Search Channels',
       component: SearchChannelsView,
+    },
+    {
+      path: '/channels',
+      name: 'Channels',
+      component: ChannelsView,
     },
   ]
 })

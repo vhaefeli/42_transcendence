@@ -18,6 +18,15 @@ class ChatService extends SocketService {
     });
   }
 
+  async sendNewMessageToChan(content: string, ChanId: number) {
+    if (!(await this.tryConnection())) return;
+    this.socket?.emit("channel", {
+      channelId: ChanId,
+      message: content,
+      date: new Date().getTime()
+    });
+  }
+
   async reload() {
     this.socket?.emit('dmHistory');
   }
