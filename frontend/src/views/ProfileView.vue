@@ -1,42 +1,34 @@
 <template>
-  <NavBar :showProfile="false"></NavBar>
+  <NavBar :showProfile="true"></NavBar>
   <div id="profile-container">
     <section class="ft-cover flex flex-col items-end justify-end">
       <a class="ft-bg-color-chat t-btn-pink ft-other-profile"><span>Send message</span></a>
       <a class="ft-bg-color-game t-btn-pink ft-other-profile"><span>Invite to play</span></a>
-    </section>
+    </section>    
 
     <section class="ft-container">
       <div class="flex flex-col items-center text-center max-w-max ft-central-tab-container">
         <div class="ft-profile-pic" id="current-profile-pic" :style="{ 'background': 'url(' + user.avatar_url + ')' }"></div>
-        <!-- ajouter la valeur ft-circle-green ou ft-circle-gray selon le statut de connexion de la personne -->
-        <div class="ft-connection-circle" id="current-profile-pic"></div>
+        <div class="ft-connection-circle" id="current-profile-pic"><StatusBubble :status="user.status"></StatusBubble></div>
         <div class="ft-tab-folder" id="title-profile"></div>
-        <!-- Par defaut en ligne -->
         <div class="ft-tab-content ft-bg-color-profile">{{ user.status }}</div>
         <div class="ft-tab-content ft-bg-color-profile ft-title" id="username">{{ user.username }}</div>
-        <!-- <div class="ft-tabContent ft-centralTab" id="buttonsContainer"> -->
         <div class="ft-tab-content ft-bg-color-profile" id="buttons-container">
           <!-- Bouton pour ajouter la personne en ami (profil d'un tiers) -->
           <a title="send a friend request" class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor ft-other-profile"><img src="../assets/icons/user-plus-solid.svg" alt="send a friend request"></a>
           <!-- Bouton pour bloquer la personne (profil d'un tiers) -->
           <!-- verifier si code TS correct, car supposition -->
           <a title="block this user" class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor ft-other-profile" @click="blockUser(user.username)"><img src="../assets/icons/person-circle-minus-solid.svg" alt="block them"></a>
-          <!-- <a class="t-btn-pink ft-color-block ft-other-profile" id="block"><span>[blk]</span></a> -->
 
           <!-- Bouton pour editer son profil (SON profil uniquement) -->
-          <!-- <a class="t-btn-pink ft-color-edit ft-my-profile" id="edit"><span>[ed.]</span></a> -->
-          <a title="edit your profile" class="t-btn-pink ft-color-edit ft-my-profile ft-icon-small icon-btn-cursor" id="edit"><img src="../assets/icons/user-pen-solid.svg" alt="edit my profile"></a>
+          <a @click="router.push('/user/edit')" title="edit your profile" class="t-btn-pink ft-color-edit ft-my-profile ft-icon-small icon-btn-cursor" id="edit" ><img src="../assets/icons/user-pen-solid.svg" alt="edit my profile"></a>
         </div>
-        <!-- <div class="ft-bg-color-profile ft-tabContent ft-centralTab">
-        </div> -->
       </div>
                       
 
       <div class="flex flex-col text-center ft-left-tab" id="stats" :class="{ foreground: foregroundTab === 'stats' }" @click="setForegroundTab('stats')">
         <div class="ft-tab-folder ft-tab-title ft-bb-color-game">Stats</div>
         <div class="ft-tab-content ft-border-color-game ft-tab-border flex flex-row justify-evenly ">
-          <!-- <div class="flex flex-col">3</div> -->
             <div class="ft-item-title ft-bb-color-game flex flex-col">
               <div class="ft-result-drk-text">{{ user.nbGames }}</div>
               <div class="ft-text">matches</div>
@@ -62,7 +54,6 @@
           <ul>
             <div v-if="gameLog">
               <div v-if="gameLog.length === 0"><EmptyText :text="'No game to show here'" :white="false" /></div>
-              <!-- <div v-for="(game, index) in gameLog" :key="gameLog.length - index"> -->
               <div v-for="(game, index) in gameLog" :key="index">
                 <li class="ft-item-title ft-text ft-bb-color-game flex flex-row justify-between items-center" :class="index === gameLog.length - 1 ? '' : 'ft-tab-separator'">
                   <div class="flex flex-col justify-start">
@@ -123,15 +114,15 @@
         <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Friends</div>
         <div id="friendsScroll" class="ft-tab-content ft-border-color-profile ft-tab-border text-left ft-scrollable">
           <ul>
-            <div v-if="friends.length === 0"><EmptyText :text="'You have no friends... Looser!'" :white="false" /></div>
+            <div v-if="friends.length === 0"><EmptyText :text="'You have no friends... Too bad!'" :white="false" /></div>
             <div v-for="(friend, index) in friends" :key="index">
                 <div v-if="!friend.is_blocked">
                   <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between" :class="index === friends.length - 1 ? '' : 'ft-tab-separator'">
                     <div class="flex flex-row items-center">
                       <div class="flex flex-col">
                         <div class="ft-profile-pic ft-friend-pic">
-                          <div class="ft-connection-circle ft-friend-status">
-                            <img src="../assets/icons/tennisBallBlack.png" alt="is playing" title="your friend is playing" class="ft-playing">
+                          <div class="ft-connection-circle ft-friend-status"><StatusBubble :status="friend.status"></StatusBubble>
+                            <!-- <img src="../assets/icons/tennisBallBlack.png" alt="is playing" title="your friend is playing" class="ft-playing"> -->
                           </div>
                         </div>
                       </div>
@@ -157,21 +148,19 @@
         <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Add a new friend</div>
         <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left">
             <div class="flex flex-row justify-center">
-              <ModelListSelect
-                :list="userList"
-                v-model="selectedUser"
-                optionValue="id"
-                optionText="username"
-                placeholder="Search by username"
+              <input
+                v-model="newFriend"
+                placeholder="Add a friend by username"
               />
-              <div :class="{ 'cursor-not-allowed': !selectedUser }">
+              <div :class="{ 'cursor-not-allowed': !newFriend }">
                 <a
-                  @click="validateSelection"
+                  @click="addFriend"
                   class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor"
-                  :class="{ 'opacity-50 searchan-noClick': !selectedUser }">
+                  :class="{ 'opacity-50 searchan-noClick': !newFriend }">
                   <img src="../assets/icons/user-plus-solid.svg" alt="send a friend request" title="send them a friend request">
                 </a>
               </div>
+
               <!-- <input type="text" placeholder="Search by username"> -->
               <!-- <a class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor"><img src="../assets/icons/user-plus-solid.svg" alt="send a friend request" title="send them a friend request"></a> -->
             </div>
@@ -230,8 +219,8 @@
                     <div>
                         <h2 class="text-2xl mb-4">All users</h2>
                         <div v-if="allUsers">
-                            <div v-for="oderUser in allUsers" :key="oderUser.id">
-                                <p>{{ oderUser.username }}</p>
+                            <div v-for="otherUser in allUsers" :key="otherUser.id">
+                                <p>{{ otherUser.username }}</p>
                             </div>
                         </div>
                     </div>   
@@ -240,55 +229,13 @@
             <router-link to="/search-users">Search for users</router-link>
         
   <!-- CODE DE MICHELE CI-DESSUS -->
-  <!-- CODE DE DAVI 2FA DEBUT-->
-      <div v-if="user.tfa_enabled">
-        <p>2FA is enabled</p>
-        <button
-          v-if="!show_tfa_enable_disable_confirmation"
-          @click="tfaDisable"
-          class="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded"
-        >
-          disable
-        </button>
-      </div>
-      <div v-if="!user.tfa_enabled">
-        <p>2FA is disabled</p>
-        <input
-          v-model="tfa_email"
-          placeholder="email"
-          v-if="!show_tfa_enable_disable_confirmation"
-        /><br />
-        <button
-          v-if="!show_tfa_enable_disable_confirmation"
-          @click="tfaEnable"
-          class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-        >
-          enable
-        </button>
-      </div>
-      <div v-if="show_tfa_enable_disable_confirmation">
-        <input v-model="tfa_code" placeholder="code" /><br />
-        <button
-          @click="validate2FARegistration"
-          class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-        >
-          validate
-        </button>
-        <button
-          @click="cancelTfaEnableDisable"
-          class="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded"
-        >
-          cancel
-        </button>
-      </div>
-  <!-- CODE DE DAVI 2FA FIN-->
     </section>
   </div>
   <div id="ft-bottom-line"></div>
 </template>
   
 <script setup lang="ts">
-    import { ref, onBeforeMount } from "vue";
+    import { ref, onBeforeMount, watch } from "vue";
     import { storeToRefs } from 'pinia'
     import { useRoute, useRouter } from 'vue-router'
     import axios, { AxiosError } from "axios";
@@ -297,20 +244,32 @@
     import NavBar from "@/components/NavBar.vue";
     import { ModelListSelect } from "vue-search-select";
     import EmptyText from "@/components/EmptyText.vue";
+    import StatusBubble from "@/components/StatusBubble.vue";
+    import OtherUserProfile from "../components/OtherUserProfile.vue";
 
     type type_user = {
       id: number;
       username: string;
     };
 
+    const emits = defineEmits(['addRecipient'])
+
+    const props = defineProps({
+      recipients: Array<number>,
+      userStore: Object,
+    })
+    
     const userList = ref<Array<type_user>>([]);
     const selectedUser = ref<number>();
+    const actualInfos = ref({});
+    const FromFriendToNotFriend = ref(false)
+    const isActualInfosLoaded = ref(false)
 
     loadUserList();
 
     async function loadUserList() {
       let users = new Array<type_user>();
-
+    
       await axios({
         url: "/api/user/all",
         method: "get",
@@ -324,24 +283,20 @@
           );
           return;
         });
-
-      await axios({
-        url: "/api/user/friend/all",
-        method: "get",
-        headers: { Authorization: `Bearer ${sessionStore.access_token}` },
-      })
-        .then((response) => {
-          users = users.filter(
-            (user) => !response.data?.find((friend) => friend.id === user.id)
-          );
-        })
-        .catch((error) => {
-          console.error(
-            `unexpected error: ${error.response.status} ${error.response.statusText}`
-          );
-          return;
+        userList.value = users.filter((user) => user.id != props.userStore.user.id);
+        userList.value = userList.value.filter((user) => {
+          return !props.recipients.find((recipient) => recipient === user.id);
         });
-      userList.value = users.filter((user) => user.id != userStore.user.id);
+    }
+    loadUserList();
+
+    watch(props.recipients, () => {
+      loadUserList()
+    })
+    
+    async function validateSelection() {
+      emits('addRecipient', userList.value.find((element) => element.id === selectedUser.value)
+            ?.username)
     }
     // to have the token we need sessionStore
     const sessionStore = useSessionStore()
@@ -360,6 +315,7 @@
     let allUsers: { id: number, username: string }[];
 
     const { user, friends, invites, blocked, invitesSent, gameLog } = storeToRefs(userStore)
+    // const { user, friends, invites, blocked, invitesSent, gameLog, otherOne } = storeToRefs(userStore)
 
     function setForegroundTab(tab) {
       foregroundTab.value = tab
@@ -379,6 +335,7 @@
                 await userStore.getBlockedUsers(sessionStore.access_token);
                 await userStore.getInvitesSent(sessionStore.access_token);
                 await userStore.getGameHistory(sessionStore.access_token);
+                // await userStore.
             } else {
                 isLoggedIn.value = false;
                 sessionStore.isLoggedIn = false;
@@ -403,22 +360,72 @@
     });
 
 
-    async function validateSelection() {
-      console.log(
-        `selected: ${
-          userList.value.find((element) => element.id === selectedUser.value)
-            ?.username
-        }`
-      );
-    }
+    // async function validateSelection() {
+    //   // console.log(
+    //   //   `selected: ${
+    //   //     userList.value.find((element) => element.username === selectedUser.value)
+    //   //       ?.username
+    //   //   }`
+    //   // );
+    //   console.log("Selected user: ", selectedUser.value.username);
+    // }
 
-    // functions to delete because useless
+
+    // code identique a OtherUserProfiles.vue de Michele
+    async function getUserInfos(username) {
+      await axios({
+        url: `/api/user/profile/${username}`,
+        method: "get",
+        headers: { Authorization: `Bearer ${props.sessionStore.access_token}` },
+      })
+        .then((response) => {
+          actualInfos.value = response.data
+          isActualInfosLoaded.value = true
+          return true;
+        })
+        .catch((error) => {
+          if (error.response.status == 401) {
+            console.log(
+              `invalid access token: ${error.response.status} ${error.response.statusText}`
+            );
+          } else if (error.response.status == 404) {
+            console.log(
+              `user not found: ${error.response.status} ${error.response.statusText}`
+            );
+          } else {
+            console.error(
+              `unexpected error: ${error.response.status} ${error.response.statusText}`
+            );
+          }
+          return false;
+        });
+    } // fin du code identique
+
+    
+    function myProfile(user) {
+      const currentUrl = window.location.href;
+      console.log('currentUrl =' + currentUrl);
+      console.log('user =' + user.url);
+      // if (currentUrl === user.url) {
+      //   console.log('my profile is loaded');
+      //   return true;
+      // }
+      console.log('profile of another user is loaded');
+      return false;
+    }
+    
+    let isMe: boolean = myProfile(user);
+
+
+    // functions to delete because useless // maybe not so useless
     function addFriend() {
         if (newFriend.value) {
             userStore.addFriend(newFriend.value, sessionStore.access_token);
+            actualInfos.value.is_pendingInvitation = true;
         }
     }
 
+    // formatage de la date pour un affichage sous la forme "01/01/2023"
     function formatDate(dateString: string) {
       const dateObj = new Date(dateString);
       return dateObj.toLocaleDateString('fr-FR', {
@@ -456,92 +463,6 @@
     function getGameHistory(username) {
         userStore.getGameHistory(username, sessionStore.access_token);
     }
-    
-    // SCRIPT DAVI 2FA DEBUT ********************************************************************
-
-const tfa_code = ref("");
-const tfa_email = ref("");
-const show_tfa_enable_disable_confirmation = ref(false);
-let tfaRegistrationEnable = true;
-
-async function tfaEnable() {
-  if (!tfa_email.value.length) {
-    console.log("email must not be empty");
-    return;
-  }
-  await axios({
-    url: "/api/auth/2fa/enable",
-    method: "patch",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${sessionStore.access_token}`,
-    },
-    data: { email: tfa_email.value },
-  })
-    .then(() => {
-      console.log("code has been sent");
-      show_tfa_enable_disable_confirmation.value = true;
-      tfaRegistrationEnable = true;
-    })
-    .catch((error) => {
-      if (error.response?.status === 409) {
-        show_tfa_enable_disable_confirmation.value = true;
-        tfaRegistrationEnable = true;
-      }
-      console.error(`${error.response.status} ${error.response.statusText}`);
-    });
-}
-
-async function tfaDisable() {
-  await axios({
-    url: "/api/auth/2fa/disable",
-    method: "patch",
-    headers: {
-      Authorization: `Bearer ${sessionStore.access_token}`,
-    },
-  })
-    .then(() => {
-      console.log("code has been sent");
-      show_tfa_enable_disable_confirmation.value = true;
-      tfaRegistrationEnable = false;
-    })
-    .catch((error) => {
-      if (error.response?.status === 409) {
-        show_tfa_enable_disable_confirmation.value = true;
-        tfaRegistrationEnable = false;
-      }
-      console.error(`${error.response.status} ${error.response.statusText}`);
-    });
-}
-
-async function validate2FARegistration() {
-  if (tfa_code.value.length == 0) {
-    console.log("please insert code");
-    return;
-  }
-  await axios({
-    url: `/api/auth/2fa/${tfaRegistrationEnable ? "enable" : "disable"}/confirm`,
-    method: "patch",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${sessionStore.access_token}`,
-    },
-    data: { code: tfa_code.value.trim() },
-  })
-    .then(() => {
-      userStore.getMe(sessionStore.access_token);
-      tfa_code.value = "";
-      show_tfa_enable_disable_confirmation.value = false;
-    })
-    .catch((error: AxiosError) => {
-      console.error(`${error.response?.status} ${error.response?.statusText}`);
-    });
-}
-
-function cancelTfaEnableDisable() {
-  show_tfa_enable_disable_confirmation.value = false;
-}
-    // SCRIPT DAVI 2FA FIN **********************************************************************
 </script>
 
 <style scoped>
