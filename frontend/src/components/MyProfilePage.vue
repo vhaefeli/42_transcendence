@@ -1,5 +1,5 @@
 <template>
-  <NavBar :showProfile="false" :isOtherProfile="false"></NavBar>
+  <NavBar :showProfile="false" :isOtherProfile="false" :userStore="userStore"></NavBar>
     <div id="profile-container">
       <section class="ft-cover flex flex-col items-end justify-end">
         <a class="ft-bg-color-chat t-btn-pink ft-other-profile"><span>Send message</span></a>
@@ -254,10 +254,10 @@
 
     const emits = defineEmits(['addRecipient'])
 
-    const props = defineProps({
-      recipients: Array<number>,
-      userStore: Object,
-    })
+    // const props = defineProps({
+    //   recipients: Array<number>,
+    //   userStore: Object,
+    // })
     
     const userList = ref<Array<type_user>>([]);
     const selectedUser = ref<number>();
@@ -265,39 +265,40 @@
     const FromFriendToNotFriend = ref(false)
     const isActualInfosLoaded = ref(false)
 
-    loadUserList();
+    // loadUserList();
 
-    async function loadUserList() {
-      let users = new Array<type_user>();
+    // async function loadUserList() {
+    //   let users = new Array<type_user>();
     
-      await axios({
-        url: "/api/user/all",
-        method: "get",
-      })
-        .then((response) => {
-          users = response.data;
-        })
-        .catch((error) => {
-          console.error(
-            `unexpected error: ${error.response.status} ${error.response.statusText}`
-          );
-          return;
-        });
-        userList.value = users.filter((user) => user.id != props.userStore.user.id);
-        userList.value = userList.value.filter((user) => {
-          return !props.recipients.find((recipient) => recipient === user.id);
-        });
-    }
-    loadUserList();
+    //   await axios({
+    //     url: "/api/user/all",
+    //     method: "get",
+    //   })
+    //     .then((response) => {
+    //       users = response.data;
+    //     })
+    //     .catch((error) => {
+    //       console.error(
+    //         `unexpected error: ${error.response.status} ${error.response.statusText}`
+    //       );
+    //       return;
+    //     });
+    //     userList.value = users.filter((user) => user.id != props.userStore.user.id);
+    //     userList.value = userList.value.filter((user) => {
+    //       return !props.recipients.find((recipient) => recipient === user.id);
+    //     });
+    // }
+    // loadUserList();
 
-    watch(props.recipients, () => {
-      loadUserList()
-    })
+    // watch(props.recipients, () => {
+    //   loadUserList()
+    // })
     
-    async function validateSelection() {
-      emits('addRecipient', userList.value.find((element) => element.id === selectedUser.value)
-            ?.username)
-    }
+    // async function validateSelection() {
+    //   emits('addRecipient', userList.value.find((element) => element.id === selectedUser.value)
+    //         ?.username)
+    // }
+    
     // to have the token we need sessionStore
     const sessionStore = useSessionStore()
     

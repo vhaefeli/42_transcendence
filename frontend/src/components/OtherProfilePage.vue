@@ -1,5 +1,5 @@
 <template>
-    <NavBar :showProfile="true" :isOtherProfile="true"></NavBar>
+    <NavBar :showProfile="true" :isOtherProfile="true" :userStore="userStore"></NavBar>
     <div v-if="isUserLoaded" id="profile-container">
         <div id="other-tab-container">
             <div id="other-profile-tab">{{ user.username }}</div>
@@ -93,7 +93,7 @@
 //     import { storeToRefs } from 'pinia'
     import { useRoute, useRouter } from 'vue-router'
     import axios, { AxiosError } from "axios";
-//     import { useUserStore } from '../stores/UserStore'
+    import { useUserStore } from '../stores/UserStore'
     import { useSessionStore } from "@/stores/SessionStore";
     import NavBar from "@/components/NavBar.vue";
 //     import { ModelListSelect } from "vue-search-select";
@@ -106,6 +106,7 @@
         const isUserLoaded = ref<boolean>(false)
 
         const sessionStore = useSessionStore()
+        const userStore = useUserStore()
 
         loadUserList()
 
