@@ -80,7 +80,8 @@ export class GameService {
     const running_games = new Array<Promise<void>>();
 
     this.games.forEach((game) => {
-      running_games.push(game.loop());
+      if (game.getHasEnded()) this.games.delete(game.id);
+      else running_games.push(game.loop());
     });
 
     await Promise.all(running_games);

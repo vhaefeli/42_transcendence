@@ -3,7 +3,7 @@ import { WsException } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { PrismaService } from 'src/prisma.service';
 import { GameGateway } from './game.gateway';
-import { game_status } from '@prisma/client';
+import { game_status, level_type } from '@prisma/client';
 import { PlayerAction, Player, ConnectedPlayers } from './player.entity';
 import {
   GameModeConfig,
@@ -21,6 +21,7 @@ export class Game {
   private ball: Ball;
   private isActive = false;
   private isCompleted = false;
+  private hasEnded = false;
 
   constructor(
     gameInfo: { id: number; gameMode?: GameModeType },
@@ -36,7 +37,7 @@ export class Game {
     )
       this.gameModeName = gameInfo.gameMode;
     else throw new TypeError(`Game Mode '${gameInfo.gameMode}' is unknown`);
-    this.ball = new Ball(this.gameMode);
+    this.ball = new Ball(this.gameMode, this.p);
   }
 
   getIsActive() {
@@ -59,6 +60,7 @@ export class Game {
       userId: id,
       socket: socket,
       gameMode: this.gameMode,
+      pIndex: playerIndex,
     });
     socket.join(this.id.toString());
   }
@@ -113,9 +115,19 @@ export class Game {
     if (this.isActive) {
       // game loop goes here
       this.p.forEach((player) => player.move());
-      this.ball.move();
+      if (this.ball.move()) {
+        if (this.ball.getPos().x < 15) this.p[1].incrementScore();
+        else this.p[0].incrementScore();
+        this.ball.newBall();
+        this.sendScoreToPlayers();
+        if (
+          this.p.find(
+            (player) => player.getScore() === this.gameMode.POINTS_TO_WIN,
+          )
+        )
+          this.endGame(true);
+      }
       this.sendGameUpdateToPlayers();
-      // TODO: detect change in score and send to players and/or complete game
     }
   }
 
@@ -139,17 +151,24 @@ export class Game {
     });
     this.isActive = true;
     this.sendScoreToPlayers();
+    this.ball.newBall();
   }
 
   async endGame(wasCompleted: boolean) {
     this.isActive = false;
     this.isCompleted = true;
-    this.informGameIsOver();
     const promises = new Array<Promise<any>>();
-    if (wasCompleted) promises.push(this.completeGame());
-    else promises.push(this.cancelGame());
+    try {
+      if (wasCompleted) await this.completeGame();
+      else await this.cancelGame();
+    } catch (error) {
+      console.error(`game.entity endGame() error: ${error}`);
+    }
+    if (wasCompleted) await this.sendScoreToPlayers();
+    await this.informGameIsOver();
     this.p.forEach((player) => promises.push(this.userEndGame(player)));
     await Promise.all(promises);
+    this.hasEnded = true;
   }
 
   private async completeGame() {
@@ -163,25 +182,62 @@ export class Game {
     ).length;
 
     const promises = new Array<Promise<any>>();
-    this.p.forEach((player) => {
+    this.p.forEach(async (player) => {
+      // if none of the players have abandoned the match, add the game score
+      // else if this player is the one that abandoned the match, add score 0
+      // else add score 3 because the other player has abandoned the match
+      player.setScore(
+        !onePlayerAbandoned
+          ? player.getScore()
+          : player.getAbandoned()
+          ? 0
+          : this.gameMode.POINTS_TO_WIN,
+      );
       promises.push(
-        this.prisma.player.update({
-          where: {
-            gameId_playerId: { gameId: this.id, playerId: player.id },
-          },
-          data: {
-            // if none of the players have abandoned the match, add the game score
-            // else if this player is the one that abandoned the match, add score 0
-            // else add score 3 because the other player has abandoned the match
-            score: !onePlayerAbandoned
-              ? player.getScore()
-              : player.getAbandoned()
-              ? 0
-              : 3,
-            abandon: player.getAbandoned(),
-            score4stat: true,
-            gameStatus: game_status.ENDED,
-          },
+        new Promise<void>(async (resolve) => {
+          const opponent = this.p.find((pl) => pl.id !== player.id);
+          const stats = await this.prisma.user.findUnique({
+            where: { id: player.id },
+            select: {
+              rank: true,
+              nbGames: true,
+              nbMatch: true,
+            },
+          });
+
+          stats.nbGames++;
+          if (
+            opponent.getScore() === 0 &&
+            player.getScore() === this.gameMode.POINTS_TO_WIN
+          )
+            stats.nbMatch++;
+          if (player.getScore() > opponent.getScore()) stats.rank++;
+          stats['level'] =
+            stats.nbGames < 2
+              ? level_type.INITIATION
+              : stats.rank < 3
+              ? level_type.BEGINNER
+              : stats.rank < 5
+              ? level_type.INTERMEDIATE
+              : level_type.EXPERT;
+
+          await this.prisma.player.update({
+            where: {
+              gameId_playerId: { gameId: this.id, playerId: player.id },
+            },
+            data: {
+              score: player.getScore(),
+              abandon: player.getAbandoned(),
+              score4stat: true,
+              gameStatus: game_status.ENDED,
+              player: {
+                update: {
+                  ...stats,
+                },
+              },
+            },
+          });
+          resolve();
         }),
       );
     });
@@ -234,5 +290,9 @@ export class Game {
         '\n\nBall:\n' +
         this.ball.toString(),
     );
+  }
+
+  getHasEnded() {
+    return this.hasEnded;
   }
 }

@@ -123,6 +123,7 @@ model Player {
   score             Int         @default(0)
   abandon           Boolean     @default(false)
   score4stat        Boolean     @default(false)
+  levelAtPlay       String?
 
   @@unique([gameId, playerId])
 }
