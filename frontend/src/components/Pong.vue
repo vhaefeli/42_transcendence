@@ -37,11 +37,14 @@ import { ref, onMounted, watch, onBeforeUnmount } from "vue";
 import { useRoute, type LocationQuery, useRouter } from "vue-router";
 import ArrayFont from "../assets/fonts/array/fonts/Array-Regular.woff";
 
+const emits = defineEmits(['noCross']);
+
 const userStore = useUserStore();
 const sessionStore = useSessionStore();
 userStore.getMe(sessionStore.access_token);
 
 const pongScreen = ref(null);
+
 // a recuperer du back requete http
 
 let opponentName: string | undefined;
@@ -211,7 +214,8 @@ onMounted(() => {
         connectedToGame.value = true;
         isReadyToPlay.value = true;
         isGameActive.value = true;
-      } else if (playerScore > opponentScore) textResult.value = "You won";
+      } 
+      else if (playerScore > opponentScore) textResult.value = "You won";
       else if (playerScore < opponentScore) textResult.value = "You lost";
       else if (playerScore === opponentScore) textResult.value = "Draw";
     });
@@ -271,6 +275,11 @@ onMounted(() => {
     ctx.font = "80px Array-Regular";
     ctx.fillText(playerScore, canvasWidth / 4, 120);
     ctx.fillText(opponentScore, (canvasWidth / 4) * 3, 120);
+
+    if (playerScore === 5 || opponentScore === 5)
+    {
+      emits('noCross', false);
+    }
 
     // paddle
     ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
