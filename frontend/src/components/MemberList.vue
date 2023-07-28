@@ -73,6 +73,19 @@
 
     .ft-member-profile-container:hover {
       background: var(--dark-pink);
+      border-radius: 0.8rem;
+    }
+
+    .ft-member-profile-container:hover .ft-profile-pic:after {
+      content: url(/src/assets/icons/gear-solid.svg);
+      width: 100%;
+      display: block;
+      border-radius: 0.8rem;
+      height: 100%;
+      border-radius: 2rem;
+      background-color: var(--dark-pink);
+      mix-blend-mode: hard-light;
+      padding: 0.5rem;
     }
 
     #title-chat {
