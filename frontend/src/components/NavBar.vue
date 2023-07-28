@@ -59,7 +59,8 @@
     
     const props = defineProps({
         showProfile: Boolean,
-        userStore: Object
+        userStore: Object,
+        isOtherProfile: Boolean
     })
     
     function playAnimation() {

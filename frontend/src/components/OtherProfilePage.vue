@@ -64,7 +64,7 @@
             <div class="ft-tab-folder ft-tab-title ft-bb-color-game">Match history</div>
             <div id="matchScroll" class="ft-tab-content ft-border-color-game ft-tab-border flex flex-col text-left ft-scrollable">
               <ul>
-                <div v-if="gameLog">
+                <div v-if="isGameLogLoaded">
                   <div v-if="gameLog.length === 0"><EmptyText :text="'No game to show here'" :white="false" /></div>
                   <!-- <div v-for="(game, index) in gameLog" :key="gameLog.length - index"> -->
                   <div v-for="(game, index) in gameLog" :key="index">
@@ -89,7 +89,7 @@
 </template>
   
 <script setup lang="ts">
-    import { ref, onBeforeMount } from "vue";
+    import { ref, onBeforeMount, watch } from "vue";
 //     import { storeToRefs } from 'pinia'
     import { useRoute, useRouter } from 'vue-router'
     import axios, { AxiosError } from "axios";
@@ -104,11 +104,10 @@
         const route = useRoute()
         
         const isUserLoaded = ref<boolean>(false)
+        const isGameLogLoaded = ref<boolean>(false)
 
         const sessionStore = useSessionStore()
         const userStore = useUserStore()
-
-        loadUserList()
 
         async function loadUserList() {
             await axios({
@@ -128,15 +127,23 @@
             });
         }
 
-        async function loadGameHistor() {
+        watch((isUserLoaded), () => {
+          if(isUserLoaded.value) {
+            loadGameHistory()
+          }
+        })
+
+        loadUserList()
+
+        async function loadGameHistory() {
             await axios({
             url: `/api/player/log/${user.value.id}`,
             method: "get",
             headers: { Authorization: `Bearer ${sessionStore.access_token}` },
             })
             .then((response) => {
-                user.value = response.data;
-                isUserLoaded.value = true;
+                gameLog.value = response.data;
+                isGameLogLoaded.value = true;
             })
             .catch((error) => {
                 console.error(
@@ -145,7 +152,6 @@
                 return;
             });
         }
-
 
 
 //     type type_user = {
@@ -205,15 +211,15 @@
 //     const isLoggedIn = ref(false);
 
 //     // other variables
-//     const foregroundTab = ref('')
+    const foregroundTab = ref('')
 //     const newFriend = ref('')
 //     let allUsers: { id: number, username: string }[];
 
 //     const { user, friends, invites, blocked, invitesSent, gameLog } = storeToRefs(userStore)
 
-//     function setForegroundTab(tab) {
-//       foregroundTab.value = tab
-//     }
+    function setForegroundTab(tab) {
+      foregroundTab.value = tab
+    }
 
 //     // onBeforeMount is executed before the component is mounted
 //     // way of using await because we can't do it in setup
@@ -269,14 +275,14 @@
 //         }
 //     }
 
-//     function formatDate(dateString: string) {
-//       const dateObj = new Date(dateString);
-//       return dateObj.toLocaleDateString('fr-FR', {
-//         day: '2-digit',
-//         month: '2-digit',
-//         year: 'numeric',
-//       })
-//     }
+    function formatDate(dateString: string) {
+      const dateObj = new Date(dateString);
+      return dateObj.toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      })
+    }
 
 //     function acceptFriend(friendname) {
 //         userStore.acceptFriend(friendname, sessionStore.access_token);
