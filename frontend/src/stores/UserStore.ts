@@ -375,30 +375,5 @@ export const useUserStore = defineStore("userStore", {
           await this.getMe(access_token);
           this.router.push(`/user/${this.user.username}`);
         },
-
-        // get info about a user
-        // async otherOne(username, access_token) {
-        //   await axios({
-        //     url: `/api/user/profile/${username}`,
-        //     method: "get",
-        //     headers: { Authorization: `Bearer ${access_token}` },
-        //   })
-        //     .then((response) => {
-        //       this.otherOne = response.data;
-        //       console.log("loaded game history");
-        //       return true;
-        //     })
-        //     .catch((error) => {
-        //       if (error.response.status == 401) {
-        //         console.log(
-        //           `invalid access token: ${error.response.status} ${error.response.statusText}`
-        //         );
-        //         this.user.isLogged = false
-        //       } else {
-        //         console.log(`unexpected error: ${error.response.status} ${error.response.statusText}`)
-        //       }
-        //       return false;
-        //     });
-        // },
     }
 })
