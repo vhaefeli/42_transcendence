@@ -80,9 +80,8 @@
       content: url(/src/assets/icons/gear-solid.svg);
       width: 100%;
       display: block;
-      border-radius: 0.8rem;
+      border-radius: .8rem;
       height: 100%;
-      border-radius: 2rem;
       background-color: var(--dark-pink);
       mix-blend-mode: hard-light;
       padding: 0.5rem;
