@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import DirectoriesView from '../views/DirectoriesView.vue'
 import ProfileView from '../views/ProfileView.vue'
+import EditProfileView from '../views/EditProfileView.vue'
 import AboutView from '../views/AboutView.vue'
 import GameSettingsView from '../views/GameSettingsView.vue'
 import GameView from '../views/GameView.vue'
@@ -31,6 +32,11 @@ const router = createRouter({
       path: '/user/:username',
       name: 'profile',
       component: ProfileView
+    },
+    {
+      path: '/user/edit',
+      name: 'edit profile',
+      component: EditProfileView
     },
     {
       path: '/about',

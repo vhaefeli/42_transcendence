@@ -73,6 +73,7 @@ export const useUserStore = defineStore("userStore", {
       invitesSent: [],
       blocked: [],
       gameLog: [],
+      // otheOne: [],
   }),
   actions: {
     // get user infos

@@ -33,15 +33,18 @@ import { GameService, PlayerAction } from "@/services/game-socket.service";
 import { useSessionStore } from "@/stores/SessionStore";
 import { useUserStore } from "@/stores/UserStore";
 import axios, { AxiosError } from "axios";
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, onBeforeUnmount } from "vue";
 import { useRoute, type LocationQuery, useRouter } from "vue-router";
 import ArrayFont from "../assets/fonts/array/fonts/Array-Regular.woff";
+
+const emits = defineEmits(['noCross']);
 
 const userStore = useUserStore();
 const sessionStore = useSessionStore();
 userStore.getMe(sessionStore.access_token);
 
 const pongScreen = ref(null);
+
 // a recuperer du back requete http
 
 let opponentName: string | undefined;
@@ -109,6 +112,10 @@ function handleQueryParams(params: LocationQuery) {
     //router.push("/game");
   }
 }
+
+onBeforeUnmount(() => {
+  gameSocket.socket?.emit("forceDisconnect");
+})
 
 class KeyHandler {
   private keyUP: boolean;
@@ -179,6 +186,7 @@ onMounted(() => {
       }
       isGameActive.value = true;
       console.log(`new score: ${playerScore} x ${opponentScore}`);
+      draw();
     });
 
     // receive game update and draw
@@ -206,7 +214,8 @@ onMounted(() => {
         connectedToGame.value = true;
         isReadyToPlay.value = true;
         isGameActive.value = true;
-      } else if (playerScore > opponentScore) textResult.value = "You won";
+      } 
+      else if (playerScore > opponentScore) textResult.value = "You won";
       else if (playerScore < opponentScore) textResult.value = "You lost";
       else if (playerScore === opponentScore) textResult.value = "Draw";
     });
@@ -266,6 +275,11 @@ onMounted(() => {
     ctx.font = "80px Array-Regular";
     ctx.fillText(playerScore, canvasWidth / 4, 120);
     ctx.fillText(opponentScore, (canvasWidth / 4) * 3, 120);
+
+    if (playerScore === 5 || opponentScore === 5)
+    {
+      emits('noCross', false);
+    }
 
     // paddle
     ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
