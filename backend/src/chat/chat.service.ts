@@ -205,7 +205,6 @@ export class ChatService {
 
   // ------------------------------------------------------------------------
   async FindMyChannelMembers(my_id: number, channelId: number) {
-    Logger.log(channelId);
     try {
       const channel = await this.prisma.channel.findFirstOrThrow({
         where: { id: channelId },
@@ -216,7 +215,6 @@ export class ChatService {
           members: { select: { id: true } },
         },
       });
-      Logger.log(channel);
       // Request user is not the owner or an admin of the channel
       if (
         channel.ownerId !== my_id &&
