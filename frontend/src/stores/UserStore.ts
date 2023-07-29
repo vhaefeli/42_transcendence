@@ -409,7 +409,7 @@ export const useUserStore = defineStore("userStore", {
         // get games history
         async getGameHistory(access_token: string) {
           await axios({
-            url: "/api/player/log",
+            url: `/api/player/log/${this.user.id}`,
             method: "get",
             headers: { Authorization: `Bearer ${access_token}` },
           })
