@@ -1,6 +1,5 @@
 import { Socket } from 'socket.io';
 import { GameModeConfig } from './game-modes.entity';
-import { PrismaClientInitializationError } from '@prisma/client/runtime';
 
 export enum PlayerAction {
   IDLE,
