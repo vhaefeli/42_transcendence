@@ -1,7 +1,7 @@
 <template>
-    <NavBar :showProfile="true"></NavBar>
+    <NavBar :showProfile="true" :userStore="userStore"></NavBar>
     <div class="ft-chat-container">
-      <ChatNavBar></ChatNavBar>
+      <ChatNavBar :whichTab="'dms'"></ChatNavBar>
       <section class="ft-chat-inside-container flex p-6">
 
         <!-- column 1 with profile -->
@@ -13,7 +13,7 @@
         <div id="dm-msg-col" class="grow relative">
           <div id="ft-scroller" ref="scroller" class="ft-chat-box p-6 overflow-scroll">
             <div v-if="actualIsBlocked">
-              <EmptyText :text="'You have blocked this user. Unblock he/her to see messages.'" :white="true" />
+              <EmptyText :text="'You have blocked this user. Unblock them to see their messages.'" :white="true" />
             </div>
             <div v-else>
               <div v-for="message in messages" :key="message.id">
@@ -43,15 +43,15 @@
       
         <!-- column 3 with list of recipients -->
         <div  id="dm-recipientList-col" class="w-[16rem] relative">
+          <div class="m-6 w-2/3">
+            <UserSearch :recipients="recipients" :userStore="userStore" @addRecipient="addRecipient"/>
+          </div>
           <div class="mb-6 max-h-[54vh] overflow-scroll">
             <div v-if="recipients.length === 0">No Dms yet</div>
             <div v-for="recipient in recipients" :key="recipient">
               <div @click="changeActualRecipient(recipient)" :class="actual.id == recipient ? 'ft-actual-recipient' : ''" class="ft-recipient-name">{{ getRecipientName(recipient) }}</div>
             </div>
             <div v-if="!isInRecipients()"></div>
-          </div>
-          <div class="m-6 absolute bottom-6 w-2/3">
-            <UserSearch :recipients="recipients" :userStore="userStore" @addRecipient="addRecipient"/>
           </div>
         </div>
       </section>
@@ -72,32 +72,54 @@
     import { chatService } from "@/services/chat-socket.service";
     import UserSearch from "@/components/UserSearch.vue";
 
-    const route = useRoute()
-
-    // retrieve recipient i clicked on on other pages 
-    const queryRecipient = route.query.recipient
+    // ********************************** ROUTES & STORES
     
     // routes
     const router = useRouter()
-    
-    // we need sessionStore and userStore
+    const route = useRoute()
+
+    // sessionStore and userStore
     const sessionStore = useSessionStore()
     const userStore = useUserStore()
     
     const { user } = storeToRefs(userStore)
+
+    chatService.connect();
+
+    // ********************************** TYPES
+
+    type Recipient = {
+      id: number,
+      username: string
+    }
+
+    type Message = {
+      id: number,
+      fromId: number,
+      toId: number,
+      date: string,
+      message: string,
+      username: string,
+    }
+
+    // ********************************** REFS & VARIABLES
+
+    // retrieve recipient i clicked on on other pages 
+    const queryRecipient = route.query.recipient
     
-    const actual = ref({})
+    const actual = ref<Recipient>({id: 0, username: ''})
     const actualIsBlocked = ref(false)
     // const actualInfos = ref({})
-    const message = ref("")
-    const messages = ref([])
+    const message = ref<string>("")
+    const messages = ref<Array<Message>>([])
     const scroller = ref(null);
     const newRecipient = ref('')
-    const allUsers = ref([])
-    const recipients = ref([])
+    const allUsers = ref<Array<Recipient>>([])
+    const recipients = ref<number[]>([])
     
     // Reactive flag for loaded data
     const isAllUsersLoaded = ref(false)
+    const isActualLoaded = ref(false)
     
     let dateOptions = {
         weekday: "short",
@@ -109,6 +131,8 @@
         timeZone: "Europe/Zurich",
         hour12: false,
     };
+
+    // ********************************** FUNCTIONS
 
     onUpdated(() => {
       // when the DOM is updated I scroll to 
@@ -135,12 +159,19 @@
     chatService);
 
     const handleSubmitNewMessage = () => {
+      let newId = 0
       chatService.sendNewMessage(message.value, actual.value.id);
+      if (message.value.length === 0) {
+        newId = 0
+      } else {
+        newId = messages.value[messages.value.length - 1].id + 1
+      }
       messages.value.push({
+        id: newId,
         fromId: user.value.id,
         toId: actual.value.id,
         message: message.value,
-        username: user.username,
+        username: user.value.username,
         date: new Date().toLocaleString("en-US", dateOptions),
       })
       message.value = ''
@@ -150,6 +181,7 @@
       if (messages.value.indexOf(payload.id) === -1) {
         messages.value.push({
           id: payload.id,
+          username: getRecipientName(payload.id),
           message: payload.message,
           fromId: payload.fromId,
           toId: payload.toId,
@@ -158,7 +190,7 @@
       }
     }
 
-    const updateBlockedBool = (newValue) => {
+    const updateBlockedBool = (newValue: boolean) => {
       actualIsBlocked.value = newValue
     };
 
@@ -177,13 +209,17 @@
         }
       
         // check what is the actual recipient
-        if (isAllUsersLoaded.value && Object.keys(actual.value).length === 0 && recipients.value.length > 0) {
-          actual.value = allUsers.value.find((user) => recipients.value[0] === user.id)
+        if (isAllUsersLoaded.value && !isActualLoaded.value && recipients.value.length > 0) {
+          const userFind = allUsers.value.find((user) => recipients.value[0] === user.id);
+          if (userFind) {
+            actual.value = userFind;
+            isActualLoaded.value = true;
+          }
         }
     }
 
     // add recipient to the list
-    function addRecipient(recipientName) {
+    function addRecipient(recipientName: string) {
         const userFind = allUsers.value.find((user) => recipientName === user.username)
         if (userFind) {
           if (recipients.value.indexOf(userFind.id) === -1) {
@@ -194,7 +230,7 @@
     }
 
     // add recipient by ID to the list
-    function addRecipientByID(queryRecipientId) {
+    function addRecipientByID(queryRecipientId: number) {
         const userFind = allUsers.value.find((user) => queryRecipientId == user.id)
         if (userFind) {
             if (recipients.value.indexOf(userFind.id) === -1) {
@@ -214,8 +250,8 @@
     }
 
     // return name of recipient
-    function getRecipientName(recipient) {
-      const userFind = allUsers.value.find((user) => recipient === user.id)
+    function getRecipientName(recipientId: number) {
+      const userFind = allUsers.value.find((user) => recipientId === user.id)
       if (userFind) {
         return userFind.username
       } else {
@@ -224,8 +260,8 @@
     }
 
     // used when click on recipient name
-    function changeActualRecipient(recipient) {
-        actual.value = allUsers.value.find((user) => recipient === user.id)
+    function changeActualRecipient(recipientId: number) {
+        actual.value = allUsers.value.find((user) => recipientId === user.id)
         message.value = ''
     }
 
@@ -237,7 +273,7 @@
         }
     }
 
-    // Async functions 
+    // ********************************** ASYNC FUNCTIONS
 
     async function loadMyself() {
       if (sessionStore.isLoggedIn) {
@@ -270,13 +306,15 @@
   loadMyself()
   getAllUsers()
 
+  // ********************************** WATCHES
+
   // Watch for changes in the isAllUsersLoaded flag
   watchEffect(() => {
     if (isAllUsersLoaded.value) {
       // The allUsers data is loaded, you can use it now
       if (queryRecipient) {
         actual.value = allUsers.value.find((user) => queryRecipient == user.id)
-      } else if (recipients.value.length > 0 && Object.keys(actual.value).length === 0) {
+      } else if (recipients.value.length > 0 && !isActualLoaded.value) {
         actual.value = allUsers.value.find((user) => recipients.value[0] === user.id)
       }
     }
@@ -309,20 +347,4 @@
   .ft-actual-recipient:hover {
     padding-left: 1rem;
   }
-
-  /* scrollbar */
-
-  #ft-scroller::-webkit-scrollbar {
-      width: 22px;               /* width of the entire scrollbar */
-  }
-
-  #ft-scroller::-webkit-scrollbar-track {
-      background: #383838;        /* color of the tracking area */
-  }
-
-  #ft-scroller::-webkit-scrollbar-thumb {
-      background-color: #212121;    /* color of the scroll thumb */
-      border-radius: .3rem;       /* roundness of the scroll thumb */
-  }
-
 </style>

@@ -8,7 +8,7 @@
         placeholder="Select user"
       >
       </ModelListSelect>
-      <button v-if="selectedUser" @click="validateSelection">Add</button>
+      <!--<button v-if="selectedUser" @click="validateSelection">Add</button>-->
 </template>
   
 <script setup lang="ts">
@@ -59,6 +59,11 @@
   watch(props.recipients, () => {
     loadUserList()
   })
+
+  watch(selectedUser, () => {
+    if (!selectedUser.value) return;
+    validateSelection();
+  });
   
   async function validateSelection() {
     emits('addRecipient', userList.value.find((element) => element.id === selectedUser.value)

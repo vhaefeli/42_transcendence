@@ -39,10 +39,12 @@
 <script setup>
 import { useUserStore } from "@/stores/UserStore";
 import { useSessionStore } from "@/stores/SessionStore";
+import { useRouter } from "vue-router";
 
 const userStore = useUserStore();
 const sessionStore = useSessionStore();
-userStore.getMe();
+if (!sessionStore.isLoggedIn) useRouter().push('/login?logout=true');
+else userStore.getMe(sessionStore.access_token);
 </script>
 
 <style scoped>

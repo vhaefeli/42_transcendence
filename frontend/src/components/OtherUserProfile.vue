@@ -1,6 +1,6 @@
 <template>
       <div id="ft-user-profile-container">
-          <div class="flex flex-col items-center text-center max-w-max ft-central-tab-container mb-6">
+          <div class="flex flex-col items-center text-center max-w-max ft-central-tab-container mb-3">
               <div v-if="isActualInfosLoaded" class="ft-profile-pic" id="current-profile-pic" :style="{ 'background': 'url(' + actualInfos.avatar_url + ')' }"></div>
               <div v-else class="ft-profile-pic" id="current-profile-pic"></div>
   
@@ -12,7 +12,7 @@
               <div v-else class="ft-tab-content ft-bg-color-profile ft-title" id="username"></div>
               <div class="ft-tab-content ft-bg-color-profile flex flex-col items-center p-6">
                   <div v-if="actualInfos.is_friend" class="mb-3">
-                      <a title="remove friendship" class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="removeFriend(username)"><img src="../assets/img/icons/user-minus-solid.svg" alt="remove friendship"></a>
+                      <a title="remove friendship" class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="removeFriend(username)"><img src="../assets/icons/user-minus-solid.svg" alt="remove friendship"></a>
                   </div>
                   <div v-else class="mb-6">
                       <div v-if="actualInfos.is_pendingInvitation" class="max-w-[16rem;]">
@@ -25,7 +25,7 @@
                         </div>
                       </div>
                       <div v-else>
-                          <a title="Request friendship" class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor" @click="addFriend()"><img src="../assets/img/icons/user-plus-solid.svg" alt="send a friend request"></a>
+                          <a title="Request friendship" class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor" @click="addFriend()"><img src="../assets/icons/user-plus-solid.svg" alt="send a friend request"></a>
                       </div>
                   </div>
                   <div v-if="actualInfos.is_blocked">
@@ -35,6 +35,16 @@
                       <a title="Block this user" class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor" @click="blockUser(actualInfos.username)"><img src="../assets/icons/person-circle-minus-solid.svg" alt="block them"></a>
                   </div>
               </div>
+          </div>
+          <div v-if="props.adminTab" class="flex flex-col items-center text-center ft-central-tab-container mb-3">
+            <div class="ft-tab-content ft-bg-color-profile flex flex-col items-center">
+              <h3 class="py-1">manage acess to channel</h3>
+              <div>
+                  <a title="Request friendship" class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor" @click="bann()">[bann]</a>
+                  <a title="Request friendship" class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor" @click="mute()">[mute]</a>
+                  <a title="Request friendship" class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor" @click="kick()">[kick]</a>
+              </div>
+            </div>
           </div>
           <div class="flex flex-col pr-9">
               <router-link class="ft-bg-color-profile t-btn-pink ft-other-profile mb-3" :to= "'/user/' + actualInfos.username">See profile</router-link>
@@ -58,6 +68,7 @@
 
     const props = defineProps({
         username: String,
+        adminTab: Boolean,
         sessionStore: Object,
         userStore: Object,
     })
@@ -68,8 +79,9 @@
     }
 
     function removeFriend(friendname) {
-        props.userStore.delFriend(friendname,  props.sessionStore.access_token)
+        props.userStore.delFriend(friendname, props.sessionStore.access_token)
         actualInfos.value.is_friend = false
+        FromFriendToNotFriend.value = true
     }
 
     function unblockUser(username) {
@@ -82,6 +94,18 @@
         props.userStore.blockUser(username, props.sessionStore.access_token)
         actualInfos.value.is_blocked = true
         emits('updateBlocked', actualInfos.value.is_blocked)
+    }
+
+    function bann(username) {
+        // do something to bann this user
+    }
+
+    function mute(username) {
+        // do something to bann this user
+    }
+
+    function kick(username) {
+        // do something to bann this user
     }
 
     async function getUserInfos(username) {

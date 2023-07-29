@@ -1,11 +1,73 @@
 import { defineStore } from "pinia";
 import axios, { AxiosError } from "axios";
 
-type State = {};
+type User = {
+  id: number
+  isLogged: boolean
+  username: string
+  avatar_url: string
+  friends: Friends[]
+  invites: Invites[]
+  twoFA_enabled: boolean
+  status: string
+  level: string
+  rank: number
+  nb_match: number
+  nb_jeux: number
+}
+
+type Friends = {
+  id: number
+  username: string
+  is_blocked: boolean
+};
+
+type Blocked = {
+  id: number
+  username: string
+  is_friend: boolean
+};
+
+type Invites = {
+  id: number
+  username: string
+};
+
+type InvitesSent = {
+  id: number
+  username: string
+};
+
+type GameLog = {
+  date: string
+  Resul: string
+};
+
+type State = {
+  user: User,
+  friends: Friends[],
+  invites: Invites[],
+  invitesSent: InvitesSent[],
+  blocked: Blocked[],
+  gameLog: GameLog[],
+};
 
 export const useUserStore = defineStore("userStore", {
   state: (): State => ({
-      user: {},
+      user: {
+        id: 0,
+        isLogged: false,
+        username: "",
+        avatar_url: "",
+        friends: [],
+        invites: [],
+        twoFA_enabled: false,
+        status: "",
+        level: "",
+        rank: 0,
+        nb_match: 0,
+        nb_jeux: 0,
+      },
       friends: [],
       invites: [],
       invitesSent: [],
@@ -15,7 +77,7 @@ export const useUserStore = defineStore("userStore", {
   }),
   actions: {
     // get user infos
-    async getMe(access_token) {
+    async getMe(access_token: string) {
         await axios({
           url: "/api/user/me",
           method: "get",
@@ -40,7 +102,7 @@ export const useUserStore = defineStore("userStore", {
           })
       },
       // get list of friends
-      async getFriends(access_token) {
+      async getFriends(access_token: string) {
         await axios({
           url: "/api/user/friend/all",
           method: "get",
@@ -55,16 +117,16 @@ export const useUserStore = defineStore("userStore", {
             if (error.response.status == 401) {
               console.log(
                 `invalid access token: ${error.response.status} ${error.response.statusText}`
-              );
-              this.user.isLogged = false
-            } else {
+                );
+                this.user.isLogged = false
+              } else {
               console.log(`unexpected error: ${error.response.status} ${error.response.statusText}`)
             }
             return false;
           });
       },
       // get list of friends
-      async getInvites(access_token) {
+      async getInvites(access_token: string) {
         await axios({
           url: "/api/user/friend/invite/received",
           method: "get",
@@ -90,8 +152,7 @@ export const useUserStore = defineStore("userStore", {
           });
       },
       // get list of friends
-      async getInvitesSent(access_token) {
-        console.log("yep")
+      async getInvitesSent(access_token: string) {
         await axios({
           url: "/api/user/friend/invite/sent",
           method: "get",
@@ -117,7 +178,7 @@ export const useUserStore = defineStore("userStore", {
           });
       },
       // accept a friend
-      async acceptFriend(friendname, access_token) {
+      async acceptFriend(friendname: string, access_token: string) {
           await axios({
             url: `/api/user/friend/invite/accept/${friendname}`,
             method: "post",
@@ -151,7 +212,7 @@ export const useUserStore = defineStore("userStore", {
             });
       },
       // delete invitation to deny
-      async declineFriend(friendname, access_token) {
+      async declineFriend(friendname: string, access_token: string) {
           await axios({
             url: `/api/user/friend/invite/${friendname}`,
             method: "delete",
@@ -184,7 +245,7 @@ export const useUserStore = defineStore("userStore", {
             });
       },
       // add a friend
-      async addFriend(friendname, access_token) {
+      async addFriend(friendname: string, access_token: string) {
        await axios({
          url: `/api/user/friend/invite/${friendname}`,
          method: "post",
@@ -219,7 +280,7 @@ export const useUserStore = defineStore("userStore", {
          });
       },
       // delete a friend
-      async delFriend(friendname, access_token) {
+      async delFriend(friendname: string, access_token: string) {
        await axios({
          url: `/api/user/friend/${friendname}`,
          method: "delete",
@@ -254,7 +315,7 @@ export const useUserStore = defineStore("userStore", {
          });
       },
         // list all blocked users
-        async getBlockedUsers(access_token) {
+        async getBlockedUsers(access_token: string) {
           await axios({
             url: `/api/user/block`,
             method: "get",
@@ -281,7 +342,7 @@ export const useUserStore = defineStore("userStore", {
             });
         },
         // block a user
-        async blockUser(username, access_token) {
+        async blockUser(username: string, access_token: string) {
           await axios({
             url: `/api/user/block/${username}`,
             method: "post",
@@ -313,7 +374,7 @@ export const useUserStore = defineStore("userStore", {
             });
         },
         // unblock a user
-        async unblockUser(username, access_token) {
+        async unblockUser(username: string, access_token: string) {
           await axios({
             url: `/api/user/block/${username}`,
             method: "delete",
@@ -346,9 +407,9 @@ export const useUserStore = defineStore("userStore", {
         },
     
         // get games history
-        async getGameHistory(access_token) {
+        async getGameHistory(access_token: string) {
           await axios({
-            url: "/api/player/log",
+            url: `/api/player/log/${this.user.id}`,
             method: "get",
             headers: { Authorization: `Bearer ${access_token}` },
           })
@@ -374,6 +435,30 @@ export const useUserStore = defineStore("userStore", {
         async redirectToMyProfile(access_token: string) {
           await this.getMe(access_token);
           this.router.push(`/user/${this.user.username}`);
+        },
+
+        // flush datas 
+        flush() {
+          console.log("cleaning user datas...")
+          this.user = {
+            id: 0,
+            isLogged: false,
+            username: "",
+            avatar_url: "",
+            friends: [],
+            invites: [],
+            twoFA_enabled: false,
+            status: "",
+            level: "",
+            rank: 0,
+            nb_match: 0,
+            nb_jeux: 0,
+          }
+          this.friends = []
+          this.invites = []
+          this.invitesSent = []
+          this.blocked = []
+          this.gameLog = []
         },
     }
 })

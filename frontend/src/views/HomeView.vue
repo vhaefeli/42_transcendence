@@ -10,5 +10,7 @@
 </template>
 
 <script setup>
-   import TransButton from '../components/TransButton.vue'
+  import { useRouter } from 'vue-router';
+  import TransButton from '../components/TransButton.vue'
+  useRouter().push('/directories');
 </script>
