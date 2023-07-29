@@ -11,7 +11,6 @@ import DmsView from '../views/DmsView.vue'
 import LoginView from '../views/LoginView.vue'
 import LoginTfaView from '../views/LoginTfaView.vue'
 import Login42ApiView from '../views/Login42ApiView.vue'
-import SearchView from '../views/SearchView.vue'
 import SearchChannelsView from '../views/SearchChannelsView.vue'
 import ChannelsView from '../views/ChannelsView.vue'
 
@@ -77,11 +76,6 @@ const router = createRouter({
       path: '/login/42api',
       name: '42api',
       component: Login42ApiView,
-    },
-    {
-      path: '/search-users',
-      name: 'search test',
-      component: SearchView,
     },
     {
       path: '/search-channels',

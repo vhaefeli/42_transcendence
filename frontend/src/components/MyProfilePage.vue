@@ -138,15 +138,19 @@
           <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Add a new friend</div>
           <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left">
               <div class="flex flex-row justify-center">
-                <input
-                  v-model="newFriend"
+                <ModelListSelect
+                  :list="userSearchList"
+                  v-model="searchSelectedUserId"
+                  optionValue="id"
+                  optionText="username"
                   placeholder="Add a friend by username"
+                  class="dropdown"
                 />
-                <div :class="{ 'cursor-not-allowed': !newFriend }">
+                <div :class="{ 'cursor-not-allowed': !searchSelectedUserId}">
                   <a
                     @click="addFriend"
                     class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor"
-                    :class="{ 'opacity-50 searchan-noClick': !newFriend }">
+                    :class="{ 'opacity-50 searchan-noClick': !searchSelectedUserId}">
                     <img src="../assets/icons/user-plus-solid.svg" alt="send a friend request" title="send them a friend request">
                   </a>
                 </div>
@@ -212,8 +216,6 @@
     //   userStore: Object,
     // })
     
-    const userList = ref<Array<type_user>>([]);
-    const selectedUser = ref<number>();
     const actualInfos = ref({});
     const FromFriendToNotFriend = ref(false)
     const isActualInfosLoaded = ref(false)
@@ -229,61 +231,76 @@
     const userStore = useUserStore()
     const isLoggedIn = ref(false);
 
+    // user search dropdown
+    let allUsers: Array<type_user>;
+    const userSearchList = ref<Array<type_user>>([]);
+    const searchSelectedUserId = ref<number>();
+
     // other variables
     const foregroundTab = ref('')
-    const newFriend = ref('')
-    let allUsers: { id: number, username: string }[];
 
     const { user, friends, invites, blocked, invitesSent, gameLog } = storeToRefs(userStore)
-
-    function setForegroundTab(tab) {
-      foregroundTab.value = tab
-    }
 
     // onBeforeMount is executed before the component is mounted
     // way of using await because we can't do it in setup
     onBeforeMount(async () => {
-        if (sessionStore.isLoggedIn) {
-            isLoggedIn.value = true;
+      isLoggedIn.value = true;
 
-            // get user infos, friends, and invitations
-            await userStore.getMe(sessionStore.access_token);
-            if (user.value.isLogged) {
-                await userStore.getFriends(sessionStore.access_token);
-                await userStore.getInvites(sessionStore.access_token);
-                await userStore.getBlockedUsers(sessionStore.access_token);
-                await userStore.getInvitesSent(sessionStore.access_token);
-                await userStore.getGameHistory(sessionStore.access_token);
-                // await userStore.
-            } else {
-                isLoggedIn.value = false;
-                sessionStore.isLoggedIn = false;
-                sessionStore.access_token = "";
-                router.push({ name: 'login' })
-            }
-        }
+      // get user infos, friends, and invitations
+      await userStore.getMe(sessionStore.access_token);
+      if (user.value.isLogged) {
+        await userStore.getFriends(sessionStore.access_token);
+        await userStore.getInvites(sessionStore.access_token);
+        await userStore.getBlockedUsers(sessionStore.access_token);
+        await userStore.getInvitesSent(sessionStore.access_token);
+        await userStore.getGameHistory(sessionStore.access_token);
+        // await userStore.
+      } else {
+        router.push('/login?logout=true');
+      }
+      // list all users
+      await axios({
+          url: "/api/user/all",
+          method: "get",
+        })
+        .then((response) => {
+          allUsers = response.data;
+          console.log("all users loaded");
+        })
+        .catch((error) => {
+          console.error(`unexpected error: ${error.response.status} ${error.response.statusText}`);
+      });
+      loadUserSearchList();
     });
 
-    // list all users
-    axios({
-        url: "/api/user/all",
-        method: "get",
-        headers: { },
-      })
-      .then((response) => {
-        allUsers = response.data;
-        console.log("all users loaded");
-      })
-      .catch((error) => {
-        console.error(`unexpected error: ${error.response.status} ${error.response.statusText}`);
-    });
+    async function loadUserSearchList() {
+      userSearchList.value = allUsers.filter((user) => {
+        return !(
+          userStore.user.id === user.id ||
+          userStore.friends.find((friend) => friend.id === user.id) ||
+          userStore.invites.find((invite) => invite.id === user.id) ||
+          userStore.invitesSent.find((invite) => invite.id === user.id)
+        );
+      });
+      return;
+    }
 
-    // functions to delete because useless // maybe not so useless
-    function addFriend() {
-        if (newFriend.value) {
-            userStore.addFriend(newFriend.value, sessionStore.access_token);
-            actualInfos.value.is_pendingInvitation = true;
-        }
+    // functions to delete because useless // maybe not so useless (not useless indeed)
+    async function addFriend() {
+      if (searchSelectedUserId.value != undefined) {
+        const user = userSearchList.value.find((user) => user.id === searchSelectedUserId.value);
+        if (user)
+          await userStore.addFriend(user.username, sessionStore.access_token);
+        searchSelectedUserId.value = undefined;
+        await userStore.getInvitesSent(sessionStore.access_token);
+        loadUserSearchList();
+        // davi: i don't know what the following line does
+        actualInfos.value.is_pendingInvitation = true;
+      }
+    }
+
+    function setForegroundTab(tab) {
+      foregroundTab.value = tab
     }
 
     // formatage de la date pour un affichage sous la forme "01/01/2023"
