@@ -1,5 +1,5 @@
 <template>
-  <NavBar :showProfile="true"></NavBar>
+  <NavBar :showProfile="true" :userStore="userStore"/>
   <div class="text-white profile-container w-full">
     <section class="flex flex-col items-center">
       <button
