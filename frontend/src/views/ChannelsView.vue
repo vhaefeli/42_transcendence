@@ -7,7 +7,7 @@
         <!-- column 1 with profile -->
         <div id="dm-profile-col" class="w-[18em]">
             <div class="h-[76vh]" :class=" profileToShow.length === 0 ? 'position-cible' : 'position-origine'">
-              <MemberList :channelName="currentChannel?.name" :username="user.username" :channelType="currentChannel?.type" :isAdmin="currentChannel?.Admin != null" :MemberList="currentMembers" :userStore="userStore" :sessionStore="sessionStore" @set-profile-to-show="(username) => profileToShow = username" @show-admin-panel="showAdmin = !showAdmin"/>
+              <MemberList :key="showAdmin" :channelName="currentChannel?.name" :username="user.username" :channelType="currentChannel?.type" :isAdmin="currentChannel?.Admin != null" :MemberList="currentMembers" :userStore="userStore" :sessionStore="sessionStore" @set-profile-to-show="(username) => profileToShow = username" :showAdmin="showAdmin ? 'close admin panel' : 'Admin panel'" @show-admin-panel="showAdmin = !showAdmin"/>
             </div>
             <div class="h-[76vh]" :class="profileToShow.length > 0 ? 'position-cible' : 'position-origine'">
               <OtherUserProfile :key="profileToShow" :adminTab="currentChannel?.Admin != null" :username="profileToShow" :userStore="userStore" :sessionStore="sessionStore" />
@@ -19,6 +19,7 @@
         <div v-if="currentChannel?.Admin && showAdmin" class="flex grow">
           <!-- admin panel -->
           <div id="ft-admin-panel" class="w-full h-full relative p-11">
+            <button class="absolute top-0 right-0"><a class="t-btn-pink ft-circle-gray ft-icon-small icon-btn-size icon-btn-cursor" @click="showAdmin = false"><img src="../assets/icons/xmark-solid.svg" alt="quit"></a></button>
             <AdminPanel :currentChannel="currentChannel" :sessionStore="sessionStore" @updateTypeOfChan="(type) => currentChannel.type = type"></AdminPanel>
           </div>
         </div>
@@ -64,7 +65,7 @@
               <div v-if="isAllMyChanLoaded">
                 <div v-if="myChannels.length === 0">No channels yet</div>
                 <div v-for="channel in myChannels" :key="channel">
-                  <div @click="changeCurrentChannel(channel.name)" :class="currentChannel?.channelId == channel.channelId ? 'ft-actual-recipient' : ''" class="ft-channel-name">{{ channel.name }}</div>
+                  <div @click="changeCurrentChannel(channel.name)" :class="currentChannelClasses(channel)" class="ft-channel-name">{{ channel.name }}</div>
                 </div>
               </div>
               <div v-else>Loading...</div>
@@ -82,7 +83,7 @@
     import NavBar from "../components/NavBar.vue";
     import ChatNavBar from "../components/ChatNavBar.vue";
     import OtherUserProfile from "../components/OtherUserProfile.vue";
-    import { ref, onUpdated, watchEffect, watch } from "vue";
+    import { ref, onUpdated, watchEffect, watch, computed } from "vue";
     import { storeToRefs } from 'pinia'
     import axios from "axios";
     import { useRouter, useRoute } from 'vue-router'
@@ -210,6 +211,13 @@
         date: new Date().toLocaleString("en-US", dateOptions),
       })
       message.value = ''
+    }
+
+    const currentChannelClasses = (channel) => {
+      return {
+        'ft-actual-recipient': currentChannel.value.channelId === channel.channelId,
+        'admin-channel-icon': channel.Admin !== null,
+      }
     }
 
     function pushToMessages(payload) {
@@ -456,6 +464,17 @@
   /* Admin panel */
   #ft-admin-panel {
     background-color: var(--middle-gray);
+  }
+
+  /* Channels list */
+
+  .admin-channel-icon:before {
+    content: url(/src/assets/icons/gear-solid.svg);
+    width: 1rem;
+    display: inline-block;
+    margin-right: 0.5rem;
+    position: relative;
+    top: 0.2rem;
   }
 
 </style>

@@ -1,6 +1,5 @@
 <template>
     <!-- TO DO: croix qui met à jour le texte dans memberlist -->
-    <!-- <button class="absolute top-0 right-0"><a class="t-btn-pink ft-circle-gray ft-icon-small icon-btn-size icon-btn-cursor" @click="showAdmin = false"><img src="../assets/icons/xmark-solid.svg" alt="quit"></a></button> -->
     <div class="flex">
         <div v-if="currentChannel?.ownerId === currentChannel?.userId" class="w-1/2 p-3 mr-9">
             <div class="mb-6">
@@ -85,7 +84,7 @@
 
     const props = defineProps({
         currentChannel: Object,
-        sessionStore: Object
+        sessionStore: Object,
     })
 
     const emits = defineEmits(['updateTypeOfChan'])
