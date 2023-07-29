@@ -39,6 +39,7 @@ services:
     build:
       context: ./docker
       dockerfile: ./backend.dockerfile
+    platform: "linux/amd64"
     init: true
     ports:
       - 3000:3000
@@ -60,6 +61,7 @@ services:
     build:
       context: ./docker
       dockerfile: ./frontend.dockerfile
+    platform: "linux/amd64"
     ports:
       - 5173:5173
     networks:
