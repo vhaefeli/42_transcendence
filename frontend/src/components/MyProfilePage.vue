@@ -138,7 +138,6 @@
           <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Add a new friend</div>
           <div class="ft-tab-content ft-border-color-profile ft-tab-border text-left">
               <div class="flex flex-row justify-center">
-                <!-- DAVI dropwdown -->
                 <ModelListSelect
                   :list="userSearchList"
                   v-model="searchSelectedUserId"
@@ -147,10 +146,6 @@
                   placeholder="Add a friend by username"
                   class="dropdown"
                 />
-                <!--<input
-                  v-model="newFriend"
-                  placeholder="Add a friend by username"
-                  />-->
                 <div :class="{ 'cursor-not-allowed': !searchSelectedUserId}">
                   <a
                     @click="addFriend"
