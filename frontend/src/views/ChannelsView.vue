@@ -55,7 +55,7 @@
   
             <div class="ft-bg-dark-gray flex p-2 pl-8 absolute w-full bottom-0">
                 <input v-model="message" placeholder="blabla..." class="p-1 mr-4 ft-input" />
-                <a href="#" class="t-btn-pink ft-bg-color-chat"><button @click="handleSubmitNewMessage">send</button></a>
+                <a href="#" class="t-btn-pink ft-bg-color-chat" :class="message.length === 0 ? 'ft-disabled-btn' : ''"><button @click="handleSubmitNewMessage">send</button></a>
             </div>
           </div>
         
