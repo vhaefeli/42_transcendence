@@ -203,6 +203,7 @@
     import EmptyText from "@/components/EmptyText.vue";
     import StatusBubble from "@/components/StatusBubble.vue";
     import OtherUserProfile from "../components/OtherUserProfile.vue";
+    import { statusService } from "@/services/status-socket.service";
 
     type type_user = {
       id: number;
@@ -271,6 +272,11 @@
           console.error(`unexpected error: ${error.response.status} ${error.response.statusText}`);
       });
       loadUserSearchList();
+
+      statusService.onConnect(() => {
+        userStore.getMe(sessionStore.access_token);
+      },
+      { timeout: 10000 });
     });
 
     async function loadUserSearchList() {
