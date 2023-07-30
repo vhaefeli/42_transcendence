@@ -63,7 +63,7 @@
     const FromFriendToNotFriend = ref(false)
     const isActualInfosLoaded = ref(false)
 
-    const emits = defineEmits(['updateBlocked'])
+    const emits = defineEmits(['updateBlocked', 'adminAction'])
 
     const props = defineProps({
         username: String,
@@ -97,14 +97,17 @@
 
     function bann(username) {
         // do something to bann this user
+        emits('adminAction', 'bann')
     }
 
     function mute(username) {
         // do something to bann this user
+        emits('adminAction', 'mute')
     }
 
     function kick(username) {
         // do something to bann this user
+        emits('adminAction', 'kick')
     }
 
     async function getUserInfos(username) {

@@ -162,7 +162,7 @@
         method: "get",
         headers: { Authorization: `Bearer ${props.sessionStore.access_token}` },
       })
-        .then((response) => {
+      .then((response) => {
           allAdmins.value = response.data[0].admins;
           isAllAdminsLoaded.value = true
           console.log("loaded all admins");

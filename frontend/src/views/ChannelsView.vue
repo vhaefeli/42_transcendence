@@ -10,7 +10,7 @@
               <MemberList :key="showAdmin" :channelName="currentChannel?.name" :username="user.username" :channelType="currentChannel?.type" :isAdmin="currentChannel?.Admin != null" :MemberList="currentMembers" :userStore="userStore" :sessionStore="sessionStore" @set-profile-to-show="(username) => profileToShow = username" :showAdmin="showAdmin ? 'close admin panel' : 'Admin panel'" @show-admin-panel="showAdmin = !showAdmin"/>
             </div>
             <div class="h-[76vh]" :class="profileToShow.length > 0 ? 'position-cible' : 'position-origine'">
-              <OtherUserProfile :key="profileToShow" :adminTab="currentChannel?.Admin != null" :username="profileToShow" :userStore="userStore" :sessionStore="sessionStore" />
+              <OtherUserProfile :key="profileToShow" :adminTab="currentChannel?.Admin != null" :username="profileToShow" :userStore="userStore" :sessionStore="sessionStore" @adminAction="manageAdminAction" />
               <button title="Back to member list" id="ft-back-to-list" class="t-btn-pink ft-bg-color-chat" @click="profileToShow = ''">&lt;&lt;&lt;&lt;&lt;</button>
             </div>
         </div>
@@ -220,6 +220,16 @@
       }
     }
 
+    function manageAdminAction(action :string) {
+      if (action === 'kick') {
+        const found = currentMembers.value.find(member => member.username === profileToShow.value)
+        kick(currentChannel.value?.channelId, found.id, profileToShow.value)
+        currentMembers.value = currentMembers.value.filter(member => member.username !== profileToShow.value);
+      }
+      console.log('action to do: ')
+      console.log(action + profileToShow.value)
+    }
+
     function pushToMessages(payload) {
       if (messages.value.indexOf(payload.id) === -1) {
         messages.value.push({
@@ -262,6 +272,11 @@
     function getMemberUsername(userId: number) {
       const found = currentMembers.value.find(member => member.id === userId)
       return found.username
+    }
+
+    function getMemberId(username: string) {
+      const found = currentMembers.value.find(member => member.username === username)
+      return found.id
     }
 
     // scroll messages container to bottom
@@ -369,6 +384,37 @@
             console.error(
               `unexpected error: ${error.response.status} ${error.response.statusText}`
             );
+        });
+    }
+
+    async function kick(channelId, userId, username) {
+      // do something to bann this user
+      await axios({
+        url: "/api/chat/channel/member/remove",
+        method: "patch",
+        headers: { Authorization: `Bearer ${sessionStore.access_token}`, 'Content-Type': 'application/json' },
+        data: { "channelId": channelId, "userId": userId }
+      })
+        .then((response) => {
+          console.log(username + " is kicked out of channel with id " + channelId)
+          profileToShow.value = ''
+          return true;
+        })
+        .catch((error) => {
+          if (error.response.status == 401) {
+            console.log(
+              `invalid access token: ${error.response.status} ${error.response.statusText}`
+            );
+          } else if (error.response.status == 404) {
+            console.log(
+              `user not found: ${error.response.status} ${error.response.statusText}`
+            );
+          } else {
+            console.error(
+              `unexpected error: ${error.response.status} ${error.response.statusText}`
+            );
+          }
+          return false;
         });
     }
     
