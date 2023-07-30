@@ -10,7 +10,7 @@
         <a class="ft-bg-color-game t-btn-pink ft-other-profile"><span>Invite to play</span></a>
       </section>
   
-      <section class="ft-container">
+      <section id="ft-main-tab-container-other-profile" class="ft-container">
         <div class="flex flex-col items-center text-center max-w-max ft-central-tab-container">
           <div class="ft-profile-pic" id="current-profile-pic" :style="{ 'background': 'url(' + user.avatar_url + ')' }"></div>
           <div class="ft-connection-circle" id="current-profile-pic"><StatusBubble :status="user.status"></StatusBubble></div>
@@ -381,6 +381,10 @@
     border: 4px solid var(--light-purple);
     border-radius: 25px 25px 0 0;
     overflow: hidden;
+}
+
+#ft-main-tab-container-other-profile {
+  margin-bottom: -22rem;
 }
 
 #matchScroll::-webkit-scrollbar, 
