@@ -1,5 +1,5 @@
 <template>
-  <NavBar />
+  <NavBar :showProfile="true" :userStore="userStore"/>
   <div>Setup a game here</div>
   <div class="text-white">
     <input
@@ -17,7 +17,9 @@
 import { ref } from "vue";
 import NavBar from "../components/NavBar.vue";
 import { useRouter } from "vue-router";
+import { useUserStore } from "@/stores/UserStore";
 
+const userStore = useUserStore();
 const gameIdToConnect = ref();
 const router = useRouter();
 
