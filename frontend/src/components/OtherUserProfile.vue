@@ -72,7 +72,6 @@
     
     const props = defineProps({
       username: String,
-      ismuted: Boolean,
       adminTab: Boolean,
       sessionStore: Object,
       userStore: Object,

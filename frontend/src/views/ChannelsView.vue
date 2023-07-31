@@ -245,14 +245,16 @@
         const found = currentMembers.value.find(member => member.username === currentProfileToShow.value.username)
         kick(currentChannel.value?.channelId, found.id, currentProfileToShow.value.username)
         currentMembers.value = currentMembers.value.filter(member => member.username !== currentProfileToShow.value.username);
-      }
-      if (action === 'mute') {
+      } else if (action === 'mute') {
         const found = currentMembers.value.find(member => member.username === currentProfileToShow.value.username)
         mute(currentChannel.value?.channelId, found.id, currentProfileToShow.value.username)
-      }
-      if (action === 'unmute') {
+      } else if (action === 'unmute') {
         const found = currentMembers.value.find(member => member.username === currentProfileToShow.value.username)
         unmute(currentChannel.value?.channelId, found.id, currentProfileToShow.value.username)
+      } else if (action === 'bann') {
+        const found = currentMembers.value.find(member => member.username === currentProfileToShow.value.username)
+        bann(currentChannel.value?.channelId, found.id, currentProfileToShow.value.username)
+        currentMembers.value = currentMembers.value.filter(member => member.username !== currentProfileToShow.value.username);
       }
     }
 
@@ -424,7 +426,37 @@
       })
         .then((response) => {
           console.log(username + " is kicked out of channel with id " + channelId)
-          // profileToShow.value = ''
+          currentProfileToShow.value.username = ''
+          return true;
+        })
+        .catch((error) => {
+          if (error.response.status == 401) {
+            console.log(
+              `invalid access token: ${error.response.status} ${error.response.statusText}`
+            );
+          } else if (error.response.status == 404) {
+            console.log(
+              `user not found: ${error.response.status} ${error.response.statusText}`
+            );
+          } else {
+            console.error(
+              `unexpected error: ${error.response.status} ${error.response.statusText}`
+            );
+          }
+          return false;
+        });
+    }
+
+    async function bann(channelId: number, userId: number, username: string) {
+      // do something to bann this user
+      await axios({
+        url: "/api/chat/channel/banned/add",
+        method: "patch",
+        headers: { Authorization: `Bearer ${sessionStore.access_token}`, 'Content-Type': 'application/json' },
+        data: { "channelId": channelId, "userId": userId }
+      })
+        .then((response) => {
+          console.log(username + " is kicked out of channel with id " + channelId)
           currentProfileToShow.value.username = ''
           return true;
         })
