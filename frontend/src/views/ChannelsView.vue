@@ -201,15 +201,17 @@
     chatService);
 
     const handleSubmitNewMessage = () => {
-      chatService.sendNewMessageToChan(message.value, currentChannel.value.channelId);
-      messages.value.push({
-        id: 0,
-        message: message.value,
-        channelId: currentChannel.value.channelId,
-        senderId: user.value.id,
-        date: new Date().toLocaleString("en-US", dateOptions),
-      })
-      message.value = ''
+      if(message.value.length > 0) {
+        chatService.sendNewMessageToChan(message.value, currentChannel.value.channelId);
+        messages.value.push({
+          id: 0,
+          message: message.value,
+          channelId: currentChannel.value.channelId,
+          senderId: user.value.id,
+          date: new Date().toLocaleString("en-US", dateOptions),
+        })
+        message.value = ''
+      }
     }
 
     function pushToMessages(payload) {
