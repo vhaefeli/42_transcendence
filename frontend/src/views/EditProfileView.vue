@@ -8,35 +8,57 @@
 
     <div class="flex flex-col items-center text-center max-w-max ft-central-tab-container">
       <div class="ft-profile-pic" id="current-profile-pic" :style="{ 'background': 'url(' + user.avatar_url + ')' }"></div>
-      <!-- <div class="ft-connection-circle" id="current-profile-pic"><StatusBubble :status="user.status"></StatusBubble></div> -->
       <div class="ft-tab-folder" id="title-profile"></div>
-      <!-- <div class="ft-tab-content ft-bg-color-profile">{{ user.status }}</div> -->
       <div class="ft-tab-content ft-bg-color-profile ft-title" id="username">{{ user.username }}</div>
       <div class="ft-tab-content ft-bg-color-profile" id="buttons-container">
-        <a @click="router.push('/user/edit')" title="edit your profile" class="t-btn-pink ft-color-edit ft-my-profile ft-icon-small icon-btn-cursor" id="edit" ><img src="../assets/icons/user-pen-solid.svg" alt="edit my profile"></a>
+        <button class="t-btn-pink" @click="userStore.redirectToMyProfile(sessionStore.access_token)">
+        Go Back
+        </button>
       </div>
     </div>
 
 
-
-      <!-- GO BACK -->
-      <button
-        class="t-btn-pink"
-        @click="userStore.redirectToMyProfile(sessionStore.access_token)"
-      >
-        Go Back
-      </button>
-
       <!-- DOSSIER GAUCHE -->
-      <div class="flex flex-col text-center ft-left-tab" id="two-fa" :class="{ foreground: foregroundTab === 'two-fa' }" @click="setForegroundTab('two-fa')">
-          <div class="ft-tab-folder ft-tab-title ft-bb-color-game">two-fa</div>
-          <div class="ft-tab-content ft-border-color-game ft-tab-border flex flex-row justify-evenly ">
-              Contenu
+    <div class="flex flex-col text-center ft-left-tab" id="two-fa" :class="{ foreground: foregroundTab === 'two-fa' }" @click="setForegroundTab('two-fa')">
+      <div class="ft-tab-folder ft-tab-title ft-bb-color-game">Two factor authentication</div>
+      <div class="ft-tab-content ft-border-color-game ft-tab-border flex flex-row justify-evenly ">
+        <p v-if="errorText.length">{{ errorText }}</p>
+        <p>
+          {{ `two factor authentication is ${userStore.user.tfa_enabled ? "enabled" : "disabled"}` }}
+        </p>
+        <div v-if="!show_tfa_enable_disable_confirmation">
+          <div id="ft-enabled-tfa" v-if="!user.tfa_enabled">
+            <input
+              v-model="tfa_email"
+              placeholder="your email address"
+              class="ft-text-input"
+            /><br />
+            <button @click="tfaEnable" class="ft-edit-button">enable</button>
+          </div>
+          <div id="ft-disable-tfa" v-if="user.tfa_enabled">
+            <button @click="tfaDisable" class="ft-edit-button-red">
+              disable
+            </button>
           </div>
         </div>
+        <div v-if="show_tfa_enable_disable_confirmation">
+          <input
+            v-model="tfa_code"
+            placeholder="code"
+            class="ft-text-input"
+          /><br />
+          <button @click="validate2FARegistration" class="ft-edit-button">
+            validate
+          </button>
+          <button @click="cancelTfaEnableDisable" class="ft-edit-button-red">
+            cancel
+          </button>
+        </div>
+      </div>
+    </div>
 
       <!-- 2FA -->
-      <p v-if="errorText.length">{{ errorText }}</p>
+      <!-- <p v-if="errorText.length">{{ errorText }}</p>
       <p>
         {{ `2fa is ${userStore.user.tfa_enabled ? "enabled" : "disabled"}` }}
       </p>
@@ -67,7 +89,7 @@
         <button @click="cancelTfaEnableDisable" class="ft-edit-button-red">
           cancel
         </button>
-      </div>
+      </div> -->
 
       <!-- AVATAR -->
       <p class="text-white">Upload a new avatar for your profile</p>
@@ -540,9 +562,9 @@ function submitNewUsername() {
 
 .ft-left-tab#two-fa {
   position: relative;
-  top: 28rem;
-  left: 10vw;
-  width: 30em;
+  top: -20rem;
+  left: 14vw;
+  width: 40em;
 
   z-index: 1;
 }
@@ -553,10 +575,10 @@ function submitNewUsername() {
   padding: 1em 4em 1em 4em;
 }
 
-.ft-tab-separator {
+/* .ft-tab-separator {
   border-bottom-width: 0.3em;
   border-bottom-style:solid;
-}
+} */
 
 .ft-profile-pic.ft-friend-pic {
   width: 3em;
