@@ -5,12 +5,12 @@
       <section class="ft-cover flex flex-col items-end justify-end">
       </section>
       <section class="ft-container">
-        <div class="flex flex-col items-center text-center max-w-max ft-central-tab-container">
+        <div class="flex flex-col items-center text-center max-w-max flex-none ft-central-tab-container">
           <div class="ft-profile-pic" id="current-profile-pic" :style="{ 'background': 'url(' + user.avatar_url + ')' }"></div>
           <div class="ft-connection-circle" id="current-profile-pic"><StatusBubble :status="user.status"></StatusBubble></div>
           <div class="ft-tab-folder" id="title-profile"></div>
           <div class="ft-tab-content ft-bg-color-profile">{{ user.status }}</div>
-          <div class="ft-tab-content ft-bg-color-profile ft-title" id="username">{{ user.username }}</div>
+          <div class="ft-tab-content ft-bg-color-profile ft-title truncate" id="username">{{ user.username }}</div>
           <div class="ft-tab-content ft-bg-color-profile" id="buttons-container">
             <a @click="router.push('/user/edit')" title="edit your profile" class="t-btn-pink ft-color-edit ft-my-profile ft-icon-small icon-btn-cursor" id="edit" ><img src="../assets/icons/user-pen-solid.svg" alt="edit my profile"></a>
           </div>
@@ -549,6 +549,12 @@
   @apply cursor-pointer rounded;
   backdrop-filter: brightness(1.40);
   border-radius: 0.8rem;
+}
+
+#username {
+  /* if i don't do this wrapping doesn't work...
+     i couldn't find a better solution -df */
+  max-width: min;
 }
 
 #profile-container {
