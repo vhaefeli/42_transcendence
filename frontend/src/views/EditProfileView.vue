@@ -8,7 +8,9 @@
 
     <div class="flex flex-col items-center text-center max-w-max ft-central-tab-container">
       <div class="ft-profile-pic" id="current-profile-pic" :style="{ 'background': 'url(' + user.avatar_url + ')' }"></div>
+      <div class="ft-connection-circle" id="current-profile-pic"></div>
       <div class="ft-tab-folder" id="title-profile"></div>
+      <div class="ft-tab-content ft-bg-color-profile">&nbsp;</div>
       <div class="ft-tab-content ft-bg-color-profile ft-title" id="username">{{ user.username }}</div>
       <div class="ft-tab-content ft-bg-color-profile" id="buttons-container">
         <button class="t-btn-pink" @click="userStore.redirectToMyProfile(sessionStore.access_token)">
@@ -18,10 +20,10 @@
     </div>
 
 
-      <!-- DOSSIER GAUCHE -->
+    <!-- DOSSIER GAUCHE -->
     <div class="flex flex-col text-center ft-left-tab" id="two-fa" :class="{ foreground: foregroundTab === 'two-fa' }" @click="setForegroundTab('two-fa')">
-      <div class="ft-tab-folder ft-tab-title ft-bb-color-game">Two factor authentication</div>
-      <div class="ft-tab-content ft-border-color-game ft-tab-border flex flex-row justify-evenly ">
+      <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Two factor authentication</div>
+      <div class="ft-tab-content ft-border-color-profile ft-tab-border flex flex-col justify-evenly text-left">
         <p v-if="errorText.length">{{ errorText }}</p>
         <p>
           {{ `two factor authentication is ${userStore.user.tfa_enabled ? "enabled" : "disabled"}` }}
@@ -563,8 +565,8 @@ function submitNewUsername() {
 .ft-left-tab#two-fa {
   position: relative;
   top: -20rem;
-  left: 14vw;
-  width: 40em;
+  left: 8vw;
+  width: 25rem;
 
   z-index: 1;
 }
