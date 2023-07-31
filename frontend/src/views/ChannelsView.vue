@@ -6,12 +6,12 @@
 
         <!-- column 1 with profile -->
         <div id="dm-profile-col" class="w-[18em]">
-            <div class="h-[76vh]" :class=" profileToShow.length === 0 ? 'position-cible' : 'position-origine'">
-              <MemberList :key="showAdmin" :channelName="currentChannel?.name" :username="user.username" :channelType="currentChannel?.type" :isAdmin="currentChannel?.Admin != null" :MemberList="currentMembers" :userStore="userStore" :sessionStore="sessionStore" @set-profile-to-show="(username) => profileToShow = username" :showAdmin="showAdmin ? 'close admin panel' : 'Admin panel'" @show-admin-panel="showAdmin = !showAdmin"/>
+            <div class="h-[76vh]" :class=" currentProfileToShow.username.length === 0 ? 'position-cible' : 'position-origine'">
+              <MemberList :key="showAdmin" :channelName="currentChannel?.name" :username="user.username" :channelType="currentChannel?.type" :isAdmin="currentChannel?.Admin != null" :MemberList="currentMembers" :userStore="userStore" :sessionStore="sessionStore" @set-profile-to-show="(username) => currentProfileToShow.username = username" :showAdmin="showAdmin ? 'close admin panel' : 'Admin panel'" @show-admin-panel="showAdmin = !showAdmin"/>
             </div>
-            <div class="h-[76vh]" :class="profileToShow.length > 0 ? 'position-cible' : 'position-origine'">
-              <OtherUserProfile :key="profileToShow" :adminTab="currentChannel?.Admin != null" :username="profileToShow" :userStore="userStore" :sessionStore="sessionStore" @adminAction="manageAdminAction" />
-              <button title="Back to member list" id="ft-back-to-list" class="t-btn-pink ft-bg-color-chat" @click="profileToShow = ''">&lt;&lt;&lt;&lt;&lt;</button>
+            <div class="h-[76vh]" :class="currentProfileToShow.username.length > 0 ? 'position-cible' : 'position-origine'">
+              <OtherUserProfile :key="currentProfileToShow.username" :adminTab="currentChannel?.Admin != null" :username="currentProfileToShow.username" :currentProfile="currentProfileToShow" :userStore="userStore" :sessionStore="sessionStore" @adminAction="manageAdminAction" />
+              <button title="Back to member list" id="ft-back-to-list" class="t-btn-pink ft-bg-color-chat" @click="currentProfileToShow.username = ''">&lt;&lt;&lt;&lt;&lt;</button>
             </div>
         </div>
 
@@ -139,6 +139,18 @@
       message: string
     }
 
+    type CurrentProfile = {
+      username: string,
+      isMuted: boolean,
+      isBanned: boolean,
+    }
+
+    type UserInList = {
+        id: number
+        username: string
+        avatar_url: string
+    }
+
     // ********************************** REFS
 
     const message = ref("")
@@ -150,20 +162,27 @@
     const allChannels = ref<Array<Channel>>([])
     
     const profileToShow = ref('')
+    const currentProfileToShow = ref<CurrentProfile>({
+      username: '',
+      isMuted: false,
+      isBanned: false,
+    })
     const showAdmin = ref(false)
 
     // Current
     const currentMembers = ref([])
     const currentChannel = ref<MyChannel | null>(null)
 
-    const mutedUsers = ref([])
-    const bannedUsers = ref([])
+    const mutedUsers = ref<Array<UserInList>>([])
+    const bannedUsers = ref<Array<UserInList>>([])
 
     // Reactive flag for loaded data
     const isAllMyChanLoaded = ref(true)
     const isAllChanLoaded = ref(false)
     const isCurrentMembersLoaded = ref(false)
     const isBlockedLoaded = ref(false)
+    const isAllBannedLoaded = ref<boolean>(false)
+    const isAllMutedLoaded = ref<boolean>(false)
     //   const isAllUsersLoaded = ref(false)
     
     let dateOptions = {
@@ -220,14 +239,21 @@
       }
     }
 
+    // kick, bann or mute someone
     function manageAdminAction(action :string) {
       if (action === 'kick') {
-        const found = currentMembers.value.find(member => member.username === profileToShow.value)
-        kick(currentChannel.value?.channelId, found.id, profileToShow.value)
-        currentMembers.value = currentMembers.value.filter(member => member.username !== profileToShow.value);
+        const found = currentMembers.value.find(member => member.username === currentProfileToShow.value.username)
+        kick(currentChannel.value?.channelId, found.id, currentProfileToShow.value.username)
+        currentMembers.value = currentMembers.value.filter(member => member.username !== currentProfileToShow.value.username);
       }
-      console.log('action to do: ')
-      console.log(action + profileToShow.value)
+      if (action === 'mute') {
+        const found = currentMembers.value.find(member => member.username === currentProfileToShow.value.username)
+        mute(currentChannel.value?.channelId, found.id, currentProfileToShow.value.username)
+      }
+      if (action === 'unmute') {
+        const found = currentMembers.value.find(member => member.username === currentProfileToShow.value.username)
+        unmute(currentChannel.value?.channelId, found.id, currentProfileToShow.value.username)
+      }
     }
 
     function pushToMessages(payload) {
@@ -256,7 +282,8 @@
 
     // used when click on channel name
     function changeCurrentChannel(name: string) {
-        profileToShow.value = ''
+        // profileToShow.value = ''
+        currentProfileToShow.value.username = ''
         currentChannel.value = myChannels.value.find((chan) => name === chan.name) || null
     }
 
@@ -387,7 +414,7 @@
         });
     }
 
-    async function kick(channelId, userId, username) {
+    async function kick(channelId: number, userId: number, username: string) {
       // do something to bann this user
       await axios({
         url: "/api/chat/channel/member/remove",
@@ -397,7 +424,8 @@
       })
         .then((response) => {
           console.log(username + " is kicked out of channel with id " + channelId)
-          profileToShow.value = ''
+          // profileToShow.value = ''
+          currentProfileToShow.value.username = ''
           return true;
         })
         .catch((error) => {
@@ -417,6 +445,116 @@
           return false;
         });
     }
+
+    async function mute(channelId: number, userId: number, username: string) {
+      // do something to bann this user
+      await axios({
+        url: "/api/chat/channel/muted/add",
+        method: "patch",
+        headers: { Authorization: `Bearer ${sessionStore.access_token}`, 'Content-Type': 'application/json' },
+        data: { "channelId": channelId, "userId": userId }
+      })
+        .then((response) => {
+          currentProfileToShow.value.isMuted = true
+          console.log(username + " is muted in channel with id " + channelId)
+          return true;
+        })
+        .catch((error) => {
+          if (error.response.status == 401) {
+            console.log(
+              `invalid access token: ${error.response.status} ${error.response.statusText}`
+            );
+          } else if (error.response.status == 404) {
+            console.log(
+              `user not found: ${error.response.status} ${error.response.statusText}`
+            );
+          } else {
+            console.error(
+              `unexpected error: ${error.response.status} ${error.response.statusText}`
+            );
+          }
+          return false;
+        });
+    }
+
+    async function unmute(channelId: number, userId: number, username: string) {
+      // do something to bann this user
+      await axios({
+        url: "/api/chat/channel/muted/remove",
+        method: "patch",
+        headers: { Authorization: `Bearer ${sessionStore.access_token}`, 'Content-Type': 'application/json' },
+        data: { "channelId": channelId, "userId": userId }
+      })
+        .then((response) => {
+          currentProfileToShow.value.isMuted = false
+          console.log(username + " is unmuted in channel with id " + channelId)
+          return true;
+        })
+        .catch((error) => {
+          if (error.response.status == 401) {
+            console.log(
+              `invalid access token: ${error.response.status} ${error.response.statusText}`
+            );
+          } else if (error.response.status == 404) {
+            console.log(
+              `user not found: ${error.response.status} ${error.response.statusText}`
+            );
+          } else {
+            console.error(
+              `unexpected error: ${error.response.status} ${error.response.statusText}`
+            );
+          }
+          return false;
+        });
+    }
+
+    async function getBanned() {
+      await axios({
+        url: `/api/chat/channel/banned/${currentChannel.value.channelId}`,
+        method: "get",
+        headers: { Authorization: `Bearer ${sessionStore.access_token}` },
+      })
+        .then((response) => {
+          bannedUsers.value = response.data[0].banned;
+          isAllBannedLoaded.value = true
+          console.log("loaded all banned users");
+        })
+        .catch((error) => {
+          if (error.response.status == 401) {
+            console.log(
+              `invalid access token: ${error.response.status} ${error.response.statusText}`
+            );
+            // LogOut();
+          } else
+            console.error(
+              `unexpected error: ${error.response.status} ${error.response.statusText}`
+            );
+        });
+    }
+
+    async function getMuted() {
+      await axios({
+        url: `/api/chat/channel/muted/${currentChannel.value.channelId}`,
+        method: "get",
+        headers: { Authorization: `Bearer ${sessionStore.access_token}` },
+      })
+        .then((response) => {
+          mutedUsers.value = response.data[0].muted;
+          isAllMutedLoaded.value = true
+          console.log("loaded all muted users");
+        })
+        .catch((error) => {
+          if (error.response.status == 401) {
+            console.log(
+              `invalid access token: ${error.response.status} ${error.response.statusText}`
+            );
+            // LogOut();
+          } else
+            console.error(
+              `unexpected error: ${error.response.status} ${error.response.statusText}`
+            );
+        });
+    }
     
     // getAllUsers()
     loadMyself()
@@ -434,8 +572,19 @@
     watch(currentChannel, (NewValue, OldValue) => {
       isCurrentMembersLoaded.value = false
       getAllMembers(NewValue?.channelId)
+      if (currentChannel.value) {
+        getBanned()
+        getMuted()
+      }
     })
 
+    watch(currentProfileToShow.value, () => {
+      if(mutedUsers.value.find((user => user.username === currentProfileToShow.value.username))) {
+        currentProfileToShow.value.isMuted = true
+      } else {
+        currentProfileToShow.value.isMuted = false
+      }
+    })
 </script>
 
 <style>

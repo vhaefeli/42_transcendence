@@ -38,9 +38,14 @@
           <div v-if="props.adminTab" class="flex flex-col items-center text-center ft-central-tab-container mb-3">
             <div class="ft-tab-content ft-bg-color-profile flex flex-col items-center">
               <h3 class="py-1">manage acess to channel</h3>
-              <div>
+              <div class="flex">
                 <a title="Kick this mumber" class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="kick()"><img src="../assets/icons/right-from-bracket-solid.svg" alt="kick icon"></a>
-                <a title="Mute this member" class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="mute()"><img src="../assets/icons/comment-slash-solid.svg" alt="mute icon"></a>
+                <div v-if="isUserMuted">
+                  <a title="Unmute this member" class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor" @click="unmute()"><img src="../assets/icons/comment-slash-solid.svg" alt="mute icon"></a>
+                </div>
+                <div v-else>
+                  <a title="Mute this member" class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="mute()"><img src="../assets/icons/comment-slash-solid.svg" alt="mute icon"></a>
+                </div>
                 <a title="Bann this member" class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="bann()"><img src="../assets/icons/user-slash-solid.svg" alt="bann icon"></a>
               </div>
             </div>
@@ -59,18 +64,22 @@
     import axios from "axios";
 
     const actualInfos = ref({})
-
+    
     const FromFriendToNotFriend = ref(false)
     const isActualInfosLoaded = ref(false)
-
+    
     const emits = defineEmits(['updateBlocked', 'adminAction'])
-
+    
     const props = defineProps({
-        username: String,
-        adminTab: Boolean,
-        sessionStore: Object,
-        userStore: Object,
+      username: String,
+      ismuted: Boolean,
+      adminTab: Boolean,
+      sessionStore: Object,
+      userStore: Object,
+      currentProfile: Object
     })
+    
+    const isUserMuted = ref(props.currentProfile.isMuted)
 
     function addFriend() {
         props.userStore.addFriend(props.username, props.sessionStore.access_token)
@@ -95,18 +104,21 @@
         emits('updateBlocked', actualInfos.value.is_blocked)
     }
 
-    function bann(username) {
-        // do something to bann this user
+    function bann() {
         emits('adminAction', 'bann')
     }
 
-    function mute(username) {
-        // do something to bann this user
+    function mute() {
+        isUserMuted.value = true
         emits('adminAction', 'mute')
     }
 
-    function kick(username) {
-        // do something to bann this user
+    function unmute() {
+      isUserMuted.value = false
+      emits('adminAction', 'unmute')
+    }
+
+    function kick() {
         emits('adminAction', 'kick')
     }
 
