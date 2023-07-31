@@ -1,13 +1,41 @@
 <template>
   <NavBar :showProfile="true" :userStore="userStore"/>
-  <div class="text-white profile-container w-full">
-    <section class="flex flex-col items-center">
+  <div id="profile-container">
+    <section class="ft-cover flex flex-col items-end justify-end">
+    </section>
+
+    <section class="ft-container">
+
+    <div class="flex flex-col items-center text-center max-w-max ft-central-tab-container">
+      <div class="ft-profile-pic" id="current-profile-pic" :style="{ 'background': 'url(' + user.avatar_url + ')' }"></div>
+      <!-- <div class="ft-connection-circle" id="current-profile-pic"><StatusBubble :status="user.status"></StatusBubble></div> -->
+      <div class="ft-tab-folder" id="title-profile"></div>
+      <!-- <div class="ft-tab-content ft-bg-color-profile">{{ user.status }}</div> -->
+      <div class="ft-tab-content ft-bg-color-profile ft-title" id="username">{{ user.username }}</div>
+      <div class="ft-tab-content ft-bg-color-profile" id="buttons-container">
+        <a @click="router.push('/user/edit')" title="edit your profile" class="t-btn-pink ft-color-edit ft-my-profile ft-icon-small icon-btn-cursor" id="edit" ><img src="../assets/icons/user-pen-solid.svg" alt="edit my profile"></a>
+      </div>
+    </div>
+
+
+
+      <!-- GO BACK -->
       <button
         class="t-btn-pink"
         @click="userStore.redirectToMyProfile(sessionStore.access_token)"
       >
         Go Back
       </button>
+
+      <!-- DOSSIER GAUCHE -->
+      <div class="flex flex-col text-center ft-left-tab" id="two-fa" :class="{ foreground: foregroundTab === 'two-fa' }" @click="setForegroundTab('two-fa')">
+          <div class="ft-tab-folder ft-tab-title ft-bb-color-game">two-fa</div>
+          <div class="ft-tab-content ft-border-color-game ft-tab-border flex flex-row justify-evenly ">
+              Contenu
+          </div>
+        </div>
+
+      <!-- 2FA -->
       <p v-if="errorText.length">{{ errorText }}</p>
       <p>
         {{ `2fa is ${userStore.user.tfa_enabled ? "enabled" : "disabled"}` }}
@@ -40,6 +68,8 @@
           cancel
         </button>
       </div>
+
+      <!-- AVATAR -->
       <p class="text-white">Upload a new avatar for your profile</p>
       <div
         class="drop-area w-2/3"
@@ -80,6 +110,8 @@
           </button>
         </div>
       </div>
+
+      <!-- USERNAME -->
       <div class="text-white" id="ft-edit-username">
         <div v-if="!usernameChanged">
           <p>Modify your username:</p>
@@ -108,7 +140,9 @@
       </div>
     </section>
   </div>
+
   <div id="ft-bottom-line"></div>
+
 </template>
 
 <script setup lang="ts">
@@ -435,4 +469,116 @@ function submitNewUsername() {
   bottom: 0;
   z-index: 10000;
 }
+
+/* MyProfilePage.vue */
+.foreground {
+  z-index: 999;
+}
+
+.ft-cover {
+    background: url(./../assets/img/fond.png);
+}
+
+#profile-container {
+    background: var(--gray);
+    border: 4px solid var(--light-purple);
+    border-radius: 25px 25px 0 0;
+    overflow: hidden;
+}
+
+.ft-profile-pic#current-profile-pic {
+  position: relative;
+  top: 3em;
+  z-index:1;
+  background-size: cover !important;
+}
+
+.ft-central-tab-container {
+  position: relative;
+  top: -16em;
+  left: 50vw;
+  transform: translateX(-50%);
+}
+
+.ft-tab-content {
+  min-width: 100%;
+  box-shadow: 5px 5px 4px rgba(0, 0, 0, 0.4);
+}
+
+.ft-central-tab-container.ft-tab-content {
+  background: var(--light-purple);
+}
+
+.ft-connection-circle#current-profile-pic {
+  position:relative;
+  top: 2.5em;
+  z-index:2;
+}
+
+.ft-tab-folder {
+  width: fit-content;
+  border-bottom-style: solid;
+  border-bottom-width: 1.5em;
+    /* border-bottom: 1.5em solid var(--sunset); */
+}
+
+#title-profile {
+  text-overflow: ellipsis;
+    font-size: 2rem;
+    width: 10em;
+    border-bottom: 1.5em solid var(--light-purple);
+}
+
+.ft-tab-content#buttons-container {
+  padding: 2em 0 12em 0;
+  height: 17rem;
+}
+
+.ft-tab-separator {
+  padding: 1em;
+}
+
+.ft-left-tab#two-fa {
+  position: relative;
+  top: 28rem;
+  left: 10vw;
+  width: 30em;
+
+  z-index: 1;
+}
+
+.ft-tab-border {
+  border-style: solid;
+  border-width: 0.3em;
+  padding: 1em 4em 1em 4em;
+}
+
+.ft-tab-separator {
+  border-bottom-width: 0.3em;
+  border-bottom-style:solid;
+}
+
+.ft-profile-pic.ft-friend-pic {
+  width: 3em;
+  height: 3em;
+  position: relative;
+  background: url(./../assets/img/ben-neale-zpxKdH_xNSI-unsplash.jpg);
+  background-size: cover;
+}
+
+.ft-tab-content.ft-tab-border#blocked {
+  background: var(--dark-gray);
+}
+
+.ft-item-title {
+  padding: 1.5em;
+}
+
+#profile-container {
+    background: var(--gray);
+    border: 4px solid var(--light-purple);
+    border-radius: 25px 25px 0 0;
+    overflow: hidden;
+}
+
 </style>
