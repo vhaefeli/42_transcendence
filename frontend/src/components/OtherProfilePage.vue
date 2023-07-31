@@ -18,8 +18,10 @@
           <div class="ft-tab-content ft-bg-color-profile">{{ user.status }}</div>
           <div class="ft-tab-content ft-bg-color-profile ft-title" id="username">{{ user.username }}</div>
           <div class="ft-tab-content ft-bg-color-profile" id="buttons-container">
-            <a title="send a friend request" class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor ft-other-profile"><img src="../assets/icons/user-plus-solid.svg" alt="send a friend request"></a>
-            <a title="block this user" class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor ft-other-profile" @click="blockUser(user.username)"><img src="../assets/icons/person-circle-minus-solid.svg" alt="block them"></a>
+            <a v-if="!user.is_friend" title="send a friend request" class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor ft-other-profile" @click="addFriend"><img src="../assets/icons/user-plus-solid.svg" alt="send a friend request"></a>
+            <a v-else title="remove friendship" class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor ft-other-profile" @click="removeFriend"><img src="../assets/icons/user-minus-solid.svg" alt="remove friendship"></a>
+            <a v-if="!user.is_blocked" title="block this user" class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor ft-other-profile" @click="blockUser"><img src="../assets/icons/person-circle-minus-solid.svg" alt="block them"></a>
+            <a v-else title="unblock this user" class="t-btn-pink ft-color-unblock ft-icon-small icon-btn-size icon-btn-cursor ft-other-profile" @click="unblockUser"><img src="../assets/icons/person-circle-check-solid.svg" alt="block them"></a>
           </div>
         </div>
   
@@ -83,7 +85,18 @@
     import EmptyText from "@/components/EmptyText.vue";
     import StatusBubble from "@/components/StatusBubble.vue";
 
-        const user = ref({})
+        const user = ref({
+          id: 0,
+          username: "",
+          avatar_url: "",
+          level: "",
+          rank: 0,
+          nbMatch: 0,
+          nbGames: 0,
+          is_friend: false,
+          status: "OFFLINE",
+          is_blocked: false,
+        })
         const gameLog = ref([])
         const route = useRoute()
         const router = useRouter();
@@ -102,7 +115,7 @@
 
         async function loadInfo() {
           await loadUserList();
-          await loadGameHistory();
+          loadGameHistory();
         }
 
         async function loadUserList() {
@@ -164,6 +177,26 @@
         month: '2-digit',
         year: 'numeric',
       })
+    }
+
+    async function addFriend() {
+      await userStore.addFriend(user.value.username, sessionStore.access_token);
+      loadInfo();
+    }
+
+    async function removeFriend() {
+      await userStore.delFriend(user.value.username, sessionStore.access_token);
+      loadInfo();
+    }
+
+    async function blockUser() {
+      await userStore.blockUser(user.value.username, sessionStore.access_token);
+      loadInfo();
+    }
+
+    async function unblockUser() {
+      await userStore.unblockUser(user.value.username, sessionStore.access_token);
+      loadInfo();
     }
 
 </script>
