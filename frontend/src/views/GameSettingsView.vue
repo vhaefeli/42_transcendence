@@ -1,5 +1,5 @@
 <template>
-  <NavBar :showProfile="true"></NavBar>
+  <NavBar :showProfile="true" :userStore="userStore"></NavBar>
   <div>
     <section></section>
     <section class="ft-game-container">
@@ -57,16 +57,19 @@
             </select>
           </div>
           <div class="flex flex-row items-center my-4">
-            <input v-model="newFriend" placeholder="Add a friend by username" />
+            <input
+              v-model="gest"
+              placeholder="Add a someone username you want to play with"
+            />
           </div>
           <div class="flex flex-row items-center my-4">
-            <div :class="{ 'cursor-not-allowed': !newFriend }">
+            <div :class="{ 'cursor-not-allowed': !gest }">
               <a
-                @click="addFriend"
+                @click="inviteFriend"
                 class="t-btn-pink ft-bg-color-game icon-btn-cursor"
-                :class="{ 'opacity-50 searchan-noClick': !newFriend }"
+                :class="{ 'opacity-50 searchan-noClick': !gest }"
               >
-                <span>Invite my friend to play!!!</span>
+                <span>Invite {{ gest }} to play!!!</span>
               </a>
             </div>
           </div>
@@ -133,35 +136,6 @@
           </ul>
         </div>
       </div>
-      <!-- stats -->
-      <div
-        class="flex flex-col text-center ft-left-tab"
-        id="stats"
-        :class="{ foreground: foregroundTab === 'stats' }"
-        @click="setForegroundTab('stats')"
-      >
-        <div class="ft-tab-folder ft-tab-title ft-bb-color-game">Stats</div>
-        <div
-          class="ft-tab-content ft-border-color-game ft-tab-border flex flex-row justify-evenly"
-        >
-          <div class="ft-item-title ft-bb-color-game flex flex-col">
-            <div class="ft-result-drk-text">{{ user.nbGames }}</div>
-            <div class="ft-text">matches</div>
-          </div>
-          <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
-            <div class="ft-result-drk-text">{{ user.rank }}</div>
-            <div class="ft-text">victories</div>
-          </div>
-          <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
-            <div class="ft-result-drk-text">{{ user.nbMatch }}</div>
-            <div class="ft-text">perfect victories</div>
-          </div>
-          <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
-            <div class="ft-result-drk-text">{{ user.level }}</div>
-            <div class="ft-text">level</div>
-          </div>
-        </div>
-      </div>
       <!-- match History -->
       <div
         class="flex flex-col text-center ft-right-tab"
@@ -198,6 +172,35 @@
               </div>
             </div>
           </ul>
+        </div>
+      </div>
+      <!-- stats -->
+      <div
+        class="flex flex-col text-center ft-left-tab"
+        id="stats"
+        :class="{ foreground: foregroundTab === 'stats' }"
+        @click="setForegroundTab('stats')"
+      >
+        <div class="ft-tab-folder ft-tab-title ft-bb-color-game">Stats</div>
+        <div
+          class="ft-tab-content ft-border-color-game ft-tab-border flex flex-row justify-evenly"
+        >
+          <div class="ft-item-title ft-bb-color-game flex flex-col">
+            <div class="ft-result-drk-text">{{ user.nbGames }}</div>
+            <div class="ft-text">matches</div>
+          </div>
+          <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
+            <div class="ft-result-drk-text">{{ user.rank }}</div>
+            <div class="ft-text">victories</div>
+          </div>
+          <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
+            <div class="ft-result-drk-text">{{ user.nbMatch }}</div>
+            <div class="ft-text">perfect victories</div>
+          </div>
+          <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
+            <div class="ft-result-drk-text">{{ user.level }}</div>
+            <div class="ft-text">level</div>
+          </div>
         </div>
       </div>
     </section>
@@ -274,10 +277,10 @@
 
   // other variables
   const foregroundTab = ref("");
-  const newFriend = ref("");
+  const gest = ref("");
   let allUsers: { id: number; username: string }[];
 
-  const { user, friends, invites, blocked, invitesSent, gameLog } =
+  const { user, friends, invites, invitesSent, gameLog } =
     storeToRefs(userStore);
 
   function setForegroundTab(tab) {
@@ -295,7 +298,6 @@
       if (user.value.isLogged) {
         await userStore.getFriends(sessionStore.access_token);
         await userStore.getInvites(sessionStore.access_token);
-        await userStore.getBlockedUsers(sessionStore.access_token);
         await userStore.getInvitesSent(sessionStore.access_token);
         await userStore.getGameHistory(sessionStore.access_token);
       } else {
@@ -333,44 +335,18 @@
   }
 
   // functions to delete because useless
-  function addFriend() {
+  function inviteFriend() {
     if (newFriend.value) {
       userStore.addFriend(newFriend.value, sessionStore.access_token);
     }
   }
 
-  function formatDate(dateString: string) {
-    const dateObj = new Date(dateString);
-    return dateObj.toLocaleDateString("fr-FR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  }
-
-  function acceptFriend(friendname) {
+  function acceptGameFriend(friendname) {
     userStore.acceptFriend(friendname, sessionStore.access_token);
   }
 
-  function iDontWantToBeFriend(friendname) {
+  function declineGameFriend(friendname) {
     userStore.declineFriend(friendname, sessionStore.access_token);
-  }
-
-  function removeFriend(friendname) {
-    userStore.delFriend(friendname, sessionStore.access_token);
-  }
-
-  function blockUser(username) {
-    userStore.blockUser(username, sessionStore.access_token);
-  }
-
-  function blockUserAndDelInvite(username) {
-    userStore.blockUser(username, sessionStore.access_token);
-    userStore.declineFriend(username, sessionStore.access_token);
-  }
-
-  function unblockUser(username) {
-    userStore.unblockUser(username, sessionStore.access_token);
   }
 
   function getGameHistory(username) {
@@ -390,27 +366,27 @@
   .ft-game-container {
     background: var(--gray);
     border: 4px solid var(--sunset);
-    padding-top: 5vw;
+    padding: 5vw;
     flex: 1;
     display: flex;
     flex-direction: column;
     border-radius: 25px 25px 0 0;
     overflow: hidden;
     height: 90vh;
+    z-index: 0;
   }
   .foreground {
     z-index: 999;
   }
 
   #directPlay {
-    right: -25vw;
-    transform: translateX(-50%);
+    left: 10vw;
   }
 
   #setGame {
     position: relative;
     top: -7em;
-    right: 10vw;
+    right: 5vw;
   }
 
   #setGameContent {
@@ -418,23 +394,23 @@
   }
 
   #gameInvitation {
-    top: -14em;
-    right: -20vw;
-  }
-
-  #stats {
-    position: relative;
-    top: -12rem;
-    left: 5vw;
-    width: max-content;
-    z-index: 1;
+    top: -21vh;
+    right: -15vw;
   }
 
   #match-history {
     position: relative;
-    top: -30em;
-    right: -51vw;
+    top: -17em;
+    right: -39vw;
     width: 40rem;
+  }
+
+  #stats {
+    position: relative;
+    top: -40vh;
+    width: max-content;
+    left: 1vw;
+    z-index: 1;
   }
 
   .ft-left-tab {
@@ -444,9 +420,6 @@
   }
   .ft-right-tab {
     position: relative;
-    /* top: 43em; */
-    /* left: 33vw; */
-    /* width: 41em; */
   }
 
   .ft-profile-pic#current-profile-pic {
