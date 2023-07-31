@@ -74,7 +74,7 @@
 </template>
   
 <script setup lang="ts">
-    import { ref, onBeforeMount, watch } from "vue";
+    import { ref, onBeforeMount, watch, onBeforeUnmount } from "vue";
     import { useRoute, useRouter } from 'vue-router'
     import axios, { AxiosError } from "axios";
     import { useUserStore } from '../stores/UserStore'
@@ -86,12 +86,24 @@
         const user = ref({})
         const gameLog = ref([])
         const route = useRoute()
+        const router = useRouter();
         
         const isUserLoaded = ref<boolean>(false)
         const isGameLogLoaded = ref<boolean>(false)
 
         const sessionStore = useSessionStore()
         const userStore = useUserStore()
+
+        const loadUserInterval = setInterval(loadInfo, 5000);
+
+        onBeforeUnmount(() => {
+          clearInterval(loadUserInterval);
+        });
+
+        async function loadInfo() {
+          await loadUserList();
+          await loadGameHistory();
+        }
 
         async function loadUserList() {
             await axios({
@@ -104,6 +116,7 @@
                 isUserLoaded.value = true;
             })
             .catch((error) => {
+                if (error.response?.status == 401) router.push('/login?logout=true');
                 console.error(
                 `unexpected error: ${error.response.status} ${error.response.statusText}`
                 );

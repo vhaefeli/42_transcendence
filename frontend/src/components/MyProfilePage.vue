@@ -192,7 +192,7 @@
 </template>
   
 <script setup lang="ts">
-    import { ref, onBeforeMount, watch } from "vue";
+    import { ref, onBeforeMount, watch, onBeforeUnmount } from "vue";
     import { storeToRefs } from 'pinia'
     import { useRoute, useRouter } from 'vue-router'
     import axios, { AxiosError } from "axios";
@@ -239,27 +239,40 @@
 
     // other variables
     const foregroundTab = ref('')
-
+    let loadInfoInterval: ReturnType<typeof setInterval>;
     const { user, friends, invites, blocked, invitesSent, gameLog } = storeToRefs(userStore)
 
     // onBeforeMount is executed before the component is mounted
     // way of using await because we can't do it in setup
     onBeforeMount(async () => {
       isLoggedIn.value = true;
+      loadAllInfo();
 
+      statusService.onConnect(() => {
+        userStore.getMe(sessionStore.access_token);
+      },
+      { timeout: 10000 });
+
+      loadInfoInterval = setInterval(loadAllInfo, 5000);
+    });
+
+    onBeforeUnmount(() => {
+      clearInterval(loadInfoInterval);
+    });
+
+    async function loadAllInfo() {
       // get user infos, friends, and invitations
       await userStore.getMe(sessionStore.access_token);
       if (user.value.isLogged) {
-        await userStore.getFriends(sessionStore.access_token);
-        await userStore.getInvites(sessionStore.access_token);
-        await userStore.getBlockedUsers(sessionStore.access_token);
-        await userStore.getInvitesSent(sessionStore.access_token);
-        await userStore.getGameHistory(sessionStore.access_token);
-        // await userStore.
+        userStore.getFriends(sessionStore.access_token);
+        userStore.getInvites(sessionStore.access_token);
+        userStore.getBlockedUsers(sessionStore.access_token);
+        userStore.getInvitesSent(sessionStore.access_token);
+        userStore.getGameHistory(sessionStore.access_token);
       } else {
         router.push('/login?logout=true');
       }
-      // list all users
+      // get all users
       await axios({
           url: "/api/user/all",
           method: "get",
@@ -272,12 +285,7 @@
           console.error(`unexpected error: ${error.response.status} ${error.response.statusText}`);
       });
       loadUserSearchList();
-
-      statusService.onConnect(() => {
-        userStore.getMe(sessionStore.access_token);
-      },
-      { timeout: 10000 });
-    });
+    }
 
     async function loadUserSearchList() {
       userSearchList.value = allUsers.filter((user) => {
