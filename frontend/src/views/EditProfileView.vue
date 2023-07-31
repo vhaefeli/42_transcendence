@@ -20,7 +20,7 @@
     </div>
 
 
-    <!-- DOSSIER GAUCHE -->
+    <!-- DOSSIER GAUCHE 2fa-->
     <div class="flex flex-col text-center ft-left-tab" id="two-fa" :class="{ foreground: foregroundTab === 'two-fa' }" @click="setForegroundTab('two-fa')">
       <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Two factor authentication</div>
       <div class="ft-tab-content ft-border-color-profile ft-tab-border flex flex-col justify-evenly text-left">
@@ -59,39 +59,46 @@
       </div>
     </div>
 
-      <!-- 2FA -->
-      <!-- <p v-if="errorText.length">{{ errorText }}</p>
-      <p>
-        {{ `2fa is ${userStore.user.tfa_enabled ? "enabled" : "disabled"}` }}
-      </p>
-      <div v-if="!show_tfa_enable_disable_confirmation">
-        <div id="ft-enabled-tfa" v-if="!user.tfa_enabled">
-          <input
-            v-model="tfa_email"
-            placeholder="your email address"
-            class="ft-text-input"
-          /><br />
-          <button @click="tfaEnable" class="ft-edit-button">enable</button>
-        </div>
-        <div id="ft-disable-tfa" v-if="user.tfa_enabled">
-          <button @click="tfaDisable" class="ft-edit-button-red">
-            disable
-          </button>
+
+    <!-- ICI dossier droite meme niveau que 2fa : changement de username -->
+    <div class="flex flex-col text-center ft-right-tab" id="username-change" :class="{ foreground: foregroundTab === 'username-change' }" @click="setForegroundTab('username-change')">
+      <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Change your username</div>
+      <div class="ft-tab-content ft-border-color-profile ft-tab-border flex flex-col justify-evenly text-left">
+        <div class="text-white" id="ft-edit-username">
+          <div v-if="!usernameChanged">
+            <p>Modify your username:</p>
+            <input
+              class="min-w-10 ft-text-input"
+              v-model="username"
+              placeholder="new username"
+            />
+            <div
+              :class="{ 'cursor-not-allowed': username.length == 0 }"
+              class="w-fit"
+            >
+              <button
+                class="ft-edit-button"
+                @click="submitNewUsername"
+                :class="{ 'opacity-50 ft-noClick': username.length == 0 }"
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+          <div v-if="usernameChanged">
+            <p>Username successfully changed, please login again</p>
+            <button class="t-btn-pink" @click="logout">Go to Login</button>
+          </div>
         </div>
       </div>
-      <div v-if="show_tfa_enable_disable_confirmation">
-        <input
-          v-model="tfa_code"
-          placeholder="code"
-          class="ft-text-input"
-        /><br />
-        <button @click="validate2FARegistration" class="ft-edit-button">
-          validate
-        </button>
-        <button @click="cancelTfaEnableDisable" class="ft-edit-button-red">
-          cancel
-        </button>
-      </div> -->
+    </div>
+
+
+
+
+    <!-- dossier gauche central pour avatar change -->
+
+
 
       <!-- AVATAR -->
       <p class="text-white">Upload a new avatar for your profile</p>
@@ -136,7 +143,7 @@
       </div>
 
       <!-- USERNAME -->
-      <div class="text-white" id="ft-edit-username">
+      <!-- <div class="text-white" id="ft-edit-username">
         <div v-if="!usernameChanged">
           <p>Modify your username:</p>
           <input
@@ -161,7 +168,7 @@
           <p>Username successfully changed, please login again</p>
           <button class="t-btn-pink" @click="logout">Go to Login</button>
         </div>
-      </div>
+      </div> -->
     </section>
   </div>
 
@@ -566,6 +573,15 @@ function submitNewUsername() {
   position: relative;
   top: -20rem;
   left: 8vw;
+  width: 25rem;
+
+  z-index: 1;
+}
+
+.ft-right-tab#username-change {
+  position: relative;
+  top: -35rem;
+  left: 65vw;
   width: 25rem;
 
   z-index: 1;
