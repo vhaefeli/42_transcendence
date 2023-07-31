@@ -49,7 +49,7 @@
           <div class="flex flex-col pr-9">
               <router-link class="ft-bg-color-profile t-btn-pink ft-other-profile mb-3" :to= "'/user/' + actualInfos.username">See profile</router-link>
               <!-- TO DO: link to game setting + send username of the person you want to play with -->
-              <router-link class="ft-bg-color-game t-btn-pink ft-other-profile mb-3" to="/game">Invite to play</router-link>
+              <router-link class="ft-bg-color-game t-btn-pink ft-other-profile mb-3" :to="{ name: 'game-settings', query: { inviteUserId: actualInfos.id } }">Invite to play</router-link>
           </div>
       </div>
 </template>

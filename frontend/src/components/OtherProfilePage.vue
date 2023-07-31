@@ -6,8 +6,8 @@
       </div>
 
       <section class="ft-cover flex flex-col items-end justify-end">
-        <a class="ft-bg-color-chat t-btn-pink ft-other-profile"><span>Send message</span></a>
-        <a class="ft-bg-color-game t-btn-pink ft-other-profile"><span>Invite to play</span></a>
+          <router-link :to="{ name: 'dms', query: { recipient: user?.id } }" class="ft-bg-color-chat t-btn-pink ft-other-profile"><span>&nbsp;Send message&nbsp;</span></router-link>
+          <router-link :to="{ name: 'game-settings', query: { inviteUserId: user?.id } }" class="ft-bg-color-game t-btn-pink ft-other-profile"><span>Invite to play</span></router-link>
       </section>
   
       <section class="ft-container">

@@ -122,7 +122,7 @@
                         </ul>
                       </div>
                       <ul class="flex flex-row">
-                        <li><a class="t-btn-pink ft-bg-color-game ft-icon-small icon-btn-size icon-btn-cursor"><img src="../assets/icons/table-tennis-paddle-ball-solid.svg" alt="invite to play a game with them" title="invite them to play a game"></a></li>
+                        <router-link :to="{ name: 'game-settings', query: { inviteUserId: friend.id } }" class="t-btn-pink ft-bg-color-game ft-icon-small icon-btn-size icon-btn-cursor"><img src="../assets/icons/table-tennis-paddle-ball-solid.svg" alt="invite to play a game with them" title="invite them to play a game"></router-link>
                         <router-link :to="{ name: 'dms', query: { recipient: friend.id } }" class="t-btn-pink ft-bg-color-chat ft-icon-small icon-btn-size icon-btn-cursor"><img src="../assets/icons/message-solid.svg" alt="send them a message"></router-link>
                         <li><a class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor" @click="blockUser(friend.username)"><img src="../assets/icons/person-circle-minus-solid.svg" alt="block them" title="block this user"></a></li>
                         <li><a class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="removeFriend(friend.username)"><img src="../assets/icons/user-minus-solid.svg" alt="remove friendship" title="remove this person from your friends"></a></li>
