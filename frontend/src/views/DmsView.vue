@@ -164,7 +164,7 @@
       if (message.value.length === 0) {
         newId = 0
       } else {
-        newId = messages.value.slice(-1).id + 1
+        newId = messages.value[messages.value.length - 1].id + 1
       }
       messages.value.push({
         id: newId,
