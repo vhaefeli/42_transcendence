@@ -119,7 +119,7 @@
                           </div>
                           <ul class="flex flex-col justify-center">
                             <li class="ft-text ml-2 truncate" style="max-width: 10rem;">{{ friend.username }}</li>
-                            <li class="ft-level-text ml-2">Pitaya level TO DO</li>
+                            <li class="ft-level-text ml-2">Level: {{ friends_levels.get(friend.id) }}</li>
                           </ul>
                         </div>
                         <ul class="flex flex-row">
@@ -246,6 +246,7 @@
     const foregroundTab = ref('')
     let loadInfoInterval: ReturnType<typeof setInterval>;
     const { user, friends, invites, blocked, invitesSent, gameLog } = storeToRefs(userStore)
+    const friends_levels = new Map<number, string>();
 
     // onBeforeMount is executed before the component is mounted
     // way of using await because we can't do it in setup
@@ -265,17 +266,22 @@
       clearInterval(loadInfoInterval);
     });
 
+    watch(userStore.friends, (friends) => {
+    });
+
     async function loadAllInfo() {
       // get user infos, friends, and invitations
+      let loadFriends: Promise<any>;
       await userStore.getMe(sessionStore.access_token);
       if (user.value.isLogged) {
-        userStore.getFriends(sessionStore.access_token);
+        loadFriends = userStore.getFriends(sessionStore.access_token);
         userStore.getInvites(sessionStore.access_token);
         userStore.getBlockedUsers(sessionStore.access_token);
         userStore.getInvitesSent(sessionStore.access_token);
         userStore.getGameHistory(sessionStore.access_token);
       } else {
         router.push('/login?logout=true');
+        return;
       }
       // get all users
       await axios({
@@ -288,6 +294,20 @@
         })
         .catch((error) => {
           console.error(`unexpected error: ${error.response.status} ${error.response.statusText}`);
+      });
+      // load levels of friends
+      await loadFriends;
+      userStore.friends.forEach((f) => {
+        axios({
+          url: `/api/user/profile/id/${f.id}`,
+          method: 'get',
+          headers: {
+            Authorization: `Bearer ${sessionStore.access_token}`,
+          },
+        }).then((response) => {
+          friends_levels.set(f.id, transformLevel(response.data?.level));
+        });
+        //friends_levels.set(f.id)
       });
       loadUserSearchList();
     }
