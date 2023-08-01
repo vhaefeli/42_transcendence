@@ -511,7 +511,7 @@
   height: 3em;
   position: relative;
   background: url(./../assets/img/ben-neale-zpxKdH_xNSI-unsplash.jpg);
-  background-size: cover;
+  background-size: cover !important;
 }
 
 .ft-connection-circle.ft-friend-status {
