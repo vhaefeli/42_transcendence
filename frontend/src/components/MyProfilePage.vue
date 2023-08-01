@@ -32,7 +32,7 @@
                 <div class="ft-text">perfect victories</div>
               </div>
               <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
-                <div class="ft-result-drk-text">{{ transformLevel(user.level) }}</div>
+                <div class="ft-result-drk-text">{{ user.level }}</div>
                 <div class="ft-text">level</div>
               </div>
           </div>
@@ -66,7 +66,7 @@
                 <div v-for="(invitation, index) in invites" :key="index">
                   <li class="ft-clickable-profile ft-item-title p-0 ft-text ft-bb-color-profile flex flex-row justify-between items-center" :class="index === invites.length - 1 ? '' : 'ft-tab-separator'" v-on:click="router.push(`/user/${invitation.username}`)">
                     <ul class="flex flex-row items-center">
-                      <li class="ft-profile-pic ft-friend-pic"></li>
+                      <li class="ft-profile-pic ft-friend-pic" :style="{ 'background': 'url(' + invitation.avatar_url + ')' }"></li>
                       <li class="ft-text ml-2 truncate" style="max-width: 10rem;">{{ invitation.username }}</li>
                     </ul>
                     <ul class="flex flex-row">
@@ -90,7 +90,7 @@
                   <div v-for="(invitation, index) in invitesSent" :key="index">
                       <li class="ft-clickable-profile ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between items-center" :class="index === invitesSent.length - 1 ? '' : 'ft-tab-separator'" v-on:click="router.push(`/user/${invitation.username}`)">
                         <ul class="flex flex-row items-center">
-                          <li class="ft-profile-pic ft-friend-pic"></li>
+                          <li class="ft-profile-pic ft-friend-pic" :style="{ 'background': 'url(' + invitation.avatar_url + ')' }"></li>
                           <li class="ft-text ml-2 truncate" style="max-width: 10rem;">{{ invitation.username }}</li>
                         </ul>
                       </li> 
@@ -111,7 +111,7 @@
                       <div class="flex flex-row justify-between ft-clickable-profile" v-on:click="router.push(`/user/${friend.username}`)">
                         <div class="flex flex-row items-center">
                           <div class="flex flex-col">
-                            <div class="ft-profile-pic ft-friend-pic">
+                            <div class="ft-profile-pic ft-friend-pic" :style="{ 'background': 'url(' + friend.avatar_url + ')' }">
                               <div class="ft-connection-circle ft-friend-status"><StatusBubble :status="friend.status"></StatusBubble>
                                 <!-- <img src="../assets/icons/tennisBallBlack.png" alt="is playing" title="your friend is playing" class="ft-playing"> -->
                               </div>
@@ -119,7 +119,7 @@
                           </div>
                           <ul class="flex flex-col justify-center">
                             <li class="ft-text ml-2 truncate" style="max-width: 10rem;">{{ friend.username }}</li>
-                            <li class="ft-level-text ml-2">Level: {{ friends_levels.get(friend.id) }}</li>
+                            <li class="ft-level-text ml-2">Level: {{ friend.level }}</li>
                           </ul>
                         </div>
                         <ul class="flex flex-row">
@@ -171,7 +171,7 @@
                       <div class="flex flex-row justify-between ft-clickable-profile" v-on:click="router.push(`/user/${block.username}`)">
                         <div class="flex flex-row items-center">
                           <div class="flex flex-col">
-                            <div class="ft-profile-pic ft-friend-pic"></div>
+                            <div class="ft-profile-pic ft-friend-pic" :style="{ 'background': 'url(' + block.avatar_url + ')' }"></div>
                           </div>
                           <ul class="flex flex-col justify-center ft-text-light-gray">
                             <li class="ft-text ml-2 truncate" style="max-width: 10rem;">{{ block.username }}</li>
@@ -208,7 +208,6 @@
     import StatusBubble from "@/components/StatusBubble.vue";
     import OtherUserProfile from "../components/OtherUserProfile.vue";
     import { statusService } from "@/services/status-socket.service";
-    import { transformLevel } from "@/services/helper.service";
 
     type type_user = {
       id: number;
@@ -246,7 +245,6 @@
     const foregroundTab = ref('')
     let loadInfoInterval: ReturnType<typeof setInterval>;
     const { user, friends, invites, blocked, invitesSent, gameLog } = storeToRefs(userStore)
-    const friends_levels = new Map<number, string>();
 
     // onBeforeMount is executed before the component is mounted
     // way of using await because we can't do it in setup
@@ -292,18 +290,6 @@
         })
         .catch((error) => {
           console.error(`unexpected error: ${error.response.status} ${error.response.statusText}`);
-      });
-      // load levels of friends
-      userStore.friends.forEach((f) => {
-        axios({
-          url: `/api/user/profile/id/${f.id}`,
-          method: 'get',
-          headers: {
-            Authorization: `Bearer ${sessionStore.access_token}`,
-          },
-        }).then((response) => {
-          friends_levels.set(f.id, transformLevel(response.data?.level));
-        });
       });
       loadUserSearchList();
     }
