@@ -266,23 +266,21 @@
       clearInterval(loadInfoInterval);
     });
 
-    watch(userStore.friends, (friends) => {
-    });
-
     async function loadAllInfo() {
       // get user infos, friends, and invitations
-      let loadFriends: Promise<any>;
       await userStore.getMe(sessionStore.access_token);
+      const promises = new Array<Promise<any>>();
       if (user.value.isLogged) {
-        loadFriends = userStore.getFriends(sessionStore.access_token);
-        userStore.getInvites(sessionStore.access_token);
-        userStore.getBlockedUsers(sessionStore.access_token);
-        userStore.getInvitesSent(sessionStore.access_token);
-        userStore.getGameHistory(sessionStore.access_token);
+        promises.push(userStore.getFriends(sessionStore.access_token));
+        promises.push(userStore.getInvites(sessionStore.access_token));
+        promises.push(userStore.getBlockedUsers(sessionStore.access_token));
+        promises.push(userStore.getInvitesSent(sessionStore.access_token));
+        promises.push(userStore.getGameHistory(sessionStore.access_token));
       } else {
         router.push('/login?logout=true');
         return;
       }
+      await Promise.all(promises);
       // get all users
       await axios({
           url: "/api/user/all",
@@ -296,7 +294,6 @@
           console.error(`unexpected error: ${error.response.status} ${error.response.statusText}`);
       });
       // load levels of friends
-      await loadFriends;
       userStore.friends.forEach((f) => {
         axios({
           url: `/api/user/profile/id/${f.id}`,
@@ -307,7 +304,6 @@
         }).then((response) => {
           friends_levels.set(f.id, transformLevel(response.data?.level));
         });
-        //friends_levels.set(f.id)
       });
       loadUserSearchList();
     }
