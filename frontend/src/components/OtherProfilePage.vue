@@ -41,7 +41,7 @@
                 <div class="ft-text">perfect victories</div>
               </div>
               <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
-                <div class="ft-result-drk-text">{{ user.level }}</div>
+                <div class="ft-result-drk-text">{{ transformLevel(user.level) }}</div>
                 <div class="ft-text">level</div>
               </div>
           </div>
@@ -84,6 +84,7 @@
     import NavBar from "@/components/NavBar.vue";
     import EmptyText from "@/components/EmptyText.vue";
     import StatusBubble from "@/components/StatusBubble.vue";
+    import { transformLevel } from "@/services/helper.service";
 
         const user = ref({
           id: 0,

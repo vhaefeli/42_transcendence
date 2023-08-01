@@ -32,7 +32,7 @@
                 <div class="ft-text">perfect victories</div>
               </div>
               <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
-                <div class="ft-result-drk-text">{{ user.level }}</div>
+                <div class="ft-result-drk-text">{{ transformLevel(user.level) }}</div>
                 <div class="ft-text">level</div>
               </div>
           </div>
@@ -208,6 +208,7 @@
     import StatusBubble from "@/components/StatusBubble.vue";
     import OtherUserProfile from "../components/OtherUserProfile.vue";
     import { statusService } from "@/services/status-socket.service";
+    import { transformLevel } from "@/services/helper.service";
 
     type type_user = {
       id: number;
