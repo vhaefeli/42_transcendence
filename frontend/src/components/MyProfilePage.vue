@@ -64,7 +64,8 @@
               <div v-if="invites">
                 <div v-if="invites.length === 0"><EmptyText :text="'No one wants to be your friend...yet!'" :white="false" /></div>
                 <div v-for="(invitation, index) in invites" :key="index">
-                  <li class="ft-clickable-profile ft-item-title p-0 ft-text ft-bb-color-profile flex flex-row justify-between items-center" :class="index === invites.length - 1 ? '' : 'ft-tab-separator'" v-on:click="router.push(`/user/${invitation.username}`)">
+                  <li class="ft-item-title p-0 ft-text ft-bb-color-profile flex flex-row justify-between items-center" :class="index === invites.length - 1 ? '' : 'ft-tab-separator'">
+                  <div class="ft-clickable-profile flex flex-row justify-between items-center" v-on:click="router.push(`/user/${invitation.username}`)">
                     <ul class="flex flex-row items-center">
                       <li class="ft-profile-pic ft-friend-pic" :style="{ 'background': 'url(' + invitation.avatar_url + ')' }"></li>
                       <li class="ft-text ml-2 truncate" style="max-width: 10rem;">{{ invitation.username }}</li>
@@ -74,6 +75,7 @@
                       <li><a class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click.stop="iDontWantToBeFriend(invitation.username)"><img src="../assets/icons/circle-xmark-solid.svg" alt="decline friend request" title="decline friend request"></a></li>
                       <li><a class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor"  @click.stop="blockUserAndDelInvite(invitation.username)"><img src="../assets/icons/person-circle-minus-solid.svg" alt="block them" title="block this user"></a></li>
                     </ul>
+                  </div>
                   </li>  
                 </div>
               </div>  
@@ -88,11 +90,13 @@
               <div v-if="invitesSent">
                 <div v-if="invitesSent.length === 0"><EmptyText :text="`No pending request!`" :white="false" /></div>
                   <div v-for="(invitation, index) in invitesSent" :key="index">
-                      <li class="ft-clickable-profile ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between items-center" :class="index === invitesSent.length - 1 ? '' : 'ft-tab-separator'" v-on:click="router.push(`/user/${invitation.username}`)">
+                      <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between items-center" :class="index === invitesSent.length - 1 ? '' : 'ft-tab-separator'">
+                      <div class="ft-clickable-profile flex flex-row justify-between items-center" v-on:click="router.push(`/user/${invitation.username}`)">
                         <ul class="flex flex-row items-center">
                           <li class="ft-profile-pic ft-friend-pic" :style="{ 'background': 'url(' + invitation.avatar_url + ')' }"></li>
                           <li class="ft-text ml-2 truncate" style="max-width: 10rem;">{{ invitation.username }}</li>
                         </ul>
+                      </div>
                       </li> 
                   </div>
               </div> 
@@ -545,7 +549,7 @@
 }
 
 .ft-clickable-profile {
-  @apply p-4 w-full;
+  @apply p-2 w-full;
 }
 
 .ft-clickable-profile:hover {
