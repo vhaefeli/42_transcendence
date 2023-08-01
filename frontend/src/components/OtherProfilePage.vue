@@ -16,7 +16,7 @@
           <div class="ft-connection-circle" id="current-profile-pic"><StatusBubble :status="user.status"></StatusBubble></div>
           <div class="ft-tab-folder" id="title-profile"></div>
           <div class="ft-tab-content ft-bg-color-profile">{{ user.status }}</div>
-          <div class="ft-tab-content ft-bg-color-profile ft-title" id="username">{{ user.username }}</div>
+          <div class="ft-tab-content ft-bg-color-profile ft-title truncate" id="username">{{ user.username }}</div>
           <div class="ft-tab-content ft-bg-color-profile" id="buttons-container">
             <a v-if="!user.is_friend" title="send a friend request" class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor ft-other-profile" @click="addFriend"><img src="../assets/icons/user-plus-solid.svg" alt="send a friend request"></a>
             <a v-else title="remove friendship" class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor ft-other-profile" @click="removeFriend"><img src="../assets/icons/user-minus-solid.svg" alt="remove friendship"></a>
@@ -203,6 +203,10 @@
 
 <style scoped>
 
+#username {
+  max-width: 10rem;
+}
+
 #other-tab-container {
     position: absolute;
     top: 1.4rem;
@@ -211,7 +215,9 @@
 }
 
 #other-profile-tab {
+    text-overflow: hidden;
     height: 0;
+    max-width: 30rem;
     font-size: 1.6em;
     border-right: 1em solid var(--invisible);
     border-left: 1em solid var(--invisible);

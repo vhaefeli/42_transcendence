@@ -67,7 +67,7 @@
                   <li class="ft-clickable-profile ft-item-title p-0 ft-text ft-bb-color-profile flex flex-row justify-between items-center" :class="index === invites.length - 1 ? '' : 'ft-tab-separator'" v-on:click="router.push(`/user/${invitation.username}`)">
                     <ul class="flex flex-row items-center">
                       <li class="ft-profile-pic ft-friend-pic"></li>
-                      <li class="ft-text ml-2">{{ invitation.username }}</li>
+                      <li class="ft-text ml-2 truncate" style="max-width: 10rem;">{{ invitation.username }}</li>
                     </ul>
                     <ul class="flex flex-row">
                       <li><a class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor" @click.stop="acceptFriend(invitation.username)"><img src="../assets/icons/circle-check-solid.svg" alt="accept friend request" title="accept friend request"></a></li>
@@ -91,7 +91,7 @@
                       <li class="ft-clickable-profile ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between items-center" :class="index === invitesSent.length - 1 ? '' : 'ft-tab-separator'" v-on:click="router.push(`/user/${invitation.username}`)">
                         <ul class="flex flex-row items-center">
                           <li class="ft-profile-pic ft-friend-pic"></li>
-                          <li class="ft-text ml-2">{{ invitation.username }}</li>
+                          <li class="ft-text ml-2 truncate" style="max-width: 10rem;">{{ invitation.username }}</li>
                         </ul>
                       </li> 
                   </div>
@@ -118,7 +118,7 @@
                             </div>
                           </div>
                           <ul class="flex flex-col justify-center">
-                            <li class="ft-text ml-2">{{ friend.username }}</li>
+                            <li class="ft-text ml-2 truncate" style="max-width: 10rem;">{{ friend.username }}</li>
                             <li class="ft-level-text ml-2">Pitaya level TO DO</li>
                           </ul>
                         </div>
@@ -174,7 +174,7 @@
                             <div class="ft-profile-pic ft-friend-pic"></div>
                           </div>
                           <ul class="flex flex-col justify-center ft-text-light-gray">
-                            <li class="ft-text ml-2">{{ block.username }}</li>
+                            <li class="ft-text ml-2 truncate" style="max-width: 10rem;">{{ block.username }}</li>
                             <li class="ft-level-text ml-2 "><p v-if="block.is_friend">is my friend</p></li>
                           </ul>
                         </div>
@@ -554,7 +554,7 @@
 #username {
   /* if i don't do this wrapping doesn't work...
      i couldn't find a better solution -df */
-  max-width: min;
+  max-width: 10rem;
 }
 
 #profile-container {
