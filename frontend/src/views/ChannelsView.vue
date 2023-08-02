@@ -20,7 +20,7 @@
           <!-- admin panel -->
           <div id="ft-admin-panel" class="w-full h-full relative p-11">
             <button class="absolute top-0 right-0"><a class="t-btn-pink ft-circle-gray ft-icon-small icon-btn-size icon-btn-cursor" @click="showAdmin = false"><img src="../assets/icons/xmark-solid.svg" alt="quit"></a></button>
-            <AdminPanel :currentChannel="currentChannel" :sessionStore="sessionStore" @updateTypeOfChan="(type) => currentChannel.type = type"></AdminPanel>
+            <AdminPanel :currentChannel="currentChannel" :sessionStore="sessionStore" @updateTypeOfChan="(type) => currentChannel.type = type" @adminAction="manageAdminActionFromPanel"></AdminPanel>
           </div>
         </div>
         <div v-else class="flex grow">
@@ -37,10 +37,11 @@
                     <div v-else>
                         <div class="ft-msg-container">
                           <div class="flex items-center">
-                            <div v-if="isCurrentMembersLoaded" class="ft-profile-pic ft-profile-pic-small mr-3 ft-chat-profile-pic" :style="{ 'background': 'url(' + getMemberImg(message.senderId) + ')' }"></div>
+                            <div v-if="isCurrentMembersLoaded && isAllBannedLoaded" class="ft-profile-pic ft-profile-pic-small mr-3 ft-chat-profile-pic" :style="{ 'background': 'url(' + getMemberImg(message.senderId) + ')' }"></div>
                             <div class="mb-3">
-                              <a v-if="isCurrentMembersLoaded" class="cursor-pointer" @click="profileToShow = getMemberUsername(message.senderId)">{{ getMemberUsername(message.senderId) }}</a>
+                              <a v-if="isCurrentMembersLoaded && isAllBannedLoaded" class="cursor-pointer" @click="profileToShow = getMemberUsername(message.senderId)">{{ getMemberUsername(message.senderId) }}</a>
                               <p class="text-xs ft-chat-date">{{ message.date }}</p>
+                              <div class="ft-banned-user-text" v-if="checkIfBanned(message.senderId)">This user is banned!</div>
                             </div>
                           </div>
                           <div class="ml-[3.8rem]">
@@ -156,7 +157,6 @@
     const message = ref("")
     const messages = ref<Array<Message>>([])
     const scroller = ref(null);
-    //   const allUsers = ref([])
 
     const myChannels = ref<Array<MyChannel>>([]);
     const allChannels = ref<Array<Channel>>([])
@@ -175,6 +175,7 @@
 
     const mutedUsers = ref<Array<UserInList>>([])
     const bannedUsers = ref<Array<UserInList>>([])
+    const allUsers = ref([])
 
     // Reactive flag for loaded data
     const isAllMyChanLoaded = ref(true)
@@ -183,7 +184,7 @@
     const isBlockedLoaded = ref(false)
     const isAllBannedLoaded = ref<boolean>(false)
     const isAllMutedLoaded = ref<boolean>(false)
-    //   const isAllUsersLoaded = ref(false)
+    const isAllUsersLoaded = ref(false)
     
     let dateOptions = {
         weekday: "short",
@@ -241,12 +242,11 @@
       }
     }
 
-    // kick, bann or mute someone
+    // kick, bann or mute someone emitted from other profile component
     function manageAdminAction(action :string) {
       if (action === 'kick') {
         const found = currentMembers.value.find(member => member.username === currentProfileToShow.value.username)
         kick(currentChannel.value?.channelId, found.id, currentProfileToShow.value.username)
-        currentMembers.value = currentMembers.value.filter(member => member.username !== currentProfileToShow.value.username);
       } else if (action === 'mute') {
         const found = currentMembers.value.find(member => member.username === currentProfileToShow.value.username)
         mute(currentChannel.value?.channelId, found.id, currentProfileToShow.value.username)
@@ -256,7 +256,15 @@
       } else if (action === 'bann') {
         const found = currentMembers.value.find(member => member.username === currentProfileToShow.value.username)
         bann(currentChannel.value?.channelId, found.id, currentProfileToShow.value.username)
-        currentMembers.value = currentMembers.value.filter(member => member.username !== currentProfileToShow.value.username);
+      }
+    }
+
+    // kick, bann or mute someone emitted from pannel component
+    function manageAdminActionFromPanel(action :object) {
+      if (action.what === 'unmute') {
+        unmute(currentChannel.value?.channelId, action.userId, action.username)
+      } else if (action.what === 'unbann') {
+        unbann(currentChannel.value?.channelId, action.userId, action.username)
       }
     }
 
@@ -291,18 +299,31 @@
         currentChannel.value = myChannels.value.find((chan) => name === chan.name) || null
     }
 
-    function checkIfBlocked(senderId) {
+    function checkIfBlocked(senderId: number) {
       return userStore.blocked.find(user => user.id === senderId)
     }
 
+    function checkIfBanned(userId: number) {
+      return bannedUsers.value.find(user => user.id === userId)
+    }
+
     function getMemberImg(userId: number) {
-      const found = currentMembers.value.find(member => member.id === userId)
-      return found.avatar_url
+      if (checkIfBanned(userId)) {
+        return "src/assets/icons/user-slash-solid.svg"
+      } else {
+        const found = currentMembers.value.find(member => member.id === userId)
+        return found.avatar_url
+      }
     }
 
     function getMemberUsername(userId: number) {
-      const found = currentMembers.value.find(member => member.id === userId)
-      return found.username
+      if (checkIfBanned(userId)) {
+        const found = allUsers.value.find(member => member.id === userId)
+        return found.username
+      } else {
+        const found = currentMembers.value.find(member => member.id === userId)
+        return found.username
+      }
     }
 
     function getMemberId(username: string) {
@@ -419,7 +440,6 @@
     }
 
     async function kick(channelId: number, userId: number, username: string) {
-      // do something to bann this user
       await axios({
         url: "/api/chat/channel/member/remove",
         method: "patch",
@@ -428,6 +448,7 @@
       })
         .then((response) => {
           console.log(username + " is kicked out of channel with id " + channelId)
+          currentMembers.value = currentMembers.value.filter(member => member.username !== currentProfileToShow.value.username);
           currentProfileToShow.value.username = ''
           return true;
         })
@@ -450,7 +471,6 @@
     }
 
     async function bann(channelId: number, userId: number, username: string) {
-      // do something to bann this user
       await axios({
         url: "/api/chat/channel/banned/add",
         method: "patch",
@@ -459,6 +479,7 @@
       })
         .then((response) => {
           console.log(username + " is kicked out of channel with id " + channelId)
+          currentMembers.value = currentMembers.value.filter(member => member.username !== currentProfileToShow.value.username);
           currentProfileToShow.value.username = ''
           return true;
         })
@@ -480,8 +501,36 @@
         });
     }
 
+    async function unbann(channelId: number, userId: number, username: string) {
+      await axios({
+        url: "/api/chat/channel/banned/remove",
+        method: "patch",
+        headers: { Authorization: `Bearer ${sessionStore.access_token}`, 'Content-Type': 'application/json' },
+        data: { "channelId": channelId, "userId": userId }
+      })
+        .then((response) => {
+          console.log(username + " is unbanned of channel with id " + channelId)
+          return true;
+        })
+        .catch((error) => {
+          if (error.response.status == 401) {
+            console.log(
+              `invalid access token: ${error.response.status} ${error.response.statusText}`
+            );
+          } else if (error.response.status == 404) {
+            console.log(
+              `user not found: ${error.response.status} ${error.response.statusText}`
+            );
+          } else {
+            console.error(
+              `unexpected error: ${error.response.status} ${error.response.statusText}`
+            );
+          }
+          return false;
+        });
+    }
+
     async function mute(channelId: number, userId: number, username: string) {
-      // do something to bann this user
       await axios({
         url: "/api/chat/channel/muted/add",
         method: "patch",
@@ -589,8 +638,24 @@
             );
         });
     }
+
+    async function getAllUsers() {
+      try {
+        const response = await axios.get("/api/user/all");
+        allUsers.value = response.data;
+        isAllUsersLoaded.value = true;
+        return true;
+      } catch (error) {
+        if (error.response && error.response.status == 404) {
+          console.log(`not found: ${error.response.status} ${error.response.statusText}`);
+        } else {
+          console.error(`unexpected error: ${error.response.status} ${error.response.statusText}`);
+        }
+        return false;
+      }
+    }
     
-    // getAllUsers()
+    getAllUsers()
     loadMyself()
     getMyChannels()
     getAllChannels()
@@ -605,6 +670,8 @@
 
     watch(currentChannel, (NewValue, OldValue) => {
       isCurrentMembersLoaded.value = false
+      isAllBannedLoaded.value = false
+      isAllMutedLoaded.value = false
       getAllMembers(NewValue?.channelId)
       if (currentChannel.value) {
         getBanned()
@@ -688,6 +755,11 @@
     background-size: cover !important;
     width: 3rem !important;
     height: 3rem !important;
+  }
+
+  .ft-banned-user-text {
+    font-size: .8rem;
+    opacity: 40%;
   }
 
   /* Admin panel */

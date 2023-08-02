@@ -29,11 +29,6 @@
                     <ul class="flex flex-row items-center">
                         <li class="ft-text ml-2">{{ admin.username }}</li>
                     </ul>
-                    <!-- <ul class="flex flex-row">
-                        <li><a class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor" @click="acceptFriend(invitation.username)"><img src="../assets/icons/circle-check-solid.svg" alt="accept friend request" title="accept friend request"></a></li>
-                        <li><a class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="iDontWantToBeFriend(invitation.username)"><img src="../assets/icons/circle-xmark-solid.svg" alt="decline friend request" title="decline friend request"></a></li>
-                        <li><a class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor"  @click="blockUserAndDelInvite(invitation.username)"><img src="../assets/icons/person-circle-minus-solid.svg" alt="block them" title="block this user"></a></li>
-                    </ul> -->
                     </li>  
                 </div>    
             </div>
@@ -45,33 +40,17 @@
             <div class="mb-6">
                 <h3 class="ft-admin-title">People banned</h3>
                 <div v-if="allBanned?.length === 0">No user banned</div>
-                <div v-for="banned in allBanned" :key="banned.id">
-                    <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between items-center">
-                    <ul class="flex flex-row items-center">
-                        <li class="ft-text ml-2">{{ banned.username }}</li>
-                    </ul>
-                    <!-- <ul class="flex flex-row">
-                        <li><a class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor" @click="acceptFriend(invitation.username)"><img src="../assets/icons/circle-check-solid.svg" alt="accept friend request" title="accept friend request"></a></li>
-                        <li><a class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="iDontWantToBeFriend(invitation.username)"><img src="../assets/icons/circle-xmark-solid.svg" alt="decline friend request" title="decline friend request"></a></li>
-                        <li><a class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor"  @click="blockUserAndDelInvite(invitation.username)"><img src="../assets/icons/person-circle-minus-solid.svg" alt="block them" title="block this user"></a></li>
-                    </ul> -->
-                    </li>  
+                <div v-for="banned in allBanned" :key="banned.id" class="flex">
+                  <p href="#" class="ft-text ml-2 mr-3">{{ banned.username }}</p>
+                  <a title="unbann this user" href="#" class="hover:text-white" @click="unbann(banned.id, banned.username)">x</a>
                 </div>  
             </div>
             <div class="mb-6">
                 <h3 class="ft-admin-title">People muted</h3>
                 <div v-if="allMuted?.length === 0">No user muted</div>
                 <div v-for="muted in allMuted" :key="muted.id">
-                    <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between items-center">
-                    <ul class="flex flex-row items-center">
-                        <li class="ft-text ml-2">{{ muted.username }}</li>
-                    </ul>
-                    <!-- <ul class="flex flex-row">
-                        <li><a class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor" @click="acceptFriend(invitation.username)"><img src="../assets/icons/circle-check-solid.svg" alt="accept friend request" title="accept friend request"></a></li>
-                        <li><a class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="iDontWantToBeFriend(invitation.username)"><img src="../assets/icons/circle-xmark-solid.svg" alt="decline friend request" title="decline friend request"></a></li>
-                        <li><a class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor"  @click="blockUserAndDelInvite(invitation.username)"><img src="../assets/icons/person-circle-minus-solid.svg" alt="block them" title="block this user"></a></li>
-                    </ul> -->
-                    </li>  
+                  <p href="#" class="ft-text ml-2">{{ muted.username }}</p>
+                    <a title="unmute this user" href="#" class="hover:text-white" @click="unmute(muted.id, muted.username)">x</a>
                 </div>  
             </div>
         </div>
@@ -87,7 +66,7 @@
         sessionStore: Object,
     })
 
-    const emits = defineEmits(['updateTypeOfChan'])
+    const emits = defineEmits(['updateTypeOfChan', 'adminAction'])
 
     type ChanInfos = {
         channelId: number
@@ -154,6 +133,14 @@
         password: password
       }
       updateChannelType(newInfos)
+    }
+
+    function unmute(userId: number, username: string) {
+      emits('adminAction', { what: 'unmute', userId: userId, username: username })
+    }
+
+    function unbann(userId: number, username: string) {
+      emits('adminAction',  { what: 'unbann', userId: userId, username: username })
     }
 
     async function getAdmins() {
@@ -265,6 +252,8 @@
     }
 
     getAdmins()
+
+    // utiliser des props depuis le parent? TO DO
     getBanned()
     getMuted()
 </script>
