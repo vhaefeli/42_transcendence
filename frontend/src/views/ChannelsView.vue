@@ -311,7 +311,10 @@
       if (checkIfBanned(userId)) {
         return "src/assets/icons/user-slash-solid.svg"
       } else {
-        const found = currentMembers.value.find(member => member.id === userId)
+        let found = currentMembers.value.find(member => member.id === userId)
+        if (!found) {
+          found = userStore.loadUserProfileById(userId, sessionStore.access_token)
+        }
         return found.avatar_url
       }
     }
@@ -321,7 +324,10 @@
         const found = allUsers.value.find(member => member.id === userId)
         return found.username
       } else {
-        const found = currentMembers.value.find(member => member.id === userId)
+        let found = currentMembers.value.find(member => member.id === userId)
+        if (!found) {
+          found = userStore.loadUserProfileById(userId, sessionStore.access_token)
+        }
         return found.username
       }
     }
