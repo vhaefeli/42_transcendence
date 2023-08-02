@@ -173,9 +173,13 @@
     const currentMembers = ref([])
     const currentChannel = ref<MyChannel | null>(null)
 
+    // arrays of users
     const mutedUsers = ref<Array<UserInList>>([])
     const bannedUsers = ref<Array<UserInList>>([])
     const allUsers = ref([])
+
+    // avatar of users
+    const allAvatarUrl = ref<Array<object>>([]);
 
     // Reactive flag for loaded data
     const isAllMyChanLoaded = ref(true)
@@ -280,13 +284,22 @@
       }
     }
 
-    // const updateBlockedBool = (newValue) => {
-    //   actualIsBlocked.value = newValue
-    // };
-
     const stockHistory = async (payload) => {
       // push recieved message to Messages Array
       pushToMessages(payload)
+
+      // stock user id and avatar url
+      if (checkIfBanned(payload.id)) {
+        allAvatarUrl.value.push({userId: payload.id, url: "src/assets/icons/user-slash-solid.svg"})
+      } else {
+        let found: any = currentMembers.value.find(member => member.id === payload.id)
+        if (!found) {
+          found = await userStore.loadUserProfileById(payload.id, sessionStore.access_token)
+        }
+        allAvatarUrl.value.push({userId: payload.id, url: found?.avatar_url})
+      }
+
+      // sort messages
       messages.value.sort((a,b) => {
         return new Date(a.date) - new Date(b.date);
       })  
@@ -308,34 +321,19 @@
     }
 
     function getMemberImg(userId: number) {
-      if (checkIfBanned(userId)) {
-        return "src/assets/icons/user-slash-solid.svg"
-      } else {
-        let found: any = currentMembers.value.find(member => member.id === userId)
-        if (!found) {
-          found = userStore.loadUserProfileById(userId, sessionStore.access_token)
-        }
-        return found?.avatar_url
-      }
+      const found: any = allAvatarUrl.value.find(member => member.userId === userId)
+      return found?.url
     }
 
     function getMemberUsername(userId: number) {
-      if (checkIfBanned(userId)) {
-        const found = allUsers.value.find(member => member.id === userId)
-        return found.username
-      } else {
-        let found = currentMembers.value.find(member => member.id === userId)
-        if (!found) {
-          found = userStore.loadUserProfileById(userId, sessionStore.access_token)
-        }
-        return found.username
-      }
+      const found: any = allUsers.value.find(member => member.id === userId)
+      return found?.username
     }
 
-    function getMemberId(username: string) {
-      const found = currentMembers.value.find(member => member.username === username)
-      return found.id
-    }
+    // function getMemberId(username: string) {
+    //   const found = currentMembers.value.find(member => member.username === username)
+    //   return found.id
+    // }
 
     // scroll messages container to bottom
     function scrollToBottom() {

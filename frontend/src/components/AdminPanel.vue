@@ -32,9 +32,6 @@
                     </li>  
                 </div>    
             </div>
-            <div class="mb-6">
-                <h3 class="ft-admin-title">Owner</h3>
-            </div>
         </div>
         <div class="w-1/2 p-3">
             <div class="mb-6">
@@ -48,8 +45,8 @@
             <div class="mb-6">
                 <h3 class="ft-admin-title">People muted</h3>
                 <div v-if="allMuted?.length === 0">No user muted</div>
-                <div v-for="muted in allMuted" :key="muted.id">
-                  <p href="#" class="ft-text ml-2">{{ muted.username }}</p>
+                <div v-for="muted in allMuted" :key="muted.id" class="flex">
+                  <p href="#" class="ft-text ml-2 mr-3">{{ muted.username }}</p>
                     <a title="unmute this user" href="#" class="hover:text-white" @click="unmute(muted.id, muted.username)">x</a>
                 </div>  
             </div>
@@ -136,10 +133,12 @@
     }
 
     function unmute(userId: number, username: string) {
+      allMuted.value = allMuted.value.filter(muted => muted.username !== username)
       emits('adminAction', { what: 'unmute', userId: userId, username: username })
     }
 
     function unbann(userId: number, username: string) {
+      allBanned.value = allBanned.value.filter(banned => banned.username !== username)
       emits('adminAction',  { what: 'unbann', userId: userId, username: username })
     }
 
