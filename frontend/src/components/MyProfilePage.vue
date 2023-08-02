@@ -8,7 +8,7 @@
     <section class="ft-cover flex flex-col items-end justify-end"></section>
     <section class="ft-container">
       <div
-        class="flex flex-col items-center text-center max-w-max ft-central-tab-container"
+        class="flex flex-col items-center text-center max-w-max flex-none ft-central-tab-container"
       >
         <div
           class="ft-profile-pic"
@@ -20,7 +20,10 @@
         </div>
         <div class="ft-tab-folder" id="title-profile"></div>
         <div class="ft-tab-content ft-bg-color-profile">{{ user.status }}</div>
-        <div class="ft-tab-content ft-bg-color-profile ft-title" id="username">
+        <div
+          class="ft-tab-content ft-bg-color-profile ft-title truncate"
+          id="username"
+        >
           {{ user.username }}
         </div>
         <div class="ft-tab-content ft-bg-color-profile" id="buttons-container">
@@ -110,7 +113,7 @@
         @click="setForegroundTab('friendsRequest')"
       >
         <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">
-          Friends requests
+          Friend requests
         </div>
         <div
           id="friendsRequestScroll"
@@ -126,47 +129,64 @@
               </div>
               <div v-for="(invitation, index) in invites" :key="index">
                 <li
-                  class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between items-center"
+                  class="ft-item-title p-0 ft-text ft-bb-color-profile flex flex-row justify-between items-center"
                   :class="
                     index === invites.length - 1 ? '' : 'ft-tab-separator'
                   "
                 >
-                  <ul class="flex flex-row items-center">
-                    <li class="ft-profile-pic ft-friend-pic"></li>
-                    <li class="ft-text ml-2">{{ invitation.username }}</li>
-                  </ul>
-                  <ul class="flex flex-row">
-                    <li>
-                      <a
-                        class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor"
-                        @click="acceptFriend(invitation.username)"
-                        ><img
-                          src="../assets/icons/circle-check-solid.svg"
-                          alt="accept friend request"
-                          title="accept friend request"
-                      /></a>
-                    </li>
-                    <li>
-                      <a
-                        class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor"
-                        @click="iDontWantToBeFriend(invitation.username)"
-                        ><img
-                          src="../assets/icons/circle-xmark-solid.svg"
-                          alt="decline friend request"
-                          title="decline friend request"
-                      /></a>
-                    </li>
-                    <li>
-                      <a
-                        class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor"
-                        @click="blockUserAndDelInvite(invitation.username)"
-                        ><img
-                          src="../assets/icons/person-circle-minus-solid.svg"
-                          alt="block them"
-                          title="block this user"
-                      /></a>
-                    </li>
-                  </ul>
+                  <div
+                    class="ft-clickable-profile flex flex-row justify-between items-center"
+                    v-on:click="router.push(`/user/${invitation.username}`)"
+                  >
+                    <ul class="flex flex-row items-center">
+                      <li
+                        class="ft-profile-pic ft-friend-pic"
+                        :style="{
+                          background: 'url(' + invitation.avatar_url + ')',
+                        }"
+                      ></li>
+                      <li
+                        class="ft-text ml-2 truncate"
+                        style="max-width: 10rem"
+                      >
+                        {{ invitation.username }}
+                      </li>
+                    </ul>
+                    <ul class="flex flex-row">
+                      <li>
+                        <a
+                          class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor"
+                          @click.stop="acceptFriend(invitation.username)"
+                          ><img
+                            src="../assets/icons/circle-check-solid.svg"
+                            alt="accept friend request"
+                            title="accept friend request"
+                        /></a>
+                      </li>
+                      <li>
+                        <a
+                          class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor"
+                          @click.stop="iDontWantToBeFriend(invitation.username)"
+                          ><img
+                            src="../assets/icons/circle-xmark-solid.svg"
+                            alt="decline friend request"
+                            title="decline friend request"
+                        /></a>
+                      </li>
+                      <li>
+                        <a
+                          class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor"
+                          @click.stop="
+                            blockUserAndDelInvite(invitation.username)
+                          "
+                          ><img
+                            src="../assets/icons/person-circle-minus-solid.svg"
+                            alt="block them"
+                            title="block this user"
+                        /></a>
+                      </li>
+                    </ul>
+                  </div>
                 </li>
               </div>
             </div>
@@ -199,10 +219,25 @@
                     index === invitesSent.length - 1 ? '' : 'ft-tab-separator'
                   "
                 >
-                  <ul class="flex flex-row items-center">
-                    <li class="ft-profile-pic ft-friend-pic"></li>
-                    <li class="ft-text ml-2">{{ invitation.username }}</li>
-                  </ul>
+                  <div
+                    class="ft-clickable-profile flex flex-row justify-between items-center"
+                    v-on:click="router.push(`/user/${invitation.username}`)"
+                  >
+                    <ul class="flex flex-row items-center">
+                      <li
+                        class="ft-profile-pic ft-friend-pic"
+                        :style="{
+                          background: 'url(' + invitation.avatar_url + ')',
+                        }"
+                      ></li>
+                      <li
+                        class="ft-text ml-2 truncate"
+                        style="max-width: 10rem"
+                      >
+                        {{ invitation.username }}
+                      </li>
+                    </ul>
+                  </div>
                 </li>
               </div>
             </div>
@@ -233,63 +268,86 @@
             <div v-for="(friend, index) in friends" :key="index">
               <div v-if="!friend.is_blocked">
                 <li
-                  class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between"
+                  class="ft-item-title p-0 ft-text ft-bb-color-profile flex flex-row justify-between"
                   :class="
                     index === friends.length - 1 ? '' : 'ft-tab-separator'
                   "
                 >
-                  <div class="flex flex-row items-center">
-                    <div class="flex flex-col">
-                      <div class="ft-profile-pic ft-friend-pic">
-                        <div class="ft-connection-circle ft-friend-status">
-                          <StatusBubble :status="friend.status"></StatusBubble>
-                          <!-- <img src="../assets/icons/tennisBallBlack.png" alt="is playing" title="your friend is playing" class="ft-playing"> -->
+                  <div
+                    class="flex flex-row justify-between ft-clickable-profile"
+                    v-on:click="router.push(`/user/${friend.username}`)"
+                  >
+                    <div class="flex flex-row items-center">
+                      <div class="flex flex-col">
+                        <div
+                          class="ft-profile-pic ft-friend-pic"
+                          :style="{
+                            background: 'url(' + friend.avatar_url + ')',
+                          }"
+                        >
+                          <div class="ft-connection-circle ft-friend-status">
+                            <StatusBubble
+                              :status="friend.status"
+                            ></StatusBubble>
+                            <!-- <img src="../assets/icons/tennisBallBlack.png" alt="is playing" title="your friend is playing" class="ft-playing"> -->
+                          </div>
                         </div>
                       </div>
+                      <ul class="flex flex-col justify-center">
+                        <li
+                          class="ft-text ml-2 truncate"
+                          style="max-width: 10rem"
+                        >
+                          {{ friend.username }}
+                        </li>
+                        <li class="ft-level-text ml-2">
+                          Level: {{ friend.level }}
+                        </li>
+                      </ul>
                     </div>
-                    <ul class="flex flex-col justify-center">
-                      <li class="ft-text ml-2">{{ friend.username }}</li>
-                      <li class="ft-level-text ml-2">Pitaya level TO DO</li>
-                    </ul>
-                  </div>
-                  <ul class="flex flex-row">
-                    <li>
-                      <a
+                    <ul class="flex flex-row">
+                      <router-link
+                        :to="{
+                          name: 'game-settings',
+                          query: { inviteUserId: friend.id },
+                        }"
+                        @click.stop=""
                         class="t-btn-pink ft-bg-color-game ft-icon-small icon-btn-size icon-btn-cursor"
                         ><img
                           src="../assets/icons/table-tennis-paddle-ball-solid.svg"
                           alt="invite to play a game with them"
                           title="invite them to play a game"
-                      /></a>
-                    </li>
-                    <router-link
-                      :to="{ name: 'dms', query: { recipient: friend.id } }"
-                      class="t-btn-pink ft-bg-color-chat ft-icon-small icon-btn-size icon-btn-cursor"
-                      ><img
-                        src="../assets/icons/message-solid.svg"
-                        alt="send them a message"
-                    /></router-link>
-                    <li>
-                      <a
-                        class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor"
-                        @click="blockUser(friend.username)"
+                      /></router-link>
+                      <router-link
+                        :to="{ name: 'dms', query: { recipient: friend.id } }"
+                        @click.stop=""
+                        class="t-btn-pink ft-bg-color-chat ft-icon-small icon-btn-size icon-btn-cursor"
                         ><img
-                          src="../assets/icons/person-circle-minus-solid.svg"
-                          alt="block them"
-                          title="block this user"
-                      /></a>
-                    </li>
-                    <li>
-                      <a
-                        class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor"
-                        @click="removeFriend(friend.username)"
-                        ><img
-                          src="../assets/icons/user-minus-solid.svg"
-                          alt="remove friendship"
-                          title="remove this person from your friends"
-                      /></a>
-                    </li>
-                  </ul>
+                          src="../assets/icons/message-solid.svg"
+                          alt="send them a message"
+                      /></router-link>
+                      <li>
+                        <a
+                          class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor"
+                          @click.stop="blockUser(friend.username)"
+                          ><img
+                            src="../assets/icons/person-circle-minus-solid.svg"
+                            alt="block them"
+                            title="block this user"
+                        /></a>
+                      </li>
+                      <li>
+                        <a
+                          class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor"
+                          @click.stop="removeFriend(friend.username)"
+                          ><img
+                            src="../assets/icons/user-minus-solid.svg"
+                            alt="remove friendship"
+                            title="remove this person from your friends"
+                        /></a>
+                      </li>
+                    </ul>
+                  </div>
                 </li>
               </div>
             </div>
@@ -360,29 +418,46 @@
                     index === blocked.length - 1 ? '' : 'ft-tab-separator'
                   "
                 >
-                  <div class="flex flex-row items-center">
-                    <div class="flex flex-col">
-                      <div class="ft-profile-pic ft-friend-pic"></div>
+                  <div
+                    class="flex flex-row justify-between ft-clickable-profile"
+                    v-on:click="router.push(`/user/${block.username}`)"
+                  >
+                    <div class="flex flex-row items-center">
+                      <div class="flex flex-col">
+                        <div
+                          class="ft-profile-pic ft-friend-pic"
+                          :style="{
+                            background: 'url(' + block.avatar_url + ')',
+                          }"
+                        ></div>
+                      </div>
+                      <ul
+                        class="flex flex-col justify-center ft-text-light-gray"
+                      >
+                        <li
+                          class="ft-text ml-2 truncate"
+                          style="max-width: 10rem"
+                        >
+                          {{ block.username }}
+                        </li>
+                        <li class="ft-level-text ml-2">
+                          <p v-if="block.is_friend">is my friend</p>
+                        </li>
+                      </ul>
                     </div>
-                    <ul class="flex flex-col justify-center ft-text-light-gray">
-                      <li class="ft-text ml-2">{{ block.username }}</li>
-                      <li class="ft-level-text ml-2">
-                        <p v-if="block.is_friend">is my friend</p>
+                    <ul class="flex flex-row">
+                      <li>
+                        <a
+                          class="t-btn-pink ft-color-unblock ft-icon-small icon-btn-size icon-btn-cursor"
+                          @click.stop="unblockUser(block.username)"
+                          ><img
+                            src="../assets/icons/person-circle-check-solid.svg"
+                            alt="unblock them"
+                            title="unblock this person"
+                        /></a>
                       </li>
                     </ul>
                   </div>
-                  <ul class="flex flex-row">
-                    <li>
-                      <a
-                        class="t-btn-pink ft-color-unblock ft-icon-small icon-btn-size icon-btn-cursor"
-                        @click="unblockUser(block.username)"
-                        ><img
-                          src="../assets/icons/person-circle-check-solid.svg"
-                          alt="unblock them"
-                          title="unblock this person"
-                      /></a>
-                    </li>
-                  </ul>
                 </li>
               </div>
             </div>
@@ -396,7 +471,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onBeforeMount, watch } from "vue";
+  import { ref, onBeforeMount, watch, onBeforeUnmount } from "vue";
   import { storeToRefs } from "pinia";
   import { useRoute, useRouter } from "vue-router";
   import axios, { AxiosError } from "axios";
@@ -407,6 +482,7 @@
   import EmptyText from "@/components/EmptyText.vue";
   import StatusBubble from "@/components/StatusBubble.vue";
   import OtherUserProfile from "../components/OtherUserProfile.vue";
+  import { statusService } from "@/services/status-socket.service";
 
   type type_user = {
     id: number;
@@ -442,7 +518,7 @@
 
   // other variables
   const foregroundTab = ref("");
-
+  let loadInfoInterval: ReturnType<typeof setInterval>;
   const { user, friends, invites, blocked, invitesSent, gameLog } =
     storeToRefs(userStore);
 
@@ -450,20 +526,38 @@
   // way of using await because we can't do it in setup
   onBeforeMount(async () => {
     isLoggedIn.value = true;
+    loadAllInfo();
 
+    statusService.onConnect(
+      () => {
+        userStore.getMe(sessionStore.access_token);
+      },
+      { timeout: 10000 }
+    );
+
+    loadInfoInterval = setInterval(loadAllInfo, 5000);
+  });
+
+  onBeforeUnmount(() => {
+    clearInterval(loadInfoInterval);
+  });
+
+  async function loadAllInfo() {
     // get user infos, friends, and invitations
     await userStore.getMe(sessionStore.access_token);
+    const promises = new Array<Promise<any>>();
     if (user.value.isLogged) {
-      await userStore.getFriends(sessionStore.access_token);
-      await userStore.getInvites(sessionStore.access_token);
-      await userStore.getBlockedUsers(sessionStore.access_token);
-      await userStore.getInvitesSent(sessionStore.access_token);
-      await userStore.getGameHistory(sessionStore.access_token);
-      // await userStore.
+      promises.push(userStore.getFriends(sessionStore.access_token));
+      promises.push(userStore.getInvites(sessionStore.access_token));
+      promises.push(userStore.getBlockedUsers(sessionStore.access_token));
+      promises.push(userStore.getInvitesSent(sessionStore.access_token));
+      promises.push(userStore.getGameHistory(sessionStore.access_token));
     } else {
       router.push("/login?logout=true");
+      return;
     }
-    // list all users
+    await Promise.all(promises);
+    // get all users
     await axios({
       url: "/api/user/all",
       method: "get",
@@ -478,7 +572,7 @@
         );
       });
     loadUserSearchList();
-  });
+  }
 
   async function loadUserSearchList() {
     userSearchList.value = allUsers.filter((user) => {
@@ -698,7 +792,7 @@
     height: 3em;
     position: relative;
     background: url(./../assets/img/ben-neale-zpxKdH_xNSI-unsplash.jpg);
-    background-size: cover;
+    background-size: cover !important;
   }
 
   .ft-connection-circle.ft-friend-status {
@@ -729,6 +823,22 @@
 
   .ft-item-title {
     padding: 1.5em;
+  }
+
+  .ft-clickable-profile {
+    @apply p-2 w-full;
+  }
+
+  .ft-clickable-profile:hover {
+    @apply cursor-pointer rounded;
+    backdrop-filter: brightness(1.4);
+    border-radius: 0.8rem;
+  }
+
+  #username {
+    /* if i don't do this wrapping doesn't work...
+     i couldn't find a better solution -df */
+    max-width: 10rem;
   }
 
   #profile-container {
