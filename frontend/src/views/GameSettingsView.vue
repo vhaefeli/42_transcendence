@@ -14,23 +14,17 @@
           Direct play
         </div>
         <div
-          class="ft-tab-content ft-border-color-game ft-tab-border text-left"
+          class="ft-tab-content ft-border-color-game ft-tab-border text-center"
         >
-          <div class="flex flex-row justify-center">
-            <div>
-              <div class="text-white">
-                <input
-                  v-model="gameIdToConnect"
-                  placeholder="game id"
-                  class="bg-gray-500"
-                /><br />
-              </div>
-              <a
-                class="t-btn-pink ft-bg-color-game ft-other-profile mb-3"
-                @click="connectToGame"
-                ><span>Play!!!</span></a
-              >
-            </div>
+          <div class="flex flex-row justify-center mb-3">
+            <p>play a game in normal mode with a random opponent</p>
+          </div>
+          <div>
+            <a
+              class="t-btn-pink ft-bg-color-game ft-other-profile mb-3"
+              @click="playRandom"
+              ><span>Play!!!</span></a
+            >
           </div>
         </div>
       </div>
@@ -58,18 +52,18 @@
           </div>
           <div class="flex flex-row items-center my-4">
             <input
-              v-model="gest"
+              v-model="guest"
               placeholder="Add a someone username you want to play with"
             />
           </div>
           <div class="flex flex-row items-center my-4">
-            <div :class="{ 'cursor-not-allowed': !gest }">
+            <div :class="{ 'cursor-not-allowed': !guest }">
               <a
-                @click="inviteFriend"
+                @click="inviteToPlay()"
                 class="t-btn-pink ft-bg-color-game icon-btn-cursor"
-                :class="{ 'opacity-50 searchan-noClick': !gest }"
+                :class="{ 'opacity-50 searchan-noClick': !guest }"
               >
-                <span>Invite {{ gest }} to play!!!</span>
+                <span>Invite {{ guest }} to play!!!</span>
               </a>
             </div>
           </div>
@@ -79,8 +73,8 @@
       <div
         class="flex flex-col text-center ft-left-tab ft-my-profile"
         id="gameInvitation"
-        :class="{ foreground: foregroundTab === 'friendsRequest' }"
-        @click="setForegroundTab('friendsRequest')"
+        :class="{ foreground: foregroundTab === 'gameInvitations' }"
+        @click="setForegroundTab('gameInvitations')"
       >
         <div class="ft-tab-folder ft-tab-title ft-bb-color-game">
           Invitation to play
@@ -90,29 +84,29 @@
           class="ft-tab-content ft-border-color-game ft-tab-border text-left ft-scrollable"
         >
           <ul>
-            <div v-if="invites">
-              <div v-if="invites.length === 0">
+            <div v-if="gameInvites">
+              <div v-if="gameInvites.length === 0">
                 <EmptyText
                   :text="'No one wants to be your friend...yet!'"
                   :white="false"
                 />
               </div>
-              <div v-for="(invitation, index) in invites" :key="index">
+              <div v-for="(gameInvitation, index) in gameInvites" :key="index">
                 <li
                   class="ft-item-title ft-text ft-bb-color-game flex flex-row justify-between items-center"
                   :class="
-                    index === invites.length - 1 ? '' : 'ft-tab-separator'
+                    index === gameInvites.length - 1 ? '' : 'ft-tab-separator'
                   "
                 >
                   <ul class="flex flex-row items-center">
                     <li class="ft-profile-pic ft-friend-pic"></li>
-                    <li class="ft-text ml-2">{{ invitation.username }}</li>
+                    <li class="ft-text ml-2">{{ gameInvitation.username }}</li>
                   </ul>
                   <ul class="flex flex-row">
                     <li>
                       <a
                         class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor"
-                        @click="acceptFriend(invitation.username)"
+                        @click="acceptGame(gameInvitation.gameId)"
                         ><img
                           src="../assets/icons/circle-check-solid.svg"
                           alt="accept friend request"
@@ -122,7 +116,7 @@
                     <li>
                       <a
                         class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor"
-                        @click="iDontWantToBeFriend(invitation.username)"
+                        @click="declineGame(gameInvitation.gameId)"
                         ><img
                           src="../assets/icons/circle-xmark-solid.svg"
                           alt="decline friend request"
@@ -148,7 +142,7 @@
         </div>
         <div
           id="matchScroll"
-          class="flex flex-col justify-center ft-tab-content ft-border-color-game ft-tab-border text-left ft-scrollable"
+          class="ft-tab-content ft-border-color-game ft-tab-border flex flex-col text-left ft-scrollable"
         >
           <ul>
             <div v-if="gameLog">
@@ -208,7 +202,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onBeforeMount } from "vue";
+  import { ref, onBeforeMount, watch } from "vue";
   import { storeToRefs } from "pinia";
   import { useRoute, useRouter } from "vue-router";
   import axios, { AxiosError } from "axios";
@@ -217,6 +211,9 @@
   import NavBar from "@/components/NavBar.vue";
   import { ModelListSelect } from "vue-search-select";
   import EmptyText from "@/components/EmptyText.vue";
+  import StatusBubble from "@/components/StatusBubble.vue";
+  import OtherUserProfile from "../components/OtherUserProfile.vue";
+  import UserSearch from "@/components/UserSearch.vue";
 
   type type_user = {
     id: number;
@@ -225,140 +222,229 @@
 
   const mode = ref("normal");
 
-  const userList = ref<Array<type_user>>([]);
-  const selectedUser = ref<number>();
+  let gameId: number;
+  let guest: string;
 
-  loadUserList();
+  let gameInvites;
 
-  async function loadUserList() {
-    let users = new Array<type_user>();
+  const emits = defineEmits(["addRecipient"]);
 
-    await axios({
-      url: "/api/user/all",
-      method: "get",
-    })
-      .then((response) => {
-        users = response.data;
-      })
-      .catch((error) => {
-        console.error(
-          `unexpected error: ${error.response.status} ${error.response.statusText}`
-        );
-        return;
-      });
+  const actualInfos = ref({});
+  const FromFriendToNotFriend = ref(false);
+  const isActualInfosLoaded = ref(false);
 
-    await axios({
-      url: "/api/user/friend/all",
-      method: "get",
-      headers: { Authorization: `Bearer ${sessionStore.access_token}` },
-    })
-      .then((response) => {
-        users = users.filter(
-          (user) => !response.data?.find((friend) => friend.id === user.id)
-        );
-      })
-      .catch((error) => {
-        console.error(
-          `unexpected error: ${error.response.status} ${error.response.statusText}`
-        );
-        return;
-      });
-    userList.value = users.filter((user) => user.id != userStore.user.id);
-  }
   // to have the token we need sessionStore
   const sessionStore = useSessionStore();
 
   // routes
+  const route = useRoute();
   const router = useRouter();
 
   // we need userStore and a variable to check if logged in
   const userStore = useUserStore();
   const isLoggedIn = ref(false);
 
+  // user search dropdown
+  let allUsers: Array<type_user>;
+  const userSearchList = ref<Array<type_user>>([]);
+  const searchSelectedUserId = ref<number>();
+
   // other variables
   const foregroundTab = ref("");
-  const gest = ref("");
-  let allUsers: { id: number; username: string }[];
 
-  const { user, friends, invites, invitesSent, gameLog } =
-    storeToRefs(userStore);
+  const { user, gameLog } = storeToRefs(userStore);
+
+  // onBeforeMount is executed before the component is mounted
+  // way of using await because we can't do it in setup
+  onBeforeMount(async () => {
+    isLoggedIn.value = true;
+
+    // get user infos, friends, and invitations
+    await userStore.getMe(sessionStore.access_token);
+    if (user.value.isLogged) {
+      // await userStore.getFriends(sessionStore.access_token);
+      // await userStore.getInvites(sessionStore.access_token);
+      // await userStore.getBlockedUsers(sessionStore.access_token);
+      // await userStore.getInvitesSent(sessionStore.access_token);
+      await userStore.getGameHistory(sessionStore.access_token);
+      // await userStore.
+    } else {
+      router.push("/login?logout=true");
+    }
+    // list all users
+    await axios({
+      url: "/api/user/all",
+      method: "get",
+    })
+      .then((response) => {
+        allUsers = response.data;
+        console.log("all users loaded");
+      })
+      .catch((error) => {
+        console.error(
+          `unexpected error: ${error.response.status} ${error.response.statusText}`
+        );
+      });
+    loadUserSearchList();
+    getGameInvites();
+  });
+
+  async function loadUserSearchList() {
+    userSearchList.value = allUsers.filter((user) => {
+      return !(
+        userStore.user.id === user.id ||
+        userStore.friends.find((friend) => friend.id === user.id) ||
+        userStore.invites.find((invite) => invite.id === user.id) ||
+        userStore.invitesSent.find((invite) => invite.id === user.id)
+      );
+    });
+    return;
+  }
 
   function setForegroundTab(tab) {
     foregroundTab.value = tab;
   }
 
-  // onBeforeMount is executed before the component is mounted
-  // way of using await because we can't do it in setup
-  onBeforeMount(async () => {
-    if (sessionStore.isLoggedIn) {
-      isLoggedIn.value = true;
+  function logout() {
+    router.push("/login?logout=true");
+  }
 
-      // get user infos, friends, and invitations
-      await userStore.getMe(sessionStore.access_token);
-      if (user.value.isLogged) {
-        await userStore.getFriends(sessionStore.access_token);
-        await userStore.getInvites(sessionStore.access_token);
-        await userStore.getInvitesSent(sessionStore.access_token);
-        await userStore.getGameHistory(sessionStore.access_token);
-      } else {
-        isLoggedIn.value = false;
-        sessionStore.isLoggedIn = false;
-        sessionStore.access_token = "";
-        router.push({ name: "login" });
-      }
-    }
-  });
-
-  // list all users
-  axios({
-    url: "/api/user/all",
-    method: "get",
-    headers: {},
-  })
-    .then((response) => {
-      allUsers = response.data;
-      console.log("all users loaded");
-    })
-    .catch((error) => {
-      console.error(
-        `unexpected error: ${error.response.status} ${error.response.statusText}`
-      );
+  // formatage de la date pour un affichage sous la forme "01/01/2023"
+  function formatDate(dateString: string) {
+    const dateObj = new Date(dateString);
+    return dateObj.toLocaleDateString("fr-FR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
     });
+  }
 
-  async function validateSelection() {
-    console.log(
-      `selected: ${
-        userList.value.find((element) => element.id === selectedUser.value)
-          ?.username
-      }`
+  async function playRandom() {
+    await axios({
+      url: "/api/player/random",
+      method: "post",
+      headers: {
+        Authorization: `Bearer ${sessionStore.access_token}`,
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        gameId = response.data.gameId;
+        console.log(`"random game", ${response.data.gameId}`);
+        router.push(`/game?gameId=${gameId}`);
+      })
+      .catch((error) => {
+        const msg: string | undefined =
+          typeof error.response?.data?.message === "string"
+            ? error.response?.data?.message
+            : error.response?.data?.message[0];
+        console.log(`"random game", ${error.response?.status}: ${msg}`);
+        if (error.response?.status === 404) errorText.value = msg;
+        else if (error.response?.status === 401) logout();
+      });
+  }
+
+  function inviteToPlay() {
+    console.log(`"invitation to play" ${guest}`);
+
+    if (guest.length === 0) return;
+    const user = userSearchList.value.find(
+      (user) => user.id === searchSelectedUserId.value
     );
+
+    opponentId = console.log(`"invitation to play game id" ${opponentId}`);
+
+    axios({
+      url: "/api/player/newBoth",
+      method: "post",
+      data: { opponentId: opponentId, mode: mode },
+      headers: {
+        Authorization: `Bearer ${sessionStore.access_token}`,
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        gameId = response.data.newGameId;
+        console.log(`"game with guest ", ${opponentId}, "game id: " ${gameId}`);
+        router.push(`/game?gameId=${gameId}`);
+      })
+      .catch((error) => {
+        const msg: string | undefined =
+          typeof error.response?.data?.message === "string"
+            ? error.response?.data?.message
+            : error.response?.data?.message[0];
+        console.log(`${error.response?.status}: ${msg}`);
+        if (error.response?.status === 400) errorText.value = msg;
+        else if (error.response?.status === 409)
+          errorText.value = "username is already in use";
+        else if (error.response?.status === 401) logout();
+      });
+  }
+  // game invitations actions
+
+  async function getGameInvites() {
+    await axios({
+      url: "/api/player/invitedBy",
+      method: "get",
+      headers: {
+        Authorization: `Bearer ${sessionStore.access_token}`,
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        gameInvites = response.data;
+        console.log("loaded  games invites");
+        return true;
+      })
+      .catch((error) => {
+        if (error.response.status == 401) {
+          console.log(
+            `invalid access token: ${error.response.status} ${error.response.statusText}`
+          );
+          logout();
+        } else {
+          console.error(
+            `unexpected error: ${error.response.status} ${error.response.statusText}`
+          );
+        }
+        return false;
+      });
   }
 
-  // functions to delete because useless
-  function inviteFriend() {
-    if (newFriend.value) {
-      userStore.addFriend(newFriend.value, sessionStore.access_token);
-    }
+  function acceptGame(gameId: number) {
+    console.log(`"guest to game id: " ${gameId}`);
+    router.push(`/game?gameId=${gameId}`);
   }
-
-  function acceptGameFriend(friendname) {
-    userStore.acceptFriend(friendname, sessionStore.access_token);
-  }
-
-  function declineGameFriend(friendname) {
-    userStore.declineFriend(friendname, sessionStore.access_token);
-  }
-
-  function getGameHistory(username) {
-    userStore.getGameHistory(username, sessionStore.access_token);
-  }
-
-  const gameIdToConnect = ref();
-
-  function connectToGame() {
-    if (gameIdToConnect.value >= 0) {
-      router.push(`/game?gameId=${gameIdToConnect.value}`);
-    }
+  // delete invitation to deny
+  async function declineGame(gameId: number) {
+    await axios({
+      url: `/api/player/cancel/${gameId}`,
+      method: "patch",
+      headers: {
+        Authorization: `Bearer ${sessionStore.access_token}`,
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        console.log(`gameInvitation game Id ${gameId} canceled`);
+      })
+      .catch((error) => {
+        if (error.response.status == 401) {
+          console.log(
+            `invalid access token: ${error.response.status} ${error.response.statusText}`
+          );
+          logout();
+        } else if (error.response.status == 404) {
+          console.log(
+            `gameInvitation id ${gameId} not found: ${error.response.status} ${error.response.statusText}`
+          );
+        } else {
+          console.error(
+            `unexpected error: ${error.response.status} ${error.response.statusText}`
+          );
+        }
+        return false;
+      });
   }
 </script>
 
