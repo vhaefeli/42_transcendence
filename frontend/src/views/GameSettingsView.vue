@@ -88,13 +88,13 @@
         </div>
         <div
           id="gameInvitationScroll"
-          class="ft-tab-content ft-border-color-game ft-tab-border text-left ft-scrollable"
+          class="ft-tab-content ft-border-color-game ft-tab-border flex flex-col text-left ft-scrollable"
         >
           <ul>
             <div v-if="gameInvites">
               <div v-if="gameInvites.length === 0">
                 <EmptyText
-                  :text="'No one wants to be your friend...yet!'"
+                  :text="'No invitation, refresch the page to be sure or invite someone'"
                   :white="false"
                 />
               </div>
@@ -232,7 +232,13 @@
   const guest = ref<type_user>({ id: 0, username: "" });
   const recipients = ref<number[]>([]);
 
-  let gameInvites;
+  type GameInvites = {
+    gameId: number;
+    username: string;
+    level: string;
+    avatar_url: string;
+  };
+  let gameInvites: GameInvites[];
 
   const emits = defineEmits(["addRecipient"]);
 
@@ -244,7 +250,7 @@
   const sessionStore = useSessionStore();
 
   // routes
-  const route = useRoute();
+  // const route = useRoute();
   const router = useRouter();
 
   // we need userStore and a variable to check if logged in
@@ -269,12 +275,8 @@
     // get user infos, friends, and invitations
     await userStore.getMe(sessionStore.access_token);
     if (user.value.isLogged) {
-      // await userStore.getFriends(sessionStore.access_token);
-      // await userStore.getInvites(sessionStore.access_token);
-      // await userStore.getBlockedUsers(sessionStore.access_token);
-      // await userStore.getInvitesSent(sessionStore.access_token);
+      await getGameInvites();
       await userStore.getGameHistory(sessionStore.access_token);
-      // await userStore.
     } else {
       router.push("/login?logout=true");
     }
@@ -293,17 +295,11 @@
         );
       });
     loadUserSearchList();
-    getGameInvites();
   });
 
   async function loadUserSearchList() {
     userSearchList.value = allUsers.filter((user) => {
-      return !(
-        userStore.user.id === user.id ||
-        userStore.friends.find((friend) => friend.id === user.id) ||
-        userStore.invites.find((invite) => invite.id === user.id) ||
-        userStore.invitesSent.find((invite) => invite.id === user.id)
-      );
+      return !(userStore.user.id === user.id);
     });
     return;
   }
@@ -341,13 +337,20 @@
         router.push(`/game?gameId=${gameId}`);
       })
       .catch((error) => {
-        const msg: string | undefined =
-          typeof error.response?.data?.message === "string"
-            ? error.response?.data?.message
-            : error.response?.data?.message[0];
-        console.log(`"random game", ${error.response?.status}: ${msg}`);
-        if (error.response?.status === 404) errorText.value = msg;
-        else if (error.response?.status === 401) logout();
+        if (error.response.status == 401) {
+          console.log(
+            `invalid access token: ${error.response.status} ${error.response.statusText}`
+          );
+          logout();
+        } else if (error.response.status == 404) {
+          console.log(
+            `game not found: ${error.response.status} ${error.response.statusText}`
+          );
+        } else {
+          console.error(
+            `unexpected error: ${error.response.status} ${error.response.statusText}`
+          );
+        }
       });
   }
   // game setting functions
@@ -391,15 +394,20 @@
         router.push(`/game?gameId=${gameId}`);
       })
       .catch((error) => {
-        const msg: string | undefined =
-          typeof error.response?.data?.message === "string"
-            ? error.response?.data?.message
-            : error.response?.data?.message[0];
-        console.log(`${error.response?.status}: ${msg}`);
-        if (error.response?.status === 400) errorText.value = msg;
-        else if (error.response?.status === 409)
-          errorText.value = "username is already in use";
-        else if (error.response?.status === 401) logout();
+        if (error.response.status == 401) {
+          console.log(
+            `invalid access token: ${error.response.status} ${error.response.statusText}`
+          );
+          logout();
+        } else if (error.response.status == 400) {
+          console.log(
+            `Bad Request: ${error.response.status} ${error.response.statusText}`
+          );
+        } else {
+          console.error(
+            `unexpected error: ${error.response.status} ${error.response.statusText}`
+          );
+        }
       });
   }
   // game invitations actions
@@ -437,6 +445,7 @@
     console.log(`"guest to game id: " ${gameId}`);
     router.push(`/game?gameId=${gameId}`);
   }
+
   // delete invitation to deny
   async function declineGame(gameId: number) {
     await axios({
@@ -447,7 +456,7 @@
         "Content-Type": "application/json",
       },
     })
-      .then((response) => {
+      .then(() => {
         console.log(`gameInvitation game Id ${gameId} canceled`);
       })
       .catch((error) => {
@@ -465,7 +474,7 @@
             `unexpected error: ${error.response.status} ${error.response.statusText}`
           );
         }
-        return false;
+        // return false;
       });
   }
 </script>
@@ -504,6 +513,8 @@
   #gameInvitation {
     top: -21vh;
     right: -15vw;
+    width: 39vw;
+    z-index: 1;
   }
 
   #match-history {
@@ -588,14 +599,6 @@
     overflow: auto;
   }
 
-  #friendsInvitation {
-    position: relative;
-    top: 40em;
-    left: 15vw;
-    width: 39em;
-    z-index: 1;
-  }
-
   /* Pour DEBUG seulement, doit s-afficher ou non selon en jeu */
   .ft-playing {
     display: none;
@@ -628,18 +631,18 @@
   }
 
   #matchScroll::-webkit-scrollbar,
-  #friendsScroll::-webkit-scrollbar,
+  /* #friendsScroll::-webkit-scrollbar, */
   #gameInvitationScroll::-webkit-scrollbar,
-  #sentRequestsScroll::-webkit-scrollbar,
-  #blocked::-webkit-scrollbar {
+  /* #sentRequestsScroll::-webkit-scrollbar, */
+  /* #blocked::-webkit-scrollbar  */ {
     width: 22px;
   }
 
   #matchScroll::-webkit-scrollbar-track,
   #gameInvitationScroll::-webkit-scrollbar-track,
-  #sentRequestsScroll::-webkit-scrollbar-track,
-  #blocked::-webkit-scrollbar-track,
-  #friendsScroll::-webkit-scrollbar-track {
+  /* #sentRequestsScroll::-webkit-scrollbar-track, */
+  /* #blocked::-webkit-scrollbar-track, */
+  /* #friendsScroll::-webkit-scrollbar-track  */ {
     background: var(--light-purple);
     border-bottom: 0.2rem solid var(--purple);
     border-right: 0.2rem solid var(--purple);
@@ -655,10 +658,10 @@
     border-left: 0.2rem solid var(--light);
   }
 
-  #friendsScroll::-webkit-scrollbar-thumb,
+  /* #friendsScroll::-webkit-scrollbar-thumb, */
   #gameInvitationScroll::-webkit-scrollbar-thumb,
-  #sentRequestsScroll::-webkit-scrollbar-thumb,
-  #blocked::-webkit-scrollbar-thumb {
+  /* #sentRequestsScroll::-webkit-scrollbar-thumb, */
+  /* #blocked::-webkit-scrollbar-thumb  */ {
     background-color: var(--purple);
     border-bottom: 0.2rem solid var(--dark-gray);
     border-right: 0.2rem solid var(--dark-gray);
