@@ -97,7 +97,7 @@
                   :text="'No invitation, refresch the page to be sure or invite someone'"
                   :white="false"
                 />
-              </div>
+                <!-- </div>
               <div v-for="(gameInvitation, index) in gameInvites" :key="index">
                 <li
                   class="ft-item-title ft-text ft-bb-color-game flex flex-row justify-between items-center"
@@ -108,29 +108,56 @@
                   <ul class="flex flex-row items-center">
                     <li class="ft-profile-pic ft-friend-pic"></li>
                     <li class="ft-text ml-2">{{ gameInvitation.username }}</li>
-                  </ul>
-                  <ul class="flex flex-row">
-                    <li>
-                      <a
-                        class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor"
-                        @click="acceptGame(gameInvitation.gameId)"
-                        ><img
-                          src="../assets/icons/circle-check-solid.svg"
-                          alt="accept friend request"
-                          title="accept friend request"
-                      /></a>
-                    </li>
-                    <li>
-                      <a
-                        class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor"
-                        @click="declineGame(gameInvitation.gameId)"
-                        ><img
-                          src="../assets/icons/circle-xmark-solid.svg"
-                          alt="decline friend request"
-                          title="decline friend request"
-                      /></a>
-                    </li>
-                  </ul>
+                  </ul> -->
+              </div>
+              <div v-for="(gameInvitation, index) in gameInvites" :key="index">
+                <li
+                  class="ft-item-title p-0 ft-text ft-bb-color-profile flex flex-row justify-between items-center"
+                  :class="
+                    index === gameInvites.length - 1 ? '' : 'ft-tab-separator'
+                  "
+                >
+                  <div
+                    class="ft-clickable-profile flex flex-row justify-between items-center"
+                    v-on:click="router.push(`/user/${gameInvitation.username}`)"
+                  >
+                    <ul class="flex flex-row items-center">
+                      <li
+                        class="ft-profile-pic ft-friend-pic"
+                        :style="{
+                          background: 'url(' + gameInvitation.avatar_url + ')',
+                        }"
+                      ></li>
+                      <li
+                        class="ft-text ml-2 truncate"
+                        style="max-width: 10rem"
+                      >
+                        {{ gameInvitation.username }}
+                      </li>
+                    </ul>
+                    <ul class="flex flex-row">
+                      <li>
+                        <a
+                          class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor"
+                          @click="acceptGame(gameInvitation.gameId)"
+                          ><img
+                            src="../assets/icons/circle-check-solid.svg"
+                            alt="accept friend request"
+                            title="accept friend request"
+                        /></a>
+                      </li>
+                      <li>
+                        <a
+                          class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor"
+                          @click="declineGame(gameInvitation.gameId)"
+                          ><img
+                            src="../assets/icons/circle-xmark-solid.svg"
+                            alt="decline friend request"
+                            title="decline friend request"
+                        /></a>
+                      </li>
+                    </ul>
+                  </div>
                 </li>
               </div>
             </div>
