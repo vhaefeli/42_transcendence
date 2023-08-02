@@ -32,7 +32,7 @@
             <div id="ft-nav-profile">
                 <div id="ft-nav-profile-username">
                     <div class="cursor-pointer" @click="toggle">
-                        <p>{{ props.userStore.user.username }}</p>
+                        <p class="truncate" style="max-width: 10rem;">{{ props.userStore.user.username }}</p>
                         <div v-if="activeLogout" id="ft-logout-btn" class="bg-white p-1 w-full flex items-center justify-center"><router-link :to="'/login?logout=true'">Logout</router-link></div>
                     </div>
                 </div>

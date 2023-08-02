@@ -6,8 +6,8 @@
       </div>
 
       <section class="ft-cover flex flex-col items-end justify-end">
-        <a class="ft-bg-color-chat t-btn-pink ft-other-profile"><span>Send message</span></a>
-        <a class="ft-bg-color-game t-btn-pink ft-other-profile"><span>Invite to play</span></a>
+          <router-link :to="{ name: 'dms', query: { recipient: user?.id } }" class="ft-bg-color-chat t-btn-pink ft-other-profile"><span>&nbsp;Send message&nbsp;</span></router-link>
+          <router-link :to="{ name: 'game-settings', query: { inviteUserId: user?.id } }" class="ft-bg-color-game t-btn-pink ft-other-profile"><span>Invite to play</span></router-link>
       </section>
   
       <section id="ft-main-tab-container-other-profile" class="ft-container">
@@ -16,10 +16,12 @@
           <div class="ft-connection-circle" id="current-profile-pic"><StatusBubble :status="user.status"></StatusBubble></div>
           <div class="ft-tab-folder" id="title-profile"></div>
           <div class="ft-tab-content ft-bg-color-profile">{{ user.status }}</div>
-          <div class="ft-tab-content ft-bg-color-profile ft-title" id="username">{{ user.username }}</div>
+          <div class="ft-tab-content ft-bg-color-profile ft-title truncate" id="username">{{ user.username }}</div>
           <div class="ft-tab-content ft-bg-color-profile" id="buttons-container">
-            <a title="send a friend request" class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor ft-other-profile"><img src="../assets/icons/user-plus-solid.svg" alt="send a friend request"></a>
-            <a title="block this user" class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor ft-other-profile" @click="blockUser(user.username)"><img src="../assets/icons/person-circle-minus-solid.svg" alt="block them"></a>
+            <a v-if="!user.is_friend" title="send a friend request" class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor ft-other-profile" @click="addFriend"><img src="../assets/icons/user-plus-solid.svg" alt="send a friend request"></a>
+            <a v-else title="remove friendship" class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor ft-other-profile" @click="removeFriend"><img src="../assets/icons/user-minus-solid.svg" alt="remove friendship"></a>
+            <a v-if="!user.is_blocked" title="block this user" class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor ft-other-profile" @click="blockUser"><img src="../assets/icons/person-circle-minus-solid.svg" alt="block them"></a>
+            <a v-else title="unblock this user" class="t-btn-pink ft-color-unblock ft-icon-small icon-btn-size icon-btn-cursor ft-other-profile" @click="unblockUser"><img src="../assets/icons/person-circle-check-solid.svg" alt="block them"></a>
           </div>
         </div>
   
@@ -39,7 +41,7 @@
                 <div class="ft-text">perfect victories</div>
               </div>
               <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
-                <div class="ft-result-drk-text">{{ user.level }}</div>
+                <div class="ft-result-drk-text">{{ transformLevel(user.level) }}</div>
                 <div class="ft-text">level</div>
               </div>
           </div>
@@ -74,7 +76,7 @@
 </template>
   
 <script setup lang="ts">
-    import { ref, onBeforeMount, watch } from "vue";
+    import { ref, onBeforeMount, watch, onBeforeUnmount } from "vue";
     import { useRoute, useRouter } from 'vue-router'
     import axios, { AxiosError } from "axios";
     import { useUserStore } from '../stores/UserStore'
@@ -82,16 +84,40 @@
     import NavBar from "@/components/NavBar.vue";
     import EmptyText from "@/components/EmptyText.vue";
     import StatusBubble from "@/components/StatusBubble.vue";
+    import { transformLevel } from "@/services/helper.service";
 
-        const user = ref({})
+        const user = ref({
+          id: 0,
+          username: "",
+          avatar_url: "",
+          level: "",
+          rank: 0,
+          nbMatch: 0,
+          nbGames: 0,
+          is_friend: false,
+          status: "OFFLINE",
+          is_blocked: false,
+        })
         const gameLog = ref([])
         const route = useRoute()
+        const router = useRouter();
         
         const isUserLoaded = ref<boolean>(false)
         const isGameLogLoaded = ref<boolean>(false)
 
         const sessionStore = useSessionStore()
         const userStore = useUserStore()
+
+        const loadUserInterval = setInterval(loadInfo, 5000);
+
+        onBeforeUnmount(() => {
+          clearInterval(loadUserInterval);
+        });
+
+        async function loadInfo() {
+          await loadUserList();
+          loadGameHistory();
+        }
 
         async function loadUserList() {
             await axios({
@@ -104,6 +130,7 @@
                 isUserLoaded.value = true;
             })
             .catch((error) => {
+                if (error.response?.status == 401) router.push('/login?logout=true');
                 console.error(
                 `unexpected error: ${error.response.status} ${error.response.statusText}`
                 );
@@ -153,9 +180,33 @@
       })
     }
 
+    async function addFriend() {
+      await userStore.addFriend(user.value.username, sessionStore.access_token);
+      loadInfo();
+    }
+
+    async function removeFriend() {
+      await userStore.delFriend(user.value.username, sessionStore.access_token);
+      loadInfo();
+    }
+
+    async function blockUser() {
+      await userStore.blockUser(user.value.username, sessionStore.access_token);
+      loadInfo();
+    }
+
+    async function unblockUser() {
+      await userStore.unblockUser(user.value.username, sessionStore.access_token);
+      loadInfo();
+    }
+
 </script>
 
 <style scoped>
+
+#username {
+  max-width: 10rem;
+}
 
 #other-tab-container {
     position: absolute;
@@ -165,7 +216,9 @@
 }
 
 #other-profile-tab {
+    text-overflow: hidden;
     height: 0;
+    max-width: 30rem;
     font-size: 1.6em;
     border-right: 1em solid var(--invisible);
     border-left: 1em solid var(--invisible);

@@ -161,7 +161,7 @@
     const handleSubmitNewMessage = () => {
       let newId = 0
       chatService.sendNewMessage(message.value, actual.value.id);
-      if (message.value.length === 0) {
+      if (messages.value.length === 0) {
         newId = 0
       } else {
         newId = messages.value[messages.value.length - 1].id + 1

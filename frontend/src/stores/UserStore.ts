@@ -1,5 +1,19 @@
 import { defineStore } from "pinia";
 import axios, { AxiosError } from "axios";
+import { transformLevel } from "@/services/helper.service";
+
+type UserProfileApiReturn = {
+  id: number;
+  username: string;
+  avatar_url: string;
+  level: string;
+  rank: number;
+  nbMatch: number;
+  nbGames: number;
+  is_friend: boolean;
+  is_blocked: boolean;
+  status: string;
+}
 
 type User = {
   id: number
@@ -20,22 +34,27 @@ type Friends = {
   id: number
   username: string
   is_blocked: boolean
+  avatar_url: string
+  level: string
 };
 
 type Blocked = {
   id: number
   username: string
   is_friend: boolean
+  avatar_url: string
 };
 
 type Invites = {
   id: number
   username: string
+  avatar_url: string
 };
 
 type InvitesSent = {
   id: number
   username: string
+  avatar_url: string
 };
 
 type GameLog = {
@@ -86,6 +105,7 @@ export const useUserStore = defineStore("userStore", {
           .then((response) => {
             this.user = response.data
             this.user.isLogged = true
+            this.user.level = transformLevel(this.user.level);
             console.log("me loaded")
             return true;
           })
@@ -103,15 +123,15 @@ export const useUserStore = defineStore("userStore", {
       },
       // get list of friends
       async getFriends(access_token: string) {
+        let friends: Array<Friends> = [];
         await axios({
           url: "/api/user/friend/all",
           method: "get",
           headers: { Authorization: `Bearer ${access_token}` },
         })
           .then((response) => {
-            this.friends = response.data;
+            friends = response.data;
             console.log("loaded friends");
-            return true;
           })
           .catch((error) => {
             if (error.response.status == 401) {
@@ -124,18 +144,27 @@ export const useUserStore = defineStore("userStore", {
             }
             return false;
           });
+        for (const f of friends) {
+          if (f.avatar_url) return;
+          const u = await this.loadUserProfileById(f.id, access_token);
+          if (u?.id !== undefined) {
+            f.level = u?.level;
+            f.avatar_url = u?.avatar_url;
+          }
+        }
+        this.friends = friends;
       },
       // get list of friends
       async getInvites(access_token: string) {
+        let invites: Array<Invites> = [];
         await axios({
           url: "/api/user/friend/invite/received",
           method: "get",
           headers: { Authorization: `Bearer ${access_token}` },
         })
           .then((response) => {
-            this.invites = response.data;
+            invites = response.data;
             console.log("loaded invites");
-            return true;
           })
           .catch((error) => {
             if (error.response.status == 401) {
@@ -150,18 +179,24 @@ export const useUserStore = defineStore("userStore", {
             }
             return false;
           });
+        for (const f of invites) {
+          const u = await this.loadUserProfileById(f.id, access_token);
+          if (u?.id)
+            f.avatar_url = u?.avatar_url;
+        }
+        this.invites = invites;
       },
       // get list of friends
       async getInvitesSent(access_token: string) {
+        let invitesSent: Array<InvitesSent> = [];
         await axios({
           url: "/api/user/friend/invite/sent",
           method: "get",
           headers: { Authorization: `Bearer ${access_token}` },
         })
           .then((response) => {
-            this.invitesSent = response.data;
+            invitesSent = response.data;
             console.log("loaded sent invites");
-            return true;
           })
           .catch((error) => {
             if (error.response?.status == 401) {
@@ -176,6 +211,12 @@ export const useUserStore = defineStore("userStore", {
             }
             return false;
           });
+        for (const f of invitesSent) {
+          const u = await this.loadUserProfileById(f.id, access_token);
+          if (u?.id)
+            f.avatar_url = u?.avatar_url;
+        }
+        this.invitesSent = invitesSent;
       },
       // accept a friend
       async acceptFriend(friendname: string, access_token: string) {
@@ -316,6 +357,7 @@ export const useUserStore = defineStore("userStore", {
       },
         // list all blocked users
         async getBlockedUsers(access_token: string) {
+          let blocked: Array<Blocked> = [];
           await axios({
             url: `/api/user/block`,
             method: "get",
@@ -323,9 +365,8 @@ export const useUserStore = defineStore("userStore", {
           })
             .then((response) => {
               // To execute when the request is successful
-              this.blocked = response.data;
+              blocked = response.data;
               console.log('blocked users loaded')
-              return true;
             })
             .catch((error) => {
               if (error.response.status == 401) {
@@ -340,6 +381,12 @@ export const useUserStore = defineStore("userStore", {
               }
               return false;
             });
+            for (const f of blocked) {
+              const u = await this.loadUserProfileById(f.id, access_token);
+              if (u?.id)
+                f.avatar_url = u?.avatar_url;
+            }
+            this.blocked = blocked;
         },
         // block a user
         async blockUser(username: string, access_token: string) {
@@ -431,15 +478,30 @@ export const useUserStore = defineStore("userStore", {
             });
         },
 
+        async loadUserProfileById(id: number, access_token: string): Promise<UserProfileApiReturn | undefined>{
+          let res: UserProfileApiReturn | undefined;
+          await axios({
+            url: `/api/user/profile/id/${id}`,
+            method: 'get',
+            headers: {
+              Authorization: `Bearer ${access_token}`,
+            },
+          }).then((response) => {
+            response.data.level = transformLevel(response.data.level);
+            res = response.data;
+          });
+          return res;
+        },
+
         // redirect to the profile of the user
         async redirectToMyProfile(access_token: string) {
           await this.getMe(access_token);
           this.router.push(`/user/${this.user.username}`);
         },
 
-        // flush datas 
+        // flush data
         flush() {
-          console.log("cleaning user datas...")
+          console.log("cleaning user data...")
           this.user = {
             id: 0,
             isLogged: false,

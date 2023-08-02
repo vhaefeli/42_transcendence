@@ -266,9 +266,9 @@ onMounted(() => {
     ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
     ctx.font = "40px Array-Regular";
     ctx.textAlign = "center";
-    ctx.fillText(userStore.user.username, canvasWidth / 4, 50);
+    ctx.fillText(userStore.user.username.substr(0, 12), canvasWidth / 4, 50);
     if (opponentName !== undefined) opponentUsername = opponentName;
-    ctx.fillText(opponentUsername, (canvasWidth / 4) * 3, 50);
+    ctx.fillText(opponentUsername.substr(0, 12), (canvasWidth / 4) * 3, 50);
 
     // score
     ctx.fillStyle = "rgba(237, 156, 219, 0.5)";
