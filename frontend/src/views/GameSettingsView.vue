@@ -97,18 +97,6 @@
                   :text="'No invitation, refresch the page to be sure or invite someone'"
                   :white="false"
                 />
-                <!-- </div>
-              <div v-for="(gameInvitation, index) in gameInvites" :key="index">
-                <li
-                  class="ft-item-title ft-text ft-bb-color-game flex flex-row justify-between items-center"
-                  :class="
-                    index === gameInvites.length - 1 ? '' : 'ft-tab-separator'
-                  "
-                >
-                  <ul class="flex flex-row items-center">
-                    <li class="ft-profile-pic ft-friend-pic"></li>
-                    <li class="ft-text ml-2">{{ gameInvitation.username }}</li>
-                  </ul> -->
               </div>
               <div v-for="(gameInvitation, index) in gameInvites" :key="index">
                 <li
