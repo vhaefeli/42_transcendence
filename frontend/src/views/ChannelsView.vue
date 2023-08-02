@@ -311,11 +311,11 @@
       if (checkIfBanned(userId)) {
         return "src/assets/icons/user-slash-solid.svg"
       } else {
-        let found = currentMembers.value.find(member => member.id === userId)
+        let found: any = currentMembers.value.find(member => member.id === userId)
         if (!found) {
           found = userStore.loadUserProfileById(userId, sessionStore.access_token)
         }
-        return found.avatar_url
+        return found?.avatar_url
       }
     }
 
