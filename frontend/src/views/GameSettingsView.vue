@@ -43,27 +43,34 @@
           id="setGameContent"
         >
           <div class="flex flex-row items-center my-4">
-            <p>mode de jeu:</p>
+            <p>game mode:</p>
             <select v-model="mode">
-              <option value="facile">Facile</option>
-              <option value="normal">Normal</option>
-              <option value="expert">Expert</option>
+              <option value="BEGINNER">Easy</option>
+              <option value="INTERMEDIATE">Normal</option>
+              <option value="EXPERT">Expert</option>
             </select>
           </div>
           <div class="flex flex-row items-center my-4">
-            <input
-              v-model="guest"
-              placeholder="Add a someone username you want to play with"
-            />
+            <p>I want to play with:</p>
+            <div class="m-6 w-2/3">
+              <UserSearch
+                :recipients="recipients"
+                :userStore="userStore"
+                @addRecipient="addRecipient"
+              />
+            </div>
           </div>
+
           <div class="flex flex-row items-center my-4">
-            <div :class="{ 'cursor-not-allowed': !guest }">
+            <div :class="{ 'cursor-not-allowed': !guest.username }">
               <a
                 @click="inviteToPlay()"
                 class="t-btn-pink ft-bg-color-game icon-btn-cursor"
-                :class="{ 'opacity-50 searchan-noClick': !guest }"
+                :class="{
+                  'opacity-50 searchan-noClick': !guest.username,
+                }"
               >
-                <span>Invite {{ guest }} to play!!!</span>
+                <span>Invite {{ guest.username }} to play!!!</span>
               </a>
             </div>
           </div>
@@ -215,15 +222,15 @@
   import OtherUserProfile from "../components/OtherUserProfile.vue";
   import UserSearch from "@/components/UserSearch.vue";
 
+  // variable for game setting
+  const mode = ref("INTERMEDIATE");
   type type_user = {
     id: number;
     username: string;
   };
-
-  const mode = ref("normal");
-
   let gameId: number;
-  let guest: string;
+  const guest = ref<type_user>({ id: 0, username: "" });
+  const recipients = ref<number[]>([]);
 
   let gameInvites;
 
@@ -343,21 +350,34 @@
         else if (error.response?.status === 401) logout();
       });
   }
+  // game setting functions
+
+  // add type_user to the list
+  function addRecipient(recipientName: string) {
+    const userFind = allUsers.find((user) => recipientName === user.username);
+    if (userFind) {
+      if (recipients.value.indexOf(userFind.id) === -1) {
+        recipients.value.push(userFind.id);
+      }
+      guest.value = userFind;
+    }
+  }
 
   function inviteToPlay() {
-    console.log(`"invitation to play" ${guest}`);
+    console.log(`"invitation to play" ${guest.value.username}`);
 
-    if (guest.length === 0) return;
+    if (guest.value.username.length === 0) return;
     const user = userSearchList.value.find(
       (user) => user.id === searchSelectedUserId.value
     );
 
-    opponentId = console.log(`"invitation to play game id" ${opponentId}`);
+    console.log(`"invitation to play game id" ${guest.value.id}`);
+    console.log(`mode : ${mode.value}`);
 
     axios({
       url: "/api/player/newBoth",
       method: "post",
-      data: { opponentId: opponentId, mode: mode },
+      data: { opponentId: guest.value.id, mode: mode.value },
       headers: {
         Authorization: `Bearer ${sessionStore.access_token}`,
         "Content-Type": "application/json",
@@ -365,7 +385,9 @@
     })
       .then((response) => {
         gameId = response.data.newGameId;
-        console.log(`"game with guest ", ${opponentId}, "game id: " ${gameId}`);
+        console.log(
+          `"game with guest ", ${guest.value.id}, "game id: " ${gameId}`
+        );
         router.push(`/game?gameId=${gameId}`);
       })
       .catch((error) => {
