@@ -87,7 +87,7 @@
     import { ref, onUpdated, watchEffect, watch, computed, onBeforeUnmount } from "vue";
     import { storeToRefs } from 'pinia'
     import axios from "axios";
-    import { useRouter, useRoute } from 'vue-router'
+    import { useRouter, useRoute, LocationQuery } from 'vue-router'
     import { useSessionStore } from "@/stores/SessionStore";
     import { useUserStore } from '../stores/UserStore'
     import { chatService } from "@/services/chat-socket.service";
@@ -387,7 +387,6 @@
         .then((response) => {
           myChannels.value = response.data;
           if (!isAllMyChanLoaded.value && myChannels.value.length > 0) {
-            console.log('here');
             currentChannel.value = myChannels.value[0]
           }
           isAllMyChanLoaded.value = true
@@ -736,17 +735,39 @@
       clearInterval(reloadAllInfoInterval);
     })
 
+    handleQueryParams(route?.query);
+    watch(
+      () => route?.query,
+      (params) => {
+        handleQueryParams(params);
+      }
+    );
+
+    async function handleQueryParams(params: LocationQuery) {
+      if (params?.channelId) {
+        await getMyChannels();
+        const channel = myChannels.value.find((chan) => chan.channelId === +params?.channelId);
+        if (channel) {
+          currentChannel.value = channel;
+        } else {
+          router.push('/channels');
+        }
+      }
+    }
+
     loadAllInfo();
     async function loadAllInfo() {
       await getMyChannels();
-      await loadMyself();
-      await getAllChannels();
-      loadBlocked();
-      getAllUsers();
-      loadBlocked();
-      getBanned();
-      getMuted();
-      getAllMembers(currentChannel.value?.channelId);
+      const promises = new Array<Promise<any>>();
+      promises.push(loadMyself());
+      promises.push(getAllChannels());
+      promises.push(loadBlocked());
+      promises.push(getAllUsers());
+      promises.push(loadBlocked());
+      promises.push(getBanned());
+      promises.push(getMuted());
+      promises.push(getAllMembers(currentChannel.value?.channelId));
+      await Promise.all(promises);
     }
 
     watch(currentChannel, (NewValue, OldValue) => {

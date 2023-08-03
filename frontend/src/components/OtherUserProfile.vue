@@ -169,7 +169,9 @@
     }
 
     async function loadChannelInfo() {
-      if (props.currentChannel?.ownerId === props.currentChannel?.userId) {
+      if (props.currentChannel?.ownerId &&
+        props.currentChannel?.ownerId === props.currentChannel?.userId
+      ) {
         await axios({
           method: 'get',
           url: `/api/chat/channel/admin/${props.currentChannel?.channelId}`,
