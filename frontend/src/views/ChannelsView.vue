@@ -180,9 +180,6 @@
     const bannedUsers = ref<Array<UserInList>>([])
     const allUsers = ref([])
 
-    // avatar of users
-    const allAvatarUrl = ref<Array<object>>([]);
-
     // Reactive flag for loaded data
     const isAllMyChanLoaded = ref(true)
     const isAllChanLoaded = ref(false)
@@ -317,21 +314,6 @@
     function checkIfBanned(userId: number) {
       return bannedUsers.value.find(user => user.id === userId)
     }
-
-    // function getMemberImg(userId: number) {
-    //   const found: any = allAvatarUrl.value.find(member => member.userId === userId)
-    //   return found?.url
-    // }
-
-    // function getMemberUsername(userId: number) {
-    //   const found: any = allUsers.value.find(member => member.id === userId)
-    //   return found?.username
-    // }
-
-    // function getMemberId(username: string) {
-    //   const found = currentMembers.value.find(member => member.username === username)
-    //   return found.id
-    // }
 
     // scroll messages container to bottom
     function scrollToBottom() {
