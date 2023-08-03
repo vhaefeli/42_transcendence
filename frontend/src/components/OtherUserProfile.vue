@@ -35,7 +35,7 @@
                   </div>
               </div>
           </div>
-          <div v-if="props.adminTab" class="flex flex-col items-center text-center ft-central-tab-container mb-3">
+          <div v-if="props.currentChannel?.Admin != 'null'" class="flex flex-col items-center text-center ft-central-tab-container mb-3">
             <div class="ft-tab-content ft-bg-color-profile flex flex-col items-center">
               <h3 class="py-1">manage acess to channel</h3>
               <div class="flex">
@@ -47,6 +47,14 @@
                   <a title="Mute this member" class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="mute()"><img src="../assets/icons/comment-slash-solid.svg" alt="mute icon"></a>
                 </div>
                 <a title="Bann this member" class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="bann()"><img src="../assets/icons/user-slash-solid.svg" alt="bann icon"></a>
+                <div v-if="props.currentChannel?.ownerId === props.currentChannel?.userId">
+                  <div v-if="!currentUserIsAdmin">
+                    <a title="Promote to admin" class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor" @click="promoteAdmin()"><img src="../assets/icons/promote.svg" alt="promote icon"></a>
+                  </div>
+                  <div v-else>
+                    <a title="Demote to normal member" class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="demoteAdmin()"><img src="../assets/icons/demote.svg" alt="demote icon"></a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -59,27 +67,28 @@
 
 <script setup>
     import StatusBubble from "../components/StatusBubble.vue";
-    import { ref, defineEmits, watch, watchEffect } from 'vue'
+    import { ref, defineEmits, watch, watchEffect, onBeforeUnmount } from 'vue'
     import axios from "axios";
 
     const actualInfos = ref({})
     
     const FromFriendToNotFriend = ref(false)
     const isActualInfosLoaded = ref(false)
+    const isUserMuted = ref(false);
     
     const emits = defineEmits(['updateBlocked', 'adminAction'])
     
     const props = defineProps({
       username: String,
-      adminTab: Boolean,
       sessionStore: Object,
       userStore: Object,
-      currentProfile: Object
+      currentProfile: Object,
+      currentChannel: Object
     })
-    
-    if(props.currentProfile) {
-      const isUserMuted = ref(props.currentProfile.isMuted)
-    }
+
+    const currentUserIsAdmin = ref(false);
+
+    let reloadInfoInterval;
 
     function addFriend() {
         props.userStore.addFriend(props.username, props.sessionStore.access_token)
@@ -122,6 +131,14 @@
         emits('adminAction', 'kick')
     }
 
+    function promoteAdmin() {
+      emits('adminAction', 'promote');
+    }
+
+    function demoteAdmin() {
+      emits('adminAction', 'demote');
+    }
+
     async function getUserInfos(username) {
       await axios({
         url: `/api/user/profile/${username}`,
@@ -151,15 +168,47 @@
         });
     }
 
+    async function loadChannelInfo() {
+      if (props.currentChannel?.ownerId === props.currentChannel?.userId) {
+        await axios({
+          method: 'get',
+          url: `/api/chat/channel/admin/${props.currentChannel?.channelId}`,
+          headers: {
+            Authorization: `Bearer ${props.sessionStore?.access_token}`,
+          },
+        }).then((response) => {
+          const user = response.data[0].admins.find((u) => u.username === props.currentProfile?.username);
+          currentUserIsAdmin.value = user != null;
+        }).catch((error) => {
+          console.error(
+            `unexpected error: ${error.response.status} ${error.response.statusText}`
+            );
+        });
+      }
+    }
+
     watch(actualInfos, () => {
       emits('updateBlocked', actualInfos.value.is_blocked)
     })
 
+    watch(props.currentChannel, (_, oldChannel) => {
+      if (props.currentChannel?.channelId != oldChannel?.channelId) {
+        loadChannelInfo();
+      }
+    });
+
     watchEffect(() => {
+      loadChannelInfo();
+      if (reloadInfoInterval !== undefined)
+        clearInterval(reloadInfoInterval);
+      reloadInfoInterval = setInterval(loadChannelInfo, 1000);
       if(props.username) {
         getUserInfos(props.username)
       }
+      isUserMuted.value = props.currentProfile.isMuted;
     })
+
+    onBeforeUnmount(() => { clearInterval(reloadInfoInterval) })
 
 </script>
 
