@@ -1,5 +1,12 @@
 <template>
     <NavBar :showProfile="true" :userStore="userStore"></NavBar>
+    <!-- Modal to create a new channel -->
+    <div v-if="showAddChanModal" id="ft-add-chan-modal" class="w-screen h-screen absolute bg-black/60 flex items-center justify-center">
+      <div id="ft-add-chan-modal-inside" class="w-[50vw] p-6 relative">
+        <button class="absolute top-0 right-0"><a class="t-btn-pink ft-circle-gray ft-icon-small icon-btn-size icon-btn-cursor" @click="toggleModal()"><img src="../assets/icons/xmark-solid.svg" alt="quit"></a></button>
+        <AddChannelModal :sessionStore="sessionStore" @addToMyChannels="addToMyChannels"/>
+      </div>
+    </div>
     <div class="ft-chat-container">
       <ChatNavBar :whichTab="'channels'"></ChatNavBar>
       <section class="ft-chat-inside-container flex p-6">
@@ -28,7 +35,7 @@
             <div id="ft-scroller" ref="scroller" class="ft-chat-box p-6 overflow-scroll">
                 <div v-for="message in messages" :key="message.id">
                   <div v-if="currentChannel?.channelId === message.channelId">
-                    <div v-if="message.senderId == user.id" class="grid">
+                    <div v-if="message.senderId === user.id" class="grid">
                         <div class="ft-msg-container justify-self-end">
                           <p class="text-xs ft-chat-date">{{ message.date }}</p>
                           <p class="ft-chat-my-msg">{{ message.message }}</p>
@@ -55,7 +62,7 @@
             </div>
   
             <div class="ft-bg-dark-gray flex p-2 pl-8 absolute w-full bottom-0">
-                <input v-model="message" placeholder="blabla..." class="p-1 mr-4 ft-input" />
+                <input v-model="message" @keyup.enter="handleSubmitNewMessage" placeholder="blabla..." class="p-1 mr-4 ft-input" />
                 <a href="#" class="t-btn-pink ft-bg-color-chat" :class="message.length === 0 ? 'ft-disabled-btn' : ''"><button @click="handleSubmitNewMessage">send</button></a>
             </div>
           </div>
@@ -63,6 +70,7 @@
           <!-- column 3 with list of recipients -->
           <div  id="dm-recipientList-col" class="w-[16rem] relative">
             <div class="mb-6 max-h-[54vh] overflow-scroll">
+              <div class="p-3"><button @click="toggleModal()">+ add channel</button></div>
               <div v-if="isAllMyChanLoaded">
                 <div v-if="myChannels.length === 0">No channels yet</div>
                 <div v-for="channel in myChannels" :key="channel">
@@ -94,6 +102,7 @@
     import UserSearch from "@/components/UserSearch.vue";
     import MemberList from "@/components/MemberList.vue";
     import AdminPanel from "@/components/AdminPanel.vue";
+    import AddChannelModal from "@/components/AddChannelModal.vue";
 
     // ********************************** ROUTES & STORES
 
@@ -169,7 +178,9 @@
       isMuted: false,
       isBanned: false,
     })
+
     const showAdmin = ref(false)
+    const showAddChanModal = ref(false)
 
     // Current
     const currentMembers = ref([])
@@ -199,6 +210,20 @@
         timeZone: "Europe/Zurich",
         hour12: false,
     };
+
+    function toggleModal() {
+      showAddChanModal.value = !showAddChanModal.value
+    }
+
+    function addToMyChannels(chanInfos: MyChannel) {
+      myChannels.value.push({
+        channelId: chanInfos.channelId,
+        userId: user.value.id,
+        name: chanInfos.channelName,
+        type: chanInfos.channelType,
+        Admin: 'Admin'
+      })
+    }
 
     onUpdated(() => {
       // when the DOM is updated I scroll to 
@@ -274,8 +299,7 @@
     }
 
     async function pushToMessages(payload) {
-      
-      const profile = await userStore.loadUserProfileById(payload.id, sessionStore.access_token)
+      const profile = await userStore.loadUserProfileById(payload.senderId, sessionStore.access_token)
 
       if (messages.value.indexOf(payload.id) === -1) {
         messages.value.push({
@@ -673,6 +697,14 @@
 </script>
 
 <style>
+  #ft-add-chan-modal {
+    z-index: 9999999;
+  }
+
+  #ft-add-chan-modal-inside {
+    background: var(--middle-gray);
+  }
+
   #dm-recipientList-col {
     min-width: 4rem;
     background-color: var(--dark-pink);
