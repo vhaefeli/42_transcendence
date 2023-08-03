@@ -50,13 +50,36 @@
                     <a title="unmute this user" href="#" class="hover:text-white" @click="unmute(muted.id, muted.username)">x</a>
                 </div>  
             </div>
+            <div class="mb-6">
+              <h3 class="ft-admin-title">Add member</h3>
+              <div class="flex flex-row">
+                <ModelListSelect
+                  :list="addUserList"
+                  v-model="selectedUserToAdd"
+                  optionValue="id"
+                  optionText="username"
+                  placeholder="Select channel"
+                  class="w-full"
+                />
+                <div :class="{ 'cursor-not-allowed': !selectedUserToAdd}">
+                  <a
+                    @click="addUserToChannel"
+                    class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor"
+                    id="ft-add-to-chan-btn"
+                    :class="{ 'opacity-50 searchan-noClick': !selectedUserToAdd}">
+                    <img src="../assets/icons/plus.svg" alt="send a friend request" title="send them a friend request">
+                  </a>
+                </div>
+              </div>
+            </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
     import axios from "axios";
-    import { ref } from 'vue'
+    import { ModelListSelect } from "vue-search-select";
+    import { ref, onBeforeUnmount } from 'vue'
 
     const props = defineProps({
         currentChannel: Object,
@@ -85,6 +108,12 @@
         avatar_url: string
     }
 
+    const reloadInfoInterval = setInterval(loadAllInfo, 5000);
+
+    onBeforeUnmount(() => {
+      clearInterval(reloadInfoInterval);
+    })
+
     const ChannelInfos = ref<ChanInfos>({
         channelId: props.currentChannel.channelId,
         type: props.currentChannel.type,
@@ -106,6 +135,9 @@
     const isAllBannedLoaded = ref<boolean>(false)
     const isAllMutedLoaded = ref<boolean>(false)
 
+    // Variables for add user dropdown
+    const addUserList = ref<Array<{id: number, username: string}>>([]);
+    const selectedUserToAdd = ref<number | undefined>()
 
     function toggle() {
         active.value = !active.value
@@ -250,11 +282,59 @@
         });
     }
 
-    getAdmins()
+    async function loadAddUserList() {
+      let newAddUserList: Array<{id: number, username: string}> | undefined;
+      await axios({
+        url: '/api/user/all',
+        method: 'get',
+      }).then((response) => {
+        newAddUserList = response.data;
+      });
 
-    // utiliser des props depuis le parent? TO DO
-    getBanned()
-    getMuted()
+      let allMembers: Array<{id: number, username: string, avatar_url: string}> | undefined;
+
+      await axios({
+        url: `/api/chat/channel/members/${props.currentChannel?.channelId}`,
+        method: 'get',
+        headers: { Authorization: `Bearer ${props.sessionStore?.access_token}` },
+      }).then((response) => {
+        allMembers = response.data.members;
+      });
+      if (allMembers === undefined || newAddUserList === undefined) {
+        console.error('error with connectio to back');
+        return;
+      }
+      addUserList.value = newAddUserList.filter((u) => {
+        return !(
+          allMembers?.find((m) => m.id == u.id) ||
+          allBanned.value?.find((m) => m.id == u.id)
+        );
+      });
+    }
+
+    async function addUserToChannel() {
+      await axios({
+        method: 'patch',
+        url: '/api/chat/channel/member/add',
+        headers: { Authorization: `Bearer ${props.sessionStore?.access_token}`, 'Content-Type': 'application/json' },
+        data: { channelId: props.currentChannel?.channelId, userId: selectedUserToAdd.value },
+      }).catch((error) => {
+        console.error(
+          `unexpected error: ${error.response.status} ${error.response.statusText}`
+        );
+      });
+      selectedUserToAdd.value = undefined;
+      loadAllInfo();
+    }
+
+    async function loadAllInfo() {
+      getAdmins();
+      getMuted();
+      await getBanned();
+      loadAddUserList();
+    }
+
+    loadAllInfo();
 </script>
 
 <style scoped>
