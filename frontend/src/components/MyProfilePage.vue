@@ -6,7 +6,7 @@
   ></NavBar>
   <div id="profile-container">
     <section class="ft-cover flex flex-col items-end justify-end"></section>
-    <section class="ft-container">
+    <section id="ft-main-tab-container" class="ft-container">
       <div
         class="flex flex-col items-center text-center max-w-max flex-none ft-central-tab-container"
       >
@@ -846,6 +846,10 @@
     border: 4px solid var(--light-purple);
     border-radius: 25px 25px 0 0;
     overflow: hidden;
+  }
+
+  #ft-main-tab-container {
+    margin-bottom: -32rem;
   }
 
   #matchScroll::-webkit-scrollbar,

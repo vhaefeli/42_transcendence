@@ -84,7 +84,7 @@ const router = createRouter({
     },
     {
       path: '/channels',
-      name: 'Channels',
+      name: 'channels',
       component: ChannelsView,
     },
   ]

@@ -19,6 +19,12 @@
     background-color: var(--dark-gray);
 }
 
+/* profile of recipient */
+
+.profile-fix-position-top {
+    margin-top: -3rem;
+}
+
 /* messages */
 
 #dm-msg-col {

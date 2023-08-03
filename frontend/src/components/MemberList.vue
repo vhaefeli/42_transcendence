@@ -5,7 +5,7 @@
       <div id="channel-title" class="ft-tab-content ft-title">{{ props.channelName }}</div>
       <div class="ft-bg-color-chat w-full pt-2">
         <p>{{ props.channelType }} CHANNEL</p>
-        <div v-if="props.isAdmin"><button class="ft-simple-link" @click="toggleAdmin">{{ adminText }}</button></div>
+        <div v-if="props.isAdmin"><button class="admin-channel-icon ft-simple-link" @click="toggleAdmin">{{ adminText }}</button></div>
       </div>
       <div id="ft-member-list-container" class="ft-bg-color-chat h-[78%] w-full p-6">
         <div id="inside-member-list" class="flex flex-col h-[82%] bg-white/[.2] overflow-scroll max-h-[58vh] p-3">
@@ -24,37 +24,41 @@
 </template>
 
 <script setup lang="ts">
-    import { ref } from 'vue'
+    import { ref, watch } from 'vue'
     import axios from "axios";
-
-    const adminText = ref<string>("parameters")
-
+    
+    const adminText = ref<string>('')
+    
     const emits = defineEmits(['showAdminPanel', 'setProfileToShow'])
-
+    
     type ChanMembers = {
-        id: number,
-        username: string,
-        status: string,
-        avatar_url: string
+      id: number,
+      username: string,
+      status: string,
+      avatar_url: string
     }
     
     const props = defineProps({
-        username: String,
-        channelName: String,
-        sessionStore: Object,
-        userStore: Object,
-        channelType: String,
-        isAdmin: Boolean,
-        MemberList: Object
+      username: String,
+      channelName: String,
+      sessionStore: Object,
+      userStore: Object,
+      channelType: String,
+      isAdmin: Boolean,
+      MemberList: Object,
+      showAdmin: String
     })
+    
+
+    adminText.value = props.showAdmin
 
     function toggleAdmin() {
-      if (adminText.value === "parameters") {
-        adminText.value = "close parameters"
-      } else {
-        adminText.value = "parameters"
-      }
       emits('showAdminPanel', true)
+      if (props.showAdmin) {
+        adminText.value = "close admin panel"
+      } else {
+        adminText.value = "admin panel"
+      }
     }
 
 </script>
