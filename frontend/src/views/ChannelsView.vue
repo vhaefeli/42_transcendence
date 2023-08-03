@@ -84,7 +84,7 @@
     import NavBar from "../components/NavBar.vue";
     import ChatNavBar from "../components/ChatNavBar.vue";
     import OtherUserProfile from "../components/OtherUserProfile.vue";
-    import { ref, onUpdated, watchEffect, watch, computed } from "vue";
+    import { ref, onUpdated, watchEffect, watch, computed, onBeforeUnmount } from "vue";
     import { storeToRefs } from 'pinia'
     import axios from "axios";
     import { useRouter, useRoute } from 'vue-router'
@@ -182,7 +182,7 @@
     const allAvatarUrl = ref<Array<object>>([]);
 
     // Reactive flag for loaded data
-    const isAllMyChanLoaded = ref(true)
+    const isAllMyChanLoaded = ref(false)
     const isAllChanLoaded = ref(false)
     const isCurrentMembersLoaded = ref(false)
     const isBlockedLoaded = ref(false)
@@ -370,7 +370,7 @@
         // get user infos
         await userStore.getBlockedUsers(sessionStore.access_token);
         isBlockedLoaded.value = true
-        if (user.isLogged === false) {
+        if (user.value.isLogged === false) {
           sessionStore.isLoggedIn = false;
           sessionStore.access_token = "";
           router.push({ name: 'login' })
@@ -386,6 +386,10 @@
       })
         .then((response) => {
           myChannels.value = response.data;
+          if (!isAllMyChanLoaded.value && myChannels.value.length > 0) {
+            console.log('here');
+            currentChannel.value = myChannels.value[0]
+          }
           isAllMyChanLoaded.value = true
           console.log("loaded all my channels");
         })
@@ -725,19 +729,25 @@
         return false;
       }
     }
-    
-    getAllUsers()
-    loadMyself()
-    getMyChannels()
-    getAllChannels()
-    loadBlocked()
-      
-    // Watch for changes
-    watchEffect(() => {
-      if (isAllMyChanLoaded.value && myChannels.value.length > 0) {
-        currentChannel.value = myChannels.value[0]
-      }
+
+    const reloadAllInfoInterval = setInterval(loadAllInfo, 5000);
+
+    onBeforeUnmount(() => {
+      clearInterval(reloadAllInfoInterval);
     })
+
+    loadAllInfo();
+    async function loadAllInfo() {
+      await getMyChannels();
+      await loadMyself();
+      await getAllChannels();
+      loadBlocked();
+      getAllUsers();
+      loadBlocked();
+      getBanned();
+      getMuted();
+      getAllMembers(currentChannel.value?.channelId);
+    }
 
     watch(currentChannel, (NewValue, OldValue) => {
       isCurrentMembersLoaded.value = false
