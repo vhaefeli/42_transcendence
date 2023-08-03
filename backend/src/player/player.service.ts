@@ -23,7 +23,7 @@ export class PlayerService {
   ) {
     // ensure playerId is not equal to the opponentId
     if (playerId == createBothPlayerDto.opponentId) {
-      throw new UnauthorizedException("Opponent can't be the player");
+      throw new NotFoundException("Opponent can't be the player");
     }
     // ensure the opponenetId is existing
     const user = await this.prisma.user.findFirst({
@@ -32,7 +32,7 @@ export class PlayerService {
       },
     });
     if (user == null) {
-      throw new UnauthorizedException('Opponent must exist');
+      throw new NotFoundException('Opponent must exist');
     }
     // create the game with initiatedBy = sub
     const game = await this.prisma.game.create({
