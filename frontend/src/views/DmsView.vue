@@ -36,7 +36,7 @@
           </div>
 
           <div class="ft-bg-dark-gray flex p-2 absolute w-full bottom-0">
-              <input v-model="message" placeholder="blabla..." class="p-1 mr-4 ft-input" />
+              <input v-model="message" @keyup.enter="handleSubmitNewMessage" placeholder="blabla..." class="p-1 mr-4 ft-input" />
               <a href="#" class="t-btn-pink ft-bg-color-chat" :class="message.length === 0 || actualIsBlocked ? 'ft-disabled-btn' : ''"><button @click="handleSubmitNewMessage">Submit</button></a>
           </div>
         </div>

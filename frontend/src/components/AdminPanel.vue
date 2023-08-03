@@ -1,5 +1,4 @@
 <template>
-    <!-- TO DO: croix qui met à jour le texte dans memberlist -->
     <div class="flex">
         <div v-if="currentChannel?.ownerId === currentChannel?.userId" class="w-1/2 p-3 mr-9">
             <div class="mb-6">
