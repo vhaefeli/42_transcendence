@@ -493,6 +493,7 @@
 
 <style scoped>
   .ft-game-container {
+    position: relative;
     background: var(--gray);
     border: 4px solid var(--sunset);
     padding: 5vw;
@@ -505,17 +506,19 @@
     z-index: 0;
   }
   .foreground {
-    z-index: 999;
+    z-index: 30;
   }
 
   #directPlay {
-    left: 10vw;
+    position: absolute;
+    top: 5vh;
+    left: 15vw;
   }
 
   #setGame {
-    position: relative;
-    top: -7em;
-    right: 5vw;
+    position: absolute;
+    top: 10vh;
+    right: 20vw;
   }
 
   #setGameContent {
@@ -523,24 +526,25 @@
   }
 
   #gameInvitation {
-    top: -21vh;
-    right: -15vw;
+    position: absolute;
+    top: 31vh;
+    left: 10vw;
     width: 39vw;
     z-index: 1;
   }
 
   #match-history {
-    position: relative;
-    top: -17vh;
-    right: -39vw;
+    position: absolute;
+    top: 48vh;
+    right: 7vw;
     width: 40rem;
   }
 
   #stats {
-    position: relative;
-    top: -40vh;
+    position: absolute;
+    top: 57vh;
+    left: 5vw;
     width: max-content;
-    left: 1vw;
     z-index: 1;
   }
 
