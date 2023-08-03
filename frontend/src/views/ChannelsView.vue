@@ -301,7 +301,7 @@
 
       // sort messages
       messages.value.sort((a,b) => {
-        return new Date(a.date) - new Date(b.date);
+        return a.id - b.id;
       })  
     }
 
