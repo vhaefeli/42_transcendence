@@ -13,7 +13,7 @@
         <div id="dm-msg-col" class="grow relative">
           <div id="ft-scroller" ref="scroller" class="ft-chat-box p-6 overflow-scroll">
             <div v-if="actualIsBlocked">
-              <EmptyText :text="'You have blocked this user. Unblock them to see their messages.'" :white="true" />
+              <EmptyText :text="'You have blocked this user. Unblock them to see their messages or send them messages.'" :white="true" />
             </div>
             <div v-else>
               <div v-for="message in messages" :key="message.id">
@@ -37,7 +37,7 @@
 
           <div class="ft-bg-dark-gray flex p-2 absolute w-full bottom-0">
               <input v-model="message" placeholder="blabla..." class="p-1 mr-4 ft-input" />
-              <a href="#" class="t-btn-pink ft-bg-color-chat"><button @click="handleSubmitNewMessage">Submit</button></a>
+              <a href="#" class="t-btn-pink ft-bg-color-chat" :class="message.length === 0 || actualIsBlocked ? 'ft-disabled-btn' : ''"><button @click="handleSubmitNewMessage">Submit</button></a>
           </div>
         </div>
       

@@ -1,6 +1,5 @@
 <template>
     <!-- TO DO: croix qui met à jour le texte dans memberlist -->
-    <!-- <button class="absolute top-0 right-0"><a class="t-btn-pink ft-circle-gray ft-icon-small icon-btn-size icon-btn-cursor" @click="showAdmin = false"><img src="../assets/icons/xmark-solid.svg" alt="quit"></a></button> -->
     <div class="flex">
         <div v-if="currentChannel?.ownerId === currentChannel?.userId" class="w-1/2 p-3 mr-9">
             <div class="mb-6">
@@ -30,49 +29,25 @@
                     <ul class="flex flex-row items-center">
                         <li class="ft-text ml-2">{{ admin.username }}</li>
                     </ul>
-                    <!-- <ul class="flex flex-row">
-                        <li><a class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor" @click="acceptFriend(invitation.username)"><img src="../assets/icons/circle-check-solid.svg" alt="accept friend request" title="accept friend request"></a></li>
-                        <li><a class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="iDontWantToBeFriend(invitation.username)"><img src="../assets/icons/circle-xmark-solid.svg" alt="decline friend request" title="decline friend request"></a></li>
-                        <li><a class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor"  @click="blockUserAndDelInvite(invitation.username)"><img src="../assets/icons/person-circle-minus-solid.svg" alt="block them" title="block this user"></a></li>
-                    </ul> -->
                     </li>  
                 </div>    
-            </div>
-            <div class="mb-6">
-                <h3 class="ft-admin-title">Owner</h3>
             </div>
         </div>
         <div class="w-1/2 p-3">
             <div class="mb-6">
                 <h3 class="ft-admin-title">People banned</h3>
                 <div v-if="allBanned?.length === 0">No user banned</div>
-                <div v-for="banned in allBanned" :key="banned.id">
-                    <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between items-center">
-                    <ul class="flex flex-row items-center">
-                        <li class="ft-text ml-2">{{ banned.username }}</li>
-                    </ul>
-                    <!-- <ul class="flex flex-row">
-                        <li><a class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor" @click="acceptFriend(invitation.username)"><img src="../assets/icons/circle-check-solid.svg" alt="accept friend request" title="accept friend request"></a></li>
-                        <li><a class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="iDontWantToBeFriend(invitation.username)"><img src="../assets/icons/circle-xmark-solid.svg" alt="decline friend request" title="decline friend request"></a></li>
-                        <li><a class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor"  @click="blockUserAndDelInvite(invitation.username)"><img src="../assets/icons/person-circle-minus-solid.svg" alt="block them" title="block this user"></a></li>
-                    </ul> -->
-                    </li>  
+                <div v-for="banned in allBanned" :key="banned.id" class="flex">
+                  <p href="#" class="ft-text ml-2 mr-3">{{ banned.username }}</p>
+                  <a title="unbann this user" href="#" class="hover:text-white" @click="unbann(banned.id, banned.username)">x</a>
                 </div>  
             </div>
             <div class="mb-6">
                 <h3 class="ft-admin-title">People muted</h3>
                 <div v-if="allMuted?.length === 0">No user muted</div>
-                <div v-for="muted in allMuted" :key="muted.id">
-                    <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between items-center">
-                    <ul class="flex flex-row items-center">
-                        <li class="ft-text ml-2">{{ muted.username }}</li>
-                    </ul>
-                    <!-- <ul class="flex flex-row">
-                        <li><a class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor" @click="acceptFriend(invitation.username)"><img src="../assets/icons/circle-check-solid.svg" alt="accept friend request" title="accept friend request"></a></li>
-                        <li><a class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="iDontWantToBeFriend(invitation.username)"><img src="../assets/icons/circle-xmark-solid.svg" alt="decline friend request" title="decline friend request"></a></li>
-                        <li><a class="t-btn-pink ft-color-block ft-icon-small icon-btn-size icon-btn-cursor"  @click="blockUserAndDelInvite(invitation.username)"><img src="../assets/icons/person-circle-minus-solid.svg" alt="block them" title="block this user"></a></li>
-                    </ul> -->
-                    </li>  
+                <div v-for="muted in allMuted" :key="muted.id" class="flex">
+                  <p href="#" class="ft-text ml-2 mr-3">{{ muted.username }}</p>
+                    <a title="unmute this user" href="#" class="hover:text-white" @click="unmute(muted.id, muted.username)">x</a>
                 </div>  
             </div>
         </div>
@@ -85,10 +60,10 @@
 
     const props = defineProps({
         currentChannel: Object,
-        sessionStore: Object
+        sessionStore: Object,
     })
 
-    const emits = defineEmits(['updateTypeOfChan'])
+    const emits = defineEmits(['updateTypeOfChan', 'adminAction'])
 
     type ChanInfos = {
         channelId: number
@@ -157,13 +132,23 @@
       updateChannelType(newInfos)
     }
 
+    function unmute(userId: number, username: string) {
+      allMuted.value = allMuted.value.filter(muted => muted.username !== username)
+      emits('adminAction', { what: 'unmute', userId: userId, username: username })
+    }
+
+    function unbann(userId: number, username: string) {
+      allBanned.value = allBanned.value.filter(banned => banned.username !== username)
+      emits('adminAction',  { what: 'unbann', userId: userId, username: username })
+    }
+
     async function getAdmins() {
       await axios({
         url: `/api/chat/channel/admin/${props.currentChannel.channelId}`,
         method: "get",
         headers: { Authorization: `Bearer ${props.sessionStore.access_token}` },
       })
-        .then((response) => {
+      .then((response) => {
           allAdmins.value = response.data[0].admins;
           isAllAdminsLoaded.value = true
           console.log("loaded all admins");
@@ -266,6 +251,8 @@
     }
 
     getAdmins()
+
+    // utiliser des props depuis le parent? TO DO
     getBanned()
     getMuted()
 </script>

@@ -48,6 +48,12 @@ a.t-btn-pink:active {
     /* font-size: 1.2rem; */
 }
 
+.ft-disabled-btn {
+    pointer-events: none;
+    cursor: not-allowed;
+    opacity: 60%;
+}
+
 /* a.t-btn-pink:active span {
     border: 0.2em dotted var(--pink);
 } */

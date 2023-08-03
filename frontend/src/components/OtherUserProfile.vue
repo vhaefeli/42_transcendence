@@ -1,16 +1,15 @@
 <template>
       <div id="ft-user-profile-container">
           <div class="flex flex-col items-center text-center max-w-max ft-central-tab-container mb-3">
-              <div v-if="isActualInfosLoaded" class="ft-profile-pic" id="current-profile-pic" :style="{ 'background': 'url(' + actualInfos.avatar_url + ')' }"></div>
-              <div v-else class="ft-profile-pic" id="current-profile-pic"></div>
+              <div v-if="isActualInfosLoaded" class="ft-profile-pic profile-fix-position-top" id="current-profile-pic" :style="{ 'background': 'url(' + actualInfos.avatar_url + ')' }"></div>
+              <div v-else class="ft-profile-pic profile-fix-position-top" id="current-profile-pic"></div>
   
               <div v-if="!FromFriendToNotFriend"><div class="ft-status-bubble-position"><StatusBubble :status="actualInfos.status" /></div></div>
               <!-- les angles de la box -->
               <div class="ft-tab-folder" id="title-profile"></div>
-              <div v-if="!FromFriendToNotFriend" class="ft-tab-content ft-bg-color-profile">{{ actualInfos.status }}</div>
               <div v-if="isActualInfosLoaded" class="ft-tab-content ft-bg-color-profile ft-title" id="username">{{ actualInfos.username }}</div>
               <div v-else class="ft-tab-content ft-bg-color-profile ft-title" id="username"></div>
-              <div class="ft-tab-content ft-bg-color-profile flex flex-col items-center p-6">
+              <div class="ft-tab-content ft-bg-color-profile flex flex-col items-center px-6 py-3">
                   <div v-if="actualInfos.is_friend" class="mb-3">
                       <a title="remove friendship" class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="removeFriend(username)"><img src="../assets/icons/user-minus-solid.svg" alt="remove friendship"></a>
                   </div>
@@ -39,10 +38,15 @@
           <div v-if="props.adminTab" class="flex flex-col items-center text-center ft-central-tab-container mb-3">
             <div class="ft-tab-content ft-bg-color-profile flex flex-col items-center">
               <h3 class="py-1">manage acess to channel</h3>
-              <div>
-                  <a title="Request friendship" class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor" @click="bann()">[bann]</a>
-                  <a title="Request friendship" class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor" @click="mute()">[mute]</a>
-                  <a title="Request friendship" class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor" @click="kick()">[kick]</a>
+              <div class="flex">
+                <a title="Kick this mumber" class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="kick()"><img src="../assets/icons/right-from-bracket-solid.svg" alt="kick icon"></a>
+                <div v-if="isUserMuted">
+                  <a title="Unmute this member" class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor" @click="unmute()"><img src="../assets/icons/comment-slash-solid.svg" alt="mute icon"></a>
+                </div>
+                <div v-else>
+                  <a title="Mute this member" class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="mute()"><img src="../assets/icons/comment-slash-solid.svg" alt="mute icon"></a>
+                </div>
+                <a title="Bann this member" class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor" @click="bann()"><img src="../assets/icons/user-slash-solid.svg" alt="bann icon"></a>
               </div>
             </div>
           </div>
@@ -59,18 +63,23 @@
     import axios from "axios";
 
     const actualInfos = ref({})
-
+    
     const FromFriendToNotFriend = ref(false)
     const isActualInfosLoaded = ref(false)
-
-    const emits = defineEmits(['updateBlocked'])
-
+    
+    const emits = defineEmits(['updateBlocked', 'adminAction'])
+    
     const props = defineProps({
-        username: String,
-        adminTab: Boolean,
-        sessionStore: Object,
-        userStore: Object,
+      username: String,
+      adminTab: Boolean,
+      sessionStore: Object,
+      userStore: Object,
+      currentProfile: Object
     })
+    
+    if(props.currentProfile) {
+      const isUserMuted = ref(props.currentProfile.isMuted)
+    }
 
     function addFriend() {
         props.userStore.addFriend(props.username, props.sessionStore.access_token)
@@ -95,16 +104,22 @@
         emits('updateBlocked', actualInfos.value.is_blocked)
     }
 
-    function bann(username) {
-        // do something to bann this user
+    function bann() {
+        emits('adminAction', 'bann')
     }
 
-    function mute(username) {
-        // do something to bann this user
+    function mute() {
+        isUserMuted.value = true
+        emits('adminAction', 'mute')
     }
 
-    function kick(username) {
-        // do something to bann this user
+    function unmute() {
+      isUserMuted.value = false
+      emits('adminAction', 'unmute')
+    }
+
+    function kick() {
+        emits('adminAction', 'kick')
     }
 
     async function getUserInfos(username) {
