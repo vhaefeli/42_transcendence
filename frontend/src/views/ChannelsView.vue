@@ -37,9 +37,9 @@
                     <div v-else>
                         <div class="ft-msg-container">
                           <div class="flex items-center">
-                            <div v-if="isCurrentMembersLoaded && isAllBannedLoaded" class="ft-profile-pic ft-profile-pic-small mr-3 ft-chat-profile-pic" :style="{ 'background': 'url(' + getMemberImg(message.senderId) + ')' }"></div>
+                            <div v-if="isCurrentMembersLoaded && isAllBannedLoaded" class="ft-profile-pic ft-profile-pic-small mr-3 ft-chat-profile-pic" :style="{ 'background': 'url(' + message.avatar_url + ')' }"></div>
                             <div class="mb-3">
-                              <a v-if="isCurrentMembersLoaded && isAllBannedLoaded" class="cursor-pointer" @click="profileToShow = getMemberUsername(message.senderId)">{{ getMemberUsername(message.senderId) }}</a>
+                              <a v-if="isCurrentMembersLoaded && isAllBannedLoaded" class="cursor-pointer" @click="profileToShow = message.username">{{ message.username }}</a>
                               <p class="text-xs ft-chat-date">{{ message.date }}</p>
                               <div class="ft-banned-user-text" v-if="checkIfBanned(message.senderId)">This user is banned!</div>
                             </div>
@@ -137,7 +137,9 @@
       channelId: number,
       senderId: number,
       date: string,
-      message: string
+      message: string,
+      avatar_url: string,
+      username: string
     }
 
     type CurrentProfile = {
@@ -177,9 +179,6 @@
     const mutedUsers = ref<Array<UserInList>>([])
     const bannedUsers = ref<Array<UserInList>>([])
     const allUsers = ref([])
-
-    // avatar of users
-    const allAvatarUrl = ref<Array<object>>([]);
 
     // Reactive flag for loaded data
     const isAllMyChanLoaded = ref(true)
@@ -234,6 +233,8 @@
           channelId: currentChannel.value.channelId,
           senderId: user.value.id,
           date: new Date().toLocaleString("en-US", dateOptions),
+          avatar_url: user.value.avatar_url,
+          username: user.value.username
         })
         message.value = ''
       }
@@ -272,14 +273,19 @@
       }
     }
 
-    function pushToMessages(payload) {
+    async function pushToMessages(payload) {
+      
+      const profile = await userStore.loadUserProfileById(payload.id, sessionStore.access_token)
+
       if (messages.value.indexOf(payload.id) === -1) {
         messages.value.push({
           id: payload.id,
           message: payload.message,
           channelId: payload.channelId,
           senderId: payload.senderId,
-          date: new Date(payload.date).toLocaleString("en-US", dateOptions)
+          date: new Date(payload.date).toLocaleString("en-US", dateOptions),
+          avatar_url: profile?.avatar_url || '',
+          username: profile?.username || ''
         })
       }
     }
@@ -287,17 +293,6 @@
     const stockHistory = async (payload) => {
       // push recieved message to Messages Array
       pushToMessages(payload)
-
-      // stock user id and avatar url
-      if (checkIfBanned(payload.id)) {
-        allAvatarUrl.value.push({userId: payload.id, url: "src/assets/icons/user-slash-solid.svg"})
-      } else {
-        let found: any = currentMembers.value.find(member => member.id === payload.id)
-        if (!found) {
-          found = await userStore.loadUserProfileById(payload.id, sessionStore.access_token)
-        }
-        allAvatarUrl.value.push({userId: payload.id, url: found?.avatar_url})
-      }
 
       // sort messages
       messages.value.sort((a,b) => {
@@ -319,21 +314,6 @@
     function checkIfBanned(userId: number) {
       return bannedUsers.value.find(user => user.id === userId)
     }
-
-    function getMemberImg(userId: number) {
-      const found: any = allAvatarUrl.value.find(member => member.userId === userId)
-      return found?.url
-    }
-
-    function getMemberUsername(userId: number) {
-      const found: any = allUsers.value.find(member => member.id === userId)
-      return found?.username
-    }
-
-    // function getMemberId(username: string) {
-    //   const found = currentMembers.value.find(member => member.username === username)
-    //   return found.id
-    // }
 
     // scroll messages container to bottom
     function scrollToBottom() {
