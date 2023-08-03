@@ -100,7 +100,7 @@
               </div>
               <div v-for="(gameInvitation, index) in gameInvites" :key="index">
                 <li
-                  class="ft-item-title p-0 ft-text ft-bb-color-profile flex flex-row justify-between items-center"
+                  class="ft-item-title p-0 ft-text ft-bb-color-game flex flex-row justify-between items-center"
                   :class="
                     index === gameInvites.length - 1 ? '' : 'ft-tab-separator'
                   "
@@ -531,7 +531,7 @@
 
   #match-history {
     position: relative;
-    top: -17em;
+    top: -17vh;
     right: -39vw;
     width: 40rem;
   }
@@ -542,6 +542,16 @@
     width: max-content;
     left: 1vw;
     z-index: 1;
+  }
+
+  .ft-clickable-profile {
+    @apply p-2 w-full;
+  }
+
+  .ft-clickable-profile:hover {
+    @apply cursor-pointer rounded;
+    backdrop-filter: brightness(1.4);
+    border-radius: 0.8rem;
   }
 
   .ft-left-tab {
