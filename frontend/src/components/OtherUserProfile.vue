@@ -77,7 +77,9 @@
       currentProfile: Object
     })
     
-    const isUserMuted = ref(props.currentProfile.isMuted)
+    if(props.currentProfile) {
+      const isUserMuted = ref(props.currentProfile.isMuted)
+    }
 
     function addFriend() {
         props.userStore.addFriend(props.username, props.sessionStore.access_token)
