@@ -94,7 +94,7 @@
             <div v-if="gameInvites">
               <div v-if="gameInvites.length === 0">
                 <EmptyText
-                  :text="'No invitation, refresch the page to be sure or invite someone'"
+                  :text="'No invitation, invite someone'"
                   :white="false"
                 />
               </div>
@@ -116,10 +116,7 @@
                           background: 'url(' + gameInvitation.avatar_url + ')',
                         }"
                       ></li>
-                      <li
-                        class="ft-text ml-2 truncate"
-                        style="max-width: 10rem"
-                      >
+                      <li class="ft-text ml-2 truncate" style="width: 10vw">
                         {{ gameInvitation.username }}
                       </li>
                     </ul>
@@ -633,7 +630,7 @@
     height: 3em;
     position: relative;
     background: url(./../assets/img/ben-neale-zpxKdH_xNSI-unsplash.jpg);
-    background-size: cover;
+    background-size: cover !important;
   }
 
   .ft-left-tab {
@@ -647,14 +644,14 @@
 
   #matchScroll::-webkit-scrollbar,
   /* #friendsScroll::-webkit-scrollbar, */
-  #gameInvitationScroll::-webkit-scrollbar,
+  #gameInvitationScroll::-webkit-scrollbar
   /* #sentRequestsScroll::-webkit-scrollbar, */
   /* #blocked::-webkit-scrollbar  */ {
     width: 22px;
   }
 
   #matchScroll::-webkit-scrollbar-track,
-  #gameInvitationScroll::-webkit-scrollbar-track,
+  #gameInvitationScroll::-webkit-scrollbar-track
   /* #sentRequestsScroll::-webkit-scrollbar-track, */
   /* #blocked::-webkit-scrollbar-track, */
   /* #friendsScroll::-webkit-scrollbar-track  */ {
@@ -674,7 +671,7 @@
   }
 
   /* #friendsScroll::-webkit-scrollbar-thumb, */
-  #gameInvitationScroll::-webkit-scrollbar-thumb,
+  #gameInvitationScroll::-webkit-scrollbar-thumb
   /* #sentRequestsScroll::-webkit-scrollbar-thumb, */
   /* #blocked::-webkit-scrollbar-thumb  */ {
     background-color: var(--purple);
