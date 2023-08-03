@@ -39,7 +39,7 @@
                           <div class="flex items-center">
                             <div v-if="isCurrentMembersLoaded && isAllBannedLoaded" class="ft-profile-pic ft-profile-pic-small mr-3 ft-chat-profile-pic" :style="{ 'background': 'url(' + message.avatar_url + ')' }"></div>
                             <div class="mb-3">
-                              <a v-if="isCurrentMembersLoaded && isAllBannedLoaded" class="cursor-pointer" @click="profileToShow = message.username">{{ message.username }}</a>
+                              <a v-if="isCurrentMembersLoaded && isAllBannedLoaded" class="cursor-pointer" @click="currentProfileToShow.username = message.username">{{ message.username }}</a>
                               <p class="text-xs ft-chat-date">{{ message.date }}</p>
                               <div class="ft-banned-user-text" v-if="checkIfBanned(message.senderId)">This user is banned!</div>
                             </div>
@@ -163,7 +163,6 @@
     const myChannels = ref<Array<MyChannel>>([]);
     const allChannels = ref<Array<Channel>>([])
     
-    const profileToShow = ref('')
     const currentProfileToShow = ref<CurrentProfile>({
       username: '',
       isMuted: false,
