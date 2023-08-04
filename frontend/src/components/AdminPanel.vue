@@ -24,11 +24,16 @@
             <div class="mb-6">
                 <h3 class="ft-admin-title">Manage administrators</h3>
                 <div v-for="admin in allAdmins" :key="admin.id">
+                  <div v-if="admin.id !== currentChannel?.userId">
                     <li class="ft-item-title ft-text ft-bb-color-profile flex flex-row justify-between items-center">
                     <ul class="flex flex-row items-center">
-                        <li class="ft-text ml-2">{{ admin.username }}</li>
+                        <li class="flex">
+                          <p class="ft-text ml-2 mr-3">{{ admin.username }}</p>
+                          <a title="Demote this admin" href="#" class="hover:text-white" @click="demote(admin.id, admin.username)">x</a>
+                        </li>
                     </ul>
-                    </li>  
+                    </li>
+                  </div>
                 </div>    
             </div>
         </div>
@@ -46,7 +51,7 @@
                 <div v-if="allMuted?.length === 0">No user muted</div>
                 <div v-for="muted in allMuted" :key="muted.id" class="flex">
                   <p href="#" class="ft-text ml-2 mr-3">{{ muted.username }}</p>
-                    <a title="unmute this user" href="#" class="hover:text-white" @click="unmute(muted.id, muted.username)">x</a>
+                  <a title="unmute this user" href="#" class="hover:text-white" @click="unmute(muted.id, muted.username)">x</a>
                 </div>  
             </div>
             <div class="mb-6">
@@ -164,13 +169,18 @@
     }
 
     function unmute(userId: number, username: string) {
-      allMuted.value = allMuted.value.filter(muted => muted.username !== username)
+      allMuted.value = allMuted.value?.filter(muted => muted.username !== username)
       emits('adminAction', { what: 'unmute', userId: userId, username: username })
     }
 
     function unbann(userId: number, username: string) {
-      allBanned.value = allBanned.value.filter(banned => banned.username !== username)
+      allBanned.value = allBanned.value?.filter(banned => banned.username !== username)
       emits('adminAction',  { what: 'unbann', userId: userId, username: username })
+    }
+
+    function demote(userId: number, username: string) {
+      allAdmins.value = allAdmins.value?.filter(admin => admin.username !== username)
+      emits('adminAction',  { what: 'demote', userId: userId, username: username })
     }
 
     async function getAdmins() {
