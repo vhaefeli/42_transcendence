@@ -110,7 +110,7 @@
           @drop.prevent="onDrop"
         >
           <div class="ft-border-color-profile ft-the-drop-zone flex flex-row">
-            <p class="p-3">Drop your beautiful image here</p>
+            Drop your beautiful image here
           </div>
 
           <label class="ft-text" for="file-input">or select a file: </label>
@@ -612,24 +612,23 @@ function submitNewUsername() {
 }
 
 
-
-
-
-
-
 .ft-the-drop-zone {
     border-radius: 2%;
     border-style: dashed;
     border-width: 0.2rem;
+    border-color: var(--light);
     width: 32rem;
     height: 20rem;
     background: var(--light);
 }
 
 .ft-the-drop-zone:hover {
-  background: var(--gray);
+  border-style: dashed;
+  border-width: 0.2rem;
+  /* background: var(--purple); */
   border-color: var(--purple);
   color: var(--purple);
+  /* box-shadow: 5px 5px 4px rgba(0, 0, 0, 0.4); */
 }
 
 </style>

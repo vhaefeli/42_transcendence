@@ -19,7 +19,7 @@
     src: url(./../fonts/Orbitron/Orbitron-VariableFont_wght.ttf);
 }
 
-p, a, .ft-text {
+p, a, .ft-text, .ft-the-drop-zone {
     font-family: 'JetBrains';
 }
 
@@ -32,7 +32,7 @@ h1, .ft-result-drk-text {
     font-size: 3rem;
 }
 
-.ft-tab-title {
+.ft-tab-title{
     font-size: 1.5rem;
 }
 
