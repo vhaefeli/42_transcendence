@@ -13,7 +13,6 @@
     <div v-if="showQuitChanModal != null" id="ft-add-chan-modal" class="w-screen h-screen absolute bg-black/60 flex items-center justify-center">
       <div id="ft-add-chan-modal-inside" class="w-[50vw] p-6 relative">
         <button class="absolute top-0 right-0"><a class="t-btn-pink ft-circle-gray ft-icon-small icon-btn-size icon-btn-cursor" @click="showQuitChanModal = null"><img src="../assets/icons/xmark-solid.svg" alt="quit"></a></button>
-        <!-- {{ showQuitChanModal }} -->
         <QuitChanModal :sessionStore="sessionStore" :userStore="userStore" :chanToQuit="showQuitChanModal" @removeChan="removeChannel"/>
       </div>
     </div>
@@ -84,9 +83,9 @@
               <div v-if="isAllMyChanLoaded">
                 <div v-if="myChannels.length === 0">No channels yet</div>
                 <div v-for="channel in myChannels" :key="channel">
-                  <div :class="currentChannelClasses(channel)" class="ft-channel-name flex justify-between">
-                    <div @click="changeCurrentChannel(channel.name)" class="grow">{{ channel.name }}</div>
-                    <a title="quit channel" href="#" class="ft-quit-channel hidden" @click="showQuitChanModal = channel">x</a>
+                  <div @click="changeCurrentChannel(channel.name)" :class="currentChannelClasses(channel)" class="ft-channel-name flex justify-between">
+                    <div class="grow">{{ channel.name }}</div>
+                    <a title="quit channel" href="#" class="ft-quit-channel hidden" @click.stop="showQuitChanModal = channel">x</a>
                   </div>
                 </div>
               </div>
@@ -118,9 +117,6 @@
     // ********************************** ROUTES & STORES
 
     const route = useRoute()
-
-    // retrieve recipient i clicked on on other pages 
-    // const queryRecipient = route.query.recipient
     
     // routes
     const router = useRouter()
