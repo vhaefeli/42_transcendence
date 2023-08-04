@@ -45,25 +45,46 @@ userStore.getMe(sessionStore.access_token);
 
 const pongScreen = ref(null);
 
-// a recuperer du back requete http
+
+let gameModeInfo = {
+  name: "INTERMEDIATE",
+	params: {
+		BALL_DIAMETER: 10,
+		BALL_SPEED: 2,
+		BALL_START_ROUND_WAIT: 1,
+		GAME_HEIGHT: 498,
+		GAME_WIDTH: 756,
+		PADDLE_COLLISION_EXTENSION: 30,
+		PADDLE_DISTANCE_FROM_BORDER: 15,
+		PADDLE_SIZE: 60,
+		PADDLE_SPEED: 10,
+		POINTS_TO_WIN: 5
+	}
+};
 
 let opponentName: string | undefined;
 
 const canvasWidth = 756;
 const canvasHeight = 498;
 
-let paddleSize = 60;
-
 // a recuperer du back socket
-const ballSize = 10;
-let ballX: number = canvasWidth / 2 - ballSize / 2;
-let ballY: number = canvasHeight / 2 - ballSize / 2;
+let ballX: number;
+let ballY: number;
 
-let playerPos: number = canvasHeight / 2 - paddleSize / 2;
-let opponentPos: number = canvasHeight / 2 - paddleSize / 2;
+let playerPos: number;
+let opponentPos: number;
+
+resetBallAndPlayerPos();
 
 let playerScore = 0;
 let opponentScore = 0;
+
+function resetBallAndPlayerPos() {
+  ballX = canvasWidth / 2 - gameModeInfo.params.BALL_DIAMETER / 2;
+  ballY = canvasHeight / 2 - gameModeInfo.params.BALL_DIAMETER / 2;
+  playerPos = canvasHeight / 2 - gameModeInfo.params.PADDLE_SIZE / 2;
+  opponentPos = canvasHeight / 2 - gameModeInfo.params.PADDLE_SIZE / 2;
+}
 
 // socket connection
 const connectedToGame = ref(false);
@@ -177,7 +198,10 @@ onMounted(() => {
 
     // Receive game mode info on connection
     gameSocket.socket?.on("gameModeInfo", (response) => {
-      console.log(response);
+      gameModeInfo = response;
+      resetBallAndPlayerPos();
+      draw();
+      console.log(`Loaded info on gameMode: ${gameModeInfo.name}`);
     });
 
     // receive score modification from socket
@@ -205,7 +229,7 @@ onMounted(() => {
       } else {
         playerPos = response.p[1].y;
         opponentPos = response.p[0].y;
-        ballX = canvasWidth - response.b.x - ballSize;
+        ballX = canvasWidth - response.b.x - gameModeInfo.params.BALL_DIAMETER;
         if (opponentName === undefined) saveOpponentUsername(response.p[0].id);
       }
       ballY = response.b.y;
@@ -254,7 +278,7 @@ onMounted(() => {
 
     // ball
     ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
-    ctx.fillRect(ballX, ballY, ballSize, ballSize);
+    ctx.fillRect(ballX, ballY, gameModeInfo.params.BALL_DIAMETER, gameModeInfo.params.BALL_DIAMETER);
 
     //net
     ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";
@@ -288,8 +312,8 @@ onMounted(() => {
 
     // paddle
     ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
-    ctx.fillRect(10, playerPos, 5, paddleSize);
-    ctx.fillRect(canvasWidth - 10 - 5, opponentPos, 5, paddleSize);
+    ctx.fillRect(10, playerPos, 5, gameModeInfo.params.PADDLE_SIZE);
+    ctx.fillRect(canvasWidth - 10 - 5, opponentPos, 5, gameModeInfo.params.PADDLE_SIZE);
     // }
   }
   // fonction qui recoit les sockets
