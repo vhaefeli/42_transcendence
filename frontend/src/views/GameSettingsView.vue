@@ -461,8 +461,9 @@
   // delete invitation to deny
   async function declineGame(gameId: number) {
     await axios({
-      url: `/api/player/cancel/${gameId}`,
+      url: `/api/player/cancel`,
       method: "patch",
+      data: { gameId: gameId },
       headers: {
         Authorization: `Bearer ${sessionStore.access_token}`,
         "Content-Type": "application/json",
