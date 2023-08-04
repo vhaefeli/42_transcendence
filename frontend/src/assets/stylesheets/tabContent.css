@@ -43,6 +43,10 @@
   background: var(--light-purple);
 }
 
+.ft-bg-color-profile#back-to-profile {
+  background: var(--light-gray);
+}
+
 /* Border-bottom colors */
 .ft-bb-color-game {
   border-bottom-color: var(--sunset);
@@ -93,15 +97,15 @@
 
 /* Actuellement, le connection-circle est par defaut vert */
 /* Par la suite, donner la valeur circle-green ou circle-gray selon le statut de connexion de la personne */
-.ft-connection-circle, .ft-circle-green, .ft-color-add, .ft-color-unblock {
+.ft-connection-circle, .ft-circle-green, .ft-color-add, .ft-color-unblock, .ft-enable {
     background: var(--green);
 }
 
-.ft-color-block {
+.ft-color-block, .ft-disable {
   background: var(--red);
 }
 
-.ft-color-edit {
+.ft-color-edit, .ft-disabled-btn {
   background: var(--gray);
 }
 
