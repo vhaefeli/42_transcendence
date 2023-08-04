@@ -17,7 +17,7 @@
               <MemberList :key="showAdmin" :channelName="currentChannel?.name" :username="user.username" :channelType="currentChannel?.type" :isAdmin="currentChannel?.Admin != null" :MemberList="currentMembers" :userStore="userStore" :sessionStore="sessionStore" @set-profile-to-show="(username) => currentProfileToShow.username = username" :showAdmin="showAdmin ? 'close admin panel' : 'Admin panel'" @show-admin-panel="showAdmin = !showAdmin"/>
             </div>
             <div class="h-[76vh]" :class="currentProfileToShow.username.length > 0 ? 'position-cible' : 'position-origine'">
-              <OtherUserProfile :key="currentProfileToShow.username" :adminTab="currentChannel?.Admin != null" :username="currentProfileToShow.username" :currentProfile="currentProfileToShow" :userStore="userStore" :sessionStore="sessionStore" @adminAction="manageAdminAction" />
+              <OtherUserProfile :key="currentProfileToShow.username" :username="currentProfileToShow.username" :currentProfile="currentProfileToShow" :currentChannel="currentChannel" :userStore="userStore" :sessionStore="sessionStore" @adminAction="manageAdminAction" />
               <button title="Back to member list" id="ft-back-to-list" class="t-btn-pink ft-bg-color-chat" @click="currentProfileToShow.username = ''">&lt;&lt;&lt;&lt;&lt;</button>
             </div>
         </div>
@@ -92,10 +92,10 @@
     import NavBar from "../components/NavBar.vue";
     import ChatNavBar from "../components/ChatNavBar.vue";
     import OtherUserProfile from "../components/OtherUserProfile.vue";
-    import { ref, onUpdated, watchEffect, watch, computed } from "vue";
+    import { ref, onUpdated, watchEffect, watch, computed, onBeforeUnmount } from "vue";
     import { storeToRefs } from 'pinia'
     import axios from "axios";
-    import { useRouter, useRoute } from 'vue-router'
+    import { useRouter, useRoute, LocationQuery } from 'vue-router'
     import { useSessionStore } from "@/stores/SessionStore";
     import { useUserStore } from '../stores/UserStore'
     import { chatService } from "@/services/chat-socket.service";
@@ -191,7 +191,7 @@
     const allUsers = ref([])
 
     // Reactive flag for loaded data
-    const isAllMyChanLoaded = ref(true)
+    const isAllMyChanLoaded = ref(false)
     const isAllChanLoaded = ref(false)
     const isCurrentMembersLoaded = ref(false)
     const isBlockedLoaded = ref(false)
@@ -273,18 +273,27 @@
 
     // kick, bann or mute someone emitted from other profile component
     function manageAdminAction(action :string) {
-      if (action === 'kick') {
-        const found = currentMembers.value.find(member => member.username === currentProfileToShow.value.username)
-        kick(currentChannel.value?.channelId, found.id, currentProfileToShow.value.username)
-      } else if (action === 'mute') {
-        const found = currentMembers.value.find(member => member.username === currentProfileToShow.value.username)
-        mute(currentChannel.value?.channelId, found.id, currentProfileToShow.value.username)
-      } else if (action === 'unmute') {
-        const found = currentMembers.value.find(member => member.username === currentProfileToShow.value.username)
-        unmute(currentChannel.value?.channelId, found.id, currentProfileToShow.value.username)
-      } else if (action === 'bann') {
-        const found = currentMembers.value.find(member => member.username === currentProfileToShow.value.username)
-        bann(currentChannel.value?.channelId, found.id, currentProfileToShow.value.username)
+      const found = currentMembers.value.find(member => member.username === currentProfileToShow.value.username)
+      if (currentChannel.value?.channelId === undefined || found === undefined) return;
+      switch (action) {
+        case ('kick'):
+          kick(currentChannel.value?.channelId, found.id, currentProfileToShow.value.username)
+          break;
+        case ('mute'):
+          mute(currentChannel.value?.channelId, found.id, currentProfileToShow.value.username)
+          break;
+        case ('unmute'):
+          unmute(currentChannel.value?.channelId, found.id, currentProfileToShow.value.username)
+          break;
+        case ('bann'):
+          bann(currentChannel.value?.channelId, found.id, currentProfileToShow.value.username)
+          break;
+        case ('promote'):
+          promote(currentChannel.value?.channelId, found.id, currentProfileToShow.value.username)
+          break;
+        case ('demote'):
+          demote(currentChannel.value?.channelId, found.id, currentProfileToShow.value.username)
+          break;
       }
     }
 
@@ -319,7 +328,7 @@
 
       // sort messages
       messages.value.sort((a,b) => {
-        return new Date(a.date) - new Date(b.date);
+        return a.id - b.id;
       })  
     }
 
@@ -364,7 +373,7 @@
         // get user infos
         await userStore.getBlockedUsers(sessionStore.access_token);
         isBlockedLoaded.value = true
-        if (user.isLogged === false) {
+        if (user.value.isLogged === false) {
           sessionStore.isLoggedIn = false;
           sessionStore.access_token = "";
           router.push({ name: 'login' })
@@ -380,6 +389,9 @@
       })
         .then((response) => {
           myChannels.value = response.data;
+          if (!isAllMyChanLoaded.value && myChannels.value.length > 0) {
+            currentChannel.value = myChannels.value[0]
+          }
           isAllMyChanLoaded.value = true
           console.log("loaded all my channels");
         })
@@ -598,6 +610,64 @@
         });
     }
 
+    async function promote(channelId: number, userId: number, username: string) {
+      await axios({
+        url: "/api/chat/channel/admin/add",
+        method: "patch",
+        headers: { Authorization: `Bearer ${sessionStore.access_token}`, 'Content-Type': 'application/json' },
+        data: { "channelId": channelId, "userId": userId }
+      })
+        .then(() => {
+          console.log(username + " is promoted to admin in channel with id " + channelId)
+          return true;
+        })
+        .catch((error) => {
+          if (error.response.status == 401) {
+            console.log(
+              `invalid access token: ${error.response.status} ${error.response.statusText}`
+            );
+          } else if (error.response.status == 404) {
+            console.log(
+              `user not found: ${error.response.status} ${error.response.statusText}`
+            );
+          } else {
+            console.error(
+              `unexpected error: ${error.response.status} ${error.response.statusText}`
+            );
+          }
+          return false;
+        });
+    }
+
+    async function demote(channelId: number, userId: number, username: string) {
+      await axios({
+        url: "/api/chat/channel/admin/remove",
+        method: "patch",
+        headers: { Authorization: `Bearer ${sessionStore.access_token}`, 'Content-Type': 'application/json' },
+        data: { "channelId": channelId, "userId": userId }
+      })
+        .then(() => {
+          console.log(username + " is demoted to normal member in channel with id " + channelId)
+          return true;
+        })
+        .catch((error) => {
+          if (error.response.status == 401) {
+            console.log(
+              `invalid access token: ${error.response.status} ${error.response.statusText}`
+            );
+          } else if (error.response.status == 404) {
+            console.log(
+              `user not found: ${error.response.status} ${error.response.statusText}`
+            );
+          } else {
+            console.error(
+              `unexpected error: ${error.response.status} ${error.response.statusText}`
+            );
+          }
+          return false;
+        });
+    }
+
     async function getBanned() {
       await axios({
         url: `/api/chat/channel/banned/${currentChannel.value.channelId}`,
@@ -661,19 +731,47 @@
         return false;
       }
     }
-    
-    getAllUsers()
-    loadMyself()
-    getMyChannels()
-    getAllChannels()
-    loadBlocked()
-      
-    // Watch for changes
-    watchEffect(() => {
-      if (isAllMyChanLoaded.value && myChannels.value.length > 0) {
-        currentChannel.value = myChannels.value[0]
-      }
+
+    const reloadAllInfoInterval = setInterval(loadAllInfo, 5000);
+
+    onBeforeUnmount(() => {
+      clearInterval(reloadAllInfoInterval);
     })
+
+    handleQueryParams(route?.query);
+    watch(
+      () => route?.query,
+      (params) => {
+        handleQueryParams(params);
+      }
+    );
+
+    async function handleQueryParams(params: LocationQuery) {
+      if (params?.channelId) {
+        await getMyChannels();
+        const channel = myChannels.value.find((chan) => chan.channelId === +params?.channelId);
+        if (channel) {
+          currentChannel.value = channel;
+        } else {
+          router.push('/channels');
+        }
+      }
+    }
+
+    loadAllInfo();
+    async function loadAllInfo() {
+      await getMyChannels();
+      const promises = new Array<Promise<any>>();
+      promises.push(loadMyself());
+      promises.push(getAllChannels());
+      promises.push(loadBlocked());
+      promises.push(getAllUsers());
+      promises.push(loadBlocked());
+      promises.push(getBanned());
+      promises.push(getMuted());
+      promises.push(getAllMembers(currentChannel.value?.channelId));
+      await Promise.all(promises);
+    }
 
     watch(currentChannel, (NewValue, OldValue) => {
       isCurrentMembersLoaded.value = false
