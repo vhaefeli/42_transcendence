@@ -68,6 +68,7 @@ export class Game {
       pIndex: playerIndex,
     });
     socket.join(this.id.toString());
+    this.sendGameModeInfo(socket);
   }
 
   playerIsReadyToStart(userId: number) {
@@ -294,6 +295,14 @@ export class Game {
     ) {
       this.endGame(false);
     }
+  }
+
+  private async sendGameModeInfo(socket: Socket) {
+    const gameModeInfo = {
+      name: this.gameModeName,
+      params: this.gameMode,
+    };
+    socket.emit('gameModeInfo', gameModeInfo);
   }
 
   printGameInfo() {

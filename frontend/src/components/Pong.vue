@@ -175,6 +175,11 @@ onMounted(() => {
     gameSocket.connectToGame(gameIdToConnect);
     connectedToGame.value = true;
 
+    // Receive game mode info on connection
+    gameSocket.socket?.on("gameModeInfo", (response) => {
+      console.log(response);
+    });
+
     // receive score modification from socket
     gameSocket.socket?.on("score", (response) => {
       if (response[0].id === userStore.user.id) {
