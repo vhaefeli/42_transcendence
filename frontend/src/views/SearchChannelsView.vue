@@ -17,13 +17,10 @@
               class="w-full"
             />
             <div :class="{ 'cursor-not-allowed': !selectedChannel }">
-              <button
-                @click="validateSelection"
-                class="searchan-btn searchan-btn-blue"
-                :class="{ 'opacity-50 searchan-noClick': !selectedChannel }"
-              >
-                Join
-              </button>
+              <a class="t-btn-pink ft-enable" @click="validateSelection"
+                 :class="{ 'opacity-50 ft-disabled-btn searchan-noClick': !selectedChannel }">
+                <button>Join</button>
+              </a>
             </div>
           </div>
         </div>
