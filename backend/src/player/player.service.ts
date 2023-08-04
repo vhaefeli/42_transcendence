@@ -308,7 +308,7 @@ export class PlayerService {
             id: cancelGameDto.gameId,
           },
           data: {
-            completed: false,
+            completed: true,
           },
         });
         const resultPlayer = await this.prisma.player.updateMany({
