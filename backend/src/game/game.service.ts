@@ -65,7 +65,7 @@ export class GameService {
       select: { id: true },
     });
     if (!db_game)
-      throw new WsException('Game not found or unavailable to connect');
+      throw new WsException('Game not found or unavailable to connect, perhaps the opponent left');
     const game = this.findOrCreateGame(gameId);
     game.connectPlayer(userId, socket);
   }
