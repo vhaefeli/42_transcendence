@@ -185,6 +185,13 @@ function logout() {
   router.push("/login?logout=true");
 }
 
+const foregroundTab = ref('')
+
+
+function setForegroundTab(tab) {
+  foregroundTab.value = tab
+}
+
 // Enable or Disable 2FA ******************************************************
 const tfa_code = ref("");
 const tfa_email = ref("");
