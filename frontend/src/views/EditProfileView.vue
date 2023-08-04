@@ -1,114 +1,155 @@
 <template>
   <NavBar :showProfile="true" :userStore="userStore"/>
-  <div class="text-white profile-container w-full">
-    <section class="flex flex-col items-center">
-      <button
-        class="t-btn-pink"
-        @click="userStore.redirectToMyProfile(sessionStore.access_token)"
-      >
-        Go Back
-      </button>
-      <p v-if="errorText.length">{{ errorText }}</p>
-      <p>
-        {{ `2fa is ${userStore.user.tfa_enabled ? "enabled" : "disabled"}` }}
-      </p>
-      <div v-if="!show_tfa_enable_disable_confirmation">
-        <div id="ft-enabled-tfa" v-if="!user.tfa_enabled">
-          <input
-            v-model="tfa_email"
-            placeholder="your email address"
-            class="ft-text-input"
-          /><br />
-          <button @click="tfaEnable" class="ft-edit-button">enable</button>
-        </div>
-        <div id="ft-disable-tfa" v-if="user.tfa_enabled">
-          <button @click="tfaDisable" class="ft-edit-button-red">
-            disable
-          </button>
-        </div>
+  <div id="profile-container">
+    <section class="ft-cover flex flex-col items-end justify-end">
+    </section>
+
+    <section class="ft-container">
+
+    <div class="flex flex-col items-center text-center max-w-max ft-central-tab-container">
+      <div class="ft-profile-pic" id="current-profile-pic" :style="{ 'background': 'url(' + user.avatar_url + ')' }"></div>
+      <div class="ft-connection-circle" id="current-profile-pic"></div>
+      <div class="ft-tab-folder" id="title-profile"></div>
+      <div class="ft-tab-content ft-bg-color-profile">&nbsp;</div>
+      <div class="ft-tab-content ft-bg-color-profile ft-title" id="username">{{ user.username }}</div>
+      <div class="ft-tab-content ft-bg-color-profile" id="buttons-container">
+        <a id="back-to-profile" class="t-btn-pink ft-bg-color-profile" title="Back to my profile" @click="userStore.redirectToMyProfile(sessionStore.access_token)">
+          <button>Go back</button>
+        </a>
       </div>
-      <div v-if="show_tfa_enable_disable_confirmation">
-        <input
-          v-model="tfa_code"
-          placeholder="code"
-          class="ft-text-input"
-        /><br />
-        <button @click="validate2FARegistration" class="ft-edit-button">
-          validate
-        </button>
-        <button @click="cancelTfaEnableDisable" class="ft-edit-button-red">
-          cancel
-        </button>
-      </div>
-      <p class="text-white">Upload a new avatar for your profile</p>
-      <div
-        class="drop-area w-2/3"
-        :data-active="active"
-        @dragenter.prevent="setActive"
-        @dragover.prevent="setActive"
-        @dragleave.prevent="setInactive"
-        @drop.prevent="onDrop"
-      >
-        <p>Drop your image here</p>
-        <label for="file-input">or select a file:</label>
-        <input
-          type="file"
-          id="selectedFile"
-          style="display: none"
-          name="file-input"
-          v-on:change="fileInputOnChange"
-        />
-        <input
-          class="ft-browse-button"
-          type="button"
-          value="Browse..."
-          onclick="document.getElementById('selectedFile').click();"
-        />
-        <p v-if="selectedAvatar == undefined">no image selected</p>
-        <p v-if="selectedAvatar" class="truncate">{{ selectedAvatar.name }}</p>
-        <slot :dropZoneActive="active"></slot>
-        <div
-          :class="{ 'cursor-not-allowed': selectedAvatar == undefined }"
-          class="w-fit"
-        >
-          <button
-            class="ft-edit-button"
-            @click="uploadNewAvatar"
-            :class="{ 'opacity-50 ft-noClick': selectedAvatar == undefined }"
-          >
-            Upload
-          </button>
-        </div>
-      </div>
-      <div class="text-white" id="ft-edit-username">
-        <div v-if="!usernameChanged">
-          <p>Modify your username:</p>
-          <input
-            class="min-w-10 ft-text-input"
-            v-model="username"
-            placeholder="new username"
-          />
-          <div
-            :class="{ 'cursor-not-allowed': username.length == 0 }"
-            class="w-fit"
-          >
-            <button
-              class="ft-edit-button"
-              @click="submitNewUsername"
-              :class="{ 'opacity-50 ft-noClick': username.length == 0 }"
-            >
-              Submit
-            </button>
+    </div>
+
+
+    <!-- DOSSIER GAUCHE 2fa-->
+    <div class="flex flex-col text-center ft-left-tab" id="two-fa" :class="{ foreground: foregroundTab === 'two-fa' }" @click="setForegroundTab('two-fa')">
+      <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Two factor authentication</div>
+      <div class="ft-tab-content ft-border-color-profile ft-tab-border flex flex-col justify-evenly text-left">
+        <p v-if="errorText.length">{{ errorText }}</p>
+        <p>
+          {{ `The two factor authentication is ${userStore.user.tfa_enabled ? "enabled." : "disabled."}` }}
+        </p>
+        <div v-if="!show_tfa_enable_disable_confirmation">
+          <div id="ft-enabled-tfa" v-if="!user.tfa_enabled">
+            <p class="ft-smaller-txt">
+              Enter your e-mail address to enable it:
+            </p>
+            <input
+              v-model="tfa_email"
+              placeholder="your e-mail address"
+              class="p-1 mr-3 w-full"
+            />
+            <a @click="tfaEnable" class="t-btn-pink ft-enable">
+              <button>Enable</button>
+            </a>
+          </div>
+          <div id="ft-disable-tfa" v-if="user.tfa_enabled">
+            <a @click="tfaDisable" class="t-btn-pink ft-disable">
+              <button>Disable</button>
+            </a>
           </div>
         </div>
-        <div v-if="usernameChanged">
-          <p>Username successfully changed, please login again</p>
-          <button class="t-btn-pink" @click="logout">Go to Login</button>
+        <div v-if="show_tfa_enable_disable_confirmation">
+          <input
+            v-model="tfa_code"
+            placeholder="code"
+            class="p-1 mr-3 w-full"
+          />
+          <p class="ft-smaller-txt">
+            A code has been sent to your e-mail address. Go check it out.
+          </p>
+          <a @click="validate2FARegistration" class="t-btn-pink ft-enable">
+            <button>Validate</button>
+          </a>
+          <a @click="cancelTfaEnableDisable" class="t-btn-pink ft-disable">
+            <button>Cancel</button>
+          </a>
         </div>
       </div>
+    </div>
+
+    <!-- ICI dossier droite meme niveau que 2fa : changement de username -->
+    <div class="flex flex-col text-center ft-right-tab" id="username-change" :class="{ foreground: foregroundTab === 'username-change' }" @click="setForegroundTab('username-change')">
+      <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Change your username</div>
+      <div class="ft-tab-content ft-border-color-profile ft-tab-border flex flex-col justify-evenly text-left">
+        <div class="ft-text" id="ft-edit-username">
+          <div v-if="!usernameChanged">
+            <p>Modify your username:</p>
+            <input
+              class="p-1 mr-3 w-full"
+              v-model="username"
+              placeholder="new username"
+            />
+            <div
+              :class="{ 'cursor-not-allowed': username.length == 0 }"
+              class="w-fit"
+            >
+            <a class="t-btn-pink ft-enable" @click="submitNewUsername" :class="{ 'opacity-50 ft-disabled-btn ft-noClick': username.length == 0 }">
+              <button>Submit</button>
+            </a>
+            </div>
+          </div>
+          <div v-if="usernameChanged">
+            <p>Username successfully changed, please login again</p>
+            <a class="t-btn-pink ft-bg-profile" @click="logout"><button >Go to Login</button></a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- dossier gauche central pour avatar change -->
+    <div class="flex flex-col text-center ft-left-tab" id="avatar-change" :class="{ foreground: foregroundTab === 'avatar-change' }" @click="setForegroundTab('avatar-change')">
+      <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">The drop zone</div>
+      <div class="ft-tab-content ft-border-color-profile ft-tab-border flex flex-col justify-evenly text-left">
+        <p class="ft-text">Upload a new avatar for your profile</p>
+        <div
+          class="drop-area w-2/3"
+          :data-active="active"
+          @dragenter.prevent="setActive"
+          @dragover.prevent="setActive"
+          @dragleave.prevent="setInactive"
+          @drop.prevent="onDrop"
+        >
+          <div class="ft-border-color-profile ft-the-drop-zone flex flex-row">
+            Drop your beautiful image here
+          </div>
+
+          <label class="ft-text" for="file-input">or select a file: </label>
+          <input
+            type="file"
+            id="selectedFile"
+            style="display: none"
+            name="file-input"
+            v-on:change="fileInputOnChange"
+          />
+          <a class="t-btn-pink ft-bg-profile">
+            <input
+              type="button"
+              value="Browse..."
+              onclick="document.getElementById('selectedFile').click();"
+            />
+          </a>
+          <p v-if="selectedAvatar == undefined">no image selected</p>
+          <p v-if="selectedAvatar" class="truncate">{{ selectedAvatar.name }}</p>
+          <slot :dropZoneActive="active"></slot>
+          <div
+            :class="{ 'cursor-not-allowed': selectedAvatar == undefined }"
+            class="w-fit"
+          >
+          <a class="t-btn-pink ft-bg-profile" @click="uploadNewAvatar" :class="{ 'opacity-50 ft-disabled-btn ft-noClick': selectedAvatar == undefined }">
+            <button>Upload</button>
+          </a>
+          </div>
+        </div>
+
+
+      </div>
+    </div>
+
     </section>
   </div>
+
   <div id="ft-bottom-line"></div>
+
 </template>
 
 <script setup lang="ts">
@@ -395,6 +436,10 @@ function submitNewUsername() {
   @apply text-white bg-gray-500;
 }
 
+/* .ft-edit-button {
+  @apply bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded;
+} */
+
 .ft-edit-button {
   @apply bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded;
 }
@@ -415,11 +460,11 @@ function submitNewUsername() {
 .drop-area {
   width: 100%;
   max-width: 800px;
-  margin: 0 auto;
+  /* margin: 0 auto;
   padding: 50px;
   background: #ffffff55;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-  transition: 0.2s ease;
+  transition: 0.2s ease; */
 
   &[data-active="true"] {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
@@ -435,4 +480,154 @@ function submitNewUsername() {
   bottom: 0;
   z-index: 10000;
 }
+
+/* MyProfilePage.vue */
+.foreground {
+  z-index: 999;
+}
+
+.ft-cover {
+    background: url(./../assets/img/fond.png);
+}
+
+#profile-container {
+    background: var(--gray);
+    border: 4px solid var(--light-purple);
+    border-radius: 25px 25px 0 0;
+    overflow: hidden;
+}
+
+.ft-profile-pic#current-profile-pic {
+  position: relative;
+  top: 3em;
+  z-index:1;
+  background-size: cover !important;
+}
+
+.ft-central-tab-container {
+  position: relative;
+  top: -16em;
+  left: 50vw;
+  transform: translateX(-50%);
+}
+
+.ft-tab-content {
+  min-width: 100%;
+  box-shadow: 5px 5px 4px rgba(0, 0, 0, 0.4);
+}
+
+.ft-central-tab-container.ft-tab-content {
+  background: var(--light-purple);
+}
+
+.ft-connection-circle#current-profile-pic {
+  position:relative;
+  top: 2.5em;
+  z-index:2;
+}
+
+.ft-tab-folder {
+  width: fit-content;
+  border-bottom-style: solid;
+  border-bottom-width: 1.5em;
+    /* border-bottom: 1.5em solid var(--sunset); */
+}
+
+#title-profile {
+  text-overflow: ellipsis;
+    font-size: 2rem;
+    width: 10em;
+    border-bottom: 1.5em solid var(--light-purple);
+}
+
+.ft-tab-content#buttons-container {
+  padding: 2em 0 12em 0;
+  height: 17rem;
+}
+
+.ft-tab-separator {
+  padding: 1em;
+}
+
+.ft-left-tab#two-fa {
+  position: relative;
+  top: -30rem;
+  left: 8vw;
+  width: 25rem;
+
+  z-index: 1;
+}
+
+.ft-right-tab#username-change {
+  position: relative;
+  top: -35rem;
+  left: 65vw;
+  width: 25rem;
+  
+  z-index: 1;
+}
+
+.ft-left-tab#avatar-change {
+  position: relative;
+  top: -40rem;
+  left: 12vw;
+  width: 40rem;
+
+  z-index: 1;
+}
+
+.ft-tab-border {
+  border-style: solid;
+  border-width: 0.3em;
+  padding: 1em 4em 1em 4em;
+}
+
+/* .ft-tab-separator {
+  border-bottom-width: 0.3em;
+  border-bottom-style:solid;
+} */
+
+.ft-profile-pic.ft-friend-pic {
+  width: 3em;
+  height: 3em;
+  position: relative;
+  background: url(./../assets/img/ben-neale-zpxKdH_xNSI-unsplash.jpg);
+  background-size: cover;
+}
+
+.ft-tab-content.ft-tab-border#blocked {
+  background: var(--dark-gray);
+}
+
+.ft-item-title {
+  padding: 1.5em;
+}
+
+#profile-container {
+    background: var(--gray);
+    border: 4px solid var(--light-purple);
+    border-radius: 25px 25px 0 0;
+    overflow: hidden;
+}
+
+
+.ft-the-drop-zone {
+    border-radius: 2%;
+    border-style: dashed;
+    border-width: 0.2rem;
+    border-color: var(--light-purple);
+    width: 32rem;
+    height: 20rem;
+    background: var(--light);
+    transition: border-color 2s ease-out;
+    transition: background-color 2s ease-out;
+  }
+  
+  .ft-the-drop-zone:hover {
+    color: var(--light);
+    border-color: var(--light);
+    background: var(--purple);
+    /* border-color: var(--light-purple); */
+}
+
 </style>
