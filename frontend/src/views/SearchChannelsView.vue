@@ -26,10 +26,10 @@
         </div>
         <div class="w-1/3"></div>
       </div>
-      <div class="flex flex-row w-full">
-        <div>All channels</div>
+      <div class="flex flex-col w-full items-center">
+        <div class="mt-10 ft-title flex flex-row w-full justify-center" id="channels-title">All channels</div>
         <!-- <div class="w-1/12"></div> -->
-        <div id="ChannelList" class="mt-10 grid grid-cols-3 w-5/6">
+        <div id="ChannelList" class="grid grid-cols-3 w-5/6">
           <div
             v-for="(channel, index) in all_channels"
             :key="channel.id"
@@ -68,7 +68,7 @@
             </div>
           </div>
         </div>
-        <div class="w-1/12"></div>
+        <!-- <div class="w-1/12"></div> -->
       </div>
     </section>
   </div>
@@ -79,36 +79,20 @@
   pointer-events: none;
 }
 
+.ft-title#channels-title {
+  color: var(--dark-pink);
+}
+
 .ft-channels-list {
+  /* background: var(--dark-pink); */
   background: var(--light-gray);
   border-radius: 0.8rem;
 }
 
 .ft-channels-list:hover {
   background: var(--dark-pink);
-}
-
-.ft-channels-list:hover .ft-profile-pic:after {
-  content: url(/src/assets/icons/gear-solid.svg);
-  width: 100%;
-  display: block;
-  border-radius: .8rem;
-  height: 100%;
-  background-color: var(--dark-pink);
   mix-blend-mode: hard-light;
-  padding: 0.5rem;
-}
-
-
-
-.searchan-btn {
-  @apply font-bold py-2 px-4 rounded;
-}
-.searchan-btn-blue {
-  @apply bg-blue-500 text-white;
-}
-.searchan-btn-blue:hover {
-  @apply bg-blue-700;
+  cursor: pointer;
 }
 </style>
 
