@@ -221,17 +221,14 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onBeforeMount, watch } from "vue";
+  import { ref, onBeforeUnmount } from "vue";
   import { storeToRefs } from "pinia";
   import { useRoute, useRouter } from "vue-router";
   import axios, { AxiosError } from "axios";
   import { useUserStore } from "../stores/UserStore";
   import { useSessionStore } from "@/stores/SessionStore";
   import NavBar from "@/components/NavBar.vue";
-  import { ModelListSelect } from "vue-search-select";
   import EmptyText from "@/components/EmptyText.vue";
-  import StatusBubble from "@/components/StatusBubble.vue";
-  import OtherUserProfile from "../components/OtherUserProfile.vue";
   import UserSearch from "@/components/UserSearch.vue";
 
   // variable for game setting
@@ -252,12 +249,6 @@
   };
   let gameInvites: GameInvites[];
 
-  const emits = defineEmits(["addRecipient"]);
-
-  const actualInfos = ref({});
-  const FromFriendToNotFriend = ref(false);
-  const isActualInfosLoaded = ref(false);
-
   // to have the token we need sessionStore
   const sessionStore = useSessionStore();
 
@@ -265,9 +256,7 @@
   // const route = useRoute();
   const router = useRouter();
 
-  // we need userStore and a variable to check if logged in
   const userStore = useUserStore();
-  const isLoggedIn = ref(false);
 
   // user search dropdown
   let allUsers: Array<type_user>;
@@ -279,41 +268,34 @@
 
   const { user, gameLog } = storeToRefs(userStore);
 
-  // onBeforeMount is executed before the component is mounted
-  // way of using await because we can't do it in setup
-  onBeforeMount(async () => {
-    isLoggedIn.value = true;
+  loadAllInfo();
+  const reloadInterval = setInterval(loadAllInfo, 5000);
 
-    // get user infos, friends, and invitations
-    await userStore.getMe(sessionStore.access_token);
-    if (user.value.isLogged) {
-      await getGameInvites();
-      await userStore.getGameHistory(sessionStore.access_token);
-    } else {
-      router.push("/login?logout=true");
-    }
-    // list all users
-    await axios({
-      url: "/api/user/all",
-      method: "get",
-    })
-      .then((response) => {
-        allUsers = response.data;
-        console.log("all users loaded");
-      })
-      .catch((error) => {
-        console.error(
-          `unexpected error: ${error.response.status} ${error.response.statusText}`
-        );
-      });
-    loadUserSearchList();
+  onBeforeUnmount(() => {
+    clearInterval(reloadInterval);
   });
 
-  async function loadUserSearchList() {
-    userSearchList.value = allUsers.filter((user) => {
-      return !(userStore.user.id === user.id);
+  async function loadAllInfo() {
+    userStore.getMe(sessionStore.access_token).then(() => {
+      if (!user.value.isLogged) router.push('/login?logout=true');
     });
-    return;
+    getGameInvites();
+    userStore.getGameHistory(sessionStore.access_token);
+    loadUserSearchList();
+  }
+
+  async function loadUserSearchList() {
+    let newUserSearchList: Array<{id: number, username: string}> | undefined;
+    await axios({
+      url: '/api/user/all',
+      method: 'get',
+    }).then((response) => {
+      newUserSearchList = response.data;
+    });
+    if (!newUserSearchList) return;
+    userSearchList.value = newUserSearchList.filter(
+      (user) => userStore.user.id === user.id
+    );
   }
 
   function setForegroundTab(tab) {
