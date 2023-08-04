@@ -4,9 +4,9 @@
     <ChatNavBar :whichTab="'search'"></ChatNavBar>
     <section class="ft-chat-inside-container flex flex-col items-center w-full pt-10">
       <div class="flex flex-row w-full">
-        <div class="w-1/3" />
+        <div class="w-1/3"></div>
         <div class="w-1/3">
-          <h1 class="mx-2">Search channels</h1>
+          <h1 class="ft-text mx-2">Search channels</h1>
           <div id="SearchAllChannels" class="flex flex-row space-x-0.4 w-full">
             <ModelListSelect
               :list="all_channels"
@@ -24,10 +24,11 @@
             </div>
           </div>
         </div>
-        <div class="w-1/3/>" />
+        <div class="w-1/3"></div>
       </div>
       <div class="flex flex-row w-full">
-        <div class="w-1/12" />
+        <div>All channels</div>
+        <!-- <div class="w-1/12"></div> -->
         <div id="ChannelList" class="mt-10 grid grid-cols-3 w-5/6">
           <div
             v-for="(channel, index) in all_channels"
@@ -39,7 +40,7 @@
             }"
           >
             <div
-              class="rounded border-gray-600 border space-x-4 p-3 items-center flex flex-row w-full"
+              class="ft-channels-list space-x-4 p-3 items-center flex flex-row w-full"
               :class="{
                 'searchan-first-col':
                   index % 3 == 0 &&
@@ -53,36 +54,53 @@
                     index == all_channels.length - 1),
                 'searchan-third-col': index % 3 == 2,
               }"
+              @click="validateSelection"
             >
+            <!-- changer le click ci-dessus -->
               <img
                 :src="getTypeIcon(channel)"
                 alt="icon"
                 class="max-w-4 max-h-4"
                 id="icon"
               />
-              <h3 class="text-xl font-sans truncate">{{ channel.name }}</h3>
+              <!-- <h3 class="text-xl font-sans truncate">{{ channel.name }}</h3> -->
+              <h3 class="ft-text truncate">{{ channel.name }}</h3>
             </div>
           </div>
         </div>
-        <div class="w-1/12" />
+        <div class="w-1/12"></div>
       </div>
     </section>
   </div>
 </template>
 
 <style>
-/* .searchan-first-col {
-  background-color: var(--red);
-}
-.searchan-second-col {
-  background-color: var(--purple);
-}
-.searchan-third-col {
-  background-color: var(--green);
-} */
 .searchan-noClick {
   pointer-events: none;
 }
+
+.ft-channels-list {
+  background: var(--light-gray);
+  border-radius: 0.8rem;
+}
+
+.ft-channels-list:hover {
+  background: var(--dark-pink);
+}
+
+.ft-channels-list:hover .ft-profile-pic:after {
+  content: url(/src/assets/icons/gear-solid.svg);
+  width: 100%;
+  display: block;
+  border-radius: .8rem;
+  height: 100%;
+  background-color: var(--dark-pink);
+  mix-blend-mode: hard-light;
+  padding: 0.5rem;
+}
+
+
+
 .searchan-btn {
   @apply font-bold py-2 px-4 rounded;
 }
