@@ -13,7 +13,7 @@
       <div class="ft-tab-content ft-bg-color-profile">&nbsp;</div>
       <div class="ft-tab-content ft-bg-color-profile ft-title" id="username">{{ user.username }}</div>
       <div class="ft-tab-content ft-bg-color-profile" id="buttons-container">
-        <a class="t-btn-pink ft-bg-color-profile" title="Back to my profile" @click="userStore.redirectToMyProfile(sessionStore.access_token)">
+        <a id="back-to-profile" class="t-btn-pink ft-bg-color-profile" title="Back to my profile" @click="userStore.redirectToMyProfile(sessionStore.access_token)">
           <button>Go back</button>
         </a>
       </div>
@@ -97,7 +97,7 @@
 
     <!-- dossier gauche central pour avatar change -->
     <div class="flex flex-col text-center ft-left-tab" id="avatar-change" :class="{ foreground: foregroundTab === 'avatar-change' }" @click="setForegroundTab('avatar-change')">
-      <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Two factor authentication</div>
+      <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">The drop zone</div>
       <div class="ft-tab-content ft-border-color-profile ft-tab-border flex flex-col justify-evenly text-left">
         <p class="text-white">Upload a new avatar for your profile</p>
         <div
