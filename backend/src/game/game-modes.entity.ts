@@ -1,6 +1,4 @@
-export enum GameModeType {
-  NORMAL = 'NORMAL',
-}
+import { mode_type } from '@prisma/client';
 
 export type GameModeConfig = {
   GAME_HEIGHT: number;
@@ -15,8 +13,35 @@ export type GameModeConfig = {
   PADDLE_DISTANCE_FROM_BORDER: number;
 };
 
-export const GameModeList = new Map<GameModeType, GameModeConfig>();
-GameModeList.set(GameModeType.NORMAL, {
+export const GameModeList = new Map<mode_type, GameModeConfig>();
+
+/*
+ *
+ * ***TODO***
+ * Create fun game modes by changing the following variables:
+ *    BALL_SPEED
+ *    BALL_DIAMETER
+ *    PADDLE_SPEED
+ *    PADDLE_SIZE
+ *    PADDLE_COLLISION_EXTENSION
+ *    POINTS_TO_WIN
+ *
+ */
+
+GameModeList.set(mode_type.BEGINNER, {
+  GAME_HEIGHT: 498,
+  GAME_WIDTH: 756,
+  BALL_SPEED: 1,
+  BALL_DIAMETER: 20,
+  BALL_START_ROUND_WAIT: 1,
+  PADDLE_SPEED: 10,
+  PADDLE_SIZE: 100,
+  PADDLE_COLLISION_EXTENSION: 30,
+  POINTS_TO_WIN: 5,
+  PADDLE_DISTANCE_FROM_BORDER: 15,
+});
+
+GameModeList.set(mode_type.INTERMEDIATE, {
   GAME_HEIGHT: 498,
   GAME_WIDTH: 756,
   BALL_SPEED: 2,
@@ -25,6 +50,19 @@ GameModeList.set(GameModeType.NORMAL, {
   PADDLE_SPEED: 10,
   PADDLE_SIZE: 60,
   PADDLE_COLLISION_EXTENSION: 30,
+  POINTS_TO_WIN: 5,
+  PADDLE_DISTANCE_FROM_BORDER: 15,
+});
+
+GameModeList.set(mode_type.EXPERT, {
+  GAME_HEIGHT: 498,
+  GAME_WIDTH: 756,
+  BALL_SPEED: 3,
+  BALL_DIAMETER: 10,
+  BALL_START_ROUND_WAIT: 1,
+  PADDLE_SPEED: 13,
+  PADDLE_SIZE: 40,
+  PADDLE_COLLISION_EXTENSION: 20,
   POINTS_TO_WIN: 5,
   PADDLE_DISTANCE_FROM_BORDER: 15,
 });

@@ -3,19 +3,15 @@ import { WsException } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { PrismaService } from 'src/prisma.service';
 import { GameGateway } from './game.gateway';
-import { game_status, level_type } from '@prisma/client';
+import { game_status, level_type, mode_type } from '@prisma/client';
 import { PlayerAction, Player, ConnectedPlayers } from './player.entity';
-import {
-  GameModeConfig,
-  GameModeList,
-  GameModeType,
-} from './game-modes.entity';
+import { GameModeConfig, GameModeList } from './game-modes.entity';
 import { Ball } from './ball.entity';
 import { GameUpdateDto } from './dto/game-update.dto';
 
 export class Game {
   readonly id: number;
-  readonly gameModeName: GameModeType;
+  readonly gameModeName: mode_type;
   private readonly gameMode: GameModeConfig;
   private readonly p = new Array<Player>(2);
   private ball: Ball;
@@ -25,17 +21,12 @@ export class Game {
   private checkGameCancelationInterval: ReturnType<typeof setInterval>;
 
   constructor(
-    gameInfo: { id: number; gameMode?: GameModeType },
+    gameInfo: { id: number; gameMode: mode_type },
     private gameGateway: GameGateway,
     private prisma: PrismaService,
   ) {
     this.id = gameInfo.id;
-    if (gameInfo.gameMode === undefined) {
-      this.gameModeName = GameModeType.NORMAL;
-      this.gameMode = GameModeList.get(this.gameModeName);
-    } else if (
-      (this.gameMode = GameModeList.get(gameInfo.gameMode)) !== undefined
-    )
+    if ((this.gameMode = GameModeList.get(gameInfo.gameMode)) !== undefined)
       this.gameModeName = gameInfo.gameMode;
     else throw new TypeError(`Game Mode '${gameInfo.gameMode}' is unknown`);
     this.ball = new Ball(this.gameMode, this.p);
