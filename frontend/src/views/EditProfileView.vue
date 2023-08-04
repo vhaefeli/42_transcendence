@@ -13,9 +13,9 @@
       <div class="ft-tab-content ft-bg-color-profile">&nbsp;</div>
       <div class="ft-tab-content ft-bg-color-profile ft-title" id="username">{{ user.username }}</div>
       <div class="ft-tab-content ft-bg-color-profile" id="buttons-container">
-        <button class="t-btn-pink" @click="userStore.redirectToMyProfile(sessionStore.access_token)">
-        Go Back
-        </button>
+        <a class="t-btn-pink ft-bg-color-profile" title="Back to my profile" @click="userStore.redirectToMyProfile(sessionStore.access_token)">
+          <button>Go back</button>
+        </a>
       </div>
     </div>
 
@@ -58,7 +58,6 @@
         </div>
       </div>
     </div>
-
 
     <!-- ICI dossier droite meme niveau que 2fa : changement de username -->
     <div class="flex flex-col text-center ft-right-tab" id="username-change" :class="{ foreground: foregroundTab === 'username-change' }" @click="setForegroundTab('username-change')">
