@@ -28,7 +28,6 @@ export class Player {
     pIndex: number;
   }) {
     this.id = player.userId;
-    //this.y = player.gameMode.INITIAL_HEIGHT;
     this.y = (player.gameMode.GAME_HEIGHT - player.gameMode.PADDLE_SIZE) / 2;
     this.socket = player.socket;
     this.gameMode = player.gameMode;

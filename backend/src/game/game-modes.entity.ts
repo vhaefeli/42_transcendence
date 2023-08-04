@@ -3,7 +3,6 @@ export enum GameModeType {
 }
 
 export type GameModeConfig = {
-  INITIAL_HEIGHT: number;
   GAME_HEIGHT: number;
   GAME_WIDTH: number;
   BALL_SPEED: number;
@@ -18,7 +17,6 @@ export type GameModeConfig = {
 
 export const GameModeList = new Map<GameModeType, GameModeConfig>();
 GameModeList.set(GameModeType.NORMAL, {
-  INITIAL_HEIGHT: 300,
   GAME_HEIGHT: 498,
   GAME_WIDTH: 756,
   BALL_SPEED: 2,
