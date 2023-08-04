@@ -558,7 +558,6 @@ function submitNewUsername() {
   z-index: 1;
 }
 
-
 .ft-right-tab#username-change {
   position: relative;
   top: -35rem;
@@ -616,19 +615,19 @@ function submitNewUsername() {
     border-radius: 2%;
     border-style: dashed;
     border-width: 0.2rem;
-    border-color: var(--light);
+    border-color: var(--light-purple);
     width: 32rem;
     height: 20rem;
     background: var(--light);
-}
-
-.ft-the-drop-zone:hover {
-  border-style: dashed;
-  border-width: 0.2rem;
-  /* background: var(--purple); */
-  border-color: var(--purple);
-  color: var(--purple);
-  /* box-shadow: 5px 5px 4px rgba(0, 0, 0, 0.4); */
+    transition: border-color 2s ease-out;
+    transition: background-color 2s ease-out;
+  }
+  
+  .ft-the-drop-zone:hover {
+    color: var(--light);
+    border-color: var(--light);
+    background: var(--purple);
+    /* border-color: var(--light-purple); */
 }
 
 </style>
