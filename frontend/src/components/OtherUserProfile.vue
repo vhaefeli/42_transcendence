@@ -193,11 +193,13 @@
       emits('updateBlocked', actualInfos.value.is_blocked)
     })
 
-    watch(props.currentChannel, (_, oldChannel) => {
-      if (props.currentChannel?.channelId != oldChannel?.channelId) {
-        loadChannelInfo();
-      }
-    });
+    if (props.currentChannel) {
+      watch(props.currentChannel, (_, oldChannel) => {
+        if (props.currentChannel?.channelId != oldChannel?.channelId) {
+          loadChannelInfo();
+        }
+      });
+    }
 
     watchEffect(() => {
       loadChannelInfo();
@@ -207,7 +209,7 @@
       if(props.username) {
         getUserInfos(props.username)
       }
-      isUserMuted.value = props.currentProfile.isMuted;
+      isUserMuted.value = props.currentProfile?.isMuted;
     })
 
     onBeforeUnmount(() => { clearInterval(reloadInfoInterval) })

@@ -79,9 +79,6 @@
               </div>
               <div v-else>Loading...</div>
             </div>
-            <div class="m-6 absolute bottom-6 w-2/3">
-              <!-- <UserSearch :recipients="recipients" :userStore="userStore" @addRecipient="addRecipient"/> -->
-            </div>
           </div>
         </div>
       </section>
