@@ -22,6 +22,7 @@ export class Game {
   private isActive = false;
   private isCompleted = false;
   private hasEnded = false;
+  private checkGameCancelationInterval: ReturnType<typeof setInterval>;
 
   constructor(
     gameInfo: { id: number; gameMode?: GameModeType },
@@ -38,6 +39,10 @@ export class Game {
       this.gameModeName = gameInfo.gameMode;
     else throw new TypeError(`Game Mode '${gameInfo.gameMode}' is unknown`);
     this.ball = new Ball(this.gameMode, this.p);
+    this.checkGameCancelationInterval = setInterval(
+      this.checkGameCancelation.bind(this),
+      500,
+    );
   }
 
   getIsActive() {
@@ -126,6 +131,7 @@ export class Game {
           )
         )
           this.endGame(true);
+      } else {
       }
       this.sendGameUpdateToPlayers();
     }
@@ -155,6 +161,7 @@ export class Game {
   }
 
   async endGame(wasCompleted: boolean) {
+    clearInterval(this.checkGameCancelationInterval);
     this.isActive = false;
     this.isCompleted = true;
     const promises = new Array<Promise<any>>();
@@ -275,6 +282,18 @@ export class Game {
     ConnectedPlayers.delete(player.id);
     player.socket.leave(this.id.toString());
     player.endGame();
+  }
+
+  private async checkGameCancelation() {
+    if (this.isActive) {
+      clearInterval(this.checkGameCancelationInterval);
+      return;
+    }
+    if (
+      (await this.prisma.game.findFirst({ where: { id: this.id } })).completed
+    ) {
+      this.endGame(false);
+    }
   }
 
   printGameInfo() {
