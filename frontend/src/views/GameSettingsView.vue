@@ -445,13 +445,13 @@ watch(
   #directPlay {
     position: absolute;
     top: 5vh;
-    left: 15vw;
+    left: 18vw;
   }
 
   #setGame {
     position: absolute;
     top: 20vh;
-    right: 20vw;
+    right: 17vw;
     @apply text-lg;
   }
 
@@ -462,7 +462,7 @@ watch(
   #gameInvitation {
     position: absolute;
     bottom: 10vh;
-    left: 12vw;
+    left: 15vw;
     width: 39vw;
     z-index: 1;
   }
