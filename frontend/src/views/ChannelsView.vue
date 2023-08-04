@@ -132,11 +132,12 @@
     // ********************************** TYPES
 
     type MyChannel = {
-      channelId: number;
-      userId: number;
-      name: string;
-      type: string;
-      Admin: null | string;
+      channelId: number,
+      userId: number,
+      name: string,
+      type: string,
+      Admin: null | string,
+      ownerId: number
     }
 
     type Channel = {
@@ -226,10 +227,12 @@
       myChannels.value.push({
         channelId: chanInfos.channelId,
         userId: user.value.id,
+        ownerId: user.value.id,
         name: chanInfos.channelName,
         type: chanInfos.channelType,
         Admin: 'Admin'
       })
+      currentChannel.value = myChannels.value[myChannels.value.length - 1]
     }
 
     function removeChannel(chanId: number) {
