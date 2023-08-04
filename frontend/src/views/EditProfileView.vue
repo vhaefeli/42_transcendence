@@ -73,6 +73,7 @@
       <div class="ft-tab-content ft-border-color-profile ft-tab-border flex flex-col justify-evenly text-left">
         <div class="ft-text" id="ft-edit-username">
           <div v-if="!usernameChanged">
+            <p v-if="usernameErrorText.length">{{ usernameErrorText }}</p>
             <p>Modify your username:</p>
             <input
               class="p-1 mr-3 w-full"
@@ -100,6 +101,7 @@
     <div class="flex flex-col text-center ft-left-tab" id="avatar-change" :class="{ foreground: foregroundTab === 'avatar-change' }" @click="setForegroundTab('avatar-change')">
       <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">The drop zone</div>
       <div class="ft-tab-content ft-border-color-profile ft-tab-border flex flex-col justify-evenly text-left">
+        <p v-if="avatarErrorText.length">{{ avatarErrorText }}</p>
         <p class="ft-text">Upload a new avatar for your profile</p>
         <div
           class="drop-area w-2/3"
@@ -162,7 +164,8 @@ import { useSessionStore } from "@/stores/SessionStore";
 import NavBar from "@/components/NavBar.vue";
 
 const tfaErrorText = ref("");
-const errorText = ref("");
+const usernameErrorText = ref("");
+const avatarErrorText = ref("");
 
 const userStore = useUserStore();
 const { user } = storeToRefs(userStore);
@@ -341,21 +344,21 @@ async function uploadNewAvatar() {
           ? error.response?.data?.message
           : error.response?.data?.message[0];
       console.log(`${error.response?.status}: ${msg}`);
-      if (error.response?.status === 400) errorText.value = msg;
+      if (error.response?.status === 400) avatarErrorText.value = msg;
     });
 }
 
 function selectNewAvatar(file: File | null) {
   if (file == null) return;
   if (!avatarInfo.file_types.includes(file.type)) {
-    errorText.value = `filetype ${file.type} is not accepted`;
+    avatarErrorText.value = `filetype ${file.type} is not accepted`;
     return;
   }
   if (file.size > avatarInfo.max_size) {
-    errorText.value = `file is too big, max size: ${avatarInfo.max_size}b`;
+    avatarErrorText.value = `file is too big, max size: ${avatarInfo.max_size}b`;
     return;
   }
-  errorText.value = "";
+  avatarErrorText.value = "";
   selectedAvatar.value = file;
 }
 
@@ -419,6 +422,7 @@ function submitNewUsername() {
   })
     .then(() => {
       usernameChanged.value = true;
+      usernameErrorText.value = "";
     })
     .catch((error) => {
       const msg: string | undefined =
@@ -426,9 +430,9 @@ function submitNewUsername() {
           ? error.response?.data?.message
           : error.response?.data?.message[0];
       console.log(`${error.response?.status}: ${msg}`);
-      if (error.response?.status === 400) errorText.value = msg;
+      if (error.response?.status === 400) usernameErrorText.value = msg;
       else if (error.response?.status === 409)
-        errorText.value = "username is already in use";
+        usernameErrorText.value = "username is already in use";
       else if (error.response?.status === 401) logout();
     });
 }
