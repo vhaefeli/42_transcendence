@@ -43,8 +43,8 @@
           id="setGameContent"
         >
           <div class="flex flex-row items-center my-4">
-            <p>game mode:</p>
-            <select v-model="mode">
+            <p>game mode:&nbsp;</p>
+            <select v-model="mode" class="rounded p-2 bg-gray-50">
               <option value="BEGINNER">Easy</option>
               <option value="INTERMEDIATE">Normal</option>
               <option value="EXPERT">Expert</option>
@@ -221,9 +221,9 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onBeforeUnmount } from "vue";
+  import { ref, onBeforeUnmount, watch } from "vue";
   import { storeToRefs } from "pinia";
-  import { useRoute, useRouter } from "vue-router";
+  import { useRoute, useRouter, type LocationQuery } from "vue-router";
   import axios, { AxiosError } from "axios";
   import { useUserStore } from "../stores/UserStore";
   import { useSessionStore } from "@/stores/SessionStore";
@@ -253,7 +253,7 @@
   const sessionStore = useSessionStore();
 
   // routes
-  // const route = useRoute();
+  const route = useRoute();
   const router = useRouter();
 
   const userStore = useUserStore();
@@ -264,6 +264,7 @@
 
   // other variables
   const foregroundTab = ref("");
+  let loadingUserSearchList: Promise<any>;
 
   const { user, gameLog } = storeToRefs(userStore);
 
@@ -274,13 +275,33 @@
     clearInterval(reloadInterval);
   });
 
+handleQueryParams(route?.query);
+watch(
+  () => route?.query,
+  (params) => {
+    handleQueryParams(params);
+  }
+);
+
+  async function handleQueryParams(params: LocationQuery) {
+    const inviteUserId = +params?.inviteUserId;
+    if (typeof inviteUserId === "number"){
+      await loadingUserSearchList;
+      const userFind = userSearchList.value.find((user) => inviteUserId === user.id);
+      if (userFind) {
+          guest.value = userFind;
+          setForegroundTab('gameSetting');
+      }
+    }
+  }
+
   async function loadAllInfo() {
     userStore.getMe(sessionStore.access_token).then(() => {
       if (!user.value.isLogged) router.push('/login?logout=true');
     });
     getGameInvites();
     userStore.getGameHistory(sessionStore.access_token);
-    loadUserSearchList();
+    loadingUserSearchList = loadUserSearchList();
   }
 
   async function loadUserSearchList() {
