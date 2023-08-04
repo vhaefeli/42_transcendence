@@ -109,8 +109,11 @@
           @dragleave.prevent="setInactive"
           @drop.prevent="onDrop"
         >
-          <p>Drop your image here</p>
-          <label for="file-input">or select a file:</label>
+          <div class="ft-border-color-profile ft-the-drop-zone flex flex-row">
+            <p class="p-3">Drop your beautiful image here</p>
+          </div>
+
+          <label class="ft-text" for="file-input">or select a file: </label>
           <input
             type="file"
             id="selectedFile"
@@ -118,12 +121,13 @@
             name="file-input"
             v-on:change="fileInputOnChange"
           />
-          <input
-            class="ft-browse-button"
-            type="button"
-            value="Browse..."
-            onclick="document.getElementById('selectedFile').click();"
-          />
+          <a class="t-btn-pink ft-bg-profile">
+            <input
+              type="button"
+              value="Browse..."
+              onclick="document.getElementById('selectedFile').click();"
+            />
+          </a>
           <p v-if="selectedAvatar == undefined">no image selected</p>
           <p v-if="selectedAvatar" class="truncate">{{ selectedAvatar.name }}</p>
           <slot :dropZoneActive="active"></slot>
@@ -131,13 +135,9 @@
             :class="{ 'cursor-not-allowed': selectedAvatar == undefined }"
             class="w-fit"
           >
-            <button
-              class="ft-edit-button"
-              @click="uploadNewAvatar"
-              :class="{ 'opacity-50 ft-noClick': selectedAvatar == undefined }"
-            >
-              Upload
-            </button>
+          <a class="t-btn-pink ft-bg-profile" @click="uploadNewAvatar" :class="{ 'opacity-50 ft-disabled-btn ft-noClick': selectedAvatar == undefined }">
+            <button>Upload</button>
+          </a>
           </div>
         </div>
 
@@ -570,9 +570,9 @@ function submitNewUsername() {
 
 .ft-left-tab#avatar-change {
   position: relative;
-  top: -35rem;
+  top: -40rem;
   left: 12vw;
-  width: 70rem;
+  width: 40rem;
 
   z-index: 1;
 }
@@ -617,10 +617,19 @@ function submitNewUsername() {
 
 
 
-.ft-input {
-    width: 100%;
-    background-color: #464646;
-    color: white;
+.ft-the-drop-zone {
+    border-radius: 2%;
+    border-style: dashed;
+    border-width: 0.2rem;
+    width: 32rem;
+    height: 20rem;
+    background: var(--light);
+}
+
+.ft-the-drop-zone:hover {
+  background: var(--gray);
+  border-color: var(--purple);
+  color: var(--purple);
 }
 
 </style>
