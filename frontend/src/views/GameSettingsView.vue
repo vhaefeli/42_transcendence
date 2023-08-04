@@ -119,9 +119,12 @@
                           background: 'url(' + gameInvitation.avatar_url + ')',
                         }"
                       ></li>
-                      <li class="ft-text ml-2 truncate" style="width: 10vw">
-                        {{ gameInvitation.username }}
-                      </li>
+                      <ul class="flex flex-col justify-center">
+                        <li class="ft-text ml-2 truncate" style="width: 10vw">
+                          {{ gameInvitation.username }}
+                        </li>
+                        <li class="ft-level-text ml-2">Level: {{ gameInvitation.level }}</li>
+                      </ul>
                     </ul>
                     <ul class="flex flex-row">
                       <li>
@@ -166,6 +169,7 @@
   import NavBar from "@/components/NavBar.vue";
   import EmptyText from "@/components/EmptyText.vue";
   import UserSearch from "@/components/UserSearch.vue";
+import { transformLevel } from "@/services/helper.service";
 
   // variable for game setting
   const mode = ref("INTERMEDIATE");
@@ -367,6 +371,7 @@ watch(
   // game invitations actions
 
   async function getGameInvites() {
+    let newGameInvites = new Array<GameInvites>();
     await axios({
       url: "/api/player/invitedBy",
       method: "get",
@@ -376,9 +381,8 @@ watch(
       },
     })
       .then((response) => {
-        gameInvites.value = response.data;
         console.log("loaded  games invites");
-        return true;
+        newGameInvites = response.data;
       })
       .catch((error) => {
         if (error.response.status == 401) {
@@ -391,8 +395,11 @@ watch(
             `unexpected error: ${error.response.status} ${error.response.statusText}`
           );
         }
-        return false;
       });
+    if (newGameInvites.length > 0) {
+      newGameInvites.forEach((invite) => invite.level = transformLevel(invite.level));
+      gameInvites.value = newGameInvites;
+    }
   }
 
   function acceptGame(gameId: number) {
