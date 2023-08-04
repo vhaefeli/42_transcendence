@@ -124,21 +124,21 @@
                       <li>
                         <a
                           class="t-btn-pink ft-color-add ft-icon-small icon-btn-size icon-btn-cursor"
-                          @click="acceptGame(gameInvitation.gameId)"
+                          @click.stop="acceptGame(gameInvitation.gameId)"
                           ><img
                             src="../assets/icons/circle-check-solid.svg"
-                            alt="accept friend request"
-                            title="accept friend request"
+                            alt="accept game invitation"
+                            title="accept game invitation"
                         /></a>
                       </li>
                       <li>
                         <a
                           class="t-btn-pink ft-color-remove ft-icon-small icon-btn-size icon-btn-cursor"
-                          @click="declineGame(gameInvitation.gameId)"
+                          @click.stop="declineGame(gameInvitation.gameId)"
                           ><img
                             src="../assets/icons/circle-xmark-solid.svg"
-                            alt="decline friend request"
-                            title="decline friend request"
+                            alt="decline game invitation"
+                            title="decline game invitation"
                         /></a>
                       </li>
                     </ul>
@@ -469,8 +469,9 @@
         "Content-Type": "application/json",
       },
     })
-      .then(() => {
+      .then(async () => {
         console.log(`gameInvitation game Id ${gameId} canceled`);
+        await getGameInvites();
       })
       .catch((error) => {
         if (error.response.status == 401) {
