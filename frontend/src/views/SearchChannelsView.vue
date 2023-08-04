@@ -28,7 +28,6 @@
       </div>
       <div class="flex flex-col w-full items-center">
         <div class="mt-10 ft-title flex flex-row w-full justify-center" id="channels-title">All channels</div>
-        <!-- <div class="w-1/12"></div> -->
         <div id="ChannelList" class="grid grid-cols-3 w-5/6">
           <div
             v-for="(channel, index) in all_channels"
@@ -63,12 +62,10 @@
                 class="max-w-4 max-h-4"
                 id="icon"
               />
-              <!-- <h3 class="text-xl font-sans truncate">{{ channel.name }}</h3> -->
               <h3 class="ft-text truncate">{{ channel.name }}</h3>
             </div>
           </div>
         </div>
-        <!-- <div class="w-1/12"></div> -->
       </div>
     </section>
   </div>
@@ -84,7 +81,6 @@
 }
 
 .ft-channels-list {
-  /* background: var(--dark-pink); */
   background: var(--light-gray);
   border-radius: 0.8rem;
 }
