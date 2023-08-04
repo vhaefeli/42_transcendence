@@ -40,7 +40,7 @@ h2, .ft-title, .ft-result-drk-text {
     font-size: 2rem;
 }
 
-.ft-level-text {
+.ft-level-text, .ft-smaller-txt {
     font-size: 0.6rem;
 }
 

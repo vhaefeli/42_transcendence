@@ -27,10 +27,12 @@
         <p v-if="errorText.length">{{ errorText }}</p>
         <p>
           {{ `The two factor authentication is ${userStore.user.tfa_enabled ? "enabled." : "disabled."}` }}
-          {{ `Enter your e-mail address to ${userStore.user.tfa_enabled ? "disabled it:" : "enable it: "}` }}
         </p>
         <div v-if="!show_tfa_enable_disable_confirmation">
           <div id="ft-enabled-tfa" v-if="!user.tfa_enabled">
+            <p class="ft-smaller-txt">
+              Enter your e-mail address to enable it:
+            </p>
             <input
               v-model="tfa_email"
               placeholder="your e-mail address"
@@ -51,7 +53,10 @@
             v-model="tfa_code"
             placeholder="code"
             class="p-1 mr-3 w-full"
-          /><br />
+          />
+          <p class="ft-smaller-txt">
+            A code has been sent to your e-mail address. Go check it out.
+          </p>
           <a @click="validate2FARegistration" class="t-btn-pink ft-enable">
             <button>Validate</button>
           </a>
@@ -78,7 +83,7 @@
               :class="{ 'cursor-not-allowed': username.length == 0 }"
               class="w-fit"
             >
-            <a class="t-btn-pink ft-enable" @click="submitNewUsername" :class="{ 'opacity-50 ft-noClick': username.length == 0 }">
+            <a class="t-btn-pink ft-enable" @click="submitNewUsername" :class="{ 'opacity-50 ft-disabled-btn ft-noClick': username.length == 0 }">
               <button>Submit</button>
             </a>
             </div>
@@ -91,14 +96,11 @@
       </div>
     </div>
 
-
-
-
     <!-- dossier gauche central pour avatar change -->
     <div class="flex flex-col text-center ft-left-tab" id="avatar-change" :class="{ foreground: foregroundTab === 'avatar-change' }" @click="setForegroundTab('avatar-change')">
       <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">The drop zone</div>
       <div class="ft-tab-content ft-border-color-profile ft-tab-border flex flex-col justify-evenly text-left">
-        <p class="text-white">Upload a new avatar for your profile</p>
+        <p class="ft-text">Upload a new avatar for your profile</p>
         <div
           class="drop-area w-2/3"
           :data-active="active"
@@ -458,11 +460,11 @@ function submitNewUsername() {
 .drop-area {
   width: 100%;
   max-width: 800px;
-  margin: 0 auto;
+  /* margin: 0 auto;
   padding: 50px;
   background: #ffffff55;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-  transition: 0.2s ease;
+  transition: 0.2s ease; */
 
   &[data-active="true"] {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
