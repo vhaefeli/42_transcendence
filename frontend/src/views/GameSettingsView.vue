@@ -247,7 +247,7 @@
     level: string;
     avatar_url: string;
   };
-  let gameInvites: GameInvites[];
+  const gameInvites = ref<Array<GameInvites>>([]);
 
   // to have the token we need sessionStore
   const sessionStore = useSessionStore();
@@ -259,7 +259,6 @@
   const userStore = useUserStore();
 
   // user search dropdown
-  let allUsers: Array<type_user>;
   const userSearchList = ref<Array<type_user>>([]);
   const searchSelectedUserId = ref<number>();
 
@@ -294,7 +293,7 @@
     });
     if (!newUserSearchList) return;
     userSearchList.value = newUserSearchList.filter(
-      (user) => userStore.user.id === user.id
+      (user) => userStore.user.id !== user.id
     );
   }
 
@@ -351,12 +350,9 @@
 
   // add type_user to the list
   function addRecipient(recipientName: string) {
-    const userFind = allUsers.find((user) => recipientName === user.username);
+    const userFind = userSearchList.value.find((user) => recipientName === user.username);
     if (userFind) {
-      if (recipients.value.indexOf(userFind.id) === -1) {
-        recipients.value.push(userFind.id);
-      }
-      guest.value = userFind;
+        guest.value = userFind;
     }
   }
 
@@ -416,7 +412,7 @@
       },
     })
       .then((response) => {
-        gameInvites = response.data;
+        gameInvites.value = response.data;
         console.log("loaded  games invites");
         return true;
       })
