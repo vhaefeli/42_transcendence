@@ -26,23 +26,24 @@
       <div class="ft-tab-content ft-border-color-profile ft-tab-border flex flex-col justify-evenly text-left">
         <p v-if="errorText.length">{{ errorText }}</p>
         <p>
-          {{ `two factor authentication is ${userStore.user.tfa_enabled ? "enabled" : "disabled"}` }}
+          {{ `The two factor authentication is ${userStore.user.tfa_enabled ? "enabled." : "disabled."}` }}
+          {{ `Enter your e-mail address to ${userStore.user.tfa_enabled ? "disabled it:" : "enable it: "}` }}
         </p>
         <div v-if="!show_tfa_enable_disable_confirmation">
           <div id="ft-enabled-tfa" v-if="!user.tfa_enabled">
             <input
               v-model="tfa_email"
-              placeholder="your email address"
+              placeholder="your e-mail address"
               class="p-1 mr-3 w-full"
-            /><br />
-            <a @click="tfaEnable" class="ft-edit-button">
-              <button>enable</button>
+            />
+            <a @click="tfaEnable" class="t-btn-pink ft-enable">
+              <button>Enable</button>
             </a>
           </div>
           <div id="ft-disable-tfa" v-if="user.tfa_enabled">
-            <button @click="tfaDisable" class="ft-edit-button-red">
-              disable
-            </button>
+            <a @click="tfaDisable" class="t-btn-pink ft-disable">
+              <button>Disable</button>
+            </a>
           </div>
         </div>
         <div v-if="show_tfa_enable_disable_confirmation">
@@ -51,12 +52,12 @@
             placeholder="code"
             class="p-1 mr-3 w-full"
           /><br />
-          <button @click="validate2FARegistration" class="ft-edit-button">
-            validate
-          </button>
-          <button @click="cancelTfaEnableDisable" class="ft-edit-button-red">
-            cancel
-          </button>
+          <a @click="validate2FARegistration" class="t-btn-pink ft-enable">
+            <button>Validate</button>
+          </a>
+          <a @click="cancelTfaEnableDisable" class="t-btn-pink ft-disable">
+            <button>Cancel</button>
+          </a>
         </div>
       </div>
     </div>
@@ -65,7 +66,7 @@
     <div class="flex flex-col text-center ft-right-tab" id="username-change" :class="{ foreground: foregroundTab === 'username-change' }" @click="setForegroundTab('username-change')">
       <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Change your username</div>
       <div class="ft-tab-content ft-border-color-profile ft-tab-border flex flex-col justify-evenly text-left">
-        <div class="text-white" id="ft-edit-username">
+        <div class="ft-text" id="ft-edit-username">
           <div v-if="!usernameChanged">
             <p>Modify your username:</p>
             <input
@@ -77,18 +78,14 @@
               :class="{ 'cursor-not-allowed': username.length == 0 }"
               class="w-fit"
             >
-              <button
-                class="ft-edit-button"
-                @click="submitNewUsername"
-                :class="{ 'opacity-50 ft-noClick': username.length == 0 }"
-              >
-                Submit
-              </button>
+            <a class="t-btn-pink ft-enable" @click="submitNewUsername" :class="{ 'opacity-50 ft-noClick': username.length == 0 }">
+              <button>Submit</button>
+            </a>
             </div>
           </div>
           <div v-if="usernameChanged">
             <p>Username successfully changed, please login again</p>
-            <a class="t-btn-pink" @click="logout"><button >Go to Login</button></a>
+            <a class="t-btn-pink ft-bg-profile" @click="logout"><button >Go to Login</button></a>
           </div>
         </div>
       </div>
@@ -436,6 +433,10 @@ function submitNewUsername() {
 .ft-text-input {
   @apply text-white bg-gray-500;
 }
+
+/* .ft-edit-button {
+  @apply bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded;
+} */
 
 .ft-edit-button {
   @apply bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded;
