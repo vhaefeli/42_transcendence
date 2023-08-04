@@ -33,9 +33,11 @@
             <input
               v-model="tfa_email"
               placeholder="your email address"
-              class="ft-text-input"
+              class="p-1 mr-3 w-full"
             /><br />
-            <button @click="tfaEnable" class="ft-edit-button">enable</button>
+            <a @click="tfaEnable" class="ft-edit-button">
+              <button>enable</button>
+            </a>
           </div>
           <div id="ft-disable-tfa" v-if="user.tfa_enabled">
             <button @click="tfaDisable" class="ft-edit-button-red">
@@ -47,7 +49,7 @@
           <input
             v-model="tfa_code"
             placeholder="code"
-            class="ft-text-input"
+            class="p-1 mr-3 w-full"
           /><br />
           <button @click="validate2FARegistration" class="ft-edit-button">
             validate
@@ -67,7 +69,7 @@
           <div v-if="!usernameChanged">
             <p>Modify your username:</p>
             <input
-              class="min-w-10 ft-text-input"
+              class="p-1 mr-3 w-full"
               v-model="username"
               placeholder="new username"
             />
@@ -86,7 +88,7 @@
           </div>
           <div v-if="usernameChanged">
             <p>Username successfully changed, please login again</p>
-            <button class="t-btn-pink" @click="logout">Go to Login</button>
+            <a class="t-btn-pink" @click="logout"><button >Go to Login</button></a>
           </div>
         </div>
       </div>
@@ -143,50 +145,6 @@
 
       </div>
     </div>
-
-
-
-      <!-- AVATAR -->
-      <!-- <p class="text-white">Upload a new avatar for your profile</p>
-      <div
-        class="drop-area w-2/3"
-        :data-active="active"
-        @dragenter.prevent="setActive"
-        @dragover.prevent="setActive"
-        @dragleave.prevent="setInactive"
-        @drop.prevent="onDrop"
-      >
-        <p>Drop your image here</p>
-        <label for="file-input">or select a file:</label>
-        <input
-          type="file"
-          id="selectedFile"
-          style="display: none"
-          name="file-input"
-          v-on:change="fileInputOnChange"
-        />
-        <input
-          class="ft-browse-button"
-          type="button"
-          value="Browse..."
-          onclick="document.getElementById('selectedFile').click();"
-        />
-        <p v-if="selectedAvatar == undefined">no image selected</p>
-        <p v-if="selectedAvatar" class="truncate">{{ selectedAvatar.name }}</p>
-        <slot :dropZoneActive="active"></slot>
-        <div
-          :class="{ 'cursor-not-allowed': selectedAvatar == undefined }"
-          class="w-fit"
-        >
-          <button
-            class="ft-edit-button"
-            @click="uploadNewAvatar"
-            :class="{ 'opacity-50 ft-noClick': selectedAvatar == undefined }"
-          >
-            Upload
-          </button>
-        </div>
-      </div> -->
 
     </section>
   </div>
@@ -648,6 +606,18 @@ function submitNewUsername() {
     border: 4px solid var(--light-purple);
     border-radius: 25px 25px 0 0;
     overflow: hidden;
+}
+
+
+
+
+
+
+
+.ft-input {
+    width: 100%;
+    background-color: #464646;
+    color: white;
 }
 
 </style>
