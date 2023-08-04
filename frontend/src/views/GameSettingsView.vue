@@ -149,73 +149,6 @@
           </ul>
         </div>
       </div>
-      <!-- match History -->
-      <div
-        class="flex flex-col text-center ft-right-tab"
-        id="match-history"
-        :class="{ foreground: foregroundTab === 'matchHistory' }"
-        @click="setForegroundTab('matchHistory')"
-      >
-        <div class="ft-tab-folder ft-tab-title ft-bb-color-game">
-          Match history
-        </div>
-        <div
-          id="matchScroll"
-          class="ft-tab-content ft-border-color-game ft-tab-border flex flex-col text-left ft-scrollable"
-        >
-          <ul>
-            <div v-if="gameLog">
-              <div v-if="gameLog.length === 0">
-                <EmptyText :text="'No game to show here'" :white="false" />
-              </div>
-              <div v-for="(game, index) in gameLog" :key="index">
-                <li
-                  class="ft-item-title ft-text ft-bb-color-game flex flex-row justify-between items-center"
-                  :class="
-                    index === gameLog.length - 1 ? '' : 'ft-tab-separator'
-                  "
-                >
-                  <div class="flex flex-col justify-start">
-                    <li class="ft-level-text ml-2">
-                      {{ formatDate(game.date) }}
-                    </li>
-                    <li class="ft-text ml-2">{{ game.Result }}</li>
-                  </div>
-                </li>
-              </div>
-            </div>
-          </ul>
-        </div>
-      </div>
-      <!-- stats -->
-      <div
-        class="flex flex-col text-center ft-left-tab"
-        id="stats"
-        :class="{ foreground: foregroundTab === 'stats' }"
-        @click="setForegroundTab('stats')"
-      >
-        <div class="ft-tab-folder ft-tab-title ft-bb-color-game">Stats</div>
-        <div
-          class="ft-tab-content ft-border-color-game ft-tab-border flex flex-row justify-evenly"
-        >
-          <div class="ft-item-title ft-bb-color-game flex flex-col">
-            <div class="ft-result-drk-text">{{ user.nbGames }}</div>
-            <div class="ft-text">matches</div>
-          </div>
-          <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
-            <div class="ft-result-drk-text">{{ user.rank }}</div>
-            <div class="ft-text">victories</div>
-          </div>
-          <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
-            <div class="ft-result-drk-text">{{ user.nbMatch }}</div>
-            <div class="ft-text">perfect victories</div>
-          </div>
-          <div class="ft-item-title ft-text ft-bb-color-game flex flex-col">
-            <div class="ft-result-drk-text">{{ user.level }}</div>
-            <div class="ft-text">level</div>
-          </div>
-        </div>
-      </div>
     </section>
   </div>
 </template>
@@ -266,7 +199,7 @@
   const foregroundTab = ref("");
   let loadingUserSearchList: Promise<any>;
 
-  const { user, gameLog } = storeToRefs(userStore);
+  const { user } = storeToRefs(userStore);
 
   loadAllInfo();
   const reloadInterval = setInterval(loadAllInfo, 5000);
@@ -300,7 +233,6 @@ watch(
       if (!user.value.isLogged) router.push('/login?logout=true');
     });
     getGameInvites();
-    userStore.getGameHistory(sessionStore.access_token);
     loadingUserSearchList = loadUserSearchList();
   }
 
@@ -518,8 +450,9 @@ watch(
 
   #setGame {
     position: absolute;
-    top: 10vh;
+    top: 20vh;
     right: 20vw;
+    @apply text-lg;
   }
 
   #setGameContent {
@@ -528,8 +461,8 @@ watch(
 
   #gameInvitation {
     position: absolute;
-    top: 31vh;
-    left: 10vw;
+    bottom: 10vh;
+    left: 12vw;
     width: 39vw;
     z-index: 1;
   }
