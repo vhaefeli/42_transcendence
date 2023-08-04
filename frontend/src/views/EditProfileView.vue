@@ -24,7 +24,7 @@
     <div class="flex flex-col text-center ft-left-tab" id="two-fa" :class="{ foreground: foregroundTab === 'two-fa' }" @click="setForegroundTab('two-fa')">
       <div class="ft-tab-folder ft-tab-title ft-bb-color-profile">Two factor authentication</div>
       <div class="ft-tab-content ft-border-color-profile ft-tab-border flex flex-col justify-evenly text-left">
-        <p v-if="errorText.length">{{ errorText }}</p>
+        <p v-if="tfaErrorText.length">{{ tfaErrorText }}</p>
         <p>
           {{ `The two factor authentication is ${userStore.user.tfa_enabled ? "enabled." : "disabled."}` }}
         </p>
@@ -161,6 +161,7 @@ import { useUserStore } from "../stores/UserStore";
 import { useSessionStore } from "@/stores/SessionStore";
 import NavBar from "@/components/NavBar.vue";
 
+const tfaErrorText = ref("");
 const errorText = ref("");
 
 const userStore = useUserStore();
@@ -205,6 +206,7 @@ async function tfaEnable() {
       console.log("code has been sent");
       show_tfa_enable_disable_confirmation.value = true;
       tfaRegistrationEnable = true;
+      tfaErrorText.value = "";
     })
     .catch((error) => {
       tfaEnableDisableHandleError(error);
@@ -223,6 +225,7 @@ async function tfaDisable() {
       console.log("code has been sent");
       show_tfa_enable_disable_confirmation.value = true;
       tfaRegistrationEnable = false;
+      tfaErrorText.value = "";
     })
     .catch((error) => {
       tfaEnableDisableHandleError(error);
@@ -237,14 +240,14 @@ function tfaEnableDisableHandleError(error: AxiosError) {
   console.log(`${error.response?.status}: ${msg}`);
   if (error.response?.status === 401) logout();
   else if (error.response?.status === 400) {
-    if (msg?.includes("email")) errorText.value = "Invalid email address";
+    if (msg?.includes("email")) tfaErrorText.value = "Invalid email address";
   } else if (error.response?.status === 503)
-    errorText.value = "e-mail service is unavailable";
+    tfaErrorText.value = "e-mail service is unavailable";
   else if (error.response?.status === 409) {
     if (!msg?.includes("Recent")) {
       if (userStore.user.tfa_enabled)
-        errorText.value = "2FA is already enabled for your account";
-      else errorText.value = "2FA is already disabled for your account";
+        tfaErrorText.value = "2FA is already enabled for your account";
+      else tfaErrorText.value = "2FA is already disabled for your account";
       userStore.getMe(sessionStore.access_token);
     } else {
       show_tfa_enable_disable_confirmation.value = true;
@@ -275,6 +278,7 @@ async function validate2FARegistration() {
       tfa_code.value = "";
       tfa_email.value = "";
       show_tfa_enable_disable_confirmation.value = false;
+      tfaErrorText.value = "";
     })
     .catch((error: AxiosError) => {
       tfaValidateHandleError(error);
@@ -289,13 +293,13 @@ function tfaValidateHandleError(error: AxiosError) {
       : error.response?.data?.message[0];
   console.log(`${error.response?.status}: ${msg}`);
   if (error.response?.status === 401) {
-    if (msg?.includes("invalid")) errorText.value = "code is invalid";
+    if (msg?.includes("invalid")) tfaErrorText.value = "code is invalid";
     else logout();
   } else if (error.response?.status === 404) {
-    errorText.value = "2fa registration unexistant or expired";
+    tfaErrorText.value = "2fa registration unexistant or expired";
     userStore.getMe(sessionStore.access_token);
   } else if (error.response?.status === 400)
-    errorText.value = "invalid code format";
+    tfaErrorText.value = "invalid code format";
 }
 
 function cancelTfaEnableDisable() {
