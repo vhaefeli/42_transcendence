@@ -50,7 +50,7 @@
               <option value="EXPERT">Expert</option>
             </select>
           </div>
-          <div class="flex flex-row items-center my-4">
+          <div v-if="!isUserFromQueryParams" class="flex flex-row items-center my-4">
             <p>I want to play with:</p>
             <div class="m-6 w-2/3">
               <UserSearch
@@ -59,6 +59,9 @@
                 @addRecipient="addRecipient"
               />
             </div>
+          </div>
+          <div v-else class="my-4">
+            <a class="hover:cursor-pointer hover:underline" @click="disableUserFromQueryParam">Invite someone else</a>
           </div>
 
           <div class="flex flex-row items-center my-4">
@@ -198,6 +201,7 @@
   // other variables
   const foregroundTab = ref("");
   let loadingUserSearchList: Promise<any>;
+  const isUserFromQueryParams = ref(false);
 
   const { user } = storeToRefs(userStore);
 
@@ -223,9 +227,16 @@ watch(
       const userFind = userSearchList.value.find((user) => inviteUserId === user.id);
       if (userFind) {
           guest.value = userFind;
+          isUserFromQueryParams.value = true;
           setForegroundTab('gameSetting');
       }
     }
+  }
+
+  function disableUserFromQueryParam() {
+    isUserFromQueryParams.value = false;
+    guest.value = { id: 0, username: "" };
+    router.push('/game-settings');
   }
 
   async function loadAllInfo() {
