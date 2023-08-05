@@ -1074,6 +1074,10 @@ export class ChatService {
         channelRemoveMemberDto.channelId,
         channelRemoveMemberDto.userId,
       );
+      // suppress the messages otherwise impossible to suppress the channel
+      await this.prisma.channelMessage.deleteMany({
+        where: { channelId: channelRemoveMemberDto.channelId },
+      });
       // Extract number of members to be sure we are at 0
       const memberWithCount = await this.prisma.channel.findFirst({
         where: { id: channelRemoveMemberDto.channelId },
