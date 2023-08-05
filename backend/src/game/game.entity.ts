@@ -3,41 +3,37 @@ import { WsException } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { PrismaService } from 'src/prisma.service';
 import { GameGateway } from './game.gateway';
-import { game_status, level_type } from '@prisma/client';
+import { game_status, level_type, mode_type } from '@prisma/client';
 import { PlayerAction, Player, ConnectedPlayers } from './player.entity';
-import {
-  GameModeConfig,
-  GameModeList,
-  GameModeType,
-} from './game-modes.entity';
+import { GameModeConfig, GameModeList } from './game-modes.entity';
 import { Ball } from './ball.entity';
 import { GameUpdateDto } from './dto/game-update.dto';
 
 export class Game {
   readonly id: number;
-  readonly gameModeName: GameModeType;
+  readonly gameModeName: mode_type;
   private readonly gameMode: GameModeConfig;
   private readonly p = new Array<Player>(2);
   private ball: Ball;
   private isActive = false;
   private isCompleted = false;
   private hasEnded = false;
+  private checkGameCancelationInterval: ReturnType<typeof setInterval>;
 
   constructor(
-    gameInfo: { id: number; gameMode?: GameModeType },
+    gameInfo: { id: number; gameMode: mode_type },
     private gameGateway: GameGateway,
     private prisma: PrismaService,
   ) {
     this.id = gameInfo.id;
-    if (gameInfo.gameMode === undefined) {
-      this.gameModeName = GameModeType.NORMAL;
-      this.gameMode = GameModeList.get(this.gameModeName);
-    } else if (
-      (this.gameMode = GameModeList.get(gameInfo.gameMode)) !== undefined
-    )
+    if ((this.gameMode = GameModeList.get(gameInfo.gameMode)) !== undefined)
       this.gameModeName = gameInfo.gameMode;
     else throw new TypeError(`Game Mode '${gameInfo.gameMode}' is unknown`);
     this.ball = new Ball(this.gameMode, this.p);
+    this.checkGameCancelationInterval = setInterval(
+      this.checkGameCancelation.bind(this),
+      500,
+    );
   }
 
   getIsActive() {
@@ -63,6 +59,7 @@ export class Game {
       pIndex: playerIndex,
     });
     socket.join(this.id.toString());
+    this.sendGameModeInfo(socket);
   }
 
   playerIsReadyToStart(userId: number) {
@@ -126,6 +123,7 @@ export class Game {
           )
         )
           this.endGame(true);
+      } else {
       }
       this.sendGameUpdateToPlayers();
     }
@@ -155,6 +153,7 @@ export class Game {
   }
 
   async endGame(wasCompleted: boolean) {
+    clearInterval(this.checkGameCancelationInterval);
     this.isActive = false;
     this.isCompleted = true;
     const promises = new Array<Promise<any>>();
@@ -275,6 +274,26 @@ export class Game {
     ConnectedPlayers.delete(player.id);
     player.socket.leave(this.id.toString());
     player.endGame();
+  }
+
+  private async checkGameCancelation() {
+    if (this.isActive) {
+      clearInterval(this.checkGameCancelationInterval);
+      return;
+    }
+    if (
+      (await this.prisma.game.findFirst({ where: { id: this.id } })).completed
+    ) {
+      this.endGame(false);
+    }
+  }
+
+  private async sendGameModeInfo(socket: Socket) {
+    const gameModeInfo = {
+      name: this.gameModeName,
+      params: this.gameMode,
+    };
+    socket.emit('gameModeInfo', gameModeInfo);
   }
 
   printGameInfo() {
