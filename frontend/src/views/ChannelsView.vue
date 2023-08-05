@@ -1,10 +1,19 @@
 <template>
     <NavBar :showProfile="true" :userStore="userStore"></NavBar>
+
     <!-- Modal to create a new channel -->
     <div v-if="showAddChanModal" id="ft-add-chan-modal" class="w-screen h-screen absolute bg-black/60 flex items-center justify-center">
       <div id="ft-add-chan-modal-inside" class="w-[50vw] p-6 relative">
         <button class="absolute top-0 right-0"><a class="t-btn-pink ft-circle-gray ft-icon-small icon-btn-size icon-btn-cursor" @click="toggleModal()"><img src="../assets/icons/xmark-solid.svg" alt="quit"></a></button>
         <AddChannelModal :sessionStore="sessionStore" @addToMyChannels="addToMyChannels"/>
+      </div>
+    </div>
+
+    <!-- Modal to quit a channel channel -->
+    <div v-if="showQuitChanModal != null" id="ft-add-chan-modal" class="w-screen h-screen absolute bg-black/60 flex items-center justify-center">
+      <div id="ft-add-chan-modal-inside" class="w-[50vw] p-6 relative">
+        <button class="absolute top-0 right-0"><a class="t-btn-pink ft-circle-gray ft-icon-small icon-btn-size icon-btn-cursor" @click="showQuitChanModal = null"><img src="../assets/icons/xmark-solid.svg" alt="quit"></a></button>
+        <QuitChanModal :sessionStore="sessionStore" :userStore="userStore" :chanToQuit="showQuitChanModal" @removeChan="removeChannel"/>
       </div>
     </div>
     <div class="ft-chat-container">
@@ -77,7 +86,10 @@
               <div v-if="isAllMyChanLoaded">
                 <div v-if="myChannels.length === 0">No channels yet</div>
                 <div v-for="channel in myChannels" :key="channel">
-                  <div @click="changeCurrentChannel(channel.name)" :class="currentChannelClasses(channel)" class="ft-channel-name">{{ channel.name }}</div>
+                  <div @click="changeCurrentChannel(channel.name)" :class="currentChannelClasses(channel)" class="ft-channel-name flex justify-between">
+                    <div class="grow">{{ channel.name }}</div>
+                    <a title="quit channel" href="#" class="ft-quit-channel hidden" @click.stop="showQuitChanModal = channel">x</a>
+                  </div>
                 </div>
               </div>
               <div v-else>Loading...</div>
@@ -103,13 +115,11 @@
     import MemberList from "@/components/MemberList.vue";
     import AdminPanel from "@/components/AdminPanel.vue";
     import AddChannelModal from "@/components/AddChannelModal.vue";
+    import QuitChanModal from "@/components/QuitChanModal.vue";
 
     // ********************************** ROUTES & STORES
 
     const route = useRoute()
-
-    // retrieve recipient i clicked on on other pages 
-    // const queryRecipient = route.query.recipient
     
     // routes
     const router = useRouter()
@@ -180,6 +190,7 @@
 
     const showAdmin = ref(false)
     const showAddChanModal = ref(false)
+    const showQuitChanModal = ref<object | null>(null)
 
     // Current
     const currentMembers = ref([])
@@ -222,6 +233,13 @@
         type: chanInfos.channelType,
         Admin: 'Admin'
       })
+    }
+
+    function removeChannel(chanId: number) {
+      myChannels.value = myChannels.value.filter(channel => channel.channelId !== chanId);
+      if (myChannels.value.length > 0) {
+        currentChannel.value = myChannels.value[0]
+      }
     }
 
     onUpdated(() => {
@@ -268,6 +286,7 @@
       return {
         'ft-actual-recipient': currentChannel.value.channelId === channel.channelId,
         'admin-channel-icon': channel.Admin !== null,
+        'owner-channel-icon': channel.ownerId === user.value.id
       }
     }
 
@@ -736,6 +755,9 @@
 
     const reloadAllInfoInterval = setInterval(loadAllInfo, 5000);
 
+    // TO REMOVE!!
+    clearInterval(reloadAllInfoInterval);
+
     onBeforeUnmount(() => {
       clearInterval(reloadAllInfoInterval);
     })
@@ -830,6 +852,19 @@
     padding-left: 1.5rem;
   }
 
+  .ft-channel-name:hover .ft-quit-channel {
+    display: block;
+    background: white;
+    opacity: 50%;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 60%;
+    color: var(--dark-pink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   .ft-actual-recipient {
     color: var(--dark-pink);
     background-color: var(--dark-gray);
@@ -895,6 +930,15 @@
 
   .admin-channel-icon:before {
     content: url(/src/assets/icons/gear-solid.svg);
+    width: 1rem;
+    display: inline-block;
+    margin-right: 0.5rem;
+    position: relative;
+    top: 0.2rem;
+  }
+
+  .owner-channel-icon:before {
+    content: url(/src/assets/icons/crown-solid.svg);
     width: 1rem;
     display: inline-block;
     margin-right: 0.5rem;
