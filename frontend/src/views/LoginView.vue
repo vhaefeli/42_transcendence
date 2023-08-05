@@ -1,45 +1,34 @@
 <template>
-  <div class="text-white">
-    <h1>Login page</h1>
-    <div id="login-form" v-if="show_login_form">
-      <input
-        v-model="login_username"
-        placeholder="username"
-        class="bg-gray-500"
-      /><br />
-      <input
-        type="password"
-        v-model="login_password"
-        placeholder="password"
-        class="bg-gray-500"
-      /><br />
-      <button
-        class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-        @click="LogIn(true)"
-      >
-        create user
-      </button>
-      <button
-        class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-        @click="LogIn(false)"
-      >
-        login
-      </button>
-      <button
-        @click="Login42Api"
-        class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-      >
-        42 API Login/Registration
-      </button>
+  <div class=text-white id="login">
+    <input
+      v-model="login_username"
+      placeholder="username"
+      id = username
+    />
+    <input
+      type="password"
+      v-model="login_password"
+      placeholder="password"
+      id =password
+    />
+    <img class="object-fit h-full w-auto" id="fullArcade" src="../assets/img/arcade1.png" alt="arcade">
+    <video id="game" src="../assets/img/Pong.mov" autoplay loop muted></video>
+    <img id="coin" src="../assets/img/login.png" alt="coin start" @click="LogIn(true)">
+    <img id="create" src="../assets/img/create.png" alt="create buttin" @click="LogIn(false)">
+    <img id="log"
+      :src="isMouseOver ? imageOnMouseOver : imageDefault"
+      alt="Image"
+      @mouseover="handleMouseOver"
+      @mouseleave="handleMouseLeave"
+      @click="Login42Api"
+    />
+    <img id="front" src="../assets/img/front.png" alt="front">
+    <span class="blinking-text" id="loginCoin">insert coin to log in</span>
     </div>
-    <router-link v-if="isLoggedIn" :to="'/login?logout=true'"
-      >Logout</router-link
-    >
-  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, } from "vue";
 import axios, { AxiosError } from "axios";
 import { useRoute, useRouter, type LocationQuery } from "vue-router";
 import { useSessionStore } from "@/stores/SessionStore";
@@ -61,6 +50,18 @@ statusService;
 type Payload = {
   username: string;
   password: string;
+};
+
+const isMouseOver = ref(false);
+const imageDefault = "src/assets/img/42login1.png";
+const imageOnMouseOver = "src/assets/img/42login2.png";
+
+const handleMouseOver = () => {
+  isMouseOver.value = true;
+};
+
+const handleMouseLeave = () => {
+  isMouseOver.value = false;
 };
 
 handleQueryParams(route?.query);
@@ -182,3 +183,157 @@ function Login42Api() {
   )}&response_type=code&state=${sessionStore.getUUID()}`;
 }
 </script>
+
+<style scoped>
+
+#login {
+  position: relative;
+}
+
+#fullArcade{
+  position: absolute;
+  top: 0;
+  height: 100vh;
+  width: auto;
+  object-fit: cover;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 0;
+}
+
+#game{
+  height: 33.5vh;
+  position: absolute;
+  top: 39vh;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+#username{
+  position: absolute;
+  top: 53vh;
+  left: 50%;
+  transform: translateX(-110%);
+  z-index: 30;
+  height: 50px;
+  width: 200px;
+  font-size: 20px;
+  background-color: rgba(128, 128, 128, 0.54);
+}
+
+#password{
+  position: absolute;
+  top: 53vh;
+  left: 50%;
+  transform: translateX(+10%);
+  z-index: 30; 
+  height: 50px;
+  width: 200px;
+  font-size: 20px;
+  background-color: rgba(128, 128, 128, 0.54);
+}
+
+
+#front{
+  position: absolute;
+  top: 85vh;
+  height: 15vh;
+  width: auto;
+  object-fit: cover;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+
+}
+
+#coin{
+  height: 15vh;
+  position: absolute;
+  transition: 0.2s;
+  top: 73vh;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+}
+
+#coin:hover{
+  height: 15vh;
+  position: absolute;
+  transition: 0.2s;
+  top: 75vh;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+}
+
+#create{
+  height: 9vh;
+  position: absolute;
+  transition: 0.2s;
+  top: 79vh;
+  left: 50%;
+  transform: translateX(20vh);
+  z-index: 20; 
+}
+
+#create:hover{
+  height: 9vh;
+  position: absolute;
+  transition: 0.2s;
+  top: 80vh;
+  left: 50%;
+  transform: translateX(20vh);
+  z-index: 20; 
+}
+
+#log{
+  height: 18vh;
+  position: absolute;
+  transition: 0.2s;
+  top: 69vh;
+  left: 50%;
+  transform: translateX(-36vh);
+  z-index: 20;
+}
+
+
+#insert{
+  width: 12vw;
+  position: absolute;
+  font-size: 2vw;
+  top: 25vw;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+#loginCoin {
+  color: white;
+  width: 100%;
+  text-align: center;
+  position: absolute;
+  font-family: "Array-Regular";
+  font-size: 5vh;
+  top: 60vh;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+}
+.blinking-text {
+  animation: blink-animation 1.5s infinite;
+}
+
+@keyframes blink-animation {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+</style>
