@@ -1,5 +1,6 @@
 <template>
   <NavBar :showProfile="true" :userStore="userStore"></NavBar>
+
   <!-- Modal to create a new channel -->
   <div
     v-if="showAddChanModal"
@@ -20,7 +21,6 @@
       />
     </div>
   </div>
-  <<<<<<<<< Temporary merge branch 1 =========
 
   <!-- Modal to quit a channel channel -->
   <div
@@ -36,6 +36,7 @@
           ><img src="../assets/icons/xmark-solid.svg" alt="quit"
         /></a>
       </button>
+      <!-- {{ showQuitChanModal }} -->
       <QuitChanModal
         :sessionStore="sessionStore"
         :userStore="userStore"
@@ -44,7 +45,6 @@
       />
     </div>
   </div>
-  >>>>>>>>> Temporary merge branch 2
   <div class="ft-chat-container">
     <ChatNavBar :whichTab="'channels'"></ChatNavBar>
     <section class="ft-chat-inside-container flex p-6">
@@ -208,42 +208,27 @@
         <!-- column 3 with list of recipients -->
         <div id="dm-recipientList-col" class="w-[16rem] relative">
           <div class="mb-6 max-h-[54vh] overflow-scroll">
-            <div
-              id="ft-add-channel"
-              title="Add channel"
-              @click="toggleModal()"
-              class="flex justify-between p-3 cursor-pointer"
-            >
-              <h3>Add channel</h3>
-              <p>+</p>
+            <div class="p-3">
+              <button @click="toggleModal()">+ add channel</button>
             </div>
             <div v-if="isAllMyChanLoaded">
               <div v-if="myChannels.length === 0">No channels yet</div>
               <div v-for="channel in myChannels" :key="channel">
-                <<<<<<<<< Temporary merge branch 1
                 <div
-                  @click="changeCurrentChannel(channel.name)"
-                  :class="currentChannelClasses(channel)"
-                  class="ft-channel-name"
-                >
-                  {{ channel.name }}
-                </div>
-                =========
-                <div
-                  @click="changeCurrentChannel(channel.name)"
                   :class="currentChannelClasses(channel)"
                   class="ft-channel-name flex justify-between"
                 >
-                  <div class="grow">{{ channel.name }}</div>
+                  <div @click="changeCurrentChannel(channel.name)" class="grow">
+                    {{ channel.name }}
+                  </div>
                   <a
                     title="quit channel"
                     href="#"
                     class="ft-quit-channel hidden"
-                    @click.stop="showQuitChanModal = channel"
+                    @click="showQuitChanModal = channel"
                     >x</a
                   >
                 </div>
-                >>>>>>>>> Temporary merge branch 2
               </div>
             </div>
             <div v-else>Loading...</div>
@@ -276,10 +261,14 @@ import UserSearch from "@/components/UserSearch.vue";
 import MemberList from "@/components/MemberList.vue";
 import AdminPanel from "@/components/AdminPanel.vue";
 import AddChannelModal from "@/components/AddChannelModal.vue";
+import QuitChanModal from "@/components/QuitChanModal.vue";
 
 // ********************************** ROUTES & STORES
 
 const route = useRoute();
+
+// retrieve recipient i clicked on on other pages
+// const queryRecipient = route.query.recipient
 
 // routes
 const router = useRouter();
@@ -350,6 +339,7 @@ const currentProfileToShow = ref<CurrentProfile>({
 
 const showAdmin = ref(false);
 const showAddChanModal = ref(false);
+const showQuitChanModal = ref<object | null>(null);
 
 // Current
 const currentMembers = ref([]);
@@ -392,6 +382,15 @@ function addToMyChannels(chanInfos: MyChannel) {
     type: chanInfos.channelType,
     Admin: "Admin",
   });
+}
+
+function removeChannel(chanId: number) {
+  myChannels.value = myChannels.value.filter(
+    (channel) => channel.channelId !== chanId
+  );
+  if (myChannels.value.length > 0) {
+    currentChannel.value = myChannels.value[0];
+  }
 }
 
 onUpdated(() => {
@@ -443,6 +442,7 @@ const currentChannelClasses = (channel) => {
   return {
     "ft-actual-recipient": currentChannel.value.channelId === channel.channelId,
     "admin-channel-icon": channel.Admin !== null,
+    "owner-channel-icon": channel.ownerId === user.value.id,
   };
 };
 
@@ -505,8 +505,6 @@ function manageAdminActionFromPanel(action: object) {
     unmute(currentChannel.value?.channelId, action.userId, action.username);
   } else if (action.what === "unbann") {
     unbann(currentChannel.value?.channelId, action.userId, action.username);
-  } else if (action.what === "demote") {
-    demote(currentChannel.value?.channelId, action.userId, action.username);
   }
 }
 
@@ -977,6 +975,9 @@ async function getAllUsers() {
 
 const reloadAllInfoInterval = setInterval(loadAllInfo, 5000);
 
+// TO REMOVE!!
+clearInterval(reloadAllInfoInterval);
+
 onBeforeUnmount(() => {
   clearInterval(reloadAllInfoInterval);
 });
@@ -1047,15 +1048,6 @@ watch(currentProfileToShow.value, () => {
   z-index: 9999999;
 }
 
-#ft-add-channel:hover {
-  background: var(--dark-pink);
-  mix-blend-mode: hard-light;
-}
-
-#ft-add-channel:hover p {
-  font-size: 1.2em;
-}
-
 #ft-add-chan-modal-inside {
   background: var(--middle-gray);
 }
@@ -1075,6 +1067,19 @@ watch(currentProfileToShow.value, () => {
 
 .ft-channel-name:hover {
   padding-left: 1.5rem;
+}
+
+.ft-channel-name:hover .ft-quit-channel {
+  display: block;
+  background: white;
+  opacity: 50%;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 60%;
+  color: var(--dark-pink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .ft-actual-recipient {
@@ -1142,6 +1147,15 @@ watch(currentProfileToShow.value, () => {
 
 .admin-channel-icon:before {
   content: url(/src/assets/icons/gear-solid.svg);
+  width: 1rem;
+  display: inline-block;
+  margin-right: 0.5rem;
+  position: relative;
+  top: 0.2rem;
+}
+
+.owner-channel-icon:before {
+  content: url(/src/assets/icons/crown-solid.svg);
   width: 1rem;
   display: inline-block;
   margin-right: 0.5rem;
