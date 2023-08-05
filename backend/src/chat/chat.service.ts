@@ -1017,7 +1017,11 @@ export class ChatService {
         suppressOK = true;
 
       // if the owner is the user, and there more than one member, not autorized
-      if (my_id === channel.ownerId && remainingMember._count.members > 1)
+      if (
+        my_id === channel.ownerId &&
+        remainingMember._count.members > 1 &&
+        channelRemoveMemberDto.userId !== channel.ownerId
+      )
         suppressOK = false;
 
       // remove unautorized
