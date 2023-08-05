@@ -1,5 +1,30 @@
 <template>
   <NavBar :showProfile="true" :userStore="userStore"></NavBar>
+  <div v-if="showJoinModal" id="ft-add-chan-modal" class="w-screen h-screen absolute bg-black/60 flex items-center justify-center">
+    <div id="ft-add-chan-modal-inside" class="w-[30vw] p-6 relative">
+      <button class="absolute top-0 right-0"><a class="t-btn-pink ft-circle-gray ft-icon-small icon-btn-size icon-btn-cursor" @click="closeModal()"><img src="../assets/icons/xmark-solid.svg" alt="quit"></a></button>
+      <p class="truncate text-xl">Join {{ channelToJoin?.name }}</p><br>
+      <p v-if="joinTextError.length" class="mb-2">{{ joinTextError }}</p>
+      <p class="">Channel type: {{ channelToJoin?.type }}</p>
+      <div v-if="channelToJoin?.type === ChannelTypes.PROTECTED">
+        <p class="text-sm mb-2">Please enter the password for the channel:</p>
+        <input
+          type="password"
+          v-model="channel_password"
+          placeholder="password"
+          class="rounded-xl p-2 border-black mb-2"
+        /><br />
+      </div>
+      <div v-else>
+      </div>
+      <div :class="{ 'cursor-not-allowed': !(channelToJoin?.type == ChannelTypes.PUBLIC || channel_password.length) }">
+        <a class="t-btn-pink ft-enable" @click="joinChannel(channelToJoin?.id)"
+           :class="{ 'opacity-50 ft-disabled-btn searchan-noClick': !(channelToJoin?.type == ChannelTypes.PUBLIC || channel_password.length) }">
+          <button>{{ joinViewButtonText }}</button>
+        </a>
+      </div>
+    </div>
+  </div>
   <div class="ft-chat-container">
     <ChatNavBar :whichTab="'search'"></ChatNavBar>
     <section class="ft-chat-inside-container flex flex-col items-center w-full pt-10">
@@ -102,6 +127,13 @@
 #channel:hover .ft-channel-join-view{
   visibility: visible;
 }
+
+#ft-add-chan-modal {
+  z-index: 9999999;
+}
+#ft-add-chan-modal-inside {
+  background: var(--middle-gray);
+}
 </style>
 
 <script setup lang="ts">
@@ -117,7 +149,7 @@ import "vue-search-select/dist/VueSearchSelect.css";
 
 enum ChannelTypes {
   PROTECTED = "PROTECTED",
-  PUBLIC = "OFFLINE",
+  PUBLIC = "PUBLIC",
   PRIVATE = "PRIVATE",
 }
 
@@ -142,6 +174,10 @@ const all_channels = ref(new Array<type_channel>());
 
 const selectedChannel = ref<number>();
 const joinViewButtonText = ref<string>("Join");
+const showJoinModal = ref(false);
+const channelToJoin = ref<type_channel>();
+const channel_password = ref<string>("");
+const joinTextError = ref<string>("");
 
 const loadChannels = loadAllChannels();
 filterChannels();
@@ -187,18 +223,38 @@ async function filterChannels(): Promise<void> {
 }
 
 async function viewOrJoinChannel(channelId: number) {
-  console.log(
-    `selected: ${
-      all_channels.value.find((element) => element.id === channelId)
-        ?.name
-    }`
-  );
   if (isMemberInChannel(channelId)) {
-    console.log('View');
-    // router.push({ name: 'channels', query: { channelId: selectedChannel.value } })
+    router.push({ name: 'channels', query: { channelId: channelId } })
   } else {
     console.log('Join');
+    channelToJoin.value = not_member_channels.value.find((chan) => chan.id === channelId);
+    showJoinModal.value = true;
   }
+}
+
+async function joinChannel(channelId: number) {
+  await axios({
+    url: '/api/chat/channel/join',
+    method: 'patch',
+    headers: { Authorization: `Bearer ${sessionStore.access_token}`, 'Content-Type': 'application/json' },
+    data: { channelId: channelId, password: channel_password.value },
+  }).then(() => {
+    closeModal();
+    router.push({ name: 'channels', query: { channelId: channelId } });
+  }).catch((error) => {
+    const msg: string | undefined =
+      typeof error.response?.data?.message === "string"
+        ? error.response?.data?.message
+        : error.response?.data?.message[0];
+    joinTextError.value = msg || "";
+    channel_password.value = "";
+  });
+}
+
+function closeModal() {
+  showJoinModal.value = false;
+  channel_password.value = "";
+  joinTextError.value = "";
 }
 
 function getTypeIcon(channel: type_channel): string {
