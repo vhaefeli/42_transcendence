@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, } from "vue";
+import { ref, watch } from "vue";
 import axios, { AxiosError } from "axios";
 import { useRoute, useRouter, type LocationQuery } from "vue-router";
 import { useSessionStore } from "@/stores/SessionStore";
