@@ -1,5 +1,6 @@
 <template>
   <div class=text-white id="login">
+    <span id="arcadeName">TRANSCENDENCE</span>
     <input
       v-model="login_username"
       placeholder="username"
@@ -188,6 +189,16 @@ function Login42Api() {
 
 #login {
   position: relative;
+}
+
+#arcadeName {
+  position: absolute;
+  top: 0;
+  font-family: "Array-Regular";
+  font-size: 13vh;
+  left: 50%;
+  transform: translateX(-53%);
+  z-index: 10;
 }
 
 #fullArcade{
