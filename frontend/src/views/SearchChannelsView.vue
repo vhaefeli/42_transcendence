@@ -33,6 +33,7 @@
             v-for="(channel, index) in all_channels"
             :key="channel.id"
             class="my-2 mx-1"
+            id="channel"
             :class="{
               'col-start-2':
                 all_channels.length % 3 == 1 && index == all_channels.length - 1,
@@ -53,6 +54,7 @@
                     index == all_channels.length - 1),
                 'searchan-third-col': index % 3 == 2,
               }"
+              :title="getTitleForChannel(channel.id)"
               @click="validateSelection"
             >
             <!-- changer le click ci-dessus -->
@@ -62,7 +64,9 @@
                 class="max-w-4 max-h-4"
                 id="icon"
               />
-              <h3 class="ft-text truncate">{{ channel.name }}</h3>
+              <h3 class="ft-text truncate w-full">{{ channel.name }}</h3>
+              <p v-if="isMemberInChannel(channel.id)" class="ft-channel-join-view">View</p>
+              <p v-else class="ft-channel-join-view">Join</p>
             </div>
           </div>
         </div>
@@ -89,6 +93,14 @@
   background: var(--dark-pink);
   mix-blend-mode: hard-light;
   cursor: pointer;
+}
+
+.ft-channel-join-view {
+  visibility: hidden;
+}
+
+#channel:hover .ft-channel-join-view{
+  visibility: visible;
 }
 </style>
 
@@ -118,6 +130,7 @@ type type_channel = {
   member: boolean;
 };
 
+
 const sessionStore = useSessionStore();
 const userStore = useUserStore();
 
@@ -133,13 +146,19 @@ const joinViewButtonText = ref<string>("Join");
 const loadChannels = loadAllChannels();
 filterChannels();
 
+const getTitleForChannel = (channelId: number) => {
+  return isMemberInChannel(channelId) ? 'View' : 'Join';
+};
+
 watch(selectedChannel, () => {
-  if (selectedChannel.value &&
-    member_channels.value.find((chan) => chan.id === selectedChannel.value)
-  )
+  if (selectedChannel.value && isMemberInChannel(selectedChannel.value))
     joinViewButtonText.value = "View";
   else joinViewButtonText.value = "Join";
 });
+
+function isMemberInChannel(channelId: number) {
+  return (member_channels.value.find((chan) => chan.id === channelId) != null);
+}
 
 async function loadAllChannels(): Promise<void> {
   await axios({
