@@ -70,10 +70,7 @@
           <!-- column 3 with list of recipients -->
           <div  id="dm-recipientList-col" class="w-[16rem] relative">
             <div class="mb-6 max-h-[54vh] overflow-scroll">
-              <div id="ft-add-channel" title="Add channel" @click="toggleModal()" class="flex justify-between p-3 cursor-pointer">
-                <h3>Add channel</h3>
-                <p>+</p>
-              </div>
+              <div class="p-3"><button @click="toggleModal()">+ add channel</button></div>
               <div v-if="isAllMyChanLoaded">
                 <div v-if="myChannels.length === 0">No channels yet</div>
                 <div v-for="channel in myChannels" :key="channel">
@@ -303,8 +300,6 @@
         unmute(currentChannel.value?.channelId, action.userId, action.username)
       } else if (action.what === 'unbann') {
         unbann(currentChannel.value?.channelId, action.userId, action.username)
-      } else if (action.what === 'demote') {
-        demote(currentChannel.value?.channelId, action.userId, action.username)
       }
     }
 
@@ -798,15 +793,6 @@
 <style>
   #ft-add-chan-modal {
     z-index: 9999999;
-  }
-
-  #ft-add-channel:hover {
-    background: var(--dark-pink);
-    mix-blend-mode: hard-light;
-  }
-
-  #ft-add-channel:hover p {
-    font-size: 1.2em;
   }
 
   #ft-add-chan-modal-inside {
