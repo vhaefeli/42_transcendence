@@ -17,7 +17,7 @@
               class="w-full"
             />
             <div :class="{ 'cursor-not-allowed': !selectedChannel }">
-              <a class="t-btn-pink ft-enable" @click="validateSelection"
+              <a class="t-btn-pink ft-enable" @click="viewOrJoinChannel(selectedChannel)"
                  :class="{ 'opacity-50 ft-disabled-btn searchan-noClick': !selectedChannel }">
                 <button>{{ joinViewButtonText }}</button>
               </a>
@@ -55,7 +55,7 @@
                 'searchan-third-col': index % 3 == 2,
               }"
               :title="getTitleForChannel(channel.id)"
-              @click="validateSelection"
+              @click="viewOrJoinChannel(channel.id)"
             >
             <!-- changer le click ci-dessus -->
               <img
@@ -186,14 +186,19 @@ async function filterChannels(): Promise<void> {
   });
 }
 
-async function validateSelection() {
+async function viewOrJoinChannel(channelId: number) {
   console.log(
     `selected: ${
-      all_channels.value.find((element) => element.id === selectedChannel.value)
+      all_channels.value.find((element) => element.id === channelId)
         ?.name
     }`
   );
-  router.push({ name: 'channels', query: { channelId: selectedChannel.value } })
+  if (isMemberInChannel(channelId)) {
+    console.log('View');
+    // router.push({ name: 'channels', query: { channelId: selectedChannel.value } })
+  } else {
+    console.log('Join');
+  }
 }
 
 function getTypeIcon(channel: type_channel): string {
