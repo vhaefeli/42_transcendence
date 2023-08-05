@@ -20,6 +20,7 @@
       />
     </div>
   </div>
+  <<<<<<<<< Temporary merge branch 1 =========
 
   <!-- Modal to quit a channel channel -->
   <div
@@ -43,6 +44,7 @@
       />
     </div>
   </div>
+  >>>>>>>>> Temporary merge branch 2
   <div class="ft-chat-container">
     <ChatNavBar :whichTab="'channels'"></ChatNavBar>
     <section class="ft-chat-inside-container flex p-6">
@@ -218,7 +220,7 @@
             <div v-if="isAllMyChanLoaded">
               <div v-if="myChannels.length === 0">No channels yet</div>
               <div v-for="channel in myChannels" :key="channel">
-                <<<<<<< HEAD
+                <<<<<<<<< Temporary merge branch 1
                 <div
                   @click="changeCurrentChannel(channel.name)"
                   :class="currentChannelClasses(channel)"
@@ -226,7 +228,7 @@
                 >
                   {{ channel.name }}
                 </div>
-                =======
+                =========
                 <div
                   @click="changeCurrentChannel(channel.name)"
                   :class="currentChannelClasses(channel)"
@@ -241,7 +243,7 @@
                     >x</a
                   >
                 </div>
-                >>>>>>> main
+                >>>>>>>>> Temporary merge branch 2
               </div>
             </div>
             <div v-else>Loading...</div>
