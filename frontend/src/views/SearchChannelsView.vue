@@ -4,9 +4,9 @@
     <ChatNavBar :whichTab="'search'"></ChatNavBar>
     <section class="ft-chat-inside-container flex flex-col items-center w-full pt-10">
       <div class="flex flex-row w-full">
-        <div class="w-1/3" />
+        <div class="w-1/3"></div>
         <div class="w-1/3">
-          <h1 class="mx-2">Search channels</h1>
+          <h1 class="ft-text mx-2">Search channels</h1>
           <div id="SearchAllChannels" class="flex flex-row space-x-0.4 w-full">
             <ModelListSelect
               :list="all_channels"
@@ -17,21 +17,18 @@
               class="w-full"
             />
             <div :class="{ 'cursor-not-allowed': !selectedChannel }">
-              <button
-                @click="validateSelection"
-                class="searchan-btn searchan-btn-blue"
-                :class="{ 'opacity-50 searchan-noClick': !selectedChannel }"
-              >
-                Join
-              </button>
+              <a class="t-btn-pink ft-enable" @click="validateSelection"
+                 :class="{ 'opacity-50 ft-disabled-btn searchan-noClick': !selectedChannel }">
+                <button>Join</button>
+              </a>
             </div>
           </div>
         </div>
-        <div class="w-1/3/>" />
+        <div class="w-1/3"></div>
       </div>
-      <div class="flex flex-row w-full">
-        <div class="w-1/12" />
-        <div id="ChannelList" class="mt-10 grid grid-cols-3 w-5/6">
+      <div class="flex flex-col w-full items-center">
+        <div class="mt-10 ft-title flex flex-row w-full justify-center" id="channels-title">All channels</div>
+        <div id="ChannelList" class="grid grid-cols-3 w-5/6">
           <div
             v-for="(channel, index) in all_channels"
             :key="channel.id"
@@ -42,7 +39,7 @@
             }"
           >
             <div
-              class="rounded border-gray-600 border space-x-4 p-3 items-center flex flex-row w-full"
+              class="ft-channels-list space-x-4 p-3 items-center flex flex-row w-full"
               :class="{
                 'searchan-first-col':
                   index % 3 == 0 &&
@@ -56,44 +53,42 @@
                     index == all_channels.length - 1),
                 'searchan-third-col': index % 3 == 2,
               }"
+              @click="validateSelection"
             >
+            <!-- changer le click ci-dessus -->
               <img
                 :src="getTypeIcon(channel)"
                 alt="icon"
                 class="max-w-4 max-h-4"
                 id="icon"
               />
-              <h3 class="text-xl font-sans truncate">{{ channel.name }}</h3>
+              <h3 class="ft-text truncate">{{ channel.name }}</h3>
             </div>
           </div>
         </div>
-        <div class="w-1/12" />
       </div>
     </section>
   </div>
 </template>
 
 <style>
-/* .searchan-first-col {
-  background-color: var(--red);
-}
-.searchan-second-col {
-  background-color: var(--purple);
-}
-.searchan-third-col {
-  background-color: var(--green);
-} */
 .searchan-noClick {
   pointer-events: none;
 }
-.searchan-btn {
-  @apply font-bold py-2 px-4 rounded;
+
+.ft-title#channels-title {
+  color: var(--dark-pink);
 }
-.searchan-btn-blue {
-  @apply bg-blue-500 text-white;
+
+.ft-channels-list {
+  background: var(--light-gray);
+  border-radius: 0.8rem;
 }
-.searchan-btn-blue:hover {
-  @apply bg-blue-700;
+
+.ft-channels-list:hover {
+  background: var(--dark-pink);
+  mix-blend-mode: hard-light;
+  cursor: pointer;
 }
 </style>
 
