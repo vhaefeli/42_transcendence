@@ -19,7 +19,7 @@
             <div :class="{ 'cursor-not-allowed': !selectedChannel }">
               <a class="t-btn-pink ft-enable" @click="validateSelection"
                  :class="{ 'opacity-50 ft-disabled-btn searchan-noClick': !selectedChannel }">
-                <button>Join</button>
+                <button>{{ joinViewButtonText }}</button>
               </a>
             </div>
           </div>
@@ -99,7 +99,7 @@ import { useUserStore } from "@/stores/UserStore";
 import ChatNavBar from "../components/ChatNavBar.vue";
 import axios from "axios";
 import { useRoute, useRouter } from 'vue-router'
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { ModelListSelect } from "vue-search-select";
 import "vue-search-select/dist/VueSearchSelect.css";
 
@@ -128,9 +128,18 @@ const not_member_channels = ref(new Array<type_channel>());
 const all_channels = ref(new Array<type_channel>());
 
 const selectedChannel = ref<number>();
+const joinViewButtonText = ref<string>("Join");
 
 const loadChannels = loadAllChannels();
 filterChannels();
+
+watch(selectedChannel, () => {
+  if (selectedChannel.value &&
+    member_channels.value.find((chan) => chan.id === selectedChannel.value)
+  )
+    joinViewButtonText.value = "View";
+  else joinViewButtonText.value = "Join";
+});
 
 async function loadAllChannels(): Promise<void> {
   await axios({
