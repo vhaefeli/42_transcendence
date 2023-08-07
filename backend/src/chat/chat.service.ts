@@ -1236,7 +1236,7 @@ export class ChatService {
         if (channelJoinDto.password === undefined)
           throw new NotFoundException('Missing Password');
 
-        const passwordMatches = this.authService.compareHash(
+        const passwordMatches = await this.authService.compareHash(
           channel.password,
           channelJoinDto.password,
         );
