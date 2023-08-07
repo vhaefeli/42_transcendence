@@ -74,7 +74,7 @@
     
     const FromFriendToNotFriend = ref(false)
     const isActualInfosLoaded = ref(false)
-    const isUserMuted = ref(false);
+    const isUserMuted = ref(undefined);
     
     const emits = defineEmits(['updateBlocked', 'adminAction'])
     
@@ -209,7 +209,8 @@
       if(props.username) {
         getUserInfos(props.username)
       }
-      isUserMuted.value = props.currentProfile?.isMuted;
+      if (isUserMuted.value === undefined)
+        isUserMuted.value = props.currentProfile?.isMuted;
     })
 
     onBeforeUnmount(() => { clearInterval(reloadInfoInterval) })

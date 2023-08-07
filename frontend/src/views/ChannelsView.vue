@@ -1045,6 +1045,7 @@ watch(currentProfileToShow.value, () => {
     currentProfileToShow.value.isMuted = false;
   }
 });
+
 </script>
 
 <style>
