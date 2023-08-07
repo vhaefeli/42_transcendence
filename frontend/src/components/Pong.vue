@@ -385,9 +385,6 @@ onMounted(() => {
   z-index: 4;
 }
 
-#gameResult {
-  /* font-size: medium; */
-}
 
 #goBack {
   position: absolute;

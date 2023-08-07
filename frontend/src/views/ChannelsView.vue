@@ -267,9 +267,6 @@ import QuitChanModal from "@/components/QuitChanModal.vue";
 
 const route = useRoute();
 
-// retrieve recipient i clicked on on other pages
-// const queryRecipient = route.query.recipient
-
 // routes
 const router = useRouter();
 
@@ -284,12 +281,13 @@ chatService.connect();
 // ********************************** TYPES
 
 type MyChannel = {
-  channelId: number;
-  userId: number;
-  name: string;
-  type: string;
-  Admin: null | string;
-};
+    channelId: number,
+    userId: number,
+    name: string,
+    type: string,
+    Admin: null | string,
+    ownerId: number
+  }
 
 type Channel = {
   id: number;
@@ -378,10 +376,12 @@ function addToMyChannels(chanInfos: MyChannel) {
   myChannels.value.push({
     channelId: chanInfos.channelId,
     userId: user.value.id,
+    ownerId: user.value.id,
     name: chanInfos.channelName,
     type: chanInfos.channelType,
     Admin: "Admin",
-  });
+  })
+  currentChannel.value = myChannels.value[myChannels.value.length - 1]
 }
 
 function removeChannel(chanId: number) {
