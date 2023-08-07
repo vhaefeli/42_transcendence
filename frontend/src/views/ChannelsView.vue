@@ -36,7 +36,6 @@
           ><img src="../assets/icons/xmark-solid.svg" alt="quit"
         /></a>
       </button>
-      <!-- {{ showQuitChanModal }} -->
       <QuitChanModal
         :sessionStore="sessionStore"
         :userStore="userStore"
