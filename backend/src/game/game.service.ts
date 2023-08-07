@@ -3,7 +3,7 @@ import { Socket } from 'socket.io';
 import { Game } from './game.entity';
 import { ConnectedPlayers, PlayerAction } from './player.entity';
 import { WsException } from '@nestjs/websockets';
-import { game_status } from '@prisma/client';
+import { game_status, mode_type } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import { GameGateway } from './game.gateway';
 
@@ -46,10 +46,14 @@ export class GameService {
     return this.games.get(gameId);
   }
 
-  findOrCreateGame(gameId: number): Game {
+  findOrCreateGame(gameId: number, gameMode: mode_type): Game {
     let game = this.games.get(gameId);
     if (game === undefined) {
-      game = new Game({ id: gameId }, this.gameGateway, this.prisma);
+      game = new Game(
+        { id: gameId, gameMode: gameMode },
+        this.gameGateway,
+        this.prisma,
+      );
       this.games.set(gameId, game);
     }
     return game;
@@ -62,11 +66,13 @@ export class GameService {
         playerId: userId,
         gameStatus: game_status.WAITING,
       },
-      select: { id: true },
+      select: { id: true, mode: true },
     });
     if (!db_game)
-      throw new WsException('Game not found or unavailable to connect, perhaps the opponent left');
-    const game = this.findOrCreateGame(gameId);
+      throw new WsException(
+        'Game not found or unavailable to connect, perhaps the opponent left',
+      );
+    const game = this.findOrCreateGame(gameId, db_game.mode);
     game.connectPlayer(userId, socket);
   }
 
