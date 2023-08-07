@@ -35,7 +35,7 @@
                   </div>
               </div>
           </div>
-          <div v-if="props.currentChannel?.Admin != 'null'" class="flex flex-col items-center text-center ft-central-tab-container mb-3">
+          <div v-if="props.currentChannel && props.currentChannel?.Admin != 'null'" class="flex flex-col items-center text-center ft-central-tab-container mb-3">
             <div class="ft-tab-content ft-bg-color-profile flex flex-col items-center">
               <h3 class="py-1">manage acess to channel</h3>
               <div class="flex">
