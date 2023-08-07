@@ -36,7 +36,6 @@
           ><img src="../assets/icons/xmark-solid.svg" alt="quit"
         /></a>
       </button>
-      <!-- {{ showQuitChanModal }} -->
       <QuitChanModal
         :sessionStore="sessionStore"
         :userStore="userStore"
@@ -390,6 +389,8 @@ function removeChannel(chanId: number) {
   );
   if (myChannels.value.length > 0) {
     currentChannel.value = myChannels.value[0];
+  } else {
+    currentChannel.value = null
   }
 }
 
@@ -505,6 +506,8 @@ function manageAdminActionFromPanel(action: object) {
     unmute(currentChannel.value?.channelId, action.userId, action.username);
   } else if (action.what === "unbann") {
     unbann(currentChannel.value?.channelId, action.userId, action.username);
+  } else if (action.what === "demote") {
+    demote(currentChannel.value?.channelId, action.userId, action.username);
   }
 }
 
@@ -689,7 +692,6 @@ async function kick(channelId: number, userId: number, username: string) {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
-        router.push('/login?logout=true');
       } else if (error.response.status == 404) {
         console.log(
           `user not found: ${error.response.status} ${error.response.statusText}`
@@ -726,7 +728,6 @@ async function bann(channelId: number, userId: number, username: string) {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
-        router.push('/login?logout=true');
       } else if (error.response.status == 404) {
         console.log(
           `user not found: ${error.response.status} ${error.response.statusText}`
@@ -759,7 +760,6 @@ async function unbann(channelId: number, userId: number, username: string) {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
-        router.push('/login?logout=true');
       } else if (error.response.status == 404) {
         console.log(
           `user not found: ${error.response.status} ${error.response.statusText}`
@@ -793,7 +793,6 @@ async function mute(channelId: number, userId: number, username: string) {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
-        router.push('/login?logout=true');
       } else if (error.response.status == 404) {
         console.log(
           `user not found: ${error.response.status} ${error.response.statusText}`
@@ -828,7 +827,6 @@ async function unmute(channelId: number, userId: number, username: string) {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
-        router.push('/login?logout=true');
       } else if (error.response.status == 404) {
         console.log(
           `user not found: ${error.response.status} ${error.response.statusText}`
@@ -863,7 +861,6 @@ async function promote(channelId: number, userId: number, username: string) {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
-        router.push('/login?logout=true');
       } else if (error.response.status == 404) {
         console.log(
           `user not found: ${error.response.status} ${error.response.statusText}`
@@ -900,7 +897,6 @@ async function demote(channelId: number, userId: number, username: string) {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
-        router.push('/login?logout=true');
       } else if (error.response.status == 404) {
         console.log(
           `user not found: ${error.response.status} ${error.response.statusText}`
@@ -963,29 +959,28 @@ async function getMuted() {
 }
 
 async function getAllUsers() {
-  try {
-    const response = await axios.get("/api/user/all");
-    allUsers.value = response.data;
-    isAllUsersLoaded.value = true;
-    return true;
-  } catch (error) {
-    if (error.response && error.response.status == 404) {
+  await axios({
+    url: `/api/user/all`,
+    method: "get",
+  })
+    .then((response) => {
+      allUsers.value = response.data;
+      isAllUsersLoaded.value = true;
+      console.log("all users loaded");
+    })
+    .catch((error) => {
+      if (error.response && error.response.status == 404) {
       console.log(
         `not found: ${error.response.status} ${error.response.statusText}`
       );
-    } else {
-      console.error(
-        `unexpected error: ${error.response.status} ${error.response.statusText}`
-      );
-    }
-    return false;
-  }
+      } else
+        console.error(
+          `unexpected error: ${error.response.status} ${error.response.statusText}`
+        );
+    });
 }
 
 const reloadAllInfoInterval = setInterval(loadAllInfo, 5000);
-
-// TO REMOVE!!
-clearInterval(reloadAllInfoInterval);
 
 onBeforeUnmount(() => {
   clearInterval(reloadAllInfoInterval);

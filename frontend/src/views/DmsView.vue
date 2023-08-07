@@ -6,7 +6,9 @@
 
         <!-- column 1 with profile -->
         <div id="dm-profile-col">
+          <div v-if="actual.username">
             <OtherUserProfile :key="actual.username" :username="actual.username" :userStore="userStore" :sessionStore="sessionStore" @updateBlocked="updateBlockedBool" />
+          </div>
         </div>
 
         <!-- column 2 with messages -->

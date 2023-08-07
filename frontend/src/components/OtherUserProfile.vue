@@ -118,8 +118,8 @@
     }
 
     function mute() {
-        isUserMuted.value = true
-        emits('adminAction', 'mute')
+      isUserMuted.value = true
+      emits('adminAction', 'mute')
     }
 
     function unmute() {
