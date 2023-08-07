@@ -206,6 +206,8 @@ export class ChatService {
   // ------------------------------------------------------------------------
   async FindMyChannelMembers(my_id: number, channelId: number) {
     try {
+      if (!channelId) throw new NotFoundException("Channel wasn't set");
+
       const channel = await this.prisma.channel.findFirstOrThrow({
         where: { id: channelId },
         select: {
