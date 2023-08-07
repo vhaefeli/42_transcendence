@@ -279,11 +279,13 @@
       if (sessionStore.isLoggedIn) {
         // get user infos
         await userStore.getMe(sessionStore.access_token);
-        if (user.isLogged === false) {
+        if (user.value.isLogged === false) {
           sessionStore.isLoggedIn = false;
           sessionStore.access_token = "";
-          router.push({ name: 'login' })
+          router.push('/login?logout=true');
         }
+      } else {
+        router.push('/login?logout=true');
       }
     }
 

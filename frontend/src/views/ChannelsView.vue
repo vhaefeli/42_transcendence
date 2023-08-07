@@ -566,11 +566,13 @@ async function loadMyself() {
   if (sessionStore.isLoggedIn) {
     // get user infos
     await userStore.getMe(sessionStore.access_token);
-    if (user.isLogged === false) {
+    if (user.value.isLogged === false) {
       sessionStore.isLoggedIn = false;
       sessionStore.access_token = "";
-      router.push({ name: "login" });
+      router.push('/login?logout=true');
     }
+  } else {
+    router.push('/login?logout=true');
   }
 }
 
@@ -582,7 +584,7 @@ async function loadBlocked() {
     if (user.value.isLogged === false) {
       sessionStore.isLoggedIn = false;
       sessionStore.access_token = "";
-      router.push({ name: "login" });
+      router.push('/login?logout=true');
     }
   }
 }
@@ -606,7 +608,7 @@ async function getMyChannels() {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
-        // LogOut();
+       router.push('/login?logout=true');
       } else
         console.error(
           `unexpected error: ${error.response.status} ${error.response.statusText}`
@@ -630,7 +632,7 @@ async function getAllChannels() {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
-        // LogOut();
+       router.push('/login?logout=true');
       } else
         console.error(
           `unexpected error: ${error.response.status} ${error.response.statusText}`
@@ -656,7 +658,7 @@ async function getAllMembers(channelId: number) {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
-        // LogOut();
+       router.push('/login?logout=true');
       } else
         console.error(
           `unexpected error: ${error.response.status} ${error.response.statusText}`
@@ -687,6 +689,7 @@ async function kick(channelId: number, userId: number, username: string) {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
+        router.push('/login?logout=true');
       } else if (error.response.status == 404) {
         console.log(
           `user not found: ${error.response.status} ${error.response.statusText}`
@@ -723,6 +726,7 @@ async function bann(channelId: number, userId: number, username: string) {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
+        router.push('/login?logout=true');
       } else if (error.response.status == 404) {
         console.log(
           `user not found: ${error.response.status} ${error.response.statusText}`
@@ -755,6 +759,7 @@ async function unbann(channelId: number, userId: number, username: string) {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
+        router.push('/login?logout=true');
       } else if (error.response.status == 404) {
         console.log(
           `user not found: ${error.response.status} ${error.response.statusText}`
@@ -788,6 +793,7 @@ async function mute(channelId: number, userId: number, username: string) {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
+        router.push('/login?logout=true');
       } else if (error.response.status == 404) {
         console.log(
           `user not found: ${error.response.status} ${error.response.statusText}`
@@ -822,6 +828,7 @@ async function unmute(channelId: number, userId: number, username: string) {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
+        router.push('/login?logout=true');
       } else if (error.response.status == 404) {
         console.log(
           `user not found: ${error.response.status} ${error.response.statusText}`
@@ -856,6 +863,7 @@ async function promote(channelId: number, userId: number, username: string) {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
+        router.push('/login?logout=true');
       } else if (error.response.status == 404) {
         console.log(
           `user not found: ${error.response.status} ${error.response.statusText}`
@@ -892,6 +900,7 @@ async function demote(channelId: number, userId: number, username: string) {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
+        router.push('/login?logout=true');
       } else if (error.response.status == 404) {
         console.log(
           `user not found: ${error.response.status} ${error.response.statusText}`
@@ -921,7 +930,7 @@ async function getBanned() {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
-        // LogOut();
+        router.push('/login?logout=true');
       } else
         console.error(
           `unexpected error: ${error.response.status} ${error.response.statusText}`
@@ -945,7 +954,7 @@ async function getMuted() {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
-        // LogOut();
+       router.push('/login?logout=true');
       } else
         console.error(
           `unexpected error: ${error.response.status} ${error.response.statusText}`
