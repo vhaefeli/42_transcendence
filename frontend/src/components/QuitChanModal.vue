@@ -41,30 +41,31 @@
   const isAdminsLoaded = ref(false)
   const isMembersLoaded = ref(false)
 
-  async function quitChannel() {
-    await axios({
-      url: '/api/chat/channel/member/remove',
-      method: "patch",
-      headers: { 
-        'Authorization': `Bearer ${props.sessionStore?.access_token}`
-      },
-      data: { "channelId": props.chanToQuit?.channelId, "userId": props.userStore?.user.id }
-    })
-      .then((response) => {
-        console.log(`You have quit the channel with id ${props.chanToQuit?.channelId}`);
-        emits('removeChan', props.chanToQuit?.channelId)
-      })
-      .catch((error) => {
-        if (error.response.status == 401) {
-          console.log(
-            `invalid access token: ${error.response.status} ${error.response.statusText}`
-          );
-          // LogOut();
-        } else
-          console.error(
-            `unexpected error: ${error.response.status} ${error.response.statusText}`
-          );
-      });
+  function quitChannel() {
+    emits('removeChan', props.chanToQuit?.channelId)
+    // await axios({
+    //   url: '/api/chat/channel/member/remove',
+    //   method: "patch",
+    //   headers: { 
+    //     'Authorization': `Bearer ${props.sessionStore?.access_token}`
+    //   },
+    //   data: { "channelId": props.chanToQuit?.channelId, "userId": props.userStore?.user.id }
+    // })
+    //   .then((response) => {
+    //     console.log(`You have quit the channel with id ${props.chanToQuit?.channelId}`);
+    //     emits('removeChan', props.chanToQuit?.channelId)
+    //   })
+    //   .catch((error) => {
+    //     if (error.response.status == 401) {
+    //       console.log(
+    //         `invalid access token: ${error.response.status} ${error.response.statusText}`
+    //       );
+    //       // LogOut();
+    //     } else
+    //       console.error(
+    //         `unexpected error: ${error.response.status} ${error.response.statusText}`
+    //       );
+    //   });
   }
     
   async function getAllMembers() {
