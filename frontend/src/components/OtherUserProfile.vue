@@ -35,7 +35,7 @@
                   </div>
               </div>
           </div>
-          <div v-if="props.currentChannel?.Admin != 'null'" class="flex flex-col items-center text-center ft-central-tab-container mb-3">
+          <div v-if="props.currentChannel && props.currentChannel?.Admin != 'null'" class="flex flex-col items-center text-center ft-central-tab-container mb-3">
             <div class="ft-tab-content ft-bg-color-profile flex flex-col items-center">
               <h3 class="py-1">manage acess to channel</h3>
               <div class="flex">
@@ -74,7 +74,7 @@
     
     const FromFriendToNotFriend = ref(false)
     const isActualInfosLoaded = ref(false)
-    const isUserMuted = ref(false);
+    const isUserMuted = ref(undefined);
     
     const emits = defineEmits(['updateBlocked', 'adminAction'])
     
@@ -118,8 +118,8 @@
     }
 
     function mute() {
-        isUserMuted.value = true
-        emits('adminAction', 'mute')
+      isUserMuted.value = true
+      emits('adminAction', 'mute')
     }
 
     function unmute() {
@@ -209,7 +209,8 @@
       if(props.username) {
         getUserInfos(props.username)
       }
-      isUserMuted.value = props.currentProfile?.isMuted;
+      if (isUserMuted.value === undefined)
+        isUserMuted.value = props.currentProfile?.isMuted;
     })
 
     onBeforeUnmount(() => { clearInterval(reloadInfoInterval) })

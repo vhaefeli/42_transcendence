@@ -205,7 +205,10 @@ export class ChatService {
 
   // ------------------------------------------------------------------------
   async FindMyChannelMembers(my_id: number, channelId: number) {
+    if (!channelId) throw new NotFoundException("Channel wasn't set");
     try {
+      if (!channelId) throw new NotFoundException("Channel wasn't set");
+
       const channel = await this.prisma.channel.findFirstOrThrow({
         where: { id: channelId },
         select: {
@@ -993,10 +996,20 @@ export class ChatService {
       });
 
       let suppressOK: boolean = false;
+
+      const remainingMember = await this.prisma.channel.findFirst({
+        where: { id: channelRemoveMemberDto.channelId },
+        include: {
+          _count: {
+            select: { members: true },
+          },
+        },
+      });
+
       // Request user is himself asking for suppression --> ok except if owner
       if (my_id === channelRemoveMemberDto.userId) suppressOK = true;
 
-      // Request user is an admin --> ok
+      // Request user is an admin --> ok when not himself
       if (
         channel.admins.find(
           (admin) =>
@@ -1005,6 +1018,14 @@ export class ChatService {
         )
       )
         suppressOK = true;
+
+      // if the owner is the user, and there more than one member, not autorized
+      if (
+        my_id === channel.ownerId &&
+        remainingMember._count.members > 1 &&
+        channelRemoveMemberDto.userId !== channel.ownerId
+      )
+        suppressOK = false;
 
       // remove unautorized
       if (suppressOK === false)
@@ -1060,6 +1081,10 @@ export class ChatService {
         channelRemoveMemberDto.channelId,
         channelRemoveMemberDto.userId,
       );
+      // suppress the messages otherwise impossible to suppress the channel
+      await this.prisma.channelMessage.deleteMany({
+        where: { channelId: channelRemoveMemberDto.channelId },
+      });
       // Extract number of members to be sure we are at 0
       const memberWithCount = await this.prisma.channel.findFirst({
         where: { id: channelRemoveMemberDto.channelId },
@@ -1069,7 +1094,7 @@ export class ChatService {
           },
         },
       });
-      // suppress the channel when no more memebers
+      // suppress the channel when no more members
       if (memberWithCount._count.members === 0) {
         await this.chatGateway.KickAllFromChannel(
           channelRemoveMemberDto.channelId,
@@ -1214,7 +1239,7 @@ export class ChatService {
         if (channelJoinDto.password === undefined)
           throw new NotFoundException('Missing Password');
 
-        const passwordMatches = this.authService.compareHash(
+        const passwordMatches = await this.authService.compareHash(
           channel.password,
           channelJoinDto.password,
         );

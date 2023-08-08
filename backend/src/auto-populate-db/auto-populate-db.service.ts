@@ -237,7 +237,7 @@ export class AutoPopulateDbService {
             name: 'ProtectedChan',
             ownerId: 1,
             type: ChannelTypes.PROTECTED,
-            password: 'very_secret',
+            password: await this.authService.createHash('very_secret'),
           },
           {
             name: 'WeHateUserTest',
@@ -253,7 +253,7 @@ export class AutoPopulateDbService {
             name: 'timetoEAT!',
             ownerId: 3,
             type: ChannelTypes.PROTECTED,
-            password: 'cat',
+            password: await this.authService.createHash('cat'),
           },
         ],
       });
