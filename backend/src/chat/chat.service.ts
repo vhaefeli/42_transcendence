@@ -205,6 +205,7 @@ export class ChatService {
 
   // ------------------------------------------------------------------------
   async FindMyChannelMembers(my_id: number, channelId: number) {
+    if (!channelId) throw new NotFoundException("Channel wasn't set");
     try {
       if (!channelId) throw new NotFoundException("Channel wasn't set");
 
