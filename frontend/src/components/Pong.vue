@@ -269,8 +269,6 @@ onMounted(() => {
 
   let chargNum = 0;
   async function draw() {
-    console.log(gameColor, typeof(gameColor));
-    
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
     if (chargNum == 0) {
@@ -283,7 +281,6 @@ onMounted(() => {
     // ball
     ctx.fillStyle = gameColor;
     ctx.fillRect(ballX, ballY, gameModeInfo.params.BALL_DIAMETER, gameModeInfo.params.BALL_DIAMETER);
-    console.log(ballX);
     
     //net
     ctx.strokeStyle = gameColor;
