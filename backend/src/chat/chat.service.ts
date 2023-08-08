@@ -1006,34 +1006,37 @@ export class ChatService {
         },
       });
 
-      // Request user is himself asking for suppression --> ok except if owner
-      if (my_id === channelRemoveMemberDto.userId) suppressOK = true;
+      // treat case of suppression requested by the owner
+      if (my_id === channel.ownerId) {
+        Logger.log('case1 ');
+        // forbiden for the owner if there is more than one member remaining and no admin
+        if (
+          channelRemoveMemberDto.userId == channel.ownerId &&
+          remainingMember._count.members > 1
+        ) {
+          throw new UnauthorizedException(
+            "You don't have the necessary privileges to remove that Member",
+          );
+        }
 
-      // Request user is an admin --> ok when not himself
-      if (
-        channel.admins.find(
-          (admin) =>
-            admin.id === my_id &&
-            channelRemoveMemberDto.userId !== channel.ownerId,
-        )
-      )
-        suppressOK = true;
+        // treat case of suppression requested by an admin
+      } else if (channel.admins.find((admin) => admin.id === my_id)) {
+        Logger.log('case2 ');
+        // forbiden to remove the owner
+        if (channelRemoveMemberDto.userId == channel.ownerId) {
+          throw new UnauthorizedException(
+            "You don't have the necessary privileges to remove that Member",
+          );
+        }
 
-      // if the owner is the user, and there more than one member, not autorized
-      if (
-        my_id === channel.ownerId &&
-        remainingMember._count.members > 1 &&
-        channelRemoveMemberDto.userId !== channel.ownerId
-      )
-        suppressOK = false;
-
-      // remove unautorized
-      if (suppressOK === false)
+        // other forbiden
+      } else if (my_id !== channelRemoveMemberDto.userId) {
+        Logger.log('case3 ');
         throw new UnauthorizedException(
           "You don't have the necessary privileges to remove that Member",
         );
+      }
 
-      // Ensure User to remove is in the channel
       if (
         channel.members.find(
           (member) => member.id === channelRemoveMemberDto.userId,
@@ -1073,6 +1076,7 @@ export class ChatService {
         where: { id: channelRemoveMemberDto.channelId },
         data: {
           members: { disconnect: { id: channelRemoveMemberDto.userId } },
+          admins: { disconnect: { id: channelRemoveMemberDto.userId } },
           muted: { disconnect: { id: channelRemoveMemberDto.userId } },
         },
       });
