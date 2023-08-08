@@ -1017,11 +1017,9 @@ async function loadAllInfo() {
   promises.push(loadBlocked());
   promises.push(getAllUsers());
   promises.push(loadBlocked());
-  if (currentChannel.value) {
-    promises.push(getBanned());
-    promises.push(getMuted());
-    promises.push(getAllMembers(currentChannel.value?.channelId));
-  }
+  promises.push(getBanned());
+  promises.push(getMuted());
+  promises.push(getAllMembers(currentChannel.value?.channelId));
   await Promise.all(promises);
 }
 
