@@ -294,7 +294,7 @@ watch(
     })
       .then((response) => {
         gameId = response.data.gameId;
-        console.log(`"random game", ${response.data.gameId}`);
+        // console.log(`"random game", ${response.data.gameId}`);
         router.push(`/game?gameId=${gameId}`);
       })
       .catch((error) => {
@@ -325,15 +325,15 @@ watch(
   }
 
   function inviteToPlay() {
-    console.log(`"invitation to play" ${guest.value.username}`);
+    // console.log(`"invitation to play" ${guest.value.username}`);
 
     if (guest.value.username.length === 0) return;
     const user = userSearchList.value.find(
       (user) => user.id === searchSelectedUserId.value
     );
 
-    console.log(`"invitation to play game id" ${guest.value.id}`);
-    console.log(`mode : ${mode.value}`);
+    // console.log(`"invitation to play game id" ${guest.value.id}`);
+    // console.log(`mode : ${mode.value}`);
 
     axios({
       url: "/api/player/newBoth",
@@ -346,9 +346,9 @@ watch(
     })
       .then((response) => {
         gameId = response.data.newGameId;
-        console.log(
-          `"game with guest ", ${guest.value.id}, "game id: " ${gameId}`
-        );
+        // console.log(
+        //   `"game with guest ", ${guest.value.id}, "game id: " ${gameId}`
+        // );
         router.push(`/game?gameId=${gameId}`);
       })
       .catch((error) => {
@@ -381,7 +381,7 @@ watch(
       },
     })
       .then((response) => {
-        console.log("loaded  games invites");
+        // console.log("loaded  games invites");
         newGameInvites = response.data;
       })
       .catch((error) => {
@@ -403,7 +403,7 @@ watch(
   }
 
   function acceptGame(gameId: number) {
-    console.log(`"guest to game id: " ${gameId}`);
+    // console.log(`"guest to game id: " ${gameId}`);
     router.push(`/game?gameId=${gameId}`);
   }
 
@@ -419,7 +419,7 @@ watch(
       },
     })
       .then(async () => {
-        console.log(`gameInvitation game Id ${gameId} canceled`);
+        // console.log(`gameInvitation game Id ${gameId} canceled`);
         await getGameInvites();
       })
       .catch((error) => {

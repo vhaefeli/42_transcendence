@@ -203,7 +203,7 @@ onMounted(() => {
       gameColor = gameModeInfo.params.GAME_COLOR;
       resetBallAndPlayerPos();
       draw();
-      console.log(`Loaded info on gameMode: ${gameModeInfo.name}`);
+      // console.log(`Loaded info on gameMode: ${gameModeInfo.name}`);
     });
 
     // receive score modification from socket
@@ -216,7 +216,7 @@ onMounted(() => {
         opponentScore = response[0].score;
       }
       isGameActive.value = true;
-      console.log(`new score: ${playerScore} x ${opponentScore}`);
+      // console.log(`new score: ${playerScore} x ${opponentScore}`);
       draw();
     });
 
@@ -258,12 +258,12 @@ onMounted(() => {
     }, 100);
   });
 
-  console.log("pong screen: ", pongScreen.value);
+  // console.log("pong screen: ", pongScreen.value);
   if (!pongScreen.value.getContext) {
     return console.error("no pongScreen");
   }
   var ctx = pongScreen.value.getContext("2d");
-  console.log(ctx);
+  // console.log(ctx);
 
   // ==> envoie size du canevas au back
 
