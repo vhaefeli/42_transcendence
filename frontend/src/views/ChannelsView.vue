@@ -36,7 +36,6 @@
           ><img src="../assets/icons/xmark-solid.svg" alt="quit"
         /></a>
       </button>
-      <!-- {{ showQuitChanModal }} -->
       <QuitChanModal
         :sessionStore="sessionStore"
         :userStore="userStore"
@@ -390,6 +389,8 @@ function removeChannel(chanId: number) {
   );
   if (myChannels.value.length > 0) {
     currentChannel.value = myChannels.value[0];
+  } else {
+    currentChannel.value = null
   }
 }
 
@@ -505,6 +506,8 @@ function manageAdminActionFromPanel(action: object) {
     unmute(currentChannel.value?.channelId, action.userId, action.username);
   } else if (action.what === "unbann") {
     unbann(currentChannel.value?.channelId, action.userId, action.username);
+  } else if (action.what === "demote") {
+    demote(currentChannel.value?.channelId, action.userId, action.username);
   }
 }
 
@@ -566,11 +569,13 @@ async function loadMyself() {
   if (sessionStore.isLoggedIn) {
     // get user infos
     await userStore.getMe(sessionStore.access_token);
-    if (user.isLogged === false) {
+    if (user.value.isLogged === false) {
       sessionStore.isLoggedIn = false;
       sessionStore.access_token = "";
-      router.push({ name: "login" });
+      router.push('/login?logout=true');
     }
+  } else {
+    router.push('/login?logout=true');
   }
 }
 
@@ -582,7 +587,7 @@ async function loadBlocked() {
     if (user.value.isLogged === false) {
       sessionStore.isLoggedIn = false;
       sessionStore.access_token = "";
-      router.push({ name: "login" });
+      router.push('/login?logout=true');
     }
   }
 }
@@ -606,7 +611,7 @@ async function getMyChannels() {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
-        // LogOut();
+       router.push('/login?logout=true');
       } else
         console.error(
           `unexpected error: ${error.response.status} ${error.response.statusText}`
@@ -630,7 +635,7 @@ async function getAllChannels() {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
-        // LogOut();
+       router.push('/login?logout=true');
       } else
         console.error(
           `unexpected error: ${error.response.status} ${error.response.statusText}`
@@ -656,7 +661,7 @@ async function getAllMembers(channelId: number) {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
-        // LogOut();
+       router.push('/login?logout=true');
       } else
         console.error(
           `unexpected error: ${error.response.status} ${error.response.statusText}`
@@ -921,7 +926,7 @@ async function getBanned() {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
-        // LogOut();
+        router.push('/login?logout=true');
       } else
         console.error(
           `unexpected error: ${error.response.status} ${error.response.statusText}`
@@ -945,7 +950,7 @@ async function getMuted() {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
-        // LogOut();
+       router.push('/login?logout=true');
       } else
         console.error(
           `unexpected error: ${error.response.status} ${error.response.statusText}`
@@ -954,29 +959,28 @@ async function getMuted() {
 }
 
 async function getAllUsers() {
-  try {
-    const response = await axios.get("/api/user/all");
-    allUsers.value = response.data;
-    isAllUsersLoaded.value = true;
-    return true;
-  } catch (error) {
-    if (error.response && error.response.status == 404) {
+  await axios({
+    url: `/api/user/all`,
+    method: "get",
+  })
+    .then((response) => {
+      allUsers.value = response.data;
+      isAllUsersLoaded.value = true;
+      console.log("all users loaded");
+    })
+    .catch((error) => {
+      if (error.response && error.response.status == 404) {
       console.log(
         `not found: ${error.response.status} ${error.response.statusText}`
       );
-    } else {
-      console.error(
-        `unexpected error: ${error.response.status} ${error.response.statusText}`
-      );
-    }
-    return false;
-  }
+      } else
+        console.error(
+          `unexpected error: ${error.response.status} ${error.response.statusText}`
+        );
+    });
 }
 
 const reloadAllInfoInterval = setInterval(loadAllInfo, 5000);
-
-// TO REMOVE!!
-clearInterval(reloadAllInfoInterval);
 
 onBeforeUnmount(() => {
   clearInterval(reloadAllInfoInterval);
@@ -1041,6 +1045,7 @@ watch(currentProfileToShow.value, () => {
     currentProfileToShow.value.isMuted = false;
   }
 });
+
 </script>
 
 <style>
