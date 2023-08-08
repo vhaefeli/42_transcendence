@@ -118,7 +118,7 @@ model Player {
   player            User        @relation(fields: [playerId], references: [id])
   playerId          Int
   randomAssignation Boolean     @default(false)
-  mode              mode_type   @default(BEGINNER)
+  mode              mode_type   @default(INTERMEDIATE)
   gameStatus        game_status @default(WAITING)
   score             Int         @default(0)
   abandon           Boolean     @default(false)

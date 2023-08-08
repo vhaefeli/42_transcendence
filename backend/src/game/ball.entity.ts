@@ -4,6 +4,7 @@ import * as Victor from 'victor';
 import { GameModeConfig } from './game-modes.entity';
 import { Game } from './game.entity';
 import { Player } from './player.entity';
+import { log } from 'console';
 
 export class Ball {
   private readonly gameMode: GameModeConfig;
@@ -87,14 +88,13 @@ export class Ball {
       this.pos.y < paddlePos + (collisionBox * 5) / 6
     )
       return Math.sin(Math.PI / 3) * this.gameMode.BALL_SPEED; // 60deg = pi/3
-    //TODO: check d'ou vient la valeur 20
-    else if (this.pos.y >= paddlePos - 20 && this.pos.y < paddlePos)
-      return -Math.sin(Math.PI / 2.3) * this.gameMode.BALL_SPEED; //~86deg
+    else if (this.pos.y >= paddlePos - collisionBox && this.pos.y < paddlePos)
+      return -Math.sin(Math.PI / 2.4) * this.gameMode.BALL_SPEED; //~80deg
     else if (
       this.pos.y >= paddlePos + (collisionBox * 5) / 6 &&
       this.pos.y < paddlePos + collisionBox
     )
-      return Math.sin(Math.PI / 2.3) * this.gameMode.BALL_SPEED; //~86deg
+      return Math.sin(Math.PI / 2.25) * this.gameMode.BALL_SPEED; //~80deg
     else return -this.gameMode.BALL_SPEED;
   }
 
@@ -104,8 +104,10 @@ export class Ball {
       this.roundStart.getTime()
     )
       return;
-    this.pos.x += Math.round(this.dir.x * this.gameMode.BALL_SPEED);
-    this.pos.y += Math.round(this.dir.y * this.gameMode.BALL_SPEED);
+    // this.pos.x += Math.round(this.dir.x * this.gameMode.BALL_SPEED);
+    // this.pos.y += Math.round(this.dir.y * this.gameMode.BALL_SPEED);
+    this.pos.x += this.dir.x * this.gameMode.BALL_SPEED;
+    this.pos.y += this.dir.y * this.gameMode.BALL_SPEED;
     if (this.pos.y < 0) {
       this.pos.y = 0;
       this.dir.y *= -1;

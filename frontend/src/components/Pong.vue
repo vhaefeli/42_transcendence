@@ -58,14 +58,15 @@ let gameModeInfo = {
 		PADDLE_DISTANCE_FROM_BORDER: 15,
 		PADDLE_SIZE: 60,
 		PADDLE_SPEED: 10,
-		POINTS_TO_WIN: 5
+		POINTS_TO_WIN: 5,
+    GAME_COLOR: "rgba(148, 221, 255, 0.839)",
 	}
 };
 
 let opponentName: string | undefined;
-
 const canvasWidth = 756;
 const canvasHeight = 498;
+let gameColor = gameModeInfo.params.GAME_COLOR;
 
 // a recuperer du back socket
 let ballX: number;
@@ -199,6 +200,7 @@ onMounted(() => {
     // Receive game mode info on connection
     gameSocket.socket?.on("gameModeInfo", (response) => {
       gameModeInfo = response;
+      gameColor = gameModeInfo.params.GAME_COLOR;
       resetBallAndPlayerPos();
       draw();
       console.log(`Loaded info on gameMode: ${gameModeInfo.name}`);
@@ -267,6 +269,8 @@ onMounted(() => {
 
   let chargNum = 0;
   async function draw() {
+    console.log(gameColor, typeof(gameColor));
+    
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
     if (chargNum == 0) {
@@ -277,11 +281,12 @@ onMounted(() => {
     }
 
     // ball
-    ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+    ctx.fillStyle = gameColor;
     ctx.fillRect(ballX, ballY, gameModeInfo.params.BALL_DIAMETER, gameModeInfo.params.BALL_DIAMETER);
-
+    console.log(ballX);
+    
     //net
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";
+    ctx.strokeStyle = gameColor;
     ctx.lineWidth = 5;
     ctx.setLineDash([20, 10]);
     ctx.beginPath();
@@ -292,7 +297,7 @@ onMounted(() => {
     // names
     let opponentUsername: string | undefined = "Player 2";
 
-    ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+    ctx.fillStyle = gameColor;
     ctx.font = "40px Array-Regular";
     ctx.textAlign = "center";
     ctx.fillText(userStore.user.username.substr(0, 12), canvasWidth / 4, 50);
@@ -311,7 +316,7 @@ onMounted(() => {
     }
 
     // paddle
-    ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+    ctx.fillStyle = gameColor;
     ctx.fillRect(10, playerPos, 5, gameModeInfo.params.PADDLE_SIZE);
     ctx.fillRect(canvasWidth - 10 - 5, opponentPos, 5, gameModeInfo.params.PADDLE_SIZE);
     // }
