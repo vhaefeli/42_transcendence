@@ -1013,11 +1013,20 @@ export class ChatService {
           channelRemoveMemberDto.userId == channel.ownerId &&
           remainingMember._count.members > 1
         ) {
-          // search if existing admin
-          if (!channel.admins[0]) {
+          // search if existing admin for replacement ( admin[0] = owner)
+          if (!channel.admins[1]) {
             throw new UnauthorizedException(
               "You don't have the necessary privileges to remove that Member",
             );
+          } else {
+            const newOwnerId: number = channel.admins[1].id;
+            //change the owner
+            await this.prisma.channel.update({
+              where: { id: channelRemoveMemberDto.channelId },
+              data: {
+                ownerId: newOwnerId,
+              },
+            });
           }
         }
 
@@ -1032,7 +1041,6 @@ export class ChatService {
 
         // other forbiden
       } else if (my_id !== channelRemoveMemberDto.userId) {
-        Logger.log('case3 ');
         throw new UnauthorizedException(
           "You don't have the necessary privileges to remove that Member",
         );
