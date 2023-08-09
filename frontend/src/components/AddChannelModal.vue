@@ -32,6 +32,8 @@
 <script setup lang="ts">
   import axios from "axios";
   import { ref } from 'vue'
+  import { useRouter } from "vue-router";
+  import { useToast } from "vue-toastification";
 
   const props = defineProps({
     sessionStore: Object,
@@ -44,6 +46,12 @@
   }
 
   const emits = defineEmits(['addToMyChannels'])
+
+  // toast
+  const toast = useToast()
+
+  // routes
+  const router = useRouter();
 
   const name = ref('')
   const password = ref('')
@@ -83,15 +91,24 @@
     })
     .then((response) => {
         emits('addToMyChannels', { channelName: name.value, channelType: typeOfChannel.value, channelId: response.data.id })
+        toast.success(name.value + " created");
         console.log(`New channel ${name.value} created`);
     })
     .catch((error) => {
-      // 409 et 400
+        toast.error(`Error: ${error.response.data.message}`);
         if (error.response.status == 401) {
         console.log(
             `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
-        // LogOut();
+        router.push('/login?logout=true');
+        } else if (error.response.status == 409) {
+          console.log(
+              `Channel name is already in use: ${error.response.status} ${error.response.statusText}`
+          );
+        } else if (error.response.status == 400) {
+          console.log(
+              `Invalid parameters: ${error.response.status} ${error.response.statusText}`
+          );
         } else
         console.error(
             `unexpected error: ${error.response.status} ${error.response.statusText}`
@@ -102,5 +119,20 @@
 </script>
 
 <style scoped>
+
+#ft-channel-type:after {
+    content: ">";
+    display: inline-block;
+    transform: rotate(90deg);
+}
+
+#ft-channel-type-select {
+    background-color: var(--light);
+}
+
+#ft-channel-type {
+    background-color: var(--light);
+    margin-right: 1rem;
+}
     
 </style>

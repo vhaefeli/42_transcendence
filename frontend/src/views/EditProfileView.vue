@@ -197,12 +197,15 @@ const tfa_code = ref("");
 const tfa_email = ref("");
 const show_tfa_enable_disable_confirmation = ref(false);
 let tfaRegistrationEnable = true;
+let isTfaRegistrationOngoing = false;
 
 async function tfaEnable() {
   if (!tfa_email.value.length) {
     console.log("email must not be empty");
     return;
   }
+  if (isTfaRegistrationOngoing) return;
+  isTfaRegistrationOngoing = true;
   await axios({
     url: "/api/auth/2fa/enable",
     method: "patch",
@@ -217,13 +220,17 @@ async function tfaEnable() {
       show_tfa_enable_disable_confirmation.value = true;
       tfaRegistrationEnable = true;
       tfaErrorText.value = "";
+      isTfaRegistrationOngoing = false;
     })
     .catch((error) => {
+      isTfaRegistrationOngoing = false;
       tfaEnableDisableHandleError(error);
     });
 }
 
 async function tfaDisable() {
+  if (isTfaRegistrationOngoing) return;
+  isTfaRegistrationOngoing = true;
   await axios({
     url: "/api/auth/2fa/disable",
     method: "patch",
@@ -236,9 +243,11 @@ async function tfaDisable() {
       show_tfa_enable_disable_confirmation.value = true;
       tfaRegistrationEnable = false;
       tfaErrorText.value = "";
+      isTfaRegistrationOngoing = false;
     })
     .catch((error) => {
       tfaEnableDisableHandleError(error);
+      isTfaRegistrationOngoing = false;
     });
 }
 

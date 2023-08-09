@@ -84,6 +84,7 @@
     import axios from "axios";
     import { ModelListSelect } from "vue-search-select";
     import { ref, onBeforeUnmount } from 'vue'
+    import { useToast } from "vue-toastification";
 
     const props = defineProps({
         currentChannel: Object,
@@ -132,6 +133,7 @@
     const allMuted = ref<Array<UserInList>>()
 
     const sucessMsg = ref('')
+    const toast = useToast()
 
     const active = ref(false)
 
@@ -226,20 +228,11 @@
       })
         .then((response) => {
           console.log("Channel sucessfully loaded");
-          sucessMsg.value = 'sucessfully changed type of channel to ' + chanDatas.type
+          toast.success('sucessfully changed type of channel to ' + chanDatas.type);
           emits('updateTypeOfChan', chanDatas.type)
         })
         .catch((error) => {
-          sucessMsg.value = 'something went wrong'
-          if (error.response.status == 401) {
-            console.log(
-              `invalid access token: ${error.response.status} ${error.response.statusText}`
-            );
-            // LogOut();
-          } else
-            console.error(
-              `unexpected error: ${error.response.status} ${error.response.statusText}`
-            );
+          toast.error(`Error: ${error.response.data.message}`);
         });
     }
 

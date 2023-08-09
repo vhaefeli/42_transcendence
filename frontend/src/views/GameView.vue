@@ -20,6 +20,10 @@
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref} from 'vue';
+import { storeToRefs } from "pinia";
+import { useUserStore } from "../stores/UserStore";
+import { useSessionStore } from "@/stores/SessionStore";
+import { useRouter } from "vue-router";
 
 import PongVue from '@/components/Pong.vue';
 
@@ -43,6 +47,20 @@ function onPongFinished(data)
   
   buttonQuit.value = data;
 }
+
+const sessionStore = useSessionStore();
+const router = useRouter();
+const userStore = useUserStore();
+const { user } = storeToRefs(userStore);
+
+async function checkLogin() {
+    userStore.getMe(sessionStore.access_token).then(() => {
+      if (!user.value.isLogged) router.push('/login?logout=true');
+    });
+  }
+
+checkLogin();
+
 
 const handleWindowResize = (): void => {
   if (parentDiv.value && zoneDiv.value) {
