@@ -305,7 +305,8 @@ onMounted(() => {
     ctx.fillText(playerScore, canvasWidth / 4, 120);
     ctx.fillText(opponentScore, (canvasWidth / 4) * 3, 120);
 
-    if (playerScore === 5 || opponentScore === 5)
+    if (playerScore === gameModeInfo.params.POINTS_TO_WIN ||
+      opponentScore === gameModeInfo.params.POINTS_TO_WIN)
     {
       emits('noCross', false);
     }
