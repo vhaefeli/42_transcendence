@@ -995,8 +995,6 @@ export class ChatService {
         },
       });
 
-      let suppressOK: boolean = false;
-
       const remainingMember = await this.prisma.channel.findFirst({
         where: { id: channelRemoveMemberDto.channelId },
         include: {
@@ -1014,12 +1012,12 @@ export class ChatService {
           remainingMember._count.members > 1
         ) {
           // search if existing admin for replacement ( admin[0] = owner)
-          if (!channel.admins[1]) {
+          if (channel.admins.length <= 1) {
             throw new UnauthorizedException(
               "You don't have the necessary privileges to remove that Member",
             );
           } else {
-            const newOwnerId: number = channel.admins[1].id;
+            const newOwnerId = channel.admins.find((adm) => adm.id != my_id).id;
             //change the owner
             await this.prisma.channel.update({
               where: { id: channelRemoveMemberDto.channelId },
@@ -1054,16 +1052,6 @@ export class ChatService {
         throw new NotFoundException(
           'User to be remove from members is not in the channel',
         );
-
-      // Extract number of members
-      const memberWithCount = await this.prisma.channel.findFirst({
-        where: { id: channelRemoveMemberDto.channelId },
-        include: {
-          _count: {
-            select: { members: true },
-          },
-        },
-      });
     } catch (error) {
       if (
         error instanceof UnauthorizedException ||
@@ -1109,9 +1097,7 @@ export class ChatService {
       });
       // suppress the channel when no more members
       if (memberWithCount._count.members === 0) {
-        await this.chatGateway.KickAllFromChannel(
-          channelRemoveMemberDto.channelId,
-        );
+        this.chatGateway.KickAllFromChannel(channelRemoveMemberDto.channelId);
         await this.prisma.channel.delete({
           where: { id: channelRemoveMemberDto.channelId },
         });
