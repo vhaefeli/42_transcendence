@@ -83,7 +83,7 @@
       sessionStore: Object,
       userStore: Object,
       currentProfile: Object,
-      currentChannel: Object
+      currentChannel: Object,
     })
 
     const currentUserIsAdmin = ref(false);
@@ -118,12 +118,12 @@
     }
 
     function mute() {
-      isUserMuted.value = true
+      // isUserMuted.value = true
       emits('adminAction', 'mute')
     }
 
     function unmute() {
-      isUserMuted.value = false
+      // isUserMuted.value = false
       emits('adminAction', 'unmute')
     }
 
@@ -211,6 +211,10 @@
       }
       if (isUserMuted.value === undefined)
         isUserMuted.value = props.currentProfile?.isMuted;
+    })
+
+    watch(() => props.currentProfile?.isMuted, (newVal) => {
+      isUserMuted.value = newVal
     })
 
     onBeforeUnmount(() => { clearInterval(reloadInfoInterval) })
