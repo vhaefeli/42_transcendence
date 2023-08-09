@@ -20,6 +20,7 @@
     "vue": "^3.3.2",
     "vue-router": "^4.2.0",
     "vue-search-select": "^3.1.0",
+    "vue-toastification": "^2.0.0-rc.5",
     "vue-uuid": "^3.0.0",
     "vue3-lottie": "^3.0.0"
   },

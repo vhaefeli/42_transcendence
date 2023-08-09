@@ -261,13 +261,17 @@ import MemberList from "@/components/MemberList.vue";
 import AdminPanel from "@/components/AdminPanel.vue";
 import AddChannelModal from "@/components/AddChannelModal.vue";
 import QuitChanModal from "@/components/QuitChanModal.vue";
+import { useToast } from "vue-toastification";
 
 // ********************************** ROUTES & STORES
 
-const route = useRoute();
 
 // routes
 const router = useRouter();
+const route = useRoute();
+
+// toast
+const toast = useToast()
 
 // we need sessionStore and userStore
 const sessionStore = useSessionStore();
@@ -381,6 +385,7 @@ function addToMyChannels(chanInfos: MyChannel) {
     Admin: "Admin",
   })
   currentChannel.value = myChannels.value[myChannels.value.length - 1]
+  toggleModal()
 }
 
 async function removeChannel(chanId: number) {
@@ -708,6 +713,7 @@ async function kick(channelId: number, userId: number, username: string) {
     data: { channelId: channelId, userId: userId },
   })
     .then((response) => {
+      toast.success(username + " is kicked out of channel " + username);
       console.log(username + " is kicked out of channel with id " + channelId);
       currentMembers.value = currentMembers.value.filter(
         (member) => member.username !== currentProfileToShow.value.username
@@ -716,6 +722,7 @@ async function kick(channelId: number, userId: number, username: string) {
       return true;
     })
     .catch((error) => {
+      toast.error(`Error: ${error.response.data.message}`);
       if (error.response.status == 401) {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
@@ -744,7 +751,8 @@ async function bann(channelId: number, userId: number, username: string) {
     data: { channelId: channelId, userId: userId },
   })
     .then((response) => {
-      console.log(username + " is kicked out of channel with id " + channelId);
+      toast.success(username + " is banned of channel " + username);
+      console.log(username + " is banned of channel with id " + channelId);
       currentMembers.value = currentMembers.value.filter(
         (member) => member.username !== currentProfileToShow.value.username
       );
@@ -752,6 +760,7 @@ async function bann(channelId: number, userId: number, username: string) {
       return true;
     })
     .catch((error) => {
+      toast.error(`Error: ${error.response.data.message}`);
       if (error.response.status == 401) {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
@@ -780,10 +789,12 @@ async function unbann(channelId: number, userId: number, username: string) {
     data: { channelId: channelId, userId: userId },
   })
     .then((response) => {
+      toast.success(username + " is unbanned of channel " + username);
       console.log(username + " is unbanned of channel with id " + channelId);
       return true;
     })
     .catch((error) => {
+      toast.error(`Error: ${error.response.data.message}`);
       if (error.response.status == 401) {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
@@ -812,11 +823,13 @@ async function mute(channelId: number, userId: number, username: string) {
     data: { channelId: channelId, userId: userId },
   })
     .then((response) => {
+      toast.success(username + " is muted in channel " + username);
       currentProfileToShow.value.isMuted = true;
       console.log(username + " is muted in channel with id " + channelId);
       return true;
     })
     .catch((error) => {
+      toast.error(`Error: ${error.response.data.message}`);
       if (error.response.status == 401) {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
@@ -846,11 +859,13 @@ async function unmute(channelId: number, userId: number, username: string) {
     data: { channelId: channelId, userId: userId },
   })
     .then((response) => {
+      toast.success(username + " is unmuted in channel " + username);
       currentProfileToShow.value.isMuted = false;
       console.log(username + " is unmuted in channel with id " + channelId);
       return true;
     })
     .catch((error) => {
+      toast.error(`Error: ${error.response.data.message}`);
       if (error.response.status == 401) {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
@@ -882,9 +897,11 @@ async function promote(channelId: number, userId: number, username: string) {
       console.log(
         username + " is promoted to admin in channel with id " + channelId
       );
+      toast.success(username + " is promoted to admin in channel " + username);
       return true;
     })
     .catch((error) => {
+      toast.error(`Error: ${error.response.data.message}`);
       if (error.response.status == 401) {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
@@ -918,9 +935,11 @@ async function demote(channelId: number, userId: number, username: string) {
           " is demoted to normal member in channel with id " +
           channelId
       );
+      toast.success(username + " is demoted to admin in channel " + username);
       return true;
     })
     .catch((error) => {
+      toast.error(`Error: ${error.response.data.message}`);
       if (error.response.status == 401) {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
