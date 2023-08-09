@@ -1,8 +1,8 @@
 <template>
   <div class="flex flex-row text-white">
-    <p v-if="true" class="w-6 text-white" id="ft-ping-info">
+    <!-- <p v-if="true" class="w-6 text-white" id="ft-ping-info">
       ping: {{ averagePing }} ms
-    </p>
+    </p> -->
     <span v-if="textError?.length">
       <p id="gameError">{{ textError }}</p>
       <router-link class="t-btn-pink" to="/game-settings" id="goBack"
@@ -258,12 +258,12 @@ onMounted(() => {
     }, 100);
   });
 
-  // console.log("pong screen: ", pongScreen.value);
+  console.log("pong screen: ", pongScreen.value);
   if (!pongScreen.value.getContext) {
     return console.error("no pongScreen");
   }
   var ctx = pongScreen.value.getContext("2d");
-  // console.log(ctx);
+  console.log(ctx);
 
   // ==> envoie size du canevas au back
 
