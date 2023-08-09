@@ -24,12 +24,14 @@ import axios, { AxiosError } from "axios";
 import { useRoute, useRouter, type LocationQuery } from "vue-router";
 import { useSessionStore } from "@/stores/SessionStore";
 import { useUserStore } from "@/stores/UserStore";
+import { useToast } from "vue-toastification";
 
 const router = useRouter();
 const route = useRoute();
 
 const sessionStore = useSessionStore();
 const userStore = useUserStore();
+const toast = useToast();
 
 const tfa_code = ref("");
 let tfa_uuid: string | undefined;
@@ -54,7 +56,7 @@ function handleQueryParams(params: LocationQuery) {
 
 async function validate2FALogin() {
   if (tfa_code.value.length == 0) {
-    console.log("Please insert code");
+    toast.warning("Please insert code");
     return;
   }
   await axios({
@@ -70,18 +72,17 @@ async function validate2FALogin() {
     })
     .catch((error: AxiosError) => {
       if (error.response?.status == 401)
-        console.debug(
-          `${error.response.status} ${error.response.statusText}: Invalid credentials`
+        toast.error(
+          `${error.response.statusText}: Invalid credentials`
         );
       else if (error.response?.status == 400) {
         const message: string = error.response?.data?.message[0];
-        console.debug(
-          `${error.response.status} ${error.response.statusText}: ${message}`
+        toast.error(
+          `${error.response.statusText}: ${message}`
         );
-        console.error(`INVALID ${message.includes("uuid") ? "UUID" : "CODE"}`);
       } else
-        console.debug(
-          `${error.response?.status} ${error.response?.statusText}: Unexpected error`
+        toast.error(
+          `${error.response?.statusText}: Unexpected error`
         );
     });
 }

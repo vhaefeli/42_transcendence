@@ -12,11 +12,13 @@
 import axios from "axios";
 import { useRoute, useRouter } from "vue-router";
 import { useSessionStore } from "@/stores/SessionStore";
+import { useToast } from "vue-toastification";
 
 const route = useRoute();
 const router = useRouter();
 
 const sessionStore = useSessionStore();
+const toast = useToast();
 
 let textError: string | undefined;
 
@@ -26,7 +28,7 @@ function getURLCode() {
   const code = route.query.code?.toString();
   const state = route.query.state?.toString();
   if (route.query.error?.toString() === "access_denied") {
-    console.error(
+    toast.error(
       `42Api denied your access: ${route.query.error_description?.toString()}`
     );
     textError = `42Api: ${route.query.error_description?.toString()}`;
@@ -36,7 +38,7 @@ function getURLCode() {
   if (code && state) {
     if (state != sessionStore.getUUID()) {
       console.log(`state: ${state}\nuuid: ${sessionStore.getUUID()}`);
-      console.error("State in query does not match stored uuid");
+      toast.error("State in query does not match stored uuid, try again");
       textError = "States don't match";
       return;
     }
@@ -70,10 +72,17 @@ async function backendRegistration(code: string, state: string) {
     })
     .catch((error) => {
       if (error.response.status == 401) {
-        console.debug(
-          `42 rejected the login request: ${error.response.status} ${error.response.statusText}`
+        toast.error(
+          `42 rejected the login request: ${error.response.statusText}`
         );
         textError = "42 rejected the Api access";
+        // added message for the future
+        setTimeout(() => {
+          toast.warning(
+            "Due to the manual process required to maintain this feature, it is possible that" +
+            " logging in using the 42 api isn't supported anymore",
+            { timeout: 0 });
+        }, 3000);
       } else {
         textError = `unexpected error: ${error.response.status} ${error.response.statusText}`;
         console.error(
