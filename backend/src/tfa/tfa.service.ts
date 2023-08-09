@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TfaRegistrationType } from '@prisma/client';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { readFileSync } from 'fs';
 import * as nodemailer from 'nodemailer';
 import { AuthService } from 'src/auth/auth.service';
@@ -114,14 +115,20 @@ export class TfaService {
 
     const code_mail = await this.sendCode(address, '2fa registration code');
     if (!code_mail.success) throw new ServiceUnavailableException();
-    await this.prisma.tfaRegistration.create({
-      data: {
-        userId: id,
-        email: address,
-        code: code_mail.code,
-        type: TfaRegistrationType.ENABLE,
-      },
-    });
+    try {
+      await this.prisma.tfaRegistration.create({
+        data: {
+          userId: id,
+          email: address,
+          code: code_mail.code,
+          type: TfaRegistrationType.ENABLE,
+        },
+      });
+    } catch (e) {
+      if (e instanceof PrismaClientKnownRequestError) {
+        if (e.code == 'P2002') throw new ConflictException();
+      }
+    }
   }
 
   async confirm2FA(id: number, code: string) {
@@ -263,14 +270,20 @@ export class TfaService {
       '2fa unregistration code',
     );
     if (!code_mail.success) throw new ServiceUnavailableException();
-    await this.prisma.tfaRegistration.create({
-      data: {
-        userId: id,
-        email: user.tfa_email_address,
-        code: code_mail.code,
-        type: TfaRegistrationType.DISABLE,
-      },
-    });
+    try {
+      await this.prisma.tfaRegistration.create({
+        data: {
+          userId: id,
+          email: user.tfa_email_address,
+          code: code_mail.code,
+          type: TfaRegistrationType.DISABLE,
+        },
+      });
+    } catch (e) {
+      if (e instanceof PrismaClientKnownRequestError) {
+        if (e.code == 'P2002') throw new ConflictException();
+      }
+    }
   }
 
   async confirmDisableTFA(id: number, code: string) {
