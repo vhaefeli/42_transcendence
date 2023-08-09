@@ -8,7 +8,7 @@
         <div v-if="props.isAdmin"><button class="admin-channel-icon ft-simple-link" @click="toggleAdmin">{{ adminText }}</button></div>
       </div>
       <div id="ft-member-list-container" class="ft-bg-color-chat h-[78%] w-full p-6">
-        <div id="inside-member-list" class="flex flex-col h-[82%] bg-white/[.2] overflow-scroll max-h-[58vh] p-3">
+        <div id="inside-member-list" class="flex flex-col h-[98%] bg-white/[.2] overflow-scroll max-h-[58vh] p-3">
           <div v-for="member in MemberList" :key="member.id">
             <div v-if="member.username != props.username">
               <a href="#" @click="$emit('setProfileToShow', member.username)" class="flex mb-2 items-center ft-member-profile-container">
