@@ -102,5 +102,20 @@
 </script>
 
 <style scoped>
+
+#ft-channel-type:after {
+    content: ">";
+    display: inline-block;
+    transform: rotate(90deg);
+}
+
+#ft-channel-type-select {
+    background-color: var(--light);
+}
+
+#ft-channel-type {
+    background-color: var(--light);
+    margin-right: 1rem;
+}
     
 </style>

@@ -383,15 +383,44 @@ function addToMyChannels(chanInfos: MyChannel) {
   currentChannel.value = myChannels.value[myChannels.value.length - 1]
 }
 
-function removeChannel(chanId: number) {
-  myChannels.value = myChannels.value.filter(
-    (channel) => channel.channelId !== chanId
-  );
-  if (myChannels.value.length > 0) {
-    currentChannel.value = myChannels.value[0];
-  } else {
-    currentChannel.value = null
+async function removeChannel(chanId: number) {
+  currentChannel.value = null
+  showQuitChanModal.value = null
+  currentProfileToShow.value = {
+    username: "",
+    isMuted: false,
+    isBanned: false,
   }
+  await axios({
+    url: '/api/chat/channel/member/remove',
+    method: "patch",
+    headers: { 
+      'Authorization': `Bearer ${sessionStore?.access_token}`
+    },
+    data: { "channelId": chanId, "userId": userStore?.user.id }
+  })
+    .then((response) => {
+      console.log(`You have quit the channel with id ${chanId}`);
+      myChannels.value = myChannels.value.filter(
+        (channel) => channel.channelId !== chanId
+      )
+    })
+    .catch((error) => {
+      if (error.response.status == 401) {
+        console.log(
+          `invalid access token: ${error.response.status} ${error.response.statusText}`
+        );
+        // LogOut();
+      } else
+        console.error(
+          `unexpected error: ${error.response.status} ${error.response.statusText}`
+        );
+    });
+    if (myChannels.value.length > 0) {
+      currentChannel.value = myChannels.value[0];
+    } else {
+      currentChannel.value = null
+    }
 }
 
 onUpdated(() => {
@@ -441,7 +470,7 @@ const handleSubmitNewMessage = () => {
 
 const currentChannelClasses = (channel) => {
   return {
-    "ft-actual-recipient": currentChannel.value.channelId === channel.channelId,
+    "ft-actual-recipient": currentChannel.value?.channelId === channel.channelId,
     "admin-channel-icon": channel.Admin !== null,
     "owner-channel-icon": channel.ownerId === user.value.id,
   };
@@ -661,7 +690,6 @@ async function getAllMembers(channelId: number) {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
-       router.push('/login?logout=true');
       } else
         console.error(
           `unexpected error: ${error.response.status} ${error.response.statusText}`
@@ -912,7 +940,7 @@ async function demote(channelId: number, userId: number, username: string) {
 
 async function getBanned() {
   await axios({
-    url: `/api/chat/channel/banned/${currentChannel.value.channelId}`,
+    url: `/api/chat/channel/banned/${currentChannel.value?.channelId}`,
     method: "get",
     headers: { Authorization: `Bearer ${sessionStore.access_token}` },
   })
@@ -926,7 +954,6 @@ async function getBanned() {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
-        router.push('/login?logout=true');
       } else
         console.error(
           `unexpected error: ${error.response.status} ${error.response.statusText}`
@@ -936,7 +963,7 @@ async function getBanned() {
 
 async function getMuted() {
   await axios({
-    url: `/api/chat/channel/muted/${currentChannel.value.channelId}`,
+    url: `/api/chat/channel/muted/${currentChannel.value?.channelId}`,
     method: "get",
     headers: { Authorization: `Bearer ${sessionStore.access_token}` },
   })
@@ -950,7 +977,6 @@ async function getMuted() {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
-       router.push('/login?logout=true');
       } else
         console.error(
           `unexpected error: ${error.response.status} ${error.response.statusText}`
@@ -1017,9 +1043,11 @@ async function loadAllInfo() {
   promises.push(loadBlocked());
   promises.push(getAllUsers());
   promises.push(loadBlocked());
-  promises.push(getBanned());
-  promises.push(getMuted());
-  promises.push(getAllMembers(currentChannel.value?.channelId));
+  if (currentChannel.value) {
+    promises.push(getBanned());
+    promises.push(getMuted());
+    promises.push(getAllMembers(currentChannel.value?.channelId));
+  }
   await Promise.all(promises);
 }
 
@@ -1027,8 +1055,8 @@ watch(currentChannel, (NewValue, OldValue) => {
   isCurrentMembersLoaded.value = false;
   isAllBannedLoaded.value = false;
   isAllMutedLoaded.value = false;
-  getAllMembers(NewValue?.channelId);
-  if (currentChannel.value) {
+  if (NewValue) {
+    getAllMembers(NewValue?.channelId);
     getBanned();
     getMuted();
   }
