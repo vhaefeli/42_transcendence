@@ -117,7 +117,6 @@
                           <div class="flex flex-col">
                             <div class="ft-profile-pic ft-friend-pic" :style="{ 'background': 'url(' + friend.avatar_url + ')' }">
                               <div class="ft-connection-circle ft-friend-status"><StatusBubble :status="friend.status"></StatusBubble>
-                                <!-- <img src="../assets/icons/tennisBallBlack.png" alt="is playing" title="your friend is playing" class="ft-playing"> -->
                               </div>
                             </div>
                           </div>

@@ -16,7 +16,7 @@
 <script setup lang="ts">
     import MyProfilePage from "@/components/MyProfilePage.vue";
 
-    import { ref, onBeforeMount } from "vue";
+    import { ref } from "vue";
     import { useRoute, useRouter } from 'vue-router'
     import axios, { AxiosError } from "axios";
     import { useUserStore } from '../stores/UserStore'
@@ -58,18 +58,26 @@
     
     // routes
     const route = useRoute()
+    const router = useRouter()
     
     // we need userStore and a variable to check if logged in
     const userStore = useUserStore()
 
-    // onBeforeMount is executed before the component is mounted
-    // way of using await because we can't do it in setup
-    onBeforeMount(async () => {
-        if (sessionStore.isLoggedIn) {
-            // get user infos, friends, and invitations
-            await userStore.getMe(sessionStore.access_token);
+    async function loadMyself() {
+      if (sessionStore.isLoggedIn) {
+        // get user infos
+        await userStore.getMe(sessionStore.access_token);
+        if (userStore.user.isLogged === false) {
+          sessionStore.isLoggedIn = false;
+          sessionStore.access_token = "";
+          router.push('/login?logout=true');
         }
-    });
+      } else {
+        router.push('/login?logout=true');
+      }
+    }
+
+    loadMyself()
 </script>
 
 <style scoped>

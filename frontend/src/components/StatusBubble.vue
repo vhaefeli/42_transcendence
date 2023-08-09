@@ -37,7 +37,7 @@
 
     .ft-bubble-status-ingame {
         background: var(--yellow);
-        background-image: url(../assets/img/icons/tennisBallBlack.png);
+        background-image: url(/src/assets/icons/tennisBallBlack.png);
         background-size: cover;
     }
 

@@ -81,15 +81,15 @@
               : 'position-origine'
           "
         >
-          <OtherUserProfile
-            :key="currentProfileToShow.username"
-            :username="currentProfileToShow.username"
+        <OtherUserProfile
+        :key="currentProfileToShow.username"
+        :username="currentProfileToShow.username"
             :currentProfile="currentProfileToShow"
             :currentChannel="currentChannel"
             :userStore="userStore"
             :sessionStore="sessionStore"
             @adminAction="manageAdminAction"
-          />
+            />
           <button
             title="Back to member list"
             id="ft-back-to-list"
@@ -383,13 +383,44 @@ function addToMyChannels(chanInfos: MyChannel) {
   currentChannel.value = myChannels.value[myChannels.value.length - 1]
 }
 
-function removeChannel(chanId: number) {
-  myChannels.value = myChannels.value.filter(
-    (channel) => channel.channelId !== chanId
-  );
-  if (myChannels.value.length > 0) {
-    currentChannel.value = myChannels.value[0];
+async function removeChannel(chanId: number) {
+  currentChannel.value = null
+  showQuitChanModal.value = null
+  currentProfileToShow.value = {
+    username: "",
+    isMuted: false,
+    isBanned: false,
   }
+  await axios({
+    url: '/api/chat/channel/member/remove',
+    method: "patch",
+    headers: { 
+      'Authorization': `Bearer ${sessionStore?.access_token}`
+    },
+    data: { "channelId": chanId, "userId": userStore?.user.id }
+  })
+    .then((response) => {
+      console.log(`You have quit the channel with id ${chanId}`);
+      myChannels.value = myChannels.value.filter(
+        (channel) => channel.channelId !== chanId
+      )
+    })
+    .catch((error) => {
+      if (error.response.status == 401) {
+        console.log(
+          `invalid access token: ${error.response.status} ${error.response.statusText}`
+        );
+        // LogOut();
+      } else
+        console.error(
+          `unexpected error: ${error.response.status} ${error.response.statusText}`
+        );
+    });
+    if (myChannels.value.length > 0) {
+      currentChannel.value = myChannels.value[0];
+    } else {
+      currentChannel.value = null
+    }
 }
 
 onUpdated(() => {
@@ -439,7 +470,7 @@ const handleSubmitNewMessage = () => {
 
 const currentChannelClasses = (channel) => {
   return {
-    "ft-actual-recipient": currentChannel.value.channelId === channel.channelId,
+    "ft-actual-recipient": currentChannel.value?.channelId === channel.channelId,
     "admin-channel-icon": channel.Admin !== null,
     "owner-channel-icon": channel.ownerId === user.value.id,
   };
@@ -504,6 +535,8 @@ function manageAdminActionFromPanel(action: object) {
     unmute(currentChannel.value?.channelId, action.userId, action.username);
   } else if (action.what === "unbann") {
     unbann(currentChannel.value?.channelId, action.userId, action.username);
+  } else if (action.what === "demote") {
+    demote(currentChannel.value?.channelId, action.userId, action.username);
   }
 }
 
@@ -565,11 +598,13 @@ async function loadMyself() {
   if (sessionStore.isLoggedIn) {
     // get user infos
     await userStore.getMe(sessionStore.access_token);
-    if (user.isLogged === false) {
+    if (user.value.isLogged === false) {
       sessionStore.isLoggedIn = false;
       sessionStore.access_token = "";
-      router.push({ name: "login" });
+      router.push('/login?logout=true');
     }
+  } else {
+    router.push('/login?logout=true');
   }
 }
 
@@ -581,7 +616,7 @@ async function loadBlocked() {
     if (user.value.isLogged === false) {
       sessionStore.isLoggedIn = false;
       sessionStore.access_token = "";
-      router.push({ name: "login" });
+      router.push('/login?logout=true');
     }
   }
 }
@@ -605,7 +640,7 @@ async function getMyChannels() {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
-        // LogOut();
+       router.push('/login?logout=true');
       } else
         console.error(
           `unexpected error: ${error.response.status} ${error.response.statusText}`
@@ -629,7 +664,7 @@ async function getAllChannels() {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
-        // LogOut();
+       router.push('/login?logout=true');
       } else
         console.error(
           `unexpected error: ${error.response.status} ${error.response.statusText}`
@@ -655,7 +690,6 @@ async function getAllMembers(channelId: number) {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
-        // LogOut();
       } else
         console.error(
           `unexpected error: ${error.response.status} ${error.response.statusText}`
@@ -906,7 +940,7 @@ async function demote(channelId: number, userId: number, username: string) {
 
 async function getBanned() {
   await axios({
-    url: `/api/chat/channel/banned/${currentChannel.value.channelId}`,
+    url: `/api/chat/channel/banned/${currentChannel.value?.channelId}`,
     method: "get",
     headers: { Authorization: `Bearer ${sessionStore.access_token}` },
   })
@@ -920,7 +954,6 @@ async function getBanned() {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
-        // LogOut();
       } else
         console.error(
           `unexpected error: ${error.response.status} ${error.response.statusText}`
@@ -930,7 +963,7 @@ async function getBanned() {
 
 async function getMuted() {
   await axios({
-    url: `/api/chat/channel/muted/${currentChannel.value.channelId}`,
+    url: `/api/chat/channel/muted/${currentChannel.value?.channelId}`,
     method: "get",
     headers: { Authorization: `Bearer ${sessionStore.access_token}` },
   })
@@ -944,7 +977,6 @@ async function getMuted() {
         console.log(
           `invalid access token: ${error.response.status} ${error.response.statusText}`
         );
-        // LogOut();
       } else
         console.error(
           `unexpected error: ${error.response.status} ${error.response.statusText}`
@@ -953,29 +985,28 @@ async function getMuted() {
 }
 
 async function getAllUsers() {
-  try {
-    const response = await axios.get("/api/user/all");
-    allUsers.value = response.data;
-    isAllUsersLoaded.value = true;
-    return true;
-  } catch (error) {
-    if (error.response && error.response.status == 404) {
+  await axios({
+    url: `/api/user/all`,
+    method: "get",
+  })
+    .then((response) => {
+      allUsers.value = response.data;
+      isAllUsersLoaded.value = true;
+      console.log("all users loaded");
+    })
+    .catch((error) => {
+      if (error.response && error.response.status == 404) {
       console.log(
         `not found: ${error.response.status} ${error.response.statusText}`
       );
-    } else {
-      console.error(
-        `unexpected error: ${error.response.status} ${error.response.statusText}`
-      );
-    }
-    return false;
-  }
+      } else
+        console.error(
+          `unexpected error: ${error.response.status} ${error.response.statusText}`
+        );
+    });
 }
 
 const reloadAllInfoInterval = setInterval(loadAllInfo, 5000);
-
-// TO REMOVE!!
-clearInterval(reloadAllInfoInterval);
 
 onBeforeUnmount(() => {
   clearInterval(reloadAllInfoInterval);
@@ -1012,9 +1043,11 @@ async function loadAllInfo() {
   promises.push(loadBlocked());
   promises.push(getAllUsers());
   promises.push(loadBlocked());
-  promises.push(getBanned());
-  promises.push(getMuted());
-  promises.push(getAllMembers(currentChannel.value?.channelId));
+  if (currentChannel.value) {
+    promises.push(getBanned());
+    promises.push(getMuted());
+    promises.push(getAllMembers(currentChannel.value?.channelId));
+  }
   await Promise.all(promises);
 }
 
@@ -1022,14 +1055,14 @@ watch(currentChannel, (NewValue, OldValue) => {
   isCurrentMembersLoaded.value = false;
   isAllBannedLoaded.value = false;
   isAllMutedLoaded.value = false;
-  getAllMembers(NewValue?.channelId);
-  if (currentChannel.value) {
+  if (NewValue) {
+    getAllMembers(NewValue?.channelId);
     getBanned();
     getMuted();
   }
 });
 
-watch(currentProfileToShow.value, () => {
+watchEffect(() => {
   if (
     mutedUsers.value.find(
       (user) => user.username === currentProfileToShow.value.username
@@ -1039,7 +1072,8 @@ watch(currentProfileToShow.value, () => {
   } else {
     currentProfileToShow.value.isMuted = false;
   }
-});
+})
+
 </script>
 
 <style>

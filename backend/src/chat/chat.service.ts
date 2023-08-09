@@ -205,7 +205,10 @@ export class ChatService {
 
   // ------------------------------------------------------------------------
   async FindMyChannelMembers(my_id: number, channelId: number) {
+    if (!channelId) throw new NotFoundException("Channel wasn't set");
     try {
+      if (!channelId) throw new NotFoundException("Channel wasn't set");
+
       const channel = await this.prisma.channel.findFirstOrThrow({
         where: { id: channelId },
         select: {
@@ -1236,7 +1239,7 @@ export class ChatService {
         if (channelJoinDto.password === undefined)
           throw new NotFoundException('Missing Password');
 
-        const passwordMatches = this.authService.compareHash(
+        const passwordMatches = await this.authService.compareHash(
           channel.password,
           channelJoinDto.password,
         );

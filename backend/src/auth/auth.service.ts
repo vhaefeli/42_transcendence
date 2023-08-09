@@ -39,9 +39,15 @@ export class AuthService {
   }
 
   async compareHash(hash: string, toVerify: string): Promise<boolean> {
-    return await argon2.verify(hash, toVerify, {
-      secret: this.argon_secret_buffer,
-    });
+    try {
+      return await argon2.verify(hash, toVerify, {
+        secret: this.argon_secret_buffer,
+      });
+    } catch (e) {
+      Logger.error('AuthService.compareHash');
+      Logger.error(e);
+      return false;
+    }
   }
 
   async CreateToken(id: number, username: string) {

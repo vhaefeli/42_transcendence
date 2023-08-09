@@ -6,7 +6,6 @@ import EditProfileView from '../views/EditProfileView.vue'
 import AboutView from '../views/AboutView.vue'
 import GameSettingsView from '../views/GameSettingsView.vue'
 import GameView from '../views/GameView.vue'
-import ChatView from '../views/ChatView.vue'
 import DmsView from '../views/DmsView.vue'
 import LoginView from '../views/LoginView.vue'
 import LoginTfaView from '../views/LoginTfaView.vue'
@@ -51,11 +50,6 @@ const router = createRouter({
       path: '/game',
       name: 'game',
       component: GameView
-    },
-    {
-      path: '/chat',
-      name: 'chat',
-      component: ChatView
     },
     {
       path: '/dms',
