@@ -1015,12 +1015,6 @@ onBeforeUnmount(() => {
 });
 
 handleQueryParams(route?.query);
-watch(
-  () => route?.query,
-  (params) => {
-    handleQueryParams(params);
-  }
-);
 
 async function handleQueryParams(params: LocationQuery) {
   if (params?.channelId) {
