@@ -214,10 +214,11 @@
               <div v-if="myChannels.length === 0">No channels yet</div>
               <div v-for="channel in myChannels" :key="channel">
                 <div
+                  @click="changeCurrentChannel(channel.name)"
                   :class="currentChannelClasses(channel)"
                   class="ft-channel-name flex justify-between"
                 >
-                  <div @click="changeCurrentChannel(channel.name)" class="grow">
+                  <div class="grow">
                     {{ channel.name }}
                   </div>
                   <a
