@@ -1023,7 +1023,7 @@ export class ChatService {
       if (
         my_id === channel.ownerId &&
         remainingMember._count.members > 1 &&
-        channelRemoveMemberDto.userId !== channel.ownerId
+        channelRemoveMemberDto.userId === channel.ownerId
       )
         suppressOK = false;
 
