@@ -639,6 +639,8 @@ async function getMyChannels() {
       }
       isAllMyChanLoaded.value = true;
       console.log("loaded all my channels");
+      currentChannel.value =
+        myChannels.value.find((chan) => currentChannel.value?.channelId === chan.channelId) || null;
     })
     .catch((error) => {
       if (error.response.status == 401) {
@@ -1032,12 +1034,6 @@ onBeforeUnmount(() => {
 });
 
 handleQueryParams(route?.query);
-watch(
-  () => route?.query,
-  (params) => {
-    handleQueryParams(params);
-  }
-);
 
 async function handleQueryParams(params: LocationQuery) {
   if (params?.channelId) {
