@@ -233,25 +233,6 @@
         })
         .catch((error) => {
           toast.error(`Error: ${error.response.data.message}`);
-          // if (error.response.status == 401) {
-          //   const msg = `invalid access token: ${error.response.status} ${error.response.statusText}`
-          //   console.log(msg);
-          //   toast.error(msg);
-          //   // LogOut();
-          // } else if (error.response.status == 404) {
-          //   const msg = `not found: ${error.response.status} ${error.response.statusText}`
-          //   console.log(msg);
-          //   toast.error(msg);
-          // } else if (error.response.status == 400) {
-          //   toast.error(`Error: ${error.response.data.message}`);
-          // } else if (error.response.status == 409) {
-          //   const msg = `conflict: ${error.response.status} ${error.response.statusText}`
-          //   console.log(msg);
-          //   toast.error(msg);
-          // } else
-          //   console.error(
-          //     `unexpected error: ${error.response.status} ${error.response.statusText}`
-          //   );
         });
     }
 
