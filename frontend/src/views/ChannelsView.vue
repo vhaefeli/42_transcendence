@@ -206,10 +206,10 @@
 
         <!-- column 3 with list of recipients -->
         <div id="dm-recipientList-col" class="w-[16rem] relative">
-          <div class="mb-6 max-h-[54vh] overflow-scroll">
-            <div class="p-3">
-              <button @click="toggleModal()">+ add channel</button>
-            </div>
+          <div class="p-3">
+            <button @click="toggleModal()" class="hover:bg-white/30 w-full">+ add channel</button>
+          </div>
+          <div class="mb-6 max-h-[66vh] overflow-scroll">
             <div v-if="isAllMyChanLoaded">
               <div v-if="myChannels.length === 0">No channels yet</div>
               <div v-for="channel in myChannels" :key="channel">
@@ -713,7 +713,7 @@ async function kick(channelId: number, userId: number, username: string) {
     data: { channelId: channelId, userId: userId },
   })
     .then((response) => {
-      toast.success(username + " is kicked out of channel " + username);
+      toast.success(username + " is kicked out of channel " + currentChannel.value?.name);
       console.log(username + " is kicked out of channel with id " + channelId);
       currentMembers.value = currentMembers.value.filter(
         (member) => member.username !== currentProfileToShow.value.username
@@ -751,7 +751,7 @@ async function bann(channelId: number, userId: number, username: string) {
     data: { channelId: channelId, userId: userId },
   })
     .then((response) => {
-      toast.success(username + " is banned of channel " + username);
+      toast.success(username + " is banned of channel " + currentChannel.value?.name);
       console.log(username + " is banned of channel with id " + channelId);
       currentMembers.value = currentMembers.value.filter(
         (member) => member.username !== currentProfileToShow.value.username
@@ -789,7 +789,7 @@ async function unbann(channelId: number, userId: number, username: string) {
     data: { channelId: channelId, userId: userId },
   })
     .then((response) => {
-      toast.success(username + " is unbanned of channel " + username);
+      toast.success(username + " is unbanned of channel " + currentChannel.value?.name);
       console.log(username + " is unbanned of channel with id " + channelId);
       return true;
     })
@@ -823,7 +823,7 @@ async function mute(channelId: number, userId: number, username: string) {
     data: { channelId: channelId, userId: userId },
   })
     .then((response) => {
-      toast.success(username + " is muted in channel " + username);
+      toast.success(username + " is muted in channel " + currentChannel.value?.name);
       currentProfileToShow.value.isMuted = true;
       console.log(username + " is muted in channel with id " + channelId);
       return true;
@@ -859,7 +859,7 @@ async function unmute(channelId: number, userId: number, username: string) {
     data: { channelId: channelId, userId: userId },
   })
     .then((response) => {
-      toast.success(username + " is unmuted in channel " + username);
+      toast.success(username + " is unmuted in channel " + currentChannel.value?.name);
       currentProfileToShow.value.isMuted = false;
       console.log(username + " is unmuted in channel with id " + channelId);
       return true;
@@ -897,7 +897,7 @@ async function promote(channelId: number, userId: number, username: string) {
       console.log(
         username + " is promoted to admin in channel with id " + channelId
       );
-      toast.success(username + " is promoted to admin in channel " + username);
+      toast.success(username + " is promoted to admin in channel " + currentChannel.value?.name);
       return true;
     })
     .catch((error) => {
@@ -935,7 +935,7 @@ async function demote(channelId: number, userId: number, username: string) {
           " is demoted to normal member in channel with id " +
           channelId
       );
-      toast.success(username + " is demoted to admin in channel " + username);
+      toast.success(username + " is demoted to admin in channel " + currentChannel.value?.name);
       return true;
     })
     .catch((error) => {
