@@ -1030,8 +1030,14 @@ export class ChatService {
 
         // treat case of suppression requested by an admin
       } else if (channel.admins.find((admin) => admin.id === my_id)) {
-        // forbiden to remove the owner
-        if (channelRemoveMemberDto.userId == channel.ownerId) {
+        // forbiden to remove the owner or another admin
+        if (
+          channelRemoveMemberDto.userId === channel.ownerId ||
+          (channel.admins.find(
+            (adm) => adm.id === channelRemoveMemberDto.userId,
+          ) &&
+            my_id !== channelRemoveMemberDto.userId)
+        ) {
           throw new UnauthorizedException(
             "You don't have the necessary privileges to remove that Member",
           );
