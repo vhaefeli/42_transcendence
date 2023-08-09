@@ -1,5 +1,5 @@
 <template>
-  <div class=text-white id="login">
+  <div class=text-white id="login" @keyup.enter="LogIn(false)">
     <span id="arcadeName">TRANSCENDENCE</span>
     <input
       v-model="login_username"
