@@ -81,15 +81,15 @@
               : 'position-origine'
           "
         >
-          <OtherUserProfile
-            :key="currentProfileToShow.username"
-            :username="currentProfileToShow.username"
+        <OtherUserProfile
+        :key="currentProfileToShow.username"
+        :username="currentProfileToShow.username"
             :currentProfile="currentProfileToShow"
             :currentChannel="currentChannel"
             :userStore="userStore"
             :sessionStore="sessionStore"
             @adminAction="manageAdminAction"
-          />
+            />
           <button
             title="Back to member list"
             id="ft-back-to-list"
@@ -1062,7 +1062,7 @@ watch(currentChannel, (NewValue, OldValue) => {
   }
 });
 
-watch(currentProfileToShow.value, () => {
+watchEffect(() => {
   if (
     mutedUsers.value.find(
       (user) => user.username === currentProfileToShow.value.username
@@ -1072,7 +1072,7 @@ watch(currentProfileToShow.value, () => {
   } else {
     currentProfileToShow.value.isMuted = false;
   }
-});
+})
 
 </script>
 
