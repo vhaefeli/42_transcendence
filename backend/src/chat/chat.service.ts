@@ -1032,7 +1032,6 @@ export class ChatService {
 
         // other forbiden
       } else if (my_id !== channelRemoveMemberDto.userId) {
-        Logger.log('case3 ');
         throw new UnauthorizedException(
           "You don't have the necessary privileges to remove that Member",
         );
