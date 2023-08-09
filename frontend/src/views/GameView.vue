@@ -43,7 +43,7 @@ function stay () {
 
 function onPongFinished(data)
 {
-  console.log("onPongFinished", data);
+  // console.log("onPongFinished", data);
   
   buttonQuit.value = data;
 }
