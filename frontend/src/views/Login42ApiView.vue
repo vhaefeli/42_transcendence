@@ -1,13 +1,15 @@
 <template>
-  <div class="pb-20"></div>
-  <div class="text-white flex flex-row justify-center">
-    <div class="flex flex-col">
-      <h1 class="text-xl">Logging in with your 42 account</h1>
-      <div v-if="textError?.length">
-        <p>Failed: {{ textError }}</p>
-        <a class="t-btn-pink ft-color-edit" @click="router.push('/login?logout=true')">
-          <button>Go back</button>
-        </a>
+  <div class="ft-container w-full h-screen">
+    <div class="pb-20"></div>
+    <div class="flex flex-row justify-center">
+      <div class="flex flex-col">
+        <h1 class="text-xl">Logging in with your 42 account</h1>
+        <div v-if="textError?.length">
+          <p>Failed: {{ textError }}</p>
+          <a class="t-btn-pink ft-disable" @click="router.push('/login?logout=true')">
+            <button>Go back</button>
+          </a>
+        </div>
       </div>
     </div>
   </div>

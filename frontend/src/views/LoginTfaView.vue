@@ -1,19 +1,21 @@
 <template>
-  <div class="pb-20"></div>
-  <div class="flex flex-row justify-center">
-    <div id="tfa-form" @keyup.enter="validate2FALogin" class="flex flex-col">
-      <input
-        v-model="tfa_code"
-        placeholder="code"
-        class="rounded-xl p-3 border-black mb-1"
-      /><br />
-      <div class="flex flex-row">
-        <a @click="cancel2FALogin" class="t-btn-pink ft-disable w-1/2">
-          <button>Cancel</button>
-        </a>
-        <a @click="validate2FALogin" class="t-btn-pink ft-enable w-1/2">
-          <button>Validate</button>
-        </a>
+  <div class="ft-container w-full h-screen">
+    <div class="pb-20"></div>
+    <div class="flex flex-row justify-center">
+      <div id="tfa-form" @keyup.enter="validate2FALogin" class="flex flex-col">
+        <input
+          v-model="tfa_code"
+          placeholder="code"
+          class="rounded-xl p-3 border-black mb-1"
+        /><br />
+        <div class="flex flex-row">
+          <a @click="cancel2FALogin" class="t-btn-pink ft-disable w-1/2">
+            <button>Cancel</button>
+          </a>
+          <a @click="validate2FALogin" class="t-btn-pink ft-enable w-1/2">
+            <button>Validate</button>
+          </a>
+        </div>
       </div>
     </div>
   </div>
