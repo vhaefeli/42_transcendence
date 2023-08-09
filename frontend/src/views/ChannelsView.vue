@@ -385,6 +385,7 @@ function addToMyChannels(chanInfos: MyChannel) {
     Admin: "Admin",
   })
   currentChannel.value = myChannels.value[myChannels.value.length - 1]
+  toggleModal()
 }
 
 async function removeChannel(chanId: number) {
