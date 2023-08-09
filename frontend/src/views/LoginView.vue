@@ -14,8 +14,8 @@
     />
     <img class="object-fit h-full w-auto" id="fullArcade" src="../assets/img/arcade1.png" alt="arcade">
     <video id="game" src="../assets/img/Pong.mov" autoplay loop muted></video>
-    <img id="coin" src="../assets/img/login.png" alt="coin start" @click="LogIn(true)">
-    <img id="create" src="../assets/img/create.png" alt="create buttin" @click="LogIn(false)">
+    <img id="coin" src="../assets/img/login.png" alt="coin start" @click="LogIn(false)">
+    <img id="create" src="../assets/img/create.png" alt="create buttin" @click="LogIn(true)">
     <img id="log"
       :src="isMouseOver ? imageOnMouseOver : imageDefault"
       alt="Image"
