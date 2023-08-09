@@ -4,7 +4,8 @@
             <div class="ft-connection-circle ft-bubble-status-online" title="is online"></div>
         </div>
         <div v-else-if="status === 'INGAME'">
-            <div class="ft-connection-circle ft-bubble-status-ingame" title="is playing a game"></div>
+            <div class="ft-connection-circle ft-bubble-status-ingame" title="is playing a game">
+            <img src="../assets/icons/tennisBallBlack.png" alt="is playing" title="your friend is playing" class="ft-playing"></div>
         </div>
         <div v-else-if="status === 'OFFLINE'">
             <div class="ft-connection-circle ft-bubble-status-offline" title="is offline"></div>
