@@ -1,10 +1,12 @@
 <template>
   <main class="ft-directoriesMain">
     <div class="ft-container">
+      <div>
       <div class="ft-folderContainer cursor-pointer" id="profile"
         @click="userStore.redirectToMyProfile(sessionStore.access_token)">
         <div class="ft-tab-folder ft-profile-dir"></div>
         <div class="ft-folder ft-profile-dir ft-text">check your profile</div>
+      </div>
         <button
           @click="
             userStore.redirectToMyProfile(sessionStore.access_token)
@@ -141,13 +143,9 @@ else userStore.getMe(sessionStore.access_token);
   }
    */
   .ft-folderContainer:hover {
-    /* color: var(--light);
-    border-color: var(--light);
-    background: var(--purple); */
-
     mix-blend-mode: hard-light;
-
-    /* border-color: var(--light-purple); */
+    transform:translateY(-8%);
+    /* top: -10rem; */
   }
 
 </style>
