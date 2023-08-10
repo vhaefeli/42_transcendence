@@ -24,9 +24,10 @@
         >
       </div>
 
-      <div class="ft-folderContainer cursor-pointer" id="chat">
+      <div>
+      <router-link class="ft-folderContainer cursor-pointer" id="chat" to="/dms">
         <div class="ft-tab-folder ft-chat-dir"></div>
-        <div class="ft-folder ft-chat-dir ft-text">chat with friends</div>
+        <div class="ft-folder ft-chat-dir ft-text">chat with friends</div></router-link>
         <router-link class="ft-titleFolder ft-title" to="/dms"
           >chat</router-link
         >
