@@ -161,22 +161,24 @@
     chatService);
 
     const handleSubmitNewMessage = () => {
-      let newId = 0
-      chatService.sendNewMessage(message.value, actual.value.id);
-      if (messages.value.length === 0) {
-        newId = 0
-      } else {
-        newId = messages.value[messages.value.length - 1].id + 1
+      if (!(message.value.length === 0 || actualIsBlocked.value || actual.value.username.length === 0)) {
+        let newId = 0
+        chatService.sendNewMessage(message.value, actual.value.id);
+        if (messages.value.length === 0) {
+          newId = 0
+        } else {
+          newId = messages.value[messages.value.length - 1].id + 1
+        }
+        messages.value.push({
+          id: newId,
+          fromId: user.value.id,
+          toId: actual.value.id,
+          message: message.value,
+          username: user.value.username,
+          date: new Date().toLocaleString("en-US", dateOptions),
+        })
+        message.value = ''
       }
-      messages.value.push({
-        id: newId,
-        fromId: user.value.id,
-        toId: actual.value.id,
-        message: message.value,
-        username: user.value.username,
-        date: new Date().toLocaleString("en-US", dateOptions),
-      })
-      message.value = ''
     }
 
     function pushToMessages(payload) {
