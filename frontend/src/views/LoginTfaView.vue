@@ -1,19 +1,22 @@
 <template>
-  <div class="text-white">
-    <div id="tfa-form">
-      <input v-model="tfa_code" placeholder="code" class="bg-gray-500" /><br />
-      <button
-        @click="cancel2FALogin"
-        class="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-2 px-4 border border-red-500 hover:border-transparent rounded"
-      >
-        cancel
-      </button>
-      <button
-        @click="validate2FALogin"
-        class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded"
-      >
-        validate
-      </button>
+  <div class="ft-container w-full h-screen">
+    <div class="pb-20"></div>
+    <div class="flex flex-row justify-center">
+      <div id="tfa-form" @keyup.enter="validate2FALogin" class="flex flex-col">
+        <input
+          v-model="tfa_code"
+          placeholder="code"
+          class="rounded-xl p-3 border-black mb-1"
+        /><br />
+        <div class="flex flex-row">
+          <a @click="cancel2FALogin" class="t-btn-pink ft-disable w-1/2">
+            <button>Cancel</button>
+          </a>
+          <a @click="validate2FALogin" class="t-btn-pink ft-enable w-1/2">
+            <button>Validate</button>
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -24,12 +27,14 @@ import axios, { AxiosError } from "axios";
 import { useRoute, useRouter, type LocationQuery } from "vue-router";
 import { useSessionStore } from "@/stores/SessionStore";
 import { useUserStore } from "@/stores/UserStore";
+import { useToast } from "vue-toastification";
 
 const router = useRouter();
 const route = useRoute();
 
 const sessionStore = useSessionStore();
 const userStore = useUserStore();
+const toast = useToast();
 
 const tfa_code = ref("");
 let tfa_uuid: string | undefined;
@@ -54,7 +59,7 @@ function handleQueryParams(params: LocationQuery) {
 
 async function validate2FALogin() {
   if (tfa_code.value.length == 0) {
-    console.log("Please insert code");
+    toast.warning("Please insert code");
     return;
   }
   await axios({
@@ -70,19 +75,11 @@ async function validate2FALogin() {
     })
     .catch((error: AxiosError) => {
       if (error.response?.status == 401)
-        console.debug(
-          `${error.response.status} ${error.response.statusText}: Invalid credentials`
-        );
+        toast.error(`${error.response.statusText}: Invalid credentials`);
       else if (error.response?.status == 400) {
         const message: string = error.response?.data?.message[0];
-        console.debug(
-          `${error.response.status} ${error.response.statusText}: ${message}`
-        );
-        console.error(`INVALID ${message.includes("uuid") ? "UUID" : "CODE"}`);
-      } else
-        console.debug(
-          `${error.response?.status} ${error.response?.statusText}: Unexpected error`
-        );
+        toast.error(`${error.response.statusText}: ${message}`);
+      } else toast.error(`${error.response?.statusText}: Unexpected error`);
     });
 }
 

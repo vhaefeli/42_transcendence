@@ -1,5 +1,5 @@
 <template>
-  <div class=text-white id="login">
+  <div class=text-white id="login" @keyup.enter="LogIn(false)">
     <span id="arcadeName">TRANSCENDENCE</span>
     <input
       v-model="login_username"
@@ -36,6 +36,7 @@ import { useSessionStore } from "@/stores/SessionStore";
 import { statusService } from "@/services/status-socket.service";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/UserStore";
+import { useToast } from "vue-toastification";
 
 const show_login_form = ref(true);
 const login_username = ref("");
@@ -46,6 +47,7 @@ const route = useRoute();
 const sessionStore = useSessionStore();
 const { isLoggedIn } = storeToRefs(sessionStore);
 const userStore = useUserStore();
+const toast = useToast();
 statusService;
 
 type Payload = {
@@ -89,10 +91,6 @@ if (sessionStore.isLoggedIn) {
 }
 
 async function CreateUser(payload: Payload) {
-  if (!payload.username.length || !payload.username.length) {
-    console.log("Credentials are missing");
-  }
-
   await axios({
     url: "/api/user/new",
     method: "post",
@@ -104,21 +102,19 @@ async function CreateUser(payload: Payload) {
     })
     .catch((error: AxiosError) => {
       if (error.response?.status == 409)
-        console.debug(
-          `${error.response.status} ${error.response.statusText}: Username is already in use`
+        toast.error(
+          `${error.response.statusText}: Username is already in use`
         );
       else if (error.response?.status == 400) {
         const message: string = error.response?.data?.message[0];
-        console.debug(
-          `${error.response.status} ${error.response.statusText}: ${message}`
-        );
-        console.error(
-          `INVALID ${message.includes("username") ? "USERNAME" : "PASSWORD"}`
+        toast.error(
+          `${error.response.statusText}: ${message}`
         );
       } else
-        console.debug(
+        toast.error(
           `${error.response?.status} ${error.response?.statusText}: Unexpected error`
         );
+      throw new Error();
     });
 }
 
@@ -127,8 +123,17 @@ async function LogIn(createUser = false) {
     username: login_username.value,
     password: login_password.value,
   };
+  if (!payload.username.length || !payload.username.length) {
+    toast.warning("Credentials are missing");
+    return;
+  }
+
   login_password.value = "";
+  try {
   if (createUser) await CreateUser(payload);
+  } catch {
+    return;
+  }
   await axios({
     url: "/api/auth/login",
     method: "post",
@@ -151,23 +156,20 @@ async function LogIn(createUser = false) {
     })
     .catch((error: AxiosError) => {
       if (error.response?.status == 401)
-        console.debug(
-          `${error.response.status} ${error.response.statusText}: Invalid credentials, try again`
+        toast.error(
+          `${error.response.statusText}: Invalid credentials, try again`
         );
       else if (error.response?.status == 503)
-        console.debug(
-          `${error.response.status} ${error.response.statusText}: Couldn't connect to mail server in order to send 2fa code`
+        toast.error(
+          `${error.response.statusText}: Couldn't connect to mail server in order to send 2fa code`
         );
       else if (error.response?.status == 400) {
         const message: string = error.response?.data?.message[0];
-        console.debug(
-          `${error.response.status} ${error.response.statusText}: ${message}`
-        );
-        console.error(
-          `INVALID ${message.includes("username") ? "USERNAME" : "PASSWORD"}`
+        toast.error(
+          `${error.response.statusText}: ${message}`
         );
       } else
-        console.debug(
+        toast.error(
           `${error.response?.status} ${error.response?.statusText}: Unexpected error`
         );
     });
