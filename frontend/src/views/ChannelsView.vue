@@ -567,7 +567,7 @@ async function pushToMessages(payload) {
 
 const stockHistory = async (payload) => {
   // push recieved message to Messages Array
-  pushToMessages(payload);
+  await pushToMessages(payload);
 
   // sort messages
   messages.value.sort((a, b) => {
