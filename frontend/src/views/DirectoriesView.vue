@@ -1,7 +1,8 @@
 <template>
   <main class="ft-directoriesMain">
     <div class="ft-container">
-      <div class="ft-folderContainer" id="profile">
+      <div class="ft-folderContainer cursor-pointer" id="profile"
+        @click="userStore.redirectToMyProfile(sessionStore.access_token)">
         <div class="ft-tab-folder ft-profile-dir"></div>
         <div class="ft-folder ft-profile-dir">check your profile</div>
         <button
@@ -14,7 +15,7 @@
         </button>
       </div>
 
-      <div class="ft-folderContainer" id="game">
+      <div class="ft-folderContainer cursor-pointer" id="game">
         <div class="ft-tab-folder ft-game-dir"></div>
         <div class="ft-folder ft-game-dir">play a game</div>
         <router-link class="ft-titleFolder ft-title" to="/game-settings"
@@ -22,7 +23,7 @@
         >
       </div>
 
-      <div class="ft-folderContainer" id="chat">
+      <div class="ft-folderContainer cursor-pointer" id="chat">
         <div class="ft-tab-folder ft-chat-dir"></div>
         <div class="ft-folder ft-chat-dir">chat with friends</div>
         <router-link class="ft-titleFolder ft-title" to="/dms"
@@ -94,10 +95,6 @@ else userStore.getMe(sessionStore.access_token);
 .ft-folder {
   width: 18em;
   height: 10em;
-  
-  font-family: "Open Sans";
-  font-style: normal;
-  font-weight: 400;
   font-size: 1rem;
   padding: 1rem;
   line-height: 22px;
