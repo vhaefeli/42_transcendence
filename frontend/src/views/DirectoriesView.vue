@@ -1,10 +1,9 @@
 <template>
   <main class="ft-directoriesMain">
     <div class="ft-container">
-      <!-- purple -->
       <div class="ft-folderContainer" id="profile">
-        <div class="ft-tab-folder"></div>
-        <div class="ft-folder">check your profile</div>
+        <div class="ft-tab-folder ft-profile-dir"></div>
+        <div class="ft-folder ft-profile-dir">check your profile</div>
         <button
           @click="
             userStore.redirectToMyProfile(sessionStore.access_token)
@@ -15,19 +14,17 @@
         </button>
       </div>
 
-      <!-- menthe -->
       <div class="ft-folderContainer" id="game">
-        <div class="ft-tab-folder"></div>
-        <div class="ft-folder">play a game</div>
+        <div class="ft-tab-folder ft-game-dir"></div>
+        <div class="ft-folder ft-game-dir">play a game</div>
         <router-link class="ft-titleFolder ft-title" to="/game-settings"
           >game</router-link
         >
       </div>
 
-      <!-- rose -->
       <div class="ft-folderContainer" id="chat">
-        <div class="ft-tab-folder"></div>
-        <div class="ft-folder">chat with friends</div>
+        <div class="ft-tab-folder ft-chat-dir"></div>
+        <div class="ft-folder ft-chat-dir">chat with friends</div>
         <router-link class="ft-titleFolder ft-title" to="/dms"
           >chat</router-link
         >
@@ -76,14 +73,28 @@ else userStore.getMe(sessionStore.access_token);
 
 .ft-tab-folder {
   width: 10em;
+  /* border-bottom: 2.5em solid var(--purple); */
+}
+
+.ft-tab-folder.ft-profile-dir {
+  width: 10em;
   border-bottom: 2.5em solid var(--purple);
 }
+
+.ft-tab-folder.ft-game-dir {
+  width: 10em;
+  border-bottom: 2.5em solid var(--sunset);
+}
+
+.ft-tab-folder.ft-chat-dir {
+  width: 10em;
+  border-bottom: 2.5em solid var(--dark-pink);
+}
+
 .ft-folder {
   width: 18em;
   height: 10em;
-  background: var(--pink);
-  border: 4px solid var(--purple);
-
+  
   font-family: "Open Sans";
   font-style: normal;
   font-weight: 400;
@@ -92,7 +103,22 @@ else userStore.getMe(sessionStore.access_token);
   line-height: 22px;
   display: flex;
   align-items: flex-end;
-  color: var(--purple);
+  /* color: var(--purple); */
+}
+
+.ft-folder.ft-profile-dir {
+  background: var(--light-purple);
+  border: 4px solid var(--purple);
+}
+
+.ft-folder.ft-game-dir {
+  background: var(--light-sunset);
+  border: 4px solid var(--sunset);
+}
+
+.ft-folder.ft-chat-dir {
+  background: var(--pink);
+  border: 4px solid var(--dark-pink);
 }
 
 .ft-titleFolder {
