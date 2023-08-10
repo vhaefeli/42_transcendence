@@ -48,7 +48,7 @@
     <ChatNavBar :whichTab="'channels'"></ChatNavBar>
     <section class="ft-chat-inside-container flex p-6">
       <!-- column 1 with profile -->
-      <div id="dm-profile-col" class="w-[18em]">
+      <div v-if="currentChannel" id="dm-profile-col" class="w-[18em]">
         <div
           class="h-[76vh]"
           :class="
@@ -456,7 +456,7 @@ chatService.onConnect(
 );
 
 const handleSubmitNewMessage = () => {
-  if (message.value.length > 0) {
+  if (message.value.length > 0 && currentChannel.value) {
     chatService.sendNewMessageToChan(
       message.value,
       currentChannel.value.channelId
