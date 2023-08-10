@@ -4,7 +4,7 @@
       <div class="ft-folderContainer cursor-pointer" id="profile"
         @click="userStore.redirectToMyProfile(sessionStore.access_token)">
         <div class="ft-tab-folder ft-profile-dir"></div>
-        <div class="ft-folder ft-profile-dir">check your profile</div>
+        <div class="ft-folder ft-profile-dir ft-text">check your profile</div>
         <button
           @click="
             userStore.redirectToMyProfile(sessionStore.access_token)
@@ -15,9 +15,10 @@
         </button>
       </div>
 
-      <div class="ft-folderContainer cursor-pointer" id="game">
+      <div>
+      <router-link class="ft-folderContainer cursor-pointer" id="game" to="/game-settings">
         <div class="ft-tab-folder ft-game-dir"></div>
-        <div class="ft-folder ft-game-dir">play a game</div>
+        <div class="ft-folder ft-game-dir ft-text">play a game</div></router-link>
         <router-link class="ft-titleFolder ft-title" to="/game-settings"
           >game</router-link
         >
@@ -25,7 +26,7 @@
 
       <div class="ft-folderContainer cursor-pointer" id="chat">
         <div class="ft-tab-folder ft-chat-dir"></div>
-        <div class="ft-folder ft-chat-dir">chat with friends</div>
+        <div class="ft-folder ft-chat-dir ft-text">chat with friends</div>
         <router-link class="ft-titleFolder ft-title" to="/dms"
           >chat</router-link
         >
