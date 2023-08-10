@@ -63,7 +63,7 @@ services:
       dockerfile: ./frontend.dockerfile
     platform: "linux/amd64"
     ports:
-      - 5173:5173
+      - 80:80
     networks:
       - pg-network
     volumes:

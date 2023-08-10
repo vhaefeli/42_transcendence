@@ -15,6 +15,7 @@ export default ({ mode }) => {
       },
     },
     server: {
+      port: 80,
       proxy: {
         "/api": {
           target: process.env.VITE_BACKEND_URL,

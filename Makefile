@@ -53,6 +53,6 @@ prune:
 		docker system prune --all
 
 open:
-		open http://localhost:5173/
+		open http://localhost
 
 .PHONY:	run all up down info prune open
