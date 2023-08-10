@@ -42,12 +42,9 @@ export class Ball {
       this.dir.x = this.gameMode.BALL_SPEED * 0.7;
     if (this.dir.x > -(this.gameMode.BALL_SPEED * 0.7) && this.dir.x < 0)
       this.dir.x = -(this.gameMode.BALL_SPEED * 0.7);
-    if (this.dir.x < 0 )
-      this.side--;
-      if (this.dir.x > 0 )
-      this.side++;
-    if (this.side == 2 || this.side == -2)
-    {
+    if (this.dir.x < 0) this.side--;
+    if (this.dir.x > 0) this.side++;
+    if (this.side == 2 || this.side == -2) {
       this.dir.x = -this.dir.x;
       this.side = 0;
     }
@@ -64,8 +61,8 @@ export class Ball {
     // const collisionBox: number =
     //   this.gameMode.PADDLE_SIZE + this.gameMode.PADDLE_COLLISION_EXTENSION;
     let range: number;
-    let minPos:number;
-    let maxPos:number;
+    let minPos: number;
+    let maxPos: number;
     let midPos: number;
     let slope: number;
 
@@ -73,23 +70,31 @@ export class Ball {
       paddlePos = this.players[0].getY();
     } else paddlePos = this.players[1].getY();
 
-    console.log(`paddle pos ${paddlePos} y ${this.pos.y}`);
-    
+    //console.log(`paddle pos ${paddlePos} y ${this.pos.y}`);
 
-    minPos = paddlePos - (this.gameMode.PADDLE_COLLISION_EXTENSION / 2) - this.gameMode.BALL_DIAMETER;
-    maxPos = paddlePos + this.gameMode.PADDLE_SIZE + (this.gameMode.PADDLE_COLLISION_EXTENSION / 2);
+    minPos =
+      paddlePos -
+      this.gameMode.PADDLE_COLLISION_EXTENSION / 2 -
+      this.gameMode.BALL_DIAMETER;
+    maxPos =
+      paddlePos +
+      this.gameMode.PADDLE_SIZE +
+      this.gameMode.PADDLE_COLLISION_EXTENSION / 2;
 
-    console.log(`minpos ${minPos} maxpos ${maxPos}`);
+    //console.log(`minpos ${minPos} maxpos ${maxPos}`);
     if (this.pos.y >= maxPos || this.pos.y <= minPos)
       return -this.gameMode.BALL_SPEED;
 
-    range = this.gameMode.PADDLE_SIZE + this.gameMode.PADDLE_COLLISION_EXTENSION + this.gameMode.BALL_DIAMETER;
+    range =
+      this.gameMode.PADDLE_SIZE +
+      this.gameMode.PADDLE_COLLISION_EXTENSION +
+      this.gameMode.BALL_DIAMETER;
 
     midPos = (minPos + maxPos) / 2;
 
-    slope = - Math.sin(Math.PI / 2.25) * this.gameMode.BALL_SPEED * 2 / range;
+    slope = (-Math.sin(Math.PI / 2.25) * this.gameMode.BALL_SPEED * 2) / range;
 
-    return((midPos - this.pos.y) * slope);
+    return (midPos - this.pos.y) * slope;
     // else if (
     //   this.pos.y > paddlePos + collisionBox / 3 &&
     //   this.pos.y < paddlePos + collisionBox / 2
@@ -132,7 +137,7 @@ export class Ball {
     )
       return;
     // this.pos.x += Math.round(this.dir.x * this.gameMode.BALL_SPEED);
-    
+
     this.pos.x += this.dir.x * this.gameMode.BALL_SPEED;
     this.pos.y += this.dir.y * this.gameMode.BALL_SPEED;
     if (this.pos.y < 0) {
@@ -177,8 +182,8 @@ export class Ball {
             this.gameMode.GAME_WIDTH -
             this.gameMode.BALL_DIAMETER -
             this.gameMode.PADDLE_DISTANCE_FROM_BORDER;
-        console.log(this.dir.x);
-        
+        //console.log(this.dir.x);
+
         return 0;
       } else {
         return 1;
