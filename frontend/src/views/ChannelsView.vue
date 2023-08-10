@@ -456,7 +456,6 @@ chatService.onConnect(
 );
 
 const handleSubmitNewMessage = () => {
-  console.log(currentChannel.value)
   if (message.value.length > 0 && currentChannel.value) {
     chatService.sendNewMessageToChan(
       message.value,
