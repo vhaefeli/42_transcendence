@@ -126,4 +126,28 @@ else userStore.getMe(sessionStore.access_token);
   padding-left: 1rem;
   width: fit-content;
 }
+
+
+/* .ft-the-drop-zone {
+    border-radius: 2%;
+    border-style: dashed;
+    border-width: 0.2rem;
+    border-color: var(--light-purple);
+    width: 32rem;
+    height: 20rem;
+    background: var(--light);
+    transition: border-color 2s ease-out;
+    transition: background-color 2s ease-out;
+  }
+   */
+  .ft-folderContainer:hover {
+    /* color: var(--light);
+    border-color: var(--light);
+    background: var(--purple); */
+
+    mix-blend-mode: hard-light;
+
+    /* border-color: var(--light-purple); */
+  }
+
 </style>
