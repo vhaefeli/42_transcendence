@@ -198,7 +198,7 @@
   }
 
   .nav-tab-chat {
-    border-bottom: 1.5em solid var(--pink);
+    border-bottom: 1.5em solid var(--dark-pink);
   }
 
   .nav-tab-game {
