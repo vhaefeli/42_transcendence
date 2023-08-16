@@ -12,8 +12,7 @@ The teamwork went very well. Some made more frontend and some more backend but o
 
 It was a rewarding and fun experience and we really learned a LOT.
 
-If you want to test go on https://cloud.davifarhi.ch/ but ask a friend to go in the same time. it's difficulte to chat and play if you are alone on the webApp. You will first have to create a user (the right button). Enjoy! PS: as the webApp ist'n on 42Network, the 42Login will not work.
-
+[Check out our website here](https://cloud.davifarhi.ch/) and ask a friend to come with you. it's difficult to chat and play if you are alone on the webApp. You will first have to create a user (the right button). Enjoy!
 
 ![Capture d’écran 2023-08-16 à 13 16 50](https://github.com/vhaefeli/42_transcendence/assets/86975016/01012f37-d717-4be8-9a26-41be3929ddbd)
 
